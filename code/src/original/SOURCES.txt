@@ -1,0 +1,15 @@
+SHA-256 checksums of original algorithm files (computed at copy time)
+(format: <sha256>  <filename>   <original-path>)
+
+fa672fc40a117731eb646a5852cd5133227992d67a2ddf4ce740937cdfc7401a  EM.py  D:/MIAProject/EM-reconstruction/EM.py
+48e8d50cd910c297c3fbc21fc401189a810b2bc3c75bfd4cad2839a163a8865f  recon.py  D:/MIAProject/SAM_KEM_QWEN3_MEDSAM2_DELIVERY/scripts/recon.py
+923ad0671d355f460910ec291dd58311f6beea44791cf53f848b2ccab0d87813  discrete_radon.py  D:/MIAProject/SAM_KEM_QWEN3_MEDSAM2_DELIVERY/scripts/discrete_radon.py
+7fa40a59b3d069684cb458ab7cbae07d8040560ecf8f11327303a5157d1e5634  poisson_simulate.py  D:/MIAProject/SAM_KEM_QWEN3_MEDSAM2_DELIVERY/scripts/poisson_simulate.py
+1bc8ec2d337c1b8719a970d61a6d2248e9ba2b8e12398d771be6e6f8cec962a6  metrics.py  D:/MIAProject/SAM_KEM_QWEN3_MEDSAM2_DELIVERY/scripts/metrics.py
+2e2f0590d5294ba7802cd30887ab6c1267d3165c0da5c79c5fb3c00258bd11c6  build_medsam2.py  D:/MIAProject/EM-reconstruction/build_medsam2.py
+0da83c16094cd891475aa042a17aad844c9337ce5a12cf57eb8969ddeff3f66e  medsam2_decoder_train.py  D:/MIAProject/SAM_KEM_QWEN3_MEDSAM2_DELIVERY/scripts/medsam2_decoder_train.py
+09877a4b87e8e0aa38f8a6ce02eac8a747685fe46cac1b398613f365cd10cc5d  medsam2_decoder_infer.py  D:/MIAProject/SAM_KEM_QWEN3_MEDSAM2_DELIVERY/scripts/medsam2_decoder_infer.py
+081f902052124adfc712aad1bc2e95d6fb63143fe3e4cd65959ae2f89d3f06c7  medsam2_inference.py  D:/MIAProject/SAM_KEM_QWEN3_MEDSAM2_DELIVERY/scripts/medsam2_inference.py
+06ec1cd8c8939d51703a9d37d2de0d62afdba314c2b028c929ce2ba5efb4b719  preprocessing.py  D:/MIAProject/SAM_KEM_QWEN3_MEDSAM2_DELIVERY/scripts/preprocessing.py
+7fe240ea9bca58741fb4d758dedea10f34874a03f20855017e0f2928391984f8  torch_radon_impl.py  D:/MIAProject/EM-reconstruction/torch_radon_impl.py
+e811459b99c630f3015a57278bc97afe88ab3cbcfe74c99ea119e7ebf6809cea  MydataLoader.py  D:/MIAProject/EM-reconstruction/legacy_inactive/MydataLoader.py
