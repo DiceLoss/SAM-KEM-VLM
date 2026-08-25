@@ -1,0 +1,134 @@
+schema_version: 3
+run_id: e01_primary_brainweb_test_locked_200000
+experiment_id: E01
+created_utc: 2026-08-18T00:00:00Z
+locked: true
+code:
+  repository: D:/MIAProject/EM-reconstruction
+  commit_or_archive_sha256: 60f5abbbe02a0ac6166fda7b8c2ef6fee241cb0575e2fd4d5d74a91e0a43c34d
+data:
+  dataset: brainweb
+  split_file: splits/subject_split.csv
+  split: test_locked
+  # NEW test_locked after Phase 2 swap (was: subject41/42/43). Validation
+  # now contains the previously-viewed test set; see splits/swap_log.csv.
+  subject_ids: [subject46, subject47, subject48]
+  count_level: 200000
+  realization_ids: [0, 1, 2]
+  seeds: [3405690158, 3405690159, 3405690160]
+  system_matrix_id: torch_radon_parallelbeam_n180
+  count_definition: absolute_expected_counts_per_slice
+  normalization_id: dataset_minmax_clip01
+  evaluation_mask_id: brainweb_body_mask_from_mr
+  # Inputs are rescaled dataset-wide so that the max intensity is 1.0;
+  # there is NO per-image min-max. The scale constant C is 1.0 for both
+  # BW and HE. Only the kernel feature is allowed per-prior min-max.
+  inputs:
+    scale_constant_C: 1.0
+    scale_rule: minmax_to_unit_range_dataset_wide_clip01
+    per_image_minmax: false
+vlm:
+  provider: dashscope
+  model: qwen3-vl-plus
+  api_revision: v1.0
+  temperature: 0.0
+  max_retries: 3
+  prompt_text: "You are a radiology assistant. Look at the displayed PET image and return the smallest single axis-aligned outer bounding box that encloses ALL bright uptake regions (high-intensity blobs) of the image. Do not modify the image; do not include regions outside the body. If you cannot detect any bright uptake regions, return an empty box."
+  fallback: intensity_centroid_box_recorded_as_failure
+  cache_policy: one_per_image_and_count_shared_across_realizations_and_methods
+  anchor_realization: 0
+  fallback_centroid_source: low_count_mlem_initialization
+  fallback_centroid_formula: mean_xy_of_pixels_above_0p5_max
+  fallback_centroid_threshold: pixels_with_intensity_gt_0p5_times_max
+  fallback_box_width_height: 32x32
+  fallback_zero_mass_rule: use_geometric_center
+sam:
+  implementation: MedSAM2
+  release: sam2.1_hiera_t
+  repository_commit: 60f5abbbe02a0ac6166fda7b8c2ef6fee241cb0575e2fd4d5d74a91e0a43c34d
+  frozen_components: [medsam2_image_encoder, medsam2_prompt_encoder, medsam2_memory_encoder]
+  trainable_components: [medsam2_mask_decoder]
+  decoder_variant: pet_adapted_l1_only
+  decoder_supervision: continuous_pet_reference_target_normalized_by_C_dataset
+  training_loss: l1_only
+  auxiliary_losses: []
+  training_count_levels: [100000, 200000, 500000, 1000000]
+  training_count_sampling: uniform_1_1_1_1
+  checkpoint_scope: dataset_specific
+  dataset: brainweb
+  checkpoint_sha256: c92743b99f00d078bf32a3afcc38aaa9faf1c1692dffe3eaa7a90938c1991060
+vlm:
+  provider: dashscope
+  model: qwen3-vl-plus
+  api_revision: v1.0
+  temperature: 0.0
+  max_retries: 3
+  prompt_text: "You are a radiology assistant. Look at the displayed PET image and return the smallest single axis-aligned outer bounding box that encloses ALL bright uptake regions (high-intensity blobs) of the image. Do not modify the image; do not include regions outside the body. If you cannot detect any bright uptake regions, return an empty box."
+  fallback: intensity_centroid_box_recorded_as_failure
+  cache_policy: one_per_image_and_count_shared_across_realizations_and_methods
+  anchor_realization: 0
+  anchor_realization_enforced: true
+  fallback_centroid_source: low_count_mlem_initialization
+  fallback_centroid_formula: mean_xy_of_pixels_above_0p5_max
+  fallback_centroid_threshold: pixels_with_intensity_gt_0p5_times_max
+  fallback_box_width_height: 32x32
+  fallback_zero_mass_rule: use_geometric_center
+prompts:
+  anchor_box_cache: prompts/anchor_box_lookup.csv
+  anchor_box_audit: prompts/anchor_box_audit.json
+sam:
+  implementation: MedSAM2
+  release: sam2.1_hiera_t
+  repository_commit: 60f5abbbe02a0ac6166fda7b8c2ef6fee241cb0575e2fd4d5d74a91e0a43c34d
+  frozen_components: [medsam2_image_encoder, medsam2_prompt_encoder, medsam2_memory_encoder]
+  trainable_components: [medsam2_mask_decoder]
+  decoder_variant: pet_adapted_l1_only
+  decoder_supervision: continuous_pet_reference_target_normalized_by_C_dataset
+  training_loss: l1_only
+  auxiliary_losses: []
+  training_count_levels: [100000, 200000, 500000, 1000000]
+  training_count_sampling: uniform_1_1_1_1
+  checkpoint_scope: dataset_specific
+  checkpoint_sha256:
+    brainweb: 2ee2b4c334c3fe4583092238742f9bd6d214c8e4af2d8221e94d005806f79ef7
+    hecktor: ab6fbbb89fbc7d15e1ceee88936522a35dc46a3879aea8d4047acd653bb32d18
+method:
+  mlem_iterations: 10
+  forward_operator: discrete_radon_n180
+  unified_180_angles: true
+  osem_subsets: 10
+  poisson_deviance_source: unified_180_angle_discrete_radon
+  skimage_radon_fallback: forbidden
+kem:
+  sigma: 0.05
+  radius_J: 2
+  selected_iteration: 60
+  iteration_candidates: [10, 20, 40, 60, 80, 100, 120]
+  iteration_scope: dataset_and_count_specific_shared_across_test_cases
+  iteration_selection_endpoint: subject_level_nrmse_primary_ssim_tiebreak
+  iteration_sweep_path: scripts/build_kem_iteration_sweep.py::sweep_validation_iterations
+  saved_iterations: [0, 1, 5, 10, 20, 40, 60, 80, 100, 120]
+  # alpha is selected on the (new) validation set; the v3 hyperparameter
+  # sweep writes the chosen value to metrics/frozen_hyperparameters.csv
+  # and the validator asserts the v3 CSV-derived alpha is used.
+  post_fusion_alpha: REQUIRED_VALIDATION_SELECTED_V3
+inference_data_use:
+  low_count_pet: true
+  full_count_pet: false
+  mri: false
+  ct: false
+  target_mask: false
+  ground_truth_box: false
+metrics:
+  data_range: 1.0
+  nrmse_definition: l2_over_target_l2
+  poisson_deviance: true
+runtime:
+  cuda_synchronize: true
+  warmup_repetitions: 10
+  timed_repetitions: 30
+outputs:
+  save_raw_arrays: true
+  save_prompt_json: true
+  save_iterates: true
+  save_log: true

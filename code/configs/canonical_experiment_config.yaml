@@ -1,0 +1,153 @@
+schema_version: 2
+run_id: REQUIRED
+experiment_id: E01
+created_utc: YYYY-MM-DDTHH:MM:SSZ
+code:
+  repository: REQUIRED
+  commit_or_archive_sha256: REQUIRED
+data:
+  dataset: BrainWeb
+  split_file: splits/subject_split.csv
+  split_unit: source_model
+  split_seed: 20260817
+  split_counts_train_validation_test: [14, 3, 3]
+  source_model_hash_manifest: REQUIRED
+  hecktor_split_counts_train_validation_test: [156, 34, 34]
+  hecktor_split_unit: original_patient_id
+  hecktor_stratification: acquisition_center_or_scanner_if_complete
+  # The new split assignments are written by scripts/_swap_splits.py and
+  # verified by scripts/validate_v3.py. Splits are swap-stabilized at
+  # 2026-08-23 (Phase 2); the original splits are preserved as
+  # splits/subject_split_v1_AUDIT_ONLY.csv.bak.
+  split: test
+  subject_ids: []
+  count_level: 2e5
+  count_definition: expected_true_counts
+  acquisition_geometry: REQUIRED
+  forward_operator_id: discrete_radon_n180
+  noise_free_projection_definition: radon_of_reference_activity
+  projection_count_scale: REQUIRED
+  expected_true_counts: 200000
+  expected_background_counts: REQUIRED
+  expected_total_counts: REQUIRED
+  background_model: REQUIRED
+  background_fraction: REQUIRED
+  background_fraction_basis: true_counts
+  dose_fraction: null
+  full_count_reference: null
+  observation_model: poisson_scaled_expectation
+  realization_ids: [0, 1, 2]
+  seeds: []
+  rng_implementation: REQUIRED
+  system_matrix_id: torch_radon_parallelbeam_n180
+  random_scatter_id: REQUIRED
+  target_definition: REQUIRED
+  # Dataset-wide min-max -> [0, 1] clipping; C_BrainWeb = C_HECKTOR = 1.0;
+  # there is NO per-image min-max. Only the kernel feature can do a
+  # per-prior min-max (see recon.py::kem with normalize01).
+  normalization_id: dataset_minmax_clip01
+  intensity_scale_value: 1.0
+  intensity_scale_units: unitless_max_normalized
+  intensity_scale_industry_rationale: dataset-wide min-max to [0,1] is the standard PET convention; no per-image scaling
+  intensity_scale_dataset_scope: dataset_wide_no_per_image_minmax
+  intensity_scale_frozen_before_test: true
+  clipping_rule: clip_to_unit_range
+  inverse_scaling_for_metrics: none_data_already_in_unit_range
+  evaluation_mask_id: REQUIRED
+method:
+  name: SAM-KEM-full
+  mlem_iterations: 10
+  osem_subsets: 10
+  osem_iterations: null
+  forward_operator: discrete_radon_n180
+  unified_180_angles: true
+  # Poisson deviance must use the unified 180-angle discrete_radon
+  # system matrix; the legacy skimage.transform.radon fallback is
+  # explicitly forbidden by the validator.
+  poisson_deviance_source: unified_180_angle_discrete_radon
+  skimage_radon_fallback: forbidden
+  prompt_source: qwen
+  prompt_record_dir: REQUIRED
+  training_prompt_input: corresponding_low_count_mlem_initialization
+  training_prompt_cache_policy: one_per_training_image_and_count_level
+  training_prompt_generation_realization: REQUIRED
+  training_prompt_uses_reference_or_mask: false
+  test_prompt_cache_policy: one_per_image_and_count_shared_across_realizations_and_methods
+  prompt_anchor_realization: 0
+  prompt_anchor_realization_enforced: true
+  prompt_cache_manifest: prompts/anchor_box_lookup.csv
+  prompts:
+    anchor_box_cache: prompts/anchor_box_lookup.csv
+    anchor_box_audit: prompts/anchor_box_audit.json
+  vlm_provider: DashScope
+  vlm_model_version: REQUIRED
+  vlm_no_detection_fallback: intensity_centroid_box
+  fallback_centroid_source: low_count_mlem_initialization
+  fallback_centroid_formula: REQUIRED
+  fallback_centroid_threshold: REQUIRED
+  fallback_box_width_height: REQUIRED
+  fallback_zero_mass_rule: REQUIRED
+  fallback_recorded_as_vlm_failure: true
+  sam_implementation: MedSAM2
+  sam_architecture: sam2.1_hiera_t
+  # Per-dataset decoder SHAs are mandatory after Phase 1. The unified
+  # pretrained backbone SHA is c92743b9...1060 (D:/MIAProject/EM-reconstruction/MedSAM2.pt).
+  sam_checkpoint_sha256:
+    brainweb: 2ee2b4c334c3fe4583092238742f9bd6d214c8e4af2d8221e94d005806f79ef7
+    hecktor: ab6fbbb89fbc7d15e1ceee88936522a35dc46a3879aea8d4047acd653bb32d18
+  frozen_components: [medsam2_image_encoder, medsam2_prompt_encoder, medsam2_memory_encoder]
+  trainable_components: [medsam2_mask_decoder]
+  additional_reconstruction_head: none
+  training_loss: l1_only
+  auxiliary_losses: []
+  training_count_levels: [100000, 200000, 500000, 1000000]
+  training_count_sampling: uniform_1_1_1_1
+  log_realized_count_samples_per_epoch: true
+  single_checkpoint_for_all_test_counts: true
+  checkpoint_scope: dataset_specific
+  cross_dataset_application: false
+  sam_raw_output_scale: REQUIRED
+  kernel_feature_normalization: per_prior_minmax
+  kernel_feature_epsilon: REQUIRED
+  constant_prior_fallback: REQUIRED
+  post_fusion_prior_representation: raw_sam_decoder_output
+  kernel_source: sam_continuous_prior
+  kernel_sigma: 0.05
+  kernel_radius_J: 2
+  kem_iterations: REQUIRED_VALIDATION_SELECTED
+  kem_iteration_candidates: [10, 20, 40, 60, 80, 100, 120]
+  kem_iteration_scope: dataset_and_count_specific_shared_across_test_cases
+  kem_iteration_selection_endpoint: subject_level_nrmse_primary_ssim_tiebreak
+  kem_iteration_sweep_path: REQUIRED
+  post_fusion_alpha: REQUIRED_VALIDATION_SELECTED
+  post_fusion_alpha_scope: REQUIRED
+  post_fusion_alpha_sweep_path: REQUIRED
+  intensity_calibration: REQUIRED
+inference_data_use:
+  low_count_pet: true
+  full_count_pet: false
+  mri: false
+  ct: false
+  segmentation_mask: false
+  ground_truth_box: false
+  hecktor_tumor_mask_use: prohibited
+  ct_allowed_only_in_separate_acquired_anatomy_baseline: true
+metrics:
+  psnr_data_range: 1.0
+  ssim_window_size: 11
+  ssim_gaussian_weights: true
+  ssim_sigma: 1.5
+  nrmse_definition: l2_over_target_l2
+  poisson_deviance: true
+runtime:
+  precision: float32
+  batch_size: 1
+  warmup_runs: 10
+  timed_repetitions: 30
+output:
+  root: REQUIRED
+  save_raw_arrays: true
+  save_convergence: true
+  save_prompts: true
+locked: false
+config_sha256: TO_BE_FILLED_AFTER_LOCK

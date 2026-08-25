@@ -1,0 +1,20 @@
+# Large binary outputs (kept in D:/MIAProject/SAM_KEM_v3_checkpoints/ and D:/MIAProject/SAM_KEM_QWEN3_AUDIT_ONLY_20260823.tar.gz)
+*.pt
+*.pth
+*.egg
+*.pkl
+*.npy
+*.npz
+*.pdf
+*.tar.gz
+*.zip
+
+# Raw BrainWeb nii.gz (large, kept in D:/MIAProject/brainweb/)
+data/raw/*.nii.gz
+
+# Per-slice sinograms and SAM priors (large, kept in D:/MIAProject/SAM_KEM_QWEN3_MEDSAM2_DELIVERY/arrays/)
+data/processed/
+
+# Python caches
+__pycache__/
+*.pyc
