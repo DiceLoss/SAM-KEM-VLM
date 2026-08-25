@@ -1,0 +1,167 @@
+{
+  "anchor_count_total": 148,
+  "anchor_count_brainweb": 12,
+  "anchor_count_hecktor": 136,
+  "parse_status_counts": {
+    "success": 148
+  },
+  "fallback_count": 0,
+  "new_test_locked_subjects_total": 37,
+  "new_test_locked_subjects_covered": 0,
+  "new_test_locked_subjects_missing": [
+    [
+      "brainweb",
+      "subject46"
+    ],
+    [
+      "brainweb",
+      "subject47"
+    ],
+    [
+      "brainweb",
+      "subject48"
+    ],
+    [
+      "hecktor",
+      "100"
+    ],
+    [
+      "hecktor",
+      "11"
+    ],
+    [
+      "hecktor",
+      "12"
+    ],
+    [
+      "hecktor",
+      "120"
+    ],
+    [
+      "hecktor",
+      "121"
+    ],
+    [
+      "hecktor",
+      "122"
+    ],
+    [
+      "hecktor",
+      "123"
+    ],
+    [
+      "hecktor",
+      "141"
+    ],
+    [
+      "hecktor",
+      "145"
+    ],
+    [
+      "hecktor",
+      "15"
+    ],
+    [
+      "hecktor",
+      "155"
+    ],
+    [
+      "hecktor",
+      "158"
+    ],
+    [
+      "hecktor",
+      "166"
+    ],
+    [
+      "hecktor",
+      "167"
+    ],
+    [
+      "hecktor",
+      "168"
+    ],
+    [
+      "hecktor",
+      "170"
+    ],
+    [
+      "hecktor",
+      "174"
+    ],
+    [
+      "hecktor",
+      "184"
+    ],
+    [
+      "hecktor",
+      "188"
+    ],
+    [
+      "hecktor",
+      "19"
+    ],
+    [
+      "hecktor",
+      "192"
+    ],
+    [
+      "hecktor",
+      "201"
+    ],
+    [
+      "hecktor",
+      "210"
+    ],
+    [
+      "hecktor",
+      "220"
+    ],
+    [
+      "hecktor",
+      "27"
+    ],
+    [
+      "hecktor",
+      "29"
+    ],
+    [
+      "hecktor",
+      "41"
+    ],
+    [
+      "hecktor",
+      "69"
+    ],
+    [
+      "hecktor",
+      "70"
+    ],
+    [
+      "hecktor",
+      "74"
+    ],
+    [
+      "hecktor",
+      "77"
+    ],
+    [
+      "hecktor",
+      "83"
+    ],
+    [
+      "hecktor",
+      "95"
+    ],
+    [
+      "hecktor",
+      "98"
+    ]
+  ],
+  "new_validation_subjects_total": 37,
+  "new_validation_subjects_covered": 37,
+  "new_validation_subjects_missing": [],
+  "note": "Prompts were generated only for the OLD test_locked subjects. After Phase 2 split swap, those subjects are in NEW validation, not NEW test_locked. The v3 canonical rerun on NEW test_locked subjects must therefore use the fallback centroid box for subjects not in this lookup. This is the same fallback rule documented in configs/headline_qwen3_medsam2.yaml::vlm.fallback.",
+  "fallback_rule": "intensity_centroid_box_recorded_as_failure; fallback_centroid_source=low_count_mlem_initialization; fallback_box_width_height=32x32",
+  "zero_new_qwen3_calls": true
+}

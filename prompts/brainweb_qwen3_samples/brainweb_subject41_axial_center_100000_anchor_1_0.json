@@ -1,0 +1,27 @@
+{
+  "case_id": "brainweb_subject41_axial_center_100000_r1_t0",
+  "dataset": "brainweb",
+  "subject_id": "subject41",
+  "slice_id": "axial_center",
+  "realization_id": "1",
+  "provider": "dashscope",
+  "model": "qwen3-vl-plus",
+  "model_revision": "v1.0",
+  "request_utc": "2026-08-19T01:53:09Z",
+  "request_id": "5292821d92efc7516aa98d21",
+  "image_sha256": "04f21b3f2e6d33614cb1eba3086fad1ffbc524a95be92ff04309fbf958c4409b",
+  "prompt_text": "You are a radiology assistant. Look at the displayed PET image (128x128 pixels). Return the smallest single axis-aligned outer bounding box that encloses ALL bright uptake regions (high-intensity blobs) of the image. Coordinates must be in pixel space, where (0, 0) is the top-left and (128, 128) is the bottom-right of the image. Return ONLY a JSON object with keys box {xmin, ymin, xmax, ymax} and rationale. Do not include any other text. Example: {\"box\": {\"xmin\": 30, \"ymin\": 25, \"xmax\": 70, \"ymax\": 65}, \"rationale\": \"bright blob\"}.",
+  "temperature": 0.0,
+  "raw_response": "{\"status_code\": 200, \"request_id\": \"4e6200dc-4456-9184-9b97-a7d504be5856\", \"code\": \"\", \"message\": \"\", \"output\": {\"text\": null, \"finish_reason\": null, \"choices\": [{\"finish_reason\": \"stop\", \"message\": {\"role\": \"assistant\", \"content\": [{\"text\": \"```json\\n{\\n  \\\"box\\\": {\\n    \\\"xmin\\\": 30,\\n    \\\"ymin\\\": 30,\\n    \\\"xmax\\\": 98,\\n    \\\"ymax\\\": 98\\n  },\\n  \\\"rationale\\\": \\\"The bright uptake regions form a roughly circular pattern centered in the image. The bounding box is determined by identifying the minimum and maximum x and y coordinates of the high-intensity pixels, ensuring all bright blobs are enclosed.\\\"\\n}\\n```\"}], \"reasoning_content\": \"\"}}], \"audio\": null}, \"usage\": {\"input_tokens\": 182, \"output_tokens\": 96, \"characters\": 0, \"input_tokens_details\": {\"image_tokens\": 18, \"text_tokens\": 164}, \"prompt_tokens_details\": {\"cached_tokens\": 0}, \"total_tokens\": 278, \"output_tokens_details\": {\"text_tokens\": 96}, \"image_tokens\": 18}}",
+  "parse_status": "success",
+  "fallback_action": "none",
+  "latency_s": 1.6557691097259521,
+  "error_code": "",
+  "box": {
+    "xmin": 30,
+    "ymin": 30,
+    "xmax": 98,
+    "ymax": 98
+  },
+  "model_alias_used": "qwen-vl-plus"
+}

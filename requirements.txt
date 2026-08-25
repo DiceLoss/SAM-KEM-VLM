@@ -1,0 +1,32 @@
+# v3 canonical pipeline environment
+# Python 3.13 (Windows native) for data prep, MedSAM2 inference, training
+# Python 3.8 (WSL kernelSAM venv) for C++ torch_radon forward/backward
+
+# === Windows Python 3.13 ===
+# CUDA 13.1 + torch 2.10
+torch>=2.10.0
+numpy>=1.24
+scipy>=1.10
+nibabel>=5.0
+scikit-image>=0.20
+matplotlib>=3.7
+pandas>=2.0
+pyyaml>=6.0
+tqdm>=4.65
+loguru>=0.7
+einops>=0.7
+torchmetrics>=1.0
+opencv-python>=4.7
+
+# MedSAM2 (SAM 2)
+# git+https://github.com/facebookresearch/sam2.git@v0.1.0
+# Plus the MedSAM2 fine-tuned checkpoints:
+# - D:/MIAProject/EM-reconstruction/MedSAM2.pt
+# - D:/MIAProject/SAM_KEM_v3_checkpoints/medsam2_decoder_brainweb_v4.pt
+# - D:/MIAProject/SAM_KEM_v3_checkpoints/medsam2_decoder_hecktor.pt
+# (SHAs recorded in code/configs/audit_report.csv)
+
+# === WSL kernelSAM Python 3.8 ===
+# CUDA 11.x + torch 1.10.2 (C++ torch_radon binary compatible)
+# torch_radon-2.0.0-py3.8-linux-x86_64.egg (already installed in kernelSAM venv)
+# python3.8-torch1.10.2-cu111-toolkit

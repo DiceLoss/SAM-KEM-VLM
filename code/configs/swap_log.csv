@@ -1,0 +1,5 @@
+dataset,direction,subject_ids,count
+brainweb,test_locked_to_validation,"subject41,subject42,subject43",3
+brainweb,validation_to_test_locked,"subject46,subject47,subject48",3
+hecktor,validation_to_test_locked,"11,12,15,19,27,29,41,69,70,74,77,83,95,98,100,120,121,122,123,141,145,155,158,166,167,168,170,174,184,188,192,201,210,220",34
+hecktor,test_locked_to_validation,"2,18,21,22,23,32,38,43,45,46,63,71,88,91,92,94,107,108,111,114,124,125,136,140,169,172,189,191,194,196,200,205,217,222",34
