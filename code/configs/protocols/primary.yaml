@@ -1,0 +1,11 @@
+name: primary_test
+kind: primary
+split: test_locked
+methods: [SAM-KEM-MedSAM2-Qwen3-full]
+datasets: [brainweb, hecktor]
+count_levels: [200000]
+realizations: [0, 1, 2]
+requires_frozen_hyperparameters: true
+box_cache_required: true
+fallback_cases_reported_separately: true
+output: runs/primary

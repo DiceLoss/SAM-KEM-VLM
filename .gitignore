@@ -17,4 +17,7 @@ data/processed/
 
 # Python caches
 __pycache__/
-*.pycv3_repo_complete.bundle
+*.pyc
+*.egg-info/
+.pytest_cache/
+v3_repo_complete.bundle

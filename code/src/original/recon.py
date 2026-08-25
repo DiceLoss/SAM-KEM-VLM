@@ -97,7 +97,7 @@ def mlem(sinogram: np.ndarray, *, iterations: int,
          save_iters: tuple[int, ...] = (),
          forward: Callable | None = None,
          backward: Callable | None = None,
-         normalize_to_unit_max: bool = True,
+         normalize_to_unit_max: bool = False,
          mul_factor: np.ndarray | None = None,
          pet_noise: np.ndarray | None = None,
          tv_beta: float = 0.0,
@@ -159,7 +159,7 @@ def osem(sinogram: np.ndarray, *, iterations: int, subsets: int = OSEM_SUBSETS,
          init: np.ndarray | None = None,
          forward: Callable | None = None,
          backward: Callable | None = None,
-         normalize_to_unit_max: bool = True,
+         normalize_to_unit_max: bool = False,
          mul_factor: np.ndarray | None = None,
          pet_noise: np.ndarray | None = None) -> dict[int, np.ndarray]:
     """Ordered-Subsets EM with `subsets` angular subsets per iteration.
@@ -261,37 +261,38 @@ def kem(sinogram: np.ndarray, feature: np.ndarray, *,
         save_iters: tuple[int, ...] = (),
         forward: Callable | None = None,
         backward: Callable | None = None,
-        normalize_to_unit_max: bool = True,
+        normalize_to_unit_max: bool = False,
         mul_factor: np.ndarray | None = None,
         pet_noise: np.ndarray | None = None) -> dict[int, np.ndarray]:
-    """Kernel EM with a sparse RBF kernel matrix.
+    """Compatibility implementation of coefficient-space Kernel EM.
 
-    Same gain / scatter correction as `mlem`; in addition the image is
-    smoothed by a precomputed RBF kernel matrix after each EM step.
+    The coefficient image ``alpha`` is updated with ``K.T @ A.T`` and the
+    reconstructed activity is always ``x = K @ alpha``. This replaces the
+    scientifically incorrect historical post-MLEM smoothing implementation.
     """
     if forward is None or backward is None:
         _forward, _backward, _fbp = build_radon_pair(); forward, backward = _forward, _backward
-    img = np.ones((SIM_SIZE, SIM_SIZE), dtype=np.float64) if init is None else np.asarray(init, dtype=np.float64)
-    img = np.clip(img, 1e-6, None)
+    alpha = np.ones(SIM_SIZE * SIM_SIZE, dtype=np.float64) if init is None else np.asarray(init, dtype=np.float64).reshape(-1)
+    alpha = np.clip(alpha, 1e-6, None)
     if mul_factor is None:
         mul_factor = np.ones_like(sinogram)
     if pet_noise is None:
         pet_noise = np.zeros_like(sinogram)
-    sens = backward(mul_factor)
-    sens = np.clip(sens, 1e-6, None)
     K = _build_rbf_kernel(feature, sigma=sigma, J=J)
+    coefficient_sensitivity = np.asarray(K.T @ backward(mul_factor).reshape(-1)).ravel()
+    coefficient_sensitivity = np.clip(coefficient_sensitivity, 1e-6, None)
+    img = np.asarray(K @ alpha).reshape(SIM_SIZE, SIM_SIZE)
     out: dict[int, np.ndarray] = {0: img.astype(np.float32)}
     eps = 1e-6
     for it in range(1, iterations + 1):
+        img = np.asarray(K @ alpha).reshape(SIM_SIZE, SIM_SIZE)
         proj = forward(img)
         sinogram_eval = mul_factor * proj + pet_noise
         ratio = sinogram / (sinogram_eval + eps * float(sinogram.mean()))
-        update = backward(mul_factor * ratio)
-        img = img * (update / sens)
-        img = np.clip(img, eps, None)
-        # Kernel smoothing
-        img = (K @ img.reshape(-1)).reshape(SIM_SIZE, SIM_SIZE)
-        img = np.clip(img, eps, None)
+        update = np.asarray(K.T @ backward(mul_factor * ratio).reshape(-1)).ravel()
+        alpha = alpha * (update / coefficient_sensitivity)
+        alpha = np.clip(alpha, eps, None)
+        img = np.asarray(K @ alpha).reshape(SIM_SIZE, SIM_SIZE)
         if normalize_to_unit_max:
             m = float(img.max())
             if m > 1e-6:
@@ -347,7 +348,7 @@ def bowsher(sinogram: np.ndarray, feature: np.ndarray, *,
             save_iters: tuple[int, ...] = (),
             forward: Callable | None = None,
             backward: Callable | None = None,
-            normalize_to_unit_max: bool = True) -> dict[int, np.ndarray]:
+            normalize_to_unit_max: bool = False) -> dict[int, np.ndarray]:
     """Bowsher-penalized EM with optional unit-max rescaling."""
     if forward is None or backward is None:
         _forward, _backward, _fbp = build_radon_pair(); forward, backward = _forward, _backward
@@ -384,7 +385,7 @@ def sam_kem_no_post(sinogram: np.ndarray, sam_prior: np.ndarray, *,
                     save_iters: tuple[int, ...] = (),
                     forward: Callable | None = None,
                     backward: Callable | None = None,
-                    normalize_to_unit_max: bool = True,
+                    normalize_to_unit_max: bool = False,
                     mul_factor: np.ndarray | None = None,
                     pet_noise: np.ndarray | None = None) -> dict[int, np.ndarray]:
     """SAM-derived KEM (no post-fusion).
@@ -400,9 +401,13 @@ def sam_kem_no_post(sinogram: np.ndarray, sam_prior: np.ndarray, *,
 def post_fusion(sam_prior: np.ndarray, kem_image: np.ndarray, alpha: float = 0.3) -> np.ndarray:
     """Convex post-fusion: x_hat = alpha * z + (1 - alpha) * x_KEM.
 
-    `sam_prior` is the raw decoder output `z` in normalized [0, 1] scale.
+    `sam_prior` is the raw decoder output `z` on the fixed target scale.
     `kem_image` is the KEM reconstruction in the same scale.
     """
-    z = np.clip(sam_prior, 0.0, 1.0).astype(np.float32)
-    x = np.clip(kem_image, 0.0, 1.0).astype(np.float32)
+    if not 0.0 <= alpha <= 1.0:
+        raise ValueError("alpha must lie in [0, 1]")
+    z = np.asarray(sam_prior, dtype=np.float32)
+    x = np.asarray(kem_image, dtype=np.float32)
+    if z.shape != x.shape:
+        raise ValueError("SAM prior and KEM image must have the same shape")
     return (alpha * z + (1.0 - alpha) * x).astype(np.float32)

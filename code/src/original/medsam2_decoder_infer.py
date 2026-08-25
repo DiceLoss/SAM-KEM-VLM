@@ -20,11 +20,26 @@ import numpy as np
 _MODEL = None
 _PREDICTOR = None
 _DEVICE = "cpu"
+_MODEL_CACHE_KEY = None
 
 
 def _ensure_model(ckpt_path: Optional[Path] = None, image_size: int = 1024):
-    global _MODEL, _PREDICTOR, _DEVICE
-    if _MODEL is not None:
+    """Historical compatibility loader.
+
+    New code must use :mod:`sam_kem.medsam`. This function now keys its cache by
+    resolved checkpoint path and file SHA so BW and HE checkpoints cannot leak
+    across calls.
+    """
+    global _MODEL, _PREDICTOR, _DEVICE, _MODEL_CACHE_KEY
+    import hashlib
+    resolved = ckpt_path.resolve() if ckpt_path is not None else None
+    checkpoint_sha = None
+    if resolved is not None:
+        if not resolved.is_file():
+            raise FileNotFoundError(f"trained decoder checkpoint missing: {resolved}")
+        checkpoint_sha = hashlib.sha256(resolved.read_bytes()).hexdigest()
+    cache_key = (str(resolved), checkpoint_sha, int(image_size))
+    if _MODEL is not None and _MODEL_CACHE_KEY == cache_key:
         return
     em_root = r"D:/MIAProject/EM-reconstruction"
     if em_root not in sys.path:
@@ -36,18 +51,19 @@ def _ensure_model(ckpt_path: Optional[Path] = None, image_size: int = 1024):
     _MODEL = build_medsam2.build_medsam2_hiera_t(image_size=image_size,
                                                  mode="eval",
                                                  reconfigure=False)
-    if ckpt_path is not None and ckpt_path.is_file():
-        sd = torch.load(str(ckpt_path), map_location=_DEVICE)
+    if resolved is not None:
+        sd = torch.load(str(resolved), map_location=_DEVICE)
         if "model_state" in sd:
             _MODEL.load_state_dict(sd["model_state"], strict=False)
         else:
             _MODEL.load_state_dict(sd, strict=False)
-        print(f"loaded trained decoder from {ckpt_path}")
+        print(f"loaded trained decoder from {resolved} sha256={checkpoint_sha}")
     else:
-        print(f"no trained decoder; using released pretrained weights")
+        raise RuntimeError("implicit pretrained fallback is prohibited")
     _MODEL.to(_DEVICE)
     _MODEL.eval()
     _PREDICTOR = SAM2ImagePredictor(sam_model=_MODEL)
+    _MODEL_CACHE_KEY = cache_key
 
 
 def _to_rgb(pet_2d: np.ndarray) -> np.ndarray:
@@ -79,10 +95,14 @@ def predict_prior(pet_2d: np.ndarray, *, box: tuple[int, int, int, int],
     ymin = max(0, min(1024, int(round(box[1] * sy))))
     ymax = max(0, min(1024, int(round(box[3] * sy))))
     box_np = np.array([xmin, ymin, xmax, ymax])
-    masks, scores, _ = _PREDICTOR.predict(box=box_np, multimask_output=False)
+    masks, scores, _ = _PREDICTOR.predict(
+        box=box_np, multimask_output=False, return_logits=True
+    )
     mask_2d = masks[0].astype(np.float32)
     soft_mask = _resize_to_128(mask_2d)
-    return np.clip(soft_mask, 0.0, 1.0)
+    if np.unique(soft_mask).size <= 2:
+        raise RuntimeError("binary MedSAM2 mask returned; continuous logits required")
+    return soft_mask
 
 
 def main() -> int:

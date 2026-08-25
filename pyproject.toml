@@ -1,0 +1,34 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "sam-kem"
+version = "0.1.0"
+description = "Auditable PET reconstruction pipeline for SAM-KEM"
+requires-python = ">=3.10"
+dependencies = [
+  "numpy>=1.24,<3",
+  "scipy>=1.10,<2",
+  "PyYAML>=6.0,<7",
+]
+
+[project.optional-dependencies]
+evaluation = ["scikit-image>=0.20,<1", "pandas>=2,<3", "Pillow>=10,<13"]
+medsam2 = ["torch>=2.1,<3", "opencv-python>=4.7,<5"]
+test = ["pytest>=8,<9"]
+
+[project.scripts]
+sam-kem = "sam_kem.cli:main"
+
+[tool.setuptools]
+package-dir = {"" = "code"}
+
+[tool.setuptools.packages.find]
+where = ["code"]
+include = ["sam_kem*"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-q"
+pythonpath = ["code"]

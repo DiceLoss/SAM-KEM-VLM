@@ -1,0 +1,13 @@
+name: cached_prior_reconstruction_runtime
+kind: runtime
+split: validation
+methods: [MLEM, OSEM, Bowsher-KEM, SelfKEM, MR-KEM, CT-KEM, SAM-prior-MedSAM2-Qwen3, SAM-KEM-MedSAM2-Qwen3-no-post, SAM-KEM-MedSAM2-Qwen3-full]
+datasets: [brainweb, hecktor]
+count_level: 200000
+realization: 0
+cases_per_dataset: 5
+scope: kernel_construction_and_iterative_reconstruction_from_cached_inputs_excludes_mlem10_and_vlm_medsam_generation
+warmup_repetitions: 3
+timed_repetitions: 10
+cuda_synchronize: true
+output: runs/runtime

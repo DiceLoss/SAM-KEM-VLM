@@ -1,0 +1,15 @@
+name: medsam2_decoder_training
+kind: training
+split: train
+methods: [medsam2_mask_decoder_l1]
+datasets: [brainweb, hecktor]
+model_scope: one_joint_four_count_model_per_dataset
+count_levels: [100000, 200000, 500000, 1000000]
+count_sampling: balanced
+frozen_components: [image_encoder, prompt_encoder, memory_encoder]
+trainable_components: [mask_decoder]
+loss: l1
+box_source: qwen_cache_with_recorded_centroid_fallback
+forbid_subjects_from: [validation, test_locked]
+output: runs/training
+

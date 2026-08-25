@@ -94,7 +94,12 @@ def build_body_mask_from_anatomy(anatomy_2d: np.ndarray, threshold: float | None
 
 
 def pet2sinogram(pet_2d: np.ndarray) -> np.ndarray:
-    """Forward Radon projection via scikit-image."""
+    """Retired: the skimage operator is incompatible with the protocol."""
+    raise RuntimeError(
+        "retired PET simulator: use `sam-kem project-activity`; skimage.radon "
+        "has a different detector geometry from the canonical operator"
+    )
+    # Historical implementation retained below for forensic inspection only.
     if radon is None:
         raise ImportError("skimage.transform.radon unavailable")
     img = np.asarray(pet_2d, dtype=np.float64)
@@ -108,9 +113,25 @@ def pet2sinogram(pet_2d: np.ndarray) -> np.ndarray:
 
 
 def apply_count_scaling(p: np.ndarray, n_true: int, *,
-                        realization: int = 0) -> dict[str, Any]:
-    """Scale the noise-free projection to N_true counts and sample Poisson."""
-    seed = POISSON_SEED_BASE + int(realization)
+                        realization: int = 0,
+                        dataset: str | None = None,
+                        subject_id: str | None = None,
+                        slice_id: str | None = None) -> dict[str, Any]:
+    """Retired: use the provenance-bound canonical simulator."""
+    raise RuntimeError(
+        "retired count simulator: use `sam-kem simulate`, which binds the "
+        "case identity, stable seed and array hashes in a JSON sidecar"
+    )
+    # Historical implementation retained below for forensic inspection only.
+    if dataset is None or subject_id is None or slice_id is None:
+        raise ValueError(
+            "dataset, subject_id and slice_id are required for an independent per-case seed"
+        )
+    import hashlib
+    identity = f"{dataset}|{subject_id}|{slice_id}|{int(n_true)}|{int(realization)}"
+    seed = int.from_bytes(
+        hashlib.sha256(identity.encode("utf-8")).digest()[:8], "big"
+    )
     return simulate(p, n_true, seed=seed)
 
 

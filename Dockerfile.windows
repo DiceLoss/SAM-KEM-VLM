@@ -1,48 +1,17 @@
-# SAM-KEM v3 - Windows CUDA 13.1 + torch 2.10 (for MedSAM2 + Windows-side recon)
-FROM nvidia/cuda:13.1.0-cudnn-runtime-ubuntu22.04
+# Historical filename retained for compatibility. This image validates the
+# platform-independent scientific core; GPU training uses a separately locked
+# image after the exact MedSAM2 commit and CUDA/PyTorch pair are recorded.
+FROM python:3.11.11-slim-bookworm
 
-RUN apt-get update && apt-get install -y --no-install-recommends \
-    git wget ca-certificates && \
-    rm -rf /var/lib/apt/lists/*
+ENV PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1 \
+    PIP_NO_CACHE_DIR=1
 
-# Python 3.13 + pip
-RUN wget -q https://www.python.org/ftp/python/3.13.9/python-3.13.9-linux-x86_64.tar.xz && \
-    tar -xf python-3.13.9-linux-x86_64.tar.xz -C /opt && \
-    ln -s /opt/python-3.13.9 /opt/python && \
-    /opt/python/bin/python3.13 -m ensurepip && \
-    /opt/python/bin/pip3.13 install --upgrade pip
+WORKDIR /workspace
+COPY pyproject.toml README.md ./
+COPY code ./code
+COPY tests ./tests
+RUN python -m pip install --upgrade pip && \
+    python -m pip install '.[test,evaluation]'
 
-ENV PATH=/opt/python/bin:$PATH
-RUN pip install torch torchvision --index-url https://download.pytorch.org/whl/cu131
-RUN pip install numpy scipy scikit-image matplotlib pandas pyyaml tqdm loguru einops \
-                opencv-python nibabel torchmetrics
-
-# SAM 2 (MedSAM2 base)
-RUN pip install 'git+https://github.com/facebookresearch/sam2.git@v0.1.0'
-
-# === WSL kernelSAM (Python 3.8 + torch 1.10.2 + C++ torch_radon) ===
-FROM nvidia/cuda:11.8.0-cudnn8-runtime-ubuntu22.04 AS wsl
-
-RUN apt-get update && apt-get install -y --no-install-recommends \
-    git wget ca-certificates && rm -rf /var/lib/apt/lists/*
-
-RUN wget -q https://www.python.org/ftp/python/3.8.19/python-3.8.19-linux-x86_64.tar.xz && \
-    tar -xf python-3.8.19-linux-x86_64.tar.xz -C /opt && \
-    ln -s /opt/python-3.8.19 /opt/python38 && \
-    /opt/python38/bin/python3.8 -m ensurepip && \
-    /opt/python38/bin/pip3.8 install --upgrade pip
-
-ENV PATH=/opt/python38/bin:$PATH
-RUN pip install torch==1.10.2+cu111 torchvision==0.11.3+cu111 \
-                --index-url https://download.pytorch.org/whl/cu111
-RUN pip install numpy scipy scikit-image matplotlib pandas pyyaml tqdm loguru einops
-
-# torch_radon 2.0.0 binary (.egg from kernelSAM venv)
-RUN mkdir -p /opt/torch_radon_libs && \
-    cp /path/to/torch_radon-2.0.0-py3.8-linux-x86_64.egg /opt/torch_radon_libs/ && \
-    cd /opt/torch_radon_libs && unzip torch_radon-2.0.0-py3.8-linux-x86_64.egg && \
-    PYTHONPATH=/opt/torch_radon_libs:$PYTHONPATH python -c "from torch_radon import ParallelBeam; print('ok')"
-
-# === Data volumes (bind-mount the source datasets) ===
-VOLUME ["/data/brainweb", "/data/hecktor.npz",
- "/data/SAM_KEM_v3_checkpoints"]
+CMD ["python", "-m", "pytest"]
