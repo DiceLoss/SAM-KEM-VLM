@@ -6,7 +6,6 @@ import yaml
 
 from sam_kem.noise import array_sha256
 from sam_kem.pet_simulation import prepare_noise_free_projection
-from sam_kem.traceability import circular_mask
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -21,8 +20,7 @@ def test_projection_requires_and_binds_canonical_ingestion(tmp_path):
   }
   config_path = tmp_path / "experiment.yaml"
   config_path.write_text(yaml.safe_dump(cfg, sort_keys=False), encoding="utf-8")
-  raw = np.zeros((128, 128), dtype=np.float32)
-  raw[circular_mask(128)] = 3.0
+  raw = np.full((128, 128), 3.0, dtype=np.float32)
   raw_path = tmp_path / "raw_activity.npy"
   np.save(raw_path, raw, allow_pickle=False)
   raw_path.with_suffix(".json").write_text(json.dumps({
@@ -38,9 +36,10 @@ def test_projection_requires_and_binds_canonical_ingestion(tmp_path):
   target = np.load(target_path, allow_pickle=False)
   projection = np.load(projection_path, allow_pickle=False)
   np.testing.assert_array_equal(target, raw / 6.0)
-  assert projection.shape == (180, 128)
+  assert projection.shape == (180, 182)
   sidecar = json.loads(projection_path.with_suffix(".json").read_text(encoding="utf-8"))
   assert sidecar["schema_version"] == 2
   assert sidecar["normalization_scale_C"] == 6.0
   assert sidecar["target_sha256"] == array_sha256(target)
   assert sidecar["noise_free_projection_sha256"] == array_sha256(projection)
+  assert sidecar["support_policy"] == "complete_square_no_content_crop_or_circular_mask"

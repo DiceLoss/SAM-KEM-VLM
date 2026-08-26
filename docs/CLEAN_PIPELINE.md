@@ -29,22 +29,20 @@ sam-kem ingest-activity --root . \
 
 Approved transforms are deliberately narrow:
 
-- `mean_pool_2x2_circular_fov`: exact 256-to-128 BrainWeb mean pooling;
-- `identity_128_circular_fov`: already registered 128x128 activity;
-- `physical_resample_circular_fov`: centred physical-coordinate resampling
-  using declared source pixel spacing, scanner transaxial FOV, and continuous
-  source-grid row/column coordinates of the scanner axis.
+- `mean_pool_2x2_full_square`: exact 256-to-128 BrainWeb mean pooling;
+- `identity_128_full_square`: already registered 128x128 activity;
+- `resize_full_square_to_128`: pixel-centre-aligned bilinear resizing of the
+  complete source square without a content crop, recentering, or corner mask.
 
 The ingest command does not normalize intensity, infer a channel, crop a body,
 read a segmentation target, or use the locked test split by default. It writes
 `raw_activity.npy` plus `raw_activity.json`. The sidecar binds the output to the
-source file/array SHA, exact selector, transform, units, physical geometry, and
-outside-FOV activity diagnostic.
+source file/array SHA, exact selector, transform, units, and optional source spacing.
 
-The HECKTOR row must keep `source_subject_index = subject_id - 1`, use channel 1
-only after the source manifest declares it as PET SUV, and supply pixel spacing
-and scanner FOV. Missing geometry is a hard failure. The former heuristic
-144-to-90 resize is not an approved paper transform.
+The HECKTOR row must keep `source_subject_index = subject_id - 1` and use channel 1
+only after the source manifest declares the verified DICOM-export PET unit.
+The full 144x144 square is resized to 128x128. Scanner FOV and scanner-axis
+coordinates are not inputs to this explicitly pixel-domain simulation.
 
 ## Simulation and reconstruction
 

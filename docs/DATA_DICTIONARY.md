@@ -33,8 +33,8 @@ It is generated from the r=0 MLEM-10 image and shared by r=0/1/2.
 
 | Dataset | Source | Required unit declaration | Clean spatial transform | Important limitation |
 |---|---|---|---|---|
-| BrainWeb | Noise-free simulation activity NIfTI | Exact simulation activity unit from source definition | Exact 2x2 mean-pool to 128x128 followed by circular-FOV validation | Different simulations of one source model must not cross splits |
-| HECKTOR | PET channel from the clinical PET/CT archive | SUV for the uploaded traceability representation, unless a different raw representation is proven | Physical resampling to 128x128 from pixel spacing, scanner FOV, and scanner axis | Radon data are pseudo-sinograms from reconstructed clinical PET, not scanner raw events |
+| BrainWeb | Noise-free simulation activity NIfTI | Exact simulation activity unit from source definition | Exact 2x2 mean-pool of the complete square to 128x128 | Different simulations of one source model must not cross splits |
+| HECKTOR | Reconstructed PET slice exported directly from clinical DICOM | Unit verified from the DICOM export pipeline | Bilinear resize of the complete 144x144 square to 128x128 | Radon data are pseudo-sinograms from reconstructed clinical PET, not scanner raw events |
 
 `normalization.scale_constants.<dataset>` must have the same unit as the
 ingested activity.
@@ -87,7 +87,7 @@ File: `inputs/clean_v1/source_activity_manifest.csv`, copied from
 | Selector | Subject index, slice axis/index, and channel index needed to reproduce the selected 2-D array |
 | Quantitation | Native `activity_unit` |
 | Transform | Exact named `spatial_transform` |
-| HE geometry | Source y/x spacing in mm, scanner transaxial FOV diameter in mm, and continuous scanner-axis row/column indices |
+| Optional spatial metadata | Source y/x spacing in mm when retained from DICOM; not required by the pixel-domain operator |
 
 Absolute source paths are allowed locally but may need de-identification before
 commit.
@@ -127,7 +127,7 @@ arrays/clean_v1/<dataset>/<subject>/<slice>/
     sam_prior_released.json
 ```
 
-Expected shapes are 128x128 for activity/target/prior arrays and 180x128 for
+Expected shapes are 128x128 for activity/target/prior arrays and 180x182 for
 projections/sinograms.
 The first sinogram axis indexes angles.
 No external `evaluation_mask.npy` is allowed; metrics and KEM neighborhoods use

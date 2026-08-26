@@ -28,12 +28,11 @@ invalidated split. Because the split itself is invalidated, this
 manifest is invalidated too. Re-generate after the locked test is
 resolved.
 
-Several HECKTOR rows carry literal `PENDING_PHYSICAL_GEOMETRY` in
-the `source_spacing_y_mm`, `source_spacing_x_mm`,
-`scanner_fov_diameter_mm`, `scanner_axis_row_index`, and
-`scanner_axis_column_index` fields because the source NPZ does not
-embed that information. See `../hecktor_geometry.json` for the audit
-finding.
+Several HECKTOR rows carry obsolete `PENDING_PHYSICAL_GEOMETRY` fields from the
+retired circular-FOV design. They are retained only because this CSV is an
+invalidated forensic artifact. A regenerated manifest must use
+`resize_full_square_to_128` and the current template; scanner FOV and axis are
+not inputs to the pixel-domain operator. See `../hecktor_geometry.json`.
 
 ## `source_sha256.json`
 

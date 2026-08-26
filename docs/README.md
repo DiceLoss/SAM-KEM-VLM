@@ -29,6 +29,9 @@ Read documents in the order appropriate to your role.
   boundary.
 - [`PET_AND_METHOD_AUDIT.md`](PET_AND_METHOD_AUDIT.md) records the scientific
   faults that the clean implementation prevents.
+- [`HECKTOR_DICOM_PIXEL_DOMAIN_DECISION.md`](HECKTOR_DICOM_PIXEL_DOMAIN_DECISION.md)
+  records why DICOM scanner FOV is not an input to the image-derived operator
+  and why the complete-square 180x182 geometry replaced the circular mask.
 - [`UPLOADED_SAMPLE_AUDIT.md`](UPLOADED_SAMPLE_AUDIT.md) records diagnostics run
   on the committed sample archives.
 

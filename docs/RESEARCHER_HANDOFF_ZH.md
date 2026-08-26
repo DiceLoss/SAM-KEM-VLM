@@ -49,7 +49,7 @@
 3. 完成 `source_activity_manifest.csv`，只导入 train 和 validation。
 4. 明确两个数据集的固定 C；如果物理 C 仍不清楚，只能在 train/validation 上
    做规范化敏感性研究，不能查看 locked test。
-5. 生成匹配的 180x128 projection、独立 Poisson sinogram 和 MLEM-10。
+5. 生成匹配的 180x182 projection、独立 Poisson sinogram 和 MLEM-10。
 6. 对每个 `(dataset, subject, slice, count)` 只调用一次 Qwen，输入是 r=0
    的 MLEM-10；同一 box 供 r=0/1/2 使用。失败调用保留记录并用质心框 fallback。
 7. BrainWeb 和 HECKTOR 各训练一个四剂量联合模型；冻结 image/prompt/memory

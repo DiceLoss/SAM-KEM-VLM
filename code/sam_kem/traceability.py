@@ -23,14 +23,6 @@ def circular_mask(size: int) -> np.ndarray:
   return (xx - centre) ** 2 + (yy - centre) ** 2 <= centre ** 2
 
 
-def largest_centred_square_in_circle(size: int) -> int:
-  """Largest same-parity square whose pixel centres fit in the FOV circle."""
-  candidate = int(np.floor(1.0 + (size - 1) / np.sqrt(2.0)))
-  if (size - candidate) % 2:
-    candidate -= 1
-  return candidate
-
-
 def _prefixes(files: list[str], suffix: str) -> list[str]:
   return sorted(key[: -len(suffix)] for key in files if key.endswith(suffix))
 
@@ -61,8 +53,7 @@ def audit_traceability_archives(root: Path) -> dict:
     "datasets": {},
     "unresolved": [
       "source-file and per-array SHA-256 values are absent from the initial committed records",
-      "HECKTOR source NIfTI/DICOM metadata is absent, so the SUV declaration is provider-supplied",
-      "HECKTOR voxel spacing, affine/orientation, and scanner transaxial FOV are absent",
+      "HECKTOR DICOM headers were not retained in the NPZ, so SUV and direct-DICOM-export provenance are provider declarations",
       "central traceability slices are insufficient to fit a dataset-wide normalization constant",
     ],
   }
@@ -129,11 +120,11 @@ def audit_traceability_archives(root: Path) -> dict:
         "npz_axis0": axis0, "subject_minus_one_mapping_valid": axis0 == subject_id - 1,
         "pet_min": float(pet.min()), "pet_max": float(pet.max()),
         "pet_mean": float(pet.mean()),
-        "native_inscribed_circle_outside_mass_fraction": float(
+        "corner_mass_fraction_that_legacy_circle_would_discard": float(
           pet[~native_circle].sum(dtype=np.float64) / pet.sum(dtype=np.float64)
         ),
       })
-  outside = [row["native_inscribed_circle_outside_mass_fraction"] for row in cases]
+  outside = [row["corner_mass_fraction_that_legacy_circle_would_discard"] for row in cases]
   result["datasets"]["hecktor"] = {
     "archive": str(he_path.relative_to(root)), "archive_sha256": he_file_hash,
     "activity_unit": manifest["hecktor"].get("pet_unit", "not declared"),
@@ -141,10 +132,10 @@ def audit_traceability_archives(root: Path) -> dict:
     "all_subject_minus_one_mappings_valid": all(
       row["subject_minus_one_mapping_valid"] for row in cases
     ),
-    "outside_circle_mass_fraction_min": min(outside),
-    "outside_circle_mass_fraction_mean": float(np.mean(outside)),
-    "outside_circle_mass_fraction_max": max(outside),
-    "largest_square_side_fitting_128_circular_fov": largest_centred_square_in_circle(128),
+    "legacy_circle_discard_fraction_min": min(outside),
+    "legacy_circle_discard_fraction_mean": float(np.mean(outside)),
+    "legacy_circle_discard_fraction_max": max(outside),
+    "canonical_support_policy": "complete_square_no_content_crop_or_circular_mask",
     "train_pet_max": max(row["pet_max"] for row in cases if row["split"] == "train"),
     "validation_pet_max": max(row["pet_max"] for row in cases if row["split"] == "validation"),
   }

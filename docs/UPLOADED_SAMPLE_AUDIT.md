@@ -1,13 +1,21 @@
 # Uploaded PET sample operator and scale audit
 
 This diagnostic uses the 32 committed samples per dataset at 200k expected
-counts. It is not a paper result and does not select hyperparameters.
+counts. It is not a paper result and does not select hyperparameters. The
+committed projection arrays have shape 180x128 and are now explicitly rejected
+by the canonical 180x182 full-square operator; only source activity arrays may
+be carried into a new run.
 
 ```bash
 python code/experiments/audit_uploaded_samples.py
 ```
 
-## Locked-operator checks
+## Historical retired-operator checks
+
+The numerical values in this section were produced before the full-square
+correction and are retained only to explain why the old artifacts were rejected.
+The current audit command reports `forensic_projection_shape_mismatch` instead
+of comparing incompatible arrays.
 
 The 128x128, 180-angle operator has a relative adjoint error of
 `2.04e-16` and maximum per-angle mass error of `2.88e-16`. It is therefore
@@ -74,11 +82,10 @@ These values remain provisional for three reasons:
    manifest still names a nonexistent combined `raw_pet_brainweb.npz` and records
    no source/array hashes.
 
-The HE image square also does not fit the declared circular FOV: about `24.5%`
-of provisional train activity lies outside the inscribed circle. Canonical
-preprocessing must resize the entire 144x144 square to fit inside the circle and
-center-pad it, or change and revalidate the acquisition geometry. Silently
-discarding this mass is not acceptable.
+The legacy circular operator would discard about `24.5%` of provisional HE
+activity from the square's corners. This is an operator-design failure, not a
+source-data geometry failure. The canonical operator now preserves the complete
+square and uses detector support wide enough to cover its diagonal.
 
 Accordingly, `C_BW=6` and `C_HE=35` are candidates for a corrected train/validation
 rerun, not values to paste into the locked configuration yet. The corrected raw
@@ -97,21 +104,18 @@ python code/experiments/audit_traceability_samples.py --root .
 
 The three BrainWeb slices are float32 source slices. Their committed 128x128
 targets agree exactly, element by element, with 2x2 mean pooling, and the
-pooling preserves activity mass. All three pooled targets have zero activity
-outside the locked circular FOV. The six HECKTOR slices are float32 PET-input
+pooling preserves activity mass. All three pooled targets happen to have zero activity
+outside the legacy circular mask, although the corrected operator does not apply that mask.
+The six HECKTOR slices are float32 PET-input
 arrays rather than tumor masks. Every embedded index satisfies
 `npz_axis0 = subject_id - 1`, and neither archive contains locked-test cases.
 
-This export does **not** yet close spatial provenance. Across the six HECKTOR
-central slices, `18.46%`--`28.06%` (mean `22.34%`) of PET activity lies outside
-the native 144x144 inscribed circle. A 90x90 square is the largest centred,
-same-parity square whose pixel centres fit inside the locked 128x128 circular
-FOV. Resizing 144x144 to 90x90 and padding is only a candidate transform,
-however: the NPZ contains no voxel spacing, affine/orientation, or scanner
-transaxial FOV with which to justify that physical mapping. Masking the corners
-would discard measured activity; silently shrinking the anatomy could alter
-spatial resolution. The geometry must therefore remain blocked until the
-source spatial metadata or an explicit acquisition-FOV definition is supplied.
+Across the six HECKTOR central slices, the retired inscribed-circle mask would
+discard `18.46%`--`28.06%` (mean `22.34%`) of PET activity. The corrected
+canonical transform resizes the complete 144x144 DICOM-exported reconstructed
+PET square to 128x128, and the 180-angle operator uses 182 detector bins to
+cover the square diagonal. Scanner FOV and scanner-axis metadata are therefore
+not inferred and do not block this explicitly pixel-domain simulation.
 
 The archive hashes are now pinned in `TRACEABILITY_MANIFEST.json`. The initial
 export did not record source-file hashes, so those must be added by regenerating
@@ -124,9 +128,9 @@ and validation diagnostics are complete.
 An end-to-end diagnostic at 200k expected counts also passed. For the three
 BrainWeb targets, count-normalized projections from `C=1` and `C=6` differed by
 relative L1 below `4.3e-16`; their normalized maxima were `0.316`--`0.845`.
-For the non-canonical HE 90x90-fit diagnostic only, `C=1` and `C=35` differed
+For the historical non-canonical HE 90x90-fit diagnostic only, `C=1` and `C=35` differed
 below `4.2e-16`, with normalized maxima `0.128`--`0.431`. Independent Poisson
 draws realized totals close to 200k and 40-step matched MLEM ran without a
 scale inconsistency. This verifies the implementation and again demonstrates
-that fixed-total-count projections cannot identify `C`; it does not validate
-the HE spatial transform or promote these reconstructions to paper results.
+that fixed-total-count projections cannot identify `C`; those legacy
+reconstructions remain forensic and must be regenerated with the full-square operator.

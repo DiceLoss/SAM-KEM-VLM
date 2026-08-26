@@ -202,8 +202,7 @@ def _ingest_activity(args: argparse.Namespace) -> int:
     require_test_release(root, cfg)
   outputs = ingest_manifest(
     root, args.manifest.resolve(), root / str(cfg["data"]["split_file"]),
-    args.output.resolve(),
-    splits=set(args.splits), outside_mass_tolerance=args.outside_mass_tolerance,
+    args.output.resolve(), splits=set(args.splits),
   )
   print(f"wrote {len(outputs)} canonical activity slice(s) to {args.output}")
   return 0
@@ -431,7 +430,6 @@ def build_parser() -> argparse.ArgumentParser:
     "--splits", nargs="+", choices=("train", "validation", "test_locked"),
     default=("train", "validation"),
   )
-  ingest.add_argument("--outside-mass-tolerance", type=float, default=1.0e-6)
   ingest.set_defaults(func=_ingest_activity)
 
   normalization = sub.add_parser(

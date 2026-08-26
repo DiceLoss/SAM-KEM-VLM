@@ -115,8 +115,8 @@ state that the study has no untouched test set; do not relabel an exposed
 subject.
 
 Next create `inputs/clean_v1/source_activity_manifest.csv` from the template. Source
-channel, subject/slice selectors, units, SHA-256 and spatial geometry must all be
-explicit. Ingest train and validation without opening the locked test:
+channel, subject/slice selectors, units, SHA-256 and the fixed spatial transform
+must all be explicit. Ingest train and validation without opening the locked test:
 
 ```bash
 sam-kem ingest-activity --root . \
@@ -124,11 +124,12 @@ sam-kem ingest-activity --root . \
   --output arrays/clean_v1 --splits train validation
 ```
 
-BrainWeb uses the exact `mean_pool_2x2_circular_fov` transform. HECKTOR must use
-`physical_resample_circular_fov` with source pixel spacing and scanner
-transaxial FOV plus the scanner-axis row/column on the source grid; missing
-geometry is a hard failure. A centred axis may be recorded only when supported
-by DICOM/NIfTI provenance. See `docs/CLEAN_PIPELINE.md`.
+BrainWeb uses the exact `mean_pool_2x2_full_square` transform. HECKTOR uses
+`resize_full_square_to_128`, a fixed pixel-centre-aligned bilinear resize of the
+complete DICOM-exported 144x144 reconstructed PET slice. It does not infer a
+scanner FOV, crop by image content, recenter anatomy, or mask the corners.
+DICOM spacing/orientation tags should be retained when available for provenance,
+but they do not parameterize this declared pixel-domain operator.
 
 Use this canonical layout before building the manifests:
 
@@ -146,7 +147,7 @@ arrays/clean_v1/<dataset>/<subject>/<slice>/c<count>/r<r>/mlem10.json
 arrays/clean_v1/<dataset>/<subject>/<slice>/c<count>/r<r>/sam_prior.npy
 ```
 
-The canonical protocol evaluates the circular support defined by positive PET
+The canonical protocol evaluates the full-square support defined by positive PET
 operator sensitivity. This same geometry-only support is used for every method;
 an external `evaluation_mask.npy` is prohibited. Do not derive the HECKTOR
 evaluation region from CT or tumor masks. Anatomy arrays are inputs only to
@@ -183,10 +184,9 @@ sam-kem project-activity --root . --config code/configs/experiment.yaml \
   --projection-output arrays/clean_v1/brainweb/subject01/axial_072/noise_free_projection.npy
 ```
 
-The command rejects non-negligible activity outside the declared inscribed
-circular field of view and rejects a C that places the normalized target outside
-the declared [0,1] metric range. Preprocessing that crops or masks activity must
-be fixed and documented before this step; the command never silently truncates.
+The command rejects a C that places the normalized target outside the declared
+[0,1] metric range. The operator covers every pixel in the complete 128x128
+square using 182 detector bins; the command never silently crops or masks activity.
 
 Then generate each low-count observation using its complete identity:
 

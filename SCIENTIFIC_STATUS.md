@@ -6,7 +6,7 @@ the canonical implementation in `code/sam_kem/` and include known operator,
 checkpoint, box-cache, normalization, coverage, and validation-sweep violations.
 
 The canonical rerun is blocked until the experimenter supplies the fixed-scale
-provenance, the HECKTOR pixel spacing/affine and scanner transaxial FOV, and the
+provenance and the
 dataset-specific MedSAM2 decoder checkpoint files with verified SHA-256 values.
 It also requires a new SHA-pinned subject split: the historical v3 locked test
 was opened during tuning and is not an untouched test set.
@@ -32,8 +32,9 @@ detected total count. Lower `N` is a low-count proxy; it is not a calibrated
 injected activity or clinical dose. Poisson variation represents decay/detection
 counting statistics, not detector thermal noise.
 
-`A` is one mass-preserving, pixel-driven, non-TOF parallel-beam operator with an
-inscribed circular field of view. The simulation and every reconstruction and
+`A` is one mass-preserving, pixel-driven, non-TOF parallel-beam operator over
+the complete square image grid. For a 128x128 image it uses 180 angles and 182
+detector bins so the detector coordinate covers the image diagonal. The simulation and every reconstruction and
 projection-domain metric use the identical implementation SHA. Attenuation,
 scatter, random coincidences, detector sensitivity/normalization, PSF, TOF and
 dead time are absent. HECKTOR starts from a clinical reconstructed PET image, so
@@ -42,7 +43,7 @@ a genuinely noise-free activity acquisition. The manuscript must use these
 qualifications.
 
 Image-domain metrics and KEM neighbourhoods use the same positive-sensitivity
-circular operator support. This geometry-derived support is fixed for every
+full-square operator support. This geometry-derived support is fixed for every
 method and does not use CT, MR, tumor labels, or any other anatomical mask.
 
 Every axial slice is an independent 2-D ring-position experiment. The model has

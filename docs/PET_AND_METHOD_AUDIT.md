@@ -15,9 +15,9 @@ low-count proxy, not a calibrated injected activity or clinical dose. Poisson
 variation represents radioactive decay/detection counting statistics; it must
 not be attributed to detector thermal noise.
 
-`A` is the same locked 128x128, 180-angle, pixel-driven parallel-beam operator
+`A` is the same locked 128x128, 180-angle, 182-detector-bin pixel-driven parallel-beam operator
 in simulation, MLEM/OSEM/KEM and projection-domain deviance. It conserves
-circular-FOV image mass at every angle and its backprojector is the exact sparse
+complete-square image mass at every angle and its backprojector is the exact sparse
 transpose. It omits attenuation, scatter, randoms, sensitivity normalization,
 PSF, TOF, dead time, axial response and oblique lines of response.
 

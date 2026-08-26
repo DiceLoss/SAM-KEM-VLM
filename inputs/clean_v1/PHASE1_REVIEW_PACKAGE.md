@@ -56,7 +56,7 @@ data is opened.
 | 3 | Subject split | `inputs/clean_v1/drafts/subject_split.csv` (rejected) | 14/3/3 BW + 156/34/34 HE counts but split is INVALIDATED; current honest position is no locked test exists until external unexposed subjects are acquired |
 | 4 | Source activity manifest | `inputs/clean_v1/drafts/source_activity_manifest.csv` (rejected) | regenerated after locked test is resolved |
 | 5 | Fixed scale C candidates | `inputs/clean_v1/fixed_scale_C.json` | four candidates listed; primary scale determined by the validation-based selection protocol; no candidate pre-declared PRIMARY |
-| 6 | HECKTOR geometry | `inputs/clean_v1/hecktor_geometry.json` | physical spacing/FOV/scanner-axis MISSING from the NPZ; HE ingestion blocked |
+| 6 | HECKTOR geometry | `inputs/clean_v1/hecktor_geometry.json` | resolved for the declared pixel-domain pseudo-sinogram: complete DICOM-exported square, no scanner-FOV inference |
 | 7 | MedSAM2 provenance | `inputs/clean_v1/medsam2_provenance.json` | verified byte-identical to official HF `MedSAM2_latest.pt` at revision `c0b302de5e19211e9f1425c6215f6172eb5eca7f` |
 | 8 | Immutable archive URI | (not yet created) | null per OPERATIONS_RUNBOOK |
 | 9 | `make quality` output | `logs/quality_clean_v1_phase1.log` | ruff PASS, compileall PASS, 51 tests PASS, 9 protocols PASS |
@@ -75,9 +75,9 @@ data is opened.
 
 22 FATAL blockers. Categorisation is unchanged from v2:
 
-* **Group A (4):** provenance records that need real values to clear:
-  split SHA (null until locked test is resolved), HECKTOR physical
-  geometry (MISSING), MedSAM2 source commit / checkout path
+* **Group A:** provenance records that need real values to clear:
+  split SHA (null until locked test is resolved), fixed-scale/unit provenance,
+  MedSAM2 source commit / checkout path
   (still null — `source_repository`, `pretrained_checkpoint_path`
   and `pretrained_checkpoint_sha256` are now resolved but the
   pinning of the Git commit that ships the verified
@@ -102,11 +102,12 @@ regenerated each commit.
    protocol: each viable candidate requires separate decoder
    training and a complete validation sweep. Distribution plots
    alone do not select a winner.
-3. **HECKTOR physical geometry is missing.** `HECKTOR.npz` does not
-   embed voxel spacing, scanner FOV, or scanner-axis coordinates.
-   18–28% of PET activity lies outside the 144×144 inscribed circle.
-   HE ingestion is blocked until DICOM metadata is recovered or the
-   dataset is dropped from the study.
+3. **HECKTOR scanner geometry is not an ingestion requirement.** The
+   researcher confirmed that the array contains reconstructed clinical PET
+   slices exported directly from DICOM. The declared experiment is a
+   pixel-domain pseudo-sinogram simulation, so it preserves the complete
+   square and does not infer scanner FOV or scanner-axis coordinates. DICOM
+   unit/rescale provenance remains relevant to normalization-scale selection.
 4. **MedSAM2 pretrained checkpoint verified.** Local file is
    byte-identical to the official `MedSAM2_latest.pt`. The
    researcher must still pin `medsam2.source_commit` and

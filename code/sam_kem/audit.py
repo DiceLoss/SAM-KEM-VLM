@@ -449,7 +449,7 @@ def audit_repository(root: Path, config_path: Path) -> list[Issue]:
           projection_meta = json.loads(projection_meta_path.read_text(encoding="utf-8"))
           simulation_meta = json.loads(simulation_meta_path.read_text(encoding="utf-8"))
           mlem_meta = json.loads(mlem_meta_path.read_text(encoding="utf-8"))
-          expected_projection_shape = (contract.angles, int(cfg["forward_model"]["image_size"]))
+          expected_projection_shape = (contract.angles, contract.detector_bins)
           if target.shape != (128, 128) or mlem_input.shape != target.shape:
             raise ValueError("target/MLEM shape mismatch")
           if projection.shape != expected_projection_shape or sinogram.shape != projection.shape:

@@ -78,7 +78,7 @@ ablations.
 - Applicable methods use identical subjects, slices, counts, and realizations.
 - Random streams are keyed independently for every dataset/subject/slice/count/
   realization identity.
-- Image metrics use one operator-derived circular support for every method.
+- Image metrics use one operator-derived full-square support for every method.
 - Per-slice rows are retained, but inferential statistics aggregate at subject
   level because adjacent slices from one subject are not independent subjects.
 - Paired statistics compare the proposed method with each applicable baseline
@@ -89,7 +89,7 @@ ablations.
 ## Dependency graph
 
 ```text
-source provenance + untouched subject inventory + physical geometry
+source provenance + untouched subject inventory + declared spatial transform
                 |
                 v
 split -> ingestion -> fixed-C targets -> projections -> Poisson/MLEM-10

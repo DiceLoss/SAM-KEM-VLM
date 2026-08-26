@@ -91,14 +91,14 @@ cp inputs/source_activity_manifest.template.csv inputs/clean_v1/source_activity_
 - 完整 NPZ 文件 SHA-256；
 - PET channel index、slice axis、slice index 及预先确定的切片选择规则；
 - PET 数值单位；
-- 每个病例或扫描协议的 x/y pixel spacing；
-- PET scanner transaxial FOV diameter；
-- scanner axis 在源图像上的连续 row/column 坐标；
+- DICOM 直接导出为重建 PET 数组的流程及其软件/参数；
+- 若仍可取得，记录 PixelSpacing、方向、位置和 rescale/SUV 标签用于来源追踪；
 - CT 对应关系，仅用于 CT-KEM/Bowsher-KEM 对比方法。
 
 当前上传的 HECKTOR 样本标记为 SUV，最大值约为 4.5--15.2。
 因此不能把大约 30000 的 scanner-count 常数直接用于这些 SUV 数组。
 如果 30000 来自机器的另一种原始输出，必须同时提供那种数据表示、单位和来源。
+这些 DICOM 标签不用于拟合 scanner FOV；本研究正投影明确在完整方形像素网格上定义。
 
 ### 3. MedSAM2
 
@@ -176,17 +176,17 @@ sha256sum /absolute/path/to/source_file
 BrainWeb 只允许：
 
 ```text
-mean_pool_2x2_circular_fov
+mean_pool_2x2_full_square
 ```
 
-HECKTOR 只允许有真实物理几何的：
+HECKTOR 使用完整方形切片变换：
 
 ```text
-physical_resample_circular_fov
+resize_full_square_to_128
 ```
 
-不要自行使用 144→128 resize、144→90 中心裁剪、逐图 min-max 或根据图像内容
-移动 FOV。
+这里的 144→128 是预先声明的像素中心对齐双线性缩放，必须保留完整方形；禁止
+144→90 中心裁剪、圆形角落掩膜、逐图 min-max 或根据图像内容移动视野。
 
 ## 七、第一阶段的停止点
 
@@ -200,7 +200,7 @@ comparison。
 3. `inputs/clean_v1/subject_split.csv` 及 SHA-256；
 4. `inputs/clean_v1/source_activity_manifest.csv`；
 5. BrainWeb 和 HECKTOR 的固定 C 数值、单位、推导/机器来源；
-6. HECKTOR spacing、FOV 和 scanner-axis 来源；
+6. HECKTOR 的 DICOM 直接导出流程、PET 单位以及切片/通道映射；
 7. MedSAM2 仓库、commit、base checkpoint SHA；
 8. 外部不可变归档位置；
 9. `make quality` 的完整输出；

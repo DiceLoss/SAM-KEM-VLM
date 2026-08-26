@@ -67,6 +67,7 @@ class ScientificContract:
   normalization_clip: bool
   operator_id: str
   angles: int
+  detector_bins: int
   prompt_mlem_iterations: int
 
   @classmethod
@@ -121,6 +122,11 @@ class ScientificContract:
       raise ConfigurationError("canonical protocol requires 180 projection angles")
     if int(_require(cfg, "forward_model.image_size")) != 128:
       raise ConfigurationError("canonical protocol requires a 128x128 image grid")
+    detector_bins = int(_require(cfg, "forward_model.detector_bins"))
+    if detector_bins != 182:
+      raise ConfigurationError(
+        "canonical full-square protocol requires 182 detector bins for a 128x128 image"
+      )
     if _require(cfg, "acquisition.observation_model") != "poisson_scaled_noise_free_projection":
       raise ConfigurationError("canonical observation must be scaled Poisson projection counts")
     if _require(cfg, "acquisition.independent_realizations_across_count_levels") is not True:
@@ -137,7 +143,7 @@ class ScientificContract:
       raise ConfigurationError(f"unsupported normalization rule: {normalization_rule}")
     forward = _require(cfg, "forward_model")
     expected_physics = {
-      "geometry": "idealized_parallel_beam", "field_of_view": "inscribed_circle",
+      "geometry": "idealized_parallel_beam", "field_of_view": "full_square_image_grid",
       "axial_model": "independent_2d_ring_positions_no_axial_coincidence_model",
       "attenuation": "none", "scatter": "none", "randoms": "none",
       "detector_normalization": "none", "point_spread_function": "none",
@@ -165,7 +171,7 @@ class ScientificContract:
         "locked-test access must occur only after validation freeze and without test feedback"
       )
     if (
-      _require(cfg, "evaluation.region") != "operator_circular_fov"
+      _require(cfg, "evaluation.region") != "operator_full_square_support"
       or _require(cfg, "evaluation.metric_support_source")
       != "positive_operator_sensitivity"
     ):
@@ -215,6 +221,7 @@ class ScientificContract:
       normalization_clip=bool(normalization_clip),
       operator_id=str(_require(cfg, "forward_model.operator_id")),
       angles=angles,
+      detector_bins=detector_bins,
       prompt_mlem_iterations=int(_require(cfg, "reconstruction.prompt_mlem_iterations")),
     )
 

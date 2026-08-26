@@ -13,7 +13,7 @@
       "hecktor": {
         "value": null,
         "source": null,
-        "status": "PENDING — HECKTOR.npz::input[...,1] is SUV. The scanner-count constant ~30000 used in the v3 attempt applies to raw counts, not SUV, and cannot be used on the current SUV arrays. Until DICOM headers or scanner documentation are recovered, no domain-physical C can be defended."
+        "status": "PENDING — the traceability arrays are declared as reconstructed PET exported directly from DICOM and currently labelled SUV. The exact export unit/rescale provenance must be verified before deciding whether a machine-derived constant such as ~30000 applies to this representation. This normalization issue is separate from image geometry."
       },
       "eligibility": "If a value with a recorded source exists for a dataset, it is a candidate. It is NOT automatically PRIMARY — it must still go through the validation-based selection protocol below."
     },
@@ -21,12 +21,12 @@
       "description": "A scale constant derived from the training set as the global maximum of all ingested train raw_activity arrays (after the approved spatial transform). Zero offset. This is a data-derived fixed scale, NOT a physical constant.",
       "brainweb": {
         "value": null,
-        "derivation_rule": "max over all train raw_activity arrays for brainweb after mean_pool_2x2_circular_fov.",
+        "derivation_rule": "max over all train raw_activity arrays for brainweb after mean_pool_2x2_full_square.",
         "status": "PENDING — compute via sam-kem calibrate-normalization on train only."
       },
       "hecktor": {
         "value": null,
-        "derivation_rule": "max over all train raw_activity arrays for hecktor after physical_resample_circular_fov.",
+        "derivation_rule": "max over all train raw_activity arrays for hecktor after resize_full_square_to_128.",
         "status": "PENDING — same."
       },
       "eligibility": "Valid candidate. May become the PRIMARY scale after the validation-based selection protocol below selects it. Must never be called a 'physical constant'."

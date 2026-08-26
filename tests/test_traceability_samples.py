@@ -20,9 +20,11 @@ def test_traceability_archives_preserve_declared_arrays_and_splits():
   assert audit["datasets"]["hecktor"]["all_subject_minus_one_mappings_valid"]
 
 
-def test_traceability_audit_exposes_unresolved_hecktor_geometry():
+def test_traceability_audit_preserves_hecktor_square_support():
   audit = audit_traceability_archives(ROOT)
   hecktor = audit["datasets"]["hecktor"]
-  assert hecktor["largest_square_side_fitting_128_circular_fov"] == 90
-  assert hecktor["outside_circle_mass_fraction_min"] > 0.15
-  assert any("transaxial FOV" in item for item in audit["unresolved"])
+  assert hecktor["legacy_circle_discard_fraction_min"] > 0.15
+  assert hecktor["canonical_support_policy"] == (
+    "complete_square_no_content_crop_or_circular_mask"
+  )
+  assert not any("transaxial FOV" in item for item in audit["unresolved"])

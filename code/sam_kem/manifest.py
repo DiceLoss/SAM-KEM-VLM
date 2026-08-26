@@ -90,8 +90,9 @@ def build_case_manifest(root: Path, config_path: Path, arrays_root: Path, output
               or bool(projection_record.get("normalization_clip"))
               != contract.normalization_clip
               or projection_record.get("field_of_view") != cfg["forward_model"]["field_of_view"]
-              or float(projection_record.get("out_of_fov_activity_mass_fraction", 1.0))
-              > float(cfg["forward_model"]["out_of_fov_activity_mass_tolerance"])
+              or projection_record.get("support_policy")
+              != "complete_square_no_content_crop_or_circular_mask"
+              or int(projection_record.get("detector_bins", -1)) != contract.detector_bins
               or float(projection_record.get("normalization_scale_C", -1))
               != contract.scale_constants[dataset]
               or projection_record.get("target_sha256") != array_sha256(np.load(target))

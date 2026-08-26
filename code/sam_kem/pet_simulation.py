@@ -25,7 +25,8 @@ class ProjectionContext:
     cfg, contract = load_contract(config_path)
     operator = build_discrete_radon(
       repo_root=root, size=int(cfg["forward_model"]["image_size"]),
-      angles=contract.angles, operator_id=contract.operator_id,
+      angles=contract.angles, detector_bins=contract.detector_bins,
+      operator_id=contract.operator_id,
       expected_implementation_sha256=cfg["forward_model"]["implementation_sha256"],
     )
     return cls(cfg, contract, operator)
@@ -63,23 +64,9 @@ def prepare_noise_free_projection(
     )
   if not np.all(np.isfinite(raw)) or np.any(raw < 0) or float(raw.sum()) <= 0:
     raise ValueError("activity must be finite, non-negative and non-empty")
-  image_size = int(cfg["forward_model"]["image_size"])
-  centre = (image_size - 1) / 2.0
-  yy, xx = np.indices(raw.shape, dtype=np.float64)
-  outside = ((xx - centre) ** 2 + (yy - centre) ** 2) > centre ** 2
-  outside_mass_fraction = float(raw[outside].sum() / raw.sum())
-  fov_tolerance = float(cfg["forward_model"]["out_of_fov_activity_mass_tolerance"])
-  if outside_mass_fraction > fov_tolerance:
-    raise ValueError(
-      "activity outside the declared circular FOV is "
-      f"{outside_mass_fraction:.6g}, exceeding {fov_tolerance:.6g}; "
-      "crop/mask by a documented preprocessing protocol before simulation"
-    )
   scale_C = contract.scale_constants[dataset]
   offset = contract.normalization_offsets[dataset]
-  in_fov_activity = np.asarray(raw, dtype=np.float64).copy()
-  in_fov_activity[outside] = 0.0
-  target = (in_fov_activity - offset) / scale_C
+  target = (np.asarray(raw, dtype=np.float64) - offset) / scale_C
   if contract.normalization_clip:
     target = np.clip(target, *cfg["normalization"]["expected_target_range"])
   elif np.any(target < 0):
@@ -125,12 +112,11 @@ def prepare_noise_free_projection(
     "normalization_scale_C": scale_C,
     "normalization_clip": contract.normalization_clip,
     "normalization": cfg["normalization"]["rule"],
-    "circular_fov_mask_applied": True,
+    "support_policy": "complete_square_no_content_crop_or_circular_mask",
     "normalized_target_min": float(target.min()),
     "normalized_target_max": float(target.max()),
     "field_of_view": cfg["forward_model"]["field_of_view"],
-    "out_of_fov_activity_mass_fraction": outside_mass_fraction,
-    "out_of_fov_activity_mass_tolerance": fov_tolerance,
+    "detector_bins": contract.detector_bins,
     "target_sha256": array_sha256(target_float32),
     "operator_id": contract.operator_id,
     "operator_implementation_sha256": cfg["forward_model"]["implementation_sha256"],

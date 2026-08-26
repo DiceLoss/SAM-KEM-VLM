@@ -31,11 +31,11 @@ Start with the [documentation index](docs/README.md) and the
 - frozen encoders, trainable mask decoder, L1-only training;
 - continuous raw decoder output, with min-max restricted to kernel features;
 - validation-only hyperparameter selection and immutable locked-test evaluation;
-- PET-operator support for both KEM neighbourhoods and image metrics, with no
+- full-square PET-operator support for both KEM neighbourhoods and image metrics, with no
   CT/tumor-derived evaluation mask;
 - exact per-case primary keys and fail-closed validation.
 
-The PET simulator is an idealized circular-FOV parallel-beam low-count model,
+The PET simulator is an idealized full-square, 180-angle/182-bin parallel-beam low-count model,
 not a scanner-faithful or injected-dose simulator. HECKTOR projections are
 pseudo-sinograms generated from reconstructed clinical PET. See the explicit
 claim boundary in [SCIENTIFIC_STATUS.md](SCIENTIFIC_STATUS.md).
@@ -55,7 +55,7 @@ sam-kem validate --root . --config code/configs/experiment.yaml
 ```
 
 The validator is expected to fail until the experimenter pins a genuinely
-unexposed split, records the exact BrainWeb/HECKTOR physical scale and geometry,
+unexposed split, records the exact BrainWeb/HECKTOR fixed-scale provenance,
 supplies the official MedSAM2 source/base artifact and verified retrained
 decoders, regenerates complete Qwen caches, finishes the validation sweep, and
 archives all clean experiments.

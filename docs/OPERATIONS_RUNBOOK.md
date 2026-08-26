@@ -39,8 +39,8 @@ records.
   and SHA-pinned.
 - Every source row has an exact source SHA, unit, selector, and approved spatial
   transform.
-- HECKTOR rows contain verified physical spacing, scanner FOV, and scanner-axis
-  coordinates.
+- HECKTOR rows contain the verified DICOM-export PET channel/unit, slice mapping,
+  source SHA, and the fixed complete-square transform.
 - Train and validation are prepared first; locked test remains unopened.
 
 ### Before normalization freeze

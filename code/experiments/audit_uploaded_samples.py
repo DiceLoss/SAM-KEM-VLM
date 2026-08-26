@@ -37,10 +37,6 @@ def audit(root: Path, *, count: int, reconstruction_cases: int, iterations: int)
   )
   rng = np.random.default_rng(20260826)
   test_image = rng.random(operator.image_shape)
-  yy, xx = np.indices(operator.image_shape)
-  centre = (operator.image_shape[0] - 1) / 2
-  circle = (xx - centre) ** 2 + (yy - centre) ** 2 <= centre ** 2
-  test_image[~circle] = 0
   test_projection = rng.random(operator.projection_shape)
   forward = operator.forward(test_image)
   left = float(np.vdot(forward, test_projection))
@@ -61,6 +57,21 @@ def audit(root: Path, *, count: int, reconstruction_cases: int, iterations: int)
     with np.load(sample_path, allow_pickle=False) as archive:
       cases = sorted(key[:-8] for key in archive.files if key.endswith("__target"))
       targets = [archive[f"{case}__target"].astype(np.float64) for case in cases]
+      uploaded_shapes = sorted({
+        tuple(archive[f"{case}__lambda_{count}"].shape) for case in cases
+      })
+      if uploaded_shapes != [operator.projection_shape]:
+        result["datasets"][dataset] = {
+          "sample_path": str(sample_path.relative_to(root)),
+          "sample_file_sha256": _sha256(sample_path),
+          "cases": len(cases),
+          "subjects": len({case.split("__", 1)[0] for case in cases}),
+          "compatibility_status": "forensic_projection_shape_mismatch",
+          "uploaded_projection_shapes": [list(shape) for shape in uploaded_shapes],
+          "canonical_projection_shape": list(operator.projection_shape),
+          "action": "Do not reuse uploaded projections or sinograms; regenerate from source activity with the full-square operator.",
+        }
+        continue
       lambda_l1 = []
       correlations = []
       slopes = []

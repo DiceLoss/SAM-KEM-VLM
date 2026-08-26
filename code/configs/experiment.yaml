@@ -16,8 +16,8 @@ data:
   canonical_activity_root: arrays/clean_v1
   ingestion_schema: canonical_activity_v1
   allowed_spatial_transforms:
-    brainweb: [mean_pool_2x2_circular_fov]
-    hecktor: [physical_resample_circular_fov]
+    brainweb: [mean_pool_2x2_full_square]
+    hecktor: [resize_full_square_to_128]
   split_unit:
     brainweb: source_model
     hecktor: patient
@@ -51,18 +51,18 @@ normalization:
   kernel_feature_rule: per_prior_minmax_only
 
 forward_model:
-  operator_id: pixel_driven_parallel_beam_circular_fov_size128_n180
+  operator_id: pixel_driven_parallel_beam_full_square_size128_n180_d182
   implementation_path: code/sam_kem/pet_operator.py
-  implementation_sha256: 6e6e5d4f14963c9c995869b4ae2be2504afb918546d9e23ba678c261a9befb14
+  implementation_sha256: fb4bc634179de684aa46b4d8c11db26eaf1e5ce1b5aa8df33ee81f6bfc0ea692
   # SHA-256 is computed on the LF-normalized text. The .gitattributes
   # in the repo root forces LF for every tracked text file so the same
   # SHA is reproducible on Linux and Windows checkouts.
   angles: 180
   image_size: 128
+  detector_bins: 182
   geometry: idealized_parallel_beam
   axial_model: independent_2d_ring_positions_no_axial_coincidence_model
-  field_of_view: inscribed_circle
-  out_of_fov_activity_mass_tolerance: 1.0e-6
+  field_of_view: full_square_image_grid
   attenuation: none
   scatter: none
   randoms: none
@@ -160,7 +160,7 @@ reconstruction:
 
 evaluation:
   locked_test_access_policy: only_after_validation_freeze_no_test_feedback
-  region: operator_circular_fov
+  region: operator_full_square_support
   metric_support_source: positive_operator_sensitivity
   anatomy_used_to_define_metric_mask: false
   required_methods:

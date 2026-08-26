@@ -6,7 +6,6 @@ import yaml
 
 from sam_kem.case_preparation import prepare_cases
 from sam_kem.noise import array_sha256
-from sam_kem.traceability import circular_mask
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -26,8 +25,7 @@ def test_batch_preparation_creates_one_matched_case_and_verified_resume(tmp_path
   config_path.write_text(yaml.safe_dump(cfg, sort_keys=False), encoding="utf-8")
   case_dir = tmp_path / "arrays/brainweb/subject04/z125"
   case_dir.mkdir(parents=True)
-  activity = np.zeros((128, 128), dtype=np.float32)
-  activity[circular_mask(128)] = 3.0
+  activity = np.full((128, 128), 3.0, dtype=np.float32)
   raw_path = case_dir / "raw_activity.npy"
   np.save(raw_path, activity, allow_pickle=False)
   raw_path.with_suffix(".json").write_text(json.dumps({
@@ -40,7 +38,7 @@ def test_batch_preparation_creates_one_matched_case_and_verified_resume(tmp_path
   )
   assert summary == {"activity_cases": 1, "poisson_cases": 1, "reused_groups": 0}
   sinogram = np.load(case_dir / "c200000/r0/sinogram.npy", allow_pickle=False)
-  assert sinogram.shape == (180, 128) and np.issubdtype(sinogram.dtype, np.integer)
+  assert sinogram.shape == (180, 182) and np.issubdtype(sinogram.dtype, np.integer)
   assert (case_dir / "c200000/r0/mlem10.npy").is_file()
   resumed = prepare_cases(
     ROOT, config_path, tmp_path / "arrays", splits={"train"},

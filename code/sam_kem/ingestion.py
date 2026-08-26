@@ -12,21 +12,17 @@ from scipy.ndimage import map_coordinates
 from .artifacts import atomic_save_numpy, atomic_write_json, file_sha256
 from .noise import array_sha256
 from .splits import load_subject_splits
-from .traceability import circular_mask
-
-
 SOURCE_COLUMNS = (
   "dataset", "subject_id", "slice_id", "split", "source_path", "source_sha256",
   "source_kind", "source_key", "source_subject_index", "source_slice_axis",
   "source_slice_index", "source_channel_index", "activity_unit", "spatial_transform",
-  "source_spacing_y_mm", "source_spacing_x_mm", "scanner_fov_diameter_mm",
-  "scanner_axis_row_index", "scanner_axis_column_index",
+  "source_spacing_y_mm", "source_spacing_x_mm",
 )
 ALLOWED_SPLITS = {"train", "validation", "test_locked"}
 ALLOWED_TRANSFORMS = {
-  "mean_pool_2x2_circular_fov",
-  "identity_128_circular_fov",
-  "physical_resample_circular_fov",
+  "mean_pool_2x2_full_square",
+  "identity_128_full_square",
+  "resize_full_square_to_128",
 }
 
 
@@ -48,9 +44,6 @@ class SourceCase:
   spatial_transform: str
   source_spacing_y_mm: float | None
   source_spacing_x_mm: float | None
-  scanner_fov_diameter_mm: float | None
-  scanner_axis_row_index: float | None
-  scanner_axis_column_index: float | None
 
 
 def _optional_int(value: str) -> int | None:
@@ -88,9 +81,6 @@ def load_source_manifest(root: Path, path: Path) -> list[SourceCase]:
       activity_unit=row["activity_unit"], spatial_transform=row["spatial_transform"],
       source_spacing_y_mm=_optional_float(row["source_spacing_y_mm"]),
       source_spacing_x_mm=_optional_float(row["source_spacing_x_mm"]),
-      scanner_fov_diameter_mm=_optional_float(row["scanner_fov_diameter_mm"]),
-      scanner_axis_row_index=_optional_float(row["scanner_axis_row_index"]),
-      scanner_axis_column_index=_optional_float(row["scanner_axis_column_index"]),
     ))
   identities = [(case.dataset, case.subject_id, case.slice_id) for case in cases]
   if len(identities) != len(set(identities)):
@@ -162,93 +152,51 @@ def mean_pool_2x2(activity: np.ndarray) -> np.ndarray:
   return value.reshape(128, 2, 128, 2).mean(axis=(1, 3))
 
 
-def physical_resample_to_circular_fov(
-  activity: np.ndarray, *, source_spacing_y_mm: float, source_spacing_x_mm: float,
-  scanner_fov_diameter_mm: float, scanner_axis_row_index: float | None = None,
-  scanner_axis_column_index: float | None = None, output_size: int = 128,
-) -> tuple[np.ndarray, float]:
-  """Resample a centred physical slice onto a scanner-FOV grid, then mask corners."""
+def resize_full_square(activity: np.ndarray, *, output_size: int = 128) -> np.ndarray:
+  """Bilinearly resize a complete square using pixel-centre coordinates.
+
+  PET voxel values are treated as activity concentration, so the interpolation
+  preserves the numeric scale rather than forcing conservation of the array sum.
+  No anatomical crop, scanner-FOV mask, or content-dependent recentering is used.
+  """
   value = np.asarray(activity, dtype=np.float64)
-  if value.ndim != 2 or min(source_spacing_y_mm, source_spacing_x_mm) <= 0:
-    raise ValueError("physical resampling requires a 2-D image and positive source spacing")
-  if scanner_fov_diameter_mm <= 0:
-    raise ValueError("scanner_fov_diameter_mm must be positive")
-  axis_row = (
-    (value.shape[0] - 1) / 2.0
-    if scanner_axis_row_index is None else float(scanner_axis_row_index)
+  if value.ndim != 2 or value.shape[0] != value.shape[1] or output_size < 2:
+    raise ValueError("full-square resize requires a square 2-D image and output_size >= 2")
+  source_coordinate = (
+    (np.arange(output_size, dtype=np.float64) + 0.5) * value.shape[0] / output_size
+    - 0.5
   )
-  axis_column = (
-    (value.shape[1] - 1) / 2.0
-    if scanner_axis_column_index is None else float(scanner_axis_column_index)
+  source_rows, source_columns = np.meshgrid(
+    source_coordinate, source_coordinate, indexing="ij",
   )
-  if not (0 <= axis_row <= value.shape[0] - 1 and 0 <= axis_column <= value.shape[1] - 1):
-    raise ValueError("scanner axis indices must lie on the source grid")
-  source_y = (np.arange(value.shape[0]) - axis_row) * source_spacing_y_mm
-  source_x = (np.arange(value.shape[1]) - axis_column) * source_spacing_x_mm
-  source_inside = (
-    source_x[None, :] ** 2 + source_y[:, None] ** 2
-    <= (scanner_fov_diameter_mm / 2.0) ** 2
-  )
-  outside_fraction = float(value[~source_inside].sum() / value.sum())
-  target_spacing = scanner_fov_diameter_mm / output_size
-  target_mm = (np.arange(output_size) - (output_size - 1) / 2.0) * target_spacing
-  yy_mm, xx_mm = np.meshgrid(target_mm, target_mm, indexing="ij")
-  source_rows = yy_mm / source_spacing_y_mm + axis_row
-  source_columns = xx_mm / source_spacing_x_mm + axis_column
-  resampled = map_coordinates(
-    value, [source_rows, source_columns], order=1, mode="constant", cval=0.0,
+  return map_coordinates(
+    value, [source_rows, source_columns], order=1, mode="nearest",
     prefilter=False,
   )
-  resampled[~circular_mask(output_size)] = 0.0
-  return resampled, outside_fraction
 
 
 def transform_activity(
-  activity: np.ndarray, case: SourceCase, *, outside_mass_tolerance: float,
-) -> tuple[np.ndarray, float]:
-  if case.spatial_transform == "mean_pool_2x2_circular_fov":
+  activity: np.ndarray, case: SourceCase,
+) -> np.ndarray:
+  if case.spatial_transform == "mean_pool_2x2_full_square":
     transformed = mean_pool_2x2(activity)
-    outside = float(
-      transformed[~circular_mask(128)].sum(dtype=np.float64)
-      / transformed.sum(dtype=np.float64)
-    )
-  elif case.spatial_transform == "identity_128_circular_fov":
+  elif case.spatial_transform == "identity_128_full_square":
     if activity.shape != (128, 128):
       raise ValueError(f"identity transform requires 128x128 input; got {activity.shape}")
     transformed = np.asarray(activity, dtype=np.float64).copy()
-    outside = float(transformed[~circular_mask(128)].sum() / transformed.sum())
   else:
-    if None in (
-      case.source_spacing_y_mm, case.source_spacing_x_mm, case.scanner_fov_diameter_mm,
-      case.scanner_axis_row_index, case.scanner_axis_column_index,
-    ):
-      raise ValueError("physical resampling requires spacing, scanner FOV, and scanner-axis metadata")
-    transformed, outside = physical_resample_to_circular_fov(
-      activity, source_spacing_y_mm=float(case.source_spacing_y_mm),
-      source_spacing_x_mm=float(case.source_spacing_x_mm),
-      scanner_fov_diameter_mm=float(case.scanner_fov_diameter_mm), output_size=128,
-      scanner_axis_row_index=float(case.scanner_axis_row_index),
-      scanner_axis_column_index=float(case.scanner_axis_column_index),
-    )
-  if outside > outside_mass_tolerance:
-    raise ValueError(
-      f"{case.dataset}/{case.subject_id}/{case.slice_id} has {outside:.6g} source "
-      f"activity outside the declared scanner FOV (tolerance {outside_mass_tolerance:.6g})"
-    )
+    transformed = resize_full_square(activity, output_size=128)
   transformed = np.asarray(transformed, dtype=np.float32)
-  transformed[~circular_mask(128)] = 0.0
   if transformed.shape != (128, 128) or float(transformed.sum()) <= 0:
     raise ValueError("spatial transform did not produce a non-empty canonical 128x128 image")
-  return transformed, outside
+  return transformed
 
 
 def ingest_case(
-  root: Path, case: SourceCase, output_root: Path, *, outside_mass_tolerance: float,
+  root: Path, case: SourceCase, output_root: Path,
 ) -> Path:
   source, source_metadata = load_source_activity(case)
-  activity, outside = transform_activity(
-    source, case, outside_mass_tolerance=outside_mass_tolerance,
-  )
+  activity = transform_activity(source, case)
   case_dir = output_root / case.dataset / case.subject_id / case.slice_id
   output = case_dir / "raw_activity.npy"
   sidecar = output.with_suffix(".json")
@@ -269,11 +217,7 @@ def ingest_case(
       "spatial_transform": case.spatial_transform,
       "source_spacing_y_mm": case.source_spacing_y_mm,
       "source_spacing_x_mm": case.source_spacing_x_mm,
-      "scanner_fov_diameter_mm": case.scanner_fov_diameter_mm,
-      "scanner_axis_row_index": case.scanner_axis_row_index,
-      "scanner_axis_column_index": case.scanner_axis_column_index,
-      "source_outside_scanner_fov_mass_fraction": outside,
-      "outside_mass_tolerance": outside_mass_tolerance,
+      "support_policy": "complete_square_no_content_crop_or_circular_mask",
       "activity_shape": list(activity.shape), "activity_dtype": activity.dtype.str,
       "activity_min": float(activity.min()), "activity_max": float(activity.max()),
       "activity_sha256": array_sha256(activity), **source_metadata,
@@ -286,7 +230,6 @@ def ingest_case(
 
 def ingest_manifest(
   root: Path, manifest_path: Path, split_path: Path, output_root: Path, *, splits: set[str],
-  outside_mass_tolerance: float,
 ) -> list[Path]:
   if not splits or not splits <= ALLOWED_SPLITS:
     raise ValueError(f"invalid requested splits: {sorted(splits)}")
@@ -309,8 +252,5 @@ def ingest_manifest(
     raise ValueError("no source cases match the requested splits")
   outputs = []
   for case in cases:
-    outputs.append(ingest_case(
-      root, case, output_root,
-      outside_mass_tolerance=outside_mass_tolerance,
-    ))
+    outputs.append(ingest_case(root, case, output_root))
   return outputs

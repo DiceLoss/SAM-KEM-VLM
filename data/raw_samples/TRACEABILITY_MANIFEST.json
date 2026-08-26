@@ -17,10 +17,10 @@
     "n_subjects": 6,
     "format": "ct (144x144 float32 HU) + pet_input (144x144 float32 SUV-scale) per slice",
     "source": "D:/MIAProject/HECKTOR.npz::input[<sid>-1, 72, :, :, :]",
-    "preprocessing": "no transformation after extraction from the upstream processed HECKTOR.npz container",
+    "preprocessing": "no transformation after extraction from HECKTOR.npz; provider states the upstream arrays are reconstructed PET/CT slices exported directly from clinical DICOM",
     "subject_id_to_npz_mapping": "subject_id -> npz axis 0 index (subject_id - 1)",
     "pet_unit": "SUV (declared by data provider; source DICOM/NIfTI metadata is not included here)",
     "source_and_array_hash_status": "not recorded in this first traceability export; regenerate with the revised exporter",
-    "spatial_metadata_status": "missing voxel spacing, affine/orientation, and scanner transaxial FOV"
+    "spatial_metadata_status": "DICOM spatial tags are not retained in this NPZ; nonblocking for the declared pixel-domain full-square pseudo-sinogram operator"
   }
 }

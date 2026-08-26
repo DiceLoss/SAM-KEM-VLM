@@ -1,5 +1,7 @@
 {
-  "policy": "Per CLEAN_PIPELINE.md and START_HERE_ZH.md, HECKTOR must declare physical pixel spacing, scanner transaxial FOV diameter, and continuous source-grid row/column coordinates of the scanner axis. Missing geometry is a HARD FAILURE — the locked circular FOV cannot be reconstructed without it.",
+  "status": "RESOLVED_FOR_PIXEL_DOMAIN_SIMULATION",
+  "decision_date": "2026-08-26",
+  "researcher_source_statement": "The HECKTOR arrays are slices exported directly from reconstructed clinical DICOM PET; they are not detector list-mode events or measured scanner sinograms.",
   "hecktor_npz_layout": {
     "file": "D:/MIAProject/HECKTOR.npz",
     "sha256": "1a7f817d4a886f7ad3ae2e58d3599700fe1aabba14027eafef0ba71c95c83e28",
@@ -8,32 +10,35 @@
     "input_shape": [224, 144, 144, 144, 2],
     "input_axis_meaning": {
       "axis_0": "subject index (0..223); subject_id = npz_index + 1",
-      "axis_1": "axial slice index (0..143); current pipeline uses 72 = axial_center",
-      "axis_2": "source row index (0..143); no spacing metadata attached",
-      "axis_3": "source column index (0..143); no spacing metadata attached",
-      "axis_4": "channel: 0 = CT (HU), 1 = PET (SUV-like, max ~4.5-15.2 per subject)"
+      "axis_1": "DICOM-exported axial slice index (0..143); 72 is the selected index, not a claimed physical scanner centre",
+      "axis_2": "source row index (0..143)",
+      "axis_3": "source column index (0..143)",
+      "axis_4": "channel: 0 = CT, 1 = PET according to provider provenance"
     },
-    "target_shape": [224, 144, 144, 144]
+    "target_shape": [224, 144, 144, 144],
+    "target_use": "PROHIBITED: HECKTOR tumor masks are outside the reconstruction study"
   },
-  "physical_geometry_fields": {
-    "source_spacing_y_mm": "MISSING — HECKTOR.npz does not embed voxel spacing. The HECKTOR challenge distributes per-subject DICOM files at a partner site, but the NPZ shipped to us drops the affine. Cannot determine transaxial pixel size in mm.",
-    "source_spacing_x_mm": "MISSING — same reason.",
-    "scanner_fov_diameter_mm": "MISSING — no scanner FOV in the NPZ. Required to justify which part of the 144x144 square fits inside the inscribed circular FOV.",
-    "scanner_axis_row_index": "MISSING — no continuous scanner-axis row coordinate in the source grid.",
-    "scanner_axis_column_index": "MISSING — no continuous scanner-axis column coordinate in the source grid."
+  "canonical_spatial_policy": {
+    "coordinate_system": "pixel coordinates",
+    "transform": "resize_full_square_to_128",
+    "interpolation": "bilinear, pixel-centre aligned, nearest boundary extension",
+    "intensity_semantics": "activity-concentration values are interpolated without per-image normalization",
+    "support": "complete 128x128 square",
+    "content_dependent_crop_or_recentering": false,
+    "circular_corner_mask": false
   },
-  "audit_findings": {
-    "source": "docs/UPLOADED_SAMPLE_AUDIT.md",
-    "summary": [
-      "Across 6 HECKTOR central slices, 18.46%-28.06% (mean 22.34%) of PET activity lies outside the 144x144 inscribed circle.",
-      "A 90x90 square is the largest centred, same-parity square whose pixel centres fit inside the locked 128x128 circular FOV. This is a CANDIDATE transform, not a justified physical mapping, because the NPZ contains no voxel spacing or scanner FOV.",
-      "Masking the corners would discard measured activity; silently shrinking the anatomy could alter spatial resolution. Both are unacceptable without source-metadata justification."
-    ],
-    "recommended_resolution": [
-      "Option A (preferred): Acquire per-subject DICOM headers (PixelSpacing, ReconstructionDiameter) for a representative HE subject to establish physical spacing + FOV. With these, the 144x144 -> inscribed-circle transform becomes physical_resample_circular_fov (an approved transform).",
-      "Option B: Acquire the HECKTOR challenge documentation listing scanner FOV + typical voxel spacing. If FOV = 600 mm and pixel spacing = 4.07 mm/px, the inscribed circle of radius 600/2/4.07 = 73.7 px fits within 144/2 = 72 px — geometric conflict requires explicit resolution.",
-      "Option C: Reject the HE dataset entirely for the clean_v1 study until physical geometry is recoverable."
-    ]
+  "forward_model_consequence": {
+    "model": "idealized 2-D parallel-beam image-derived pseudo-sinogram",
+    "angles": 180,
+    "detector_bins": 182,
+    "detector_extent": "covers the diagonal of the complete 128x128 image grid",
+    "scanner_fov_or_axis_required": false,
+    "reason": "The study does not reproduce the vendor scanner acquisition geometry. The same declared pixel-domain operator is used for simulation, reconstruction, and projection-domain metrics."
   },
-  "next_step": "Block HE ingestion until physical geometry is recovered. The clean_v1 study cannot legitimately use the HECKTOR dataset for paper-eligible reconstruction under the current geometric opaqueness. The 14/3/3 BW + 156/34/34 HE counts in subject_split.csv do NOT bypass this requirement."
+  "nonblocking_metadata_limitations": [
+    "The NPZ does not retain DICOM PixelSpacing, ImageOrientationPatient, ImagePositionPatient, or ReconstructionDiameter.",
+    "Those tags should be archived if available for source provenance, but they do not define or block the declared pixel-domain pseudo-sinogram operator.",
+    "The PET quantitative unit and DICOM rescale/SUV conversion provenance must still be confirmed independently for normalization-scale selection."
+  ],
+  "superseded_finding": "The former 18-28% outside-inscribed-circle result diagnosed loss caused by the retired circular mask; it was not evidence of invalid HECKTOR anatomy or missing scanner FOV."
 }
