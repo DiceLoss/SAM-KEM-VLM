@@ -67,6 +67,48 @@ def test_projection_gain_is_used_in_mlem_scale():
   np.testing.assert_allclose(result, measured / gain)
 
 
+def test_mlem_is_equivariant_to_fixed_activity_scale():
+  operator = matrix_operator(np.eye(4), (2, 2), (2, 2))
+  measured = np.array([[3.0, 9.0], [0.0, 5.0]])
+  gain = np.full(measured.shape, 7.0)
+  base = mlem(
+    measured, operator, iterations=4,
+    multiplicative=gain, initial=np.ones((2, 2)),
+  )[4]
+  scale = 30000.0
+  scaled = mlem(
+    measured, operator, iterations=4,
+    multiplicative=gain * scale, initial=np.ones((2, 2)) / scale,
+  )[4]
+  np.testing.assert_allclose(base, scaled * scale, rtol=1e-6, atol=1e-8)
+
+
+def test_kem_and_osem_are_equivariant_to_fixed_activity_scale():
+  operator = matrix_operator(np.eye(4), (2, 2), (2, 2))
+  measured = np.array([[3.0, 9.0], [0.0, 5.0]])
+  gain = np.full(measured.shape, 7.0)
+  scale = 30000.0
+  kernel = identity_kernel((2, 2))
+  base_kem = kem(
+    measured, operator, kernel, iterations=3, multiplicative=gain,
+    initial_coefficients=np.ones(4),
+  )[3]
+  scaled_kem = kem(
+    measured, operator, kernel, iterations=3, multiplicative=gain * scale,
+    initial_coefficients=np.ones(4) / scale,
+  )[3]
+  base_osem = osem(
+    measured, operator, iterations=3, subsets=2, multiplicative=gain,
+    initial=np.ones((2, 2)),
+  )[3]
+  scaled_osem = osem(
+    measured, operator, iterations=3, subsets=2, multiplicative=gain * scale,
+    initial=np.ones((2, 2)) / scale,
+  )[3]
+  np.testing.assert_allclose(base_kem, scaled_kem * scale, rtol=1e-6, atol=1e-8)
+  np.testing.assert_allclose(base_osem, scaled_osem * scale, rtol=1e-6, atol=1e-8)
+
+
 def test_one_subset_osem_matches_mlem():
   matrix = np.array([
     [1.0, 0.0, 0.2, 0.0],

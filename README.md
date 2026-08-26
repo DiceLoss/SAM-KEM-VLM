@@ -33,6 +33,8 @@ The current scientific status is recorded in [SCIENTIFIC_STATUS.md](SCIENTIFIC_S
 The old CSV results are audit evidence only and must not be cited.
 The detailed PET/model audit for the experimenter is
 [docs/PET_AND_METHOD_AUDIT.md](docs/PET_AND_METHOD_AUDIT.md).
+The black-box audit of the uploaded sample NPZ files is
+[docs/UPLOADED_SAMPLE_AUDIT.md](docs/UPLOADED_SAMPLE_AUDIT.md).
 Result/checkpoint storage requirements are in
 [docs/ARTIFACT_SPEC.md](docs/ARTIFACT_SPEC.md).
 

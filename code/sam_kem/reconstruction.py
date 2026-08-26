@@ -61,7 +61,9 @@ def mlem(
   )
   if x.shape != operator.image_shape or np.any(x < 0):
     raise ValueError("initial image has invalid shape or negative values")
-  x = np.maximum(x, epsilon)
+  # Do not inject a fixed positive activity floor: it would acquire a
+  # different physical meaning when the dataset normalization C changes.
+  x = np.maximum(x, 0.0)
   sensitivity = np.maximum(operator.adjoint(gain), epsilon)
   outputs: dict[int, np.ndarray] = {}
   if 0 in saves:
@@ -70,7 +72,7 @@ def mlem(
     expectation = gain * operator.forward(x) + background
     ratio = np.divide(y, np.maximum(expectation, epsilon))
     x *= operator.adjoint(gain * ratio) / sensitivity
-    x = np.maximum(x, epsilon)
+    x = np.maximum(x, 0.0)
     if iteration in saves:
       outputs[iteration] = x.astype(np.float32)
   return outputs
@@ -147,7 +149,7 @@ def kem(
   )
   if alpha.size != pixel_count or np.any(alpha < 0):
     raise ValueError("initial coefficients have invalid shape or negative values")
-  alpha = np.maximum(alpha, epsilon)
+  alpha = np.maximum(alpha, 0.0)
   sensitivity_image = operator.adjoint(gain).reshape(-1)
   sensitivity = np.maximum(K.T @ sensitivity_image, epsilon)
   saves = _save_set(iterations, save_iterations)
@@ -164,7 +166,7 @@ def kem(
     ratio = np.divide(y, np.maximum(expectation, epsilon))
     coefficient_backprojection = K.T @ operator.adjoint(gain * ratio).reshape(-1)
     alpha *= np.asarray(coefficient_backprojection).ravel() / sensitivity
-    alpha = np.maximum(alpha, epsilon)
+    alpha = np.maximum(alpha, 0.0)
     if iteration in saves:
       outputs[iteration] = image_from_coefficients().astype(np.float32)
   return outputs
@@ -193,7 +195,7 @@ def osem(
   x = np.ones(operator.image_shape) if initial is None else np.asarray(initial, dtype=np.float64).copy()
   if x.shape != operator.image_shape or np.any(x < 0):
     raise ValueError("initial image has invalid shape or negative values")
-  x = np.maximum(x, epsilon)
+  x = np.maximum(x, 0.0)
   saves = _save_set(iterations, save_iterations)
   outputs: dict[int, np.ndarray] = {}
   if 0 in saves:
@@ -207,7 +209,7 @@ def osem(
       expectation = gain * operator.forward(x) + background
       ratio = np.divide(y, np.maximum(expectation, epsilon)) * selector
       x *= operator.adjoint(gain * ratio) / sensitivity
-      x = np.maximum(x, epsilon)
+      x = np.maximum(x, 0.0)
     if iteration in saves:
       outputs[iteration] = x.astype(np.float32)
   return outputs
