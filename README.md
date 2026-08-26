@@ -6,8 +6,10 @@ invalid v3 workflow.
 Only `code/sam_kem/`, `code/experiments/`,
 `code/configs/experiment.yaml`, and `code/configs/protocols/` are active
 experiment sources.
-The base configuration is development-only: its SHA-pinned split has train and
-validation subjects but deliberately no locked test. Normalization calibration
+The base configuration is development-only: its SHA-pinned model/subject split
+has train and validation groups but deliberately no locked test. BrainWeb uses
+all positive-activity axial planes from each source model while keeping every
+plane from a model in one split. Normalization calibration
 and GPU decoder training may proceed; the release validator remains non-zero
 until an external untouched test and all final artifacts are supplied.
 

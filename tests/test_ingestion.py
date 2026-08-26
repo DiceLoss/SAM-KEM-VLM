@@ -1,10 +1,9 @@
-import csv
 import json
 from pathlib import Path
 
 import numpy as np
 
-from sam_kem.artifacts import file_sha256
+from sam_kem.artifacts import atomic_csv_writer, file_sha256, finalize_csv
 from sam_kem.ingestion import (
   SOURCE_COLUMNS, SourceCase, ingest_manifest, resize_full_square, transform_activity,
 )
@@ -12,9 +11,12 @@ from sam_kem.noise import array_sha256
 
 
 def _write_manifest(path: Path, row: dict) -> None:
-  with path.open("w", encoding="utf-8", newline="") as handle:
-    writer = csv.DictWriter(handle, fieldnames=SOURCE_COLUMNS)
-    writer.writeheader(); writer.writerow(row)
+  with atomic_csv_writer(path, list(SOURCE_COLUMNS)) as writer:
+    writer.writerow(row)
+  finalize_csv(
+    path, schema_name="source_activity_manifest_v2",
+    primary_key=["dataset", "subject_id", "slice_id"],
+  )
 
 
 def test_manifest_ingestion_mean_pools_without_normalizing(tmp_path):

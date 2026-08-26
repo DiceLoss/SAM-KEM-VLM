@@ -5,12 +5,13 @@
 实验人员不再设计协议、选择数据、修改超参数或解释结果，只负责在有 GPU 和完整
 原始数据的服务器上依次执行本文件命令，并把完整产物与日志交回。
 
-当前阶段是 **development-only**：BrainWeb 为 16 train / 4 validation，HECKTOR
-为 179 train / 45 validation，`test_locked=0`。所有 244 个对象都已在历史实验中
+当前阶段是 **development-only**：BrainWeb 为 16/4 个 source model、HECKTOR
+为 179/45 个 patient，`test_locked=0`。所有 244 个独立对象都已在历史实验中
 暴露，因此本阶段可以训练和验证 normalization 候选，但不能产生最终测试结论。
 
-每个 subject 固定使用一个切片：BrainWeb 使用 NIfTI 几何中心层，HECKTOR 使用
-NPZ `input[subject_id-1,72,:,:,1]`。代码不会读取 HECKTOR 肿瘤 mask。
+BrainWeb 不是每个模型只取一层：每个 source model 中所有有限、非负且总活度大于
+零的轴向层都作为二维样本，同时严格继承该模型的 train/validation 归属。HECKTOR
+当前使用 NPZ `input[subject_id-1,72,:,:,1]`。代码不会读取 HECKTOR 肿瘤 mask。
 
 ## 1. 安装并固定环境
 
@@ -59,7 +60,7 @@ sam-kem prepare-development-sources \
   --brainweb-root /ABSOLUTE/PATH/brainweb_petmr \
   --hecktor-npz /ABSOLUTE/PATH/HECKTOR.npz \
   --hecktor-unit SUV \
-  --output-root staging/clean_v1_sources \
+  --output-root staging/clean_v1_multislice_sources \
   --manifest inputs/clean_v1/source_activity_manifest.csv
 
 git add inputs/clean_v1/source_activity_manifest.csv \
@@ -67,8 +68,12 @@ git add inputs/clean_v1/source_activity_manifest.csv \
 git commit -m 'Record development PET source manifest'
 ```
 
-该命令流式解包 `HECKTOR.npz` 的 `input.npy`，只提取 PET channel；不会打开
-其他 NPZ member。若 SHA、数组形状、subject 映射或切片值异常，命令会终止。
+该命令会展开 BrainWeb 每个模型的全部有效活度层；同时流式解包
+`HECKTOR.npz` 的 `input.npy`，只提取 PET channel，不会打开其他 NPZ member。
+若 SHA、数组形状、subject 映射或切片值异常，命令会终止。来源清单应为 3735
+行：BrainWeb 3511 层（2815 train / 696 validation）加 HECKTOR 224 层
+（179/45），绝不能仍是 244。BrainWeb 每个模型有 172--181 个有效层；这些数量
+已由提交的 20 个完整追踪 volume 独立核对，并由配置强制检查。
 
 ## 3. 摄入数据并拟合 normalization 候选
 

@@ -9,7 +9,7 @@ from pathlib import Path
 import numpy as np
 from scipy.ndimage import map_coordinates
 
-from .artifacts import atomic_save_numpy, atomic_write_json, file_sha256
+from .artifacts import atomic_save_numpy, atomic_write_json, file_sha256, verify_csv_artifact
 from .noise import array_sha256
 from .splits import load_subject_splits
 SOURCE_COLUMNS = (
@@ -59,6 +59,9 @@ def _optional_float(value: str) -> float | None:
 
 
 def load_source_manifest(root: Path, path: Path) -> list[SourceCase]:
+  record = verify_csv_artifact(path)
+  if record.get("schema_name") != "source_activity_manifest_v2":
+    raise ValueError("source ingestion requires a canonical v2 source manifest")
   with path.open("r", encoding="utf-8", newline="") as handle:
     reader = csv.DictReader(handle)
     missing = set(SOURCE_COLUMNS) - set(reader.fieldnames or ())

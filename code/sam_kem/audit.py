@@ -124,6 +124,19 @@ def audit_repository(root: Path, config_path: Path) -> list[Issue]:
         "SOURCE_CONTRACT", "fatal",
         f"{len(bad_sources)} source rows violate split/transform contract; first={bad_sources[0]}",
       ))
+    actual_source_counts: dict[str, dict[str, int]] = {}
+    for case in source_cases:
+      dataset_counts = actual_source_counts.setdefault(case.dataset, {})
+      dataset_counts[case.split] = dataset_counts.get(case.split, 0) + 1
+    for dataset, expectation in cfg["data"].get("expected_source_plane_counts", {}).items():
+      if not _matches_expected_split_counts(
+        actual_source_counts.get(dataset, {}), expectation,
+      ):
+        issues.append(Issue(
+          "SOURCE_PLANE_COUNTS", "fatal",
+          f"{dataset} source-plane counts {actual_source_counts.get(dataset, {})} "
+          f"!= {expectation}",
+        ))
 
   operator_path = root / str(cfg["forward_model"].get("implementation_path", ""))
   expected_operator_sha = cfg["forward_model"].get("implementation_sha256")

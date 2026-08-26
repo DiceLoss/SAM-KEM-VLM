@@ -1,7 +1,7 @@
 {
-  "artifact_path": "source_activity_manifest.csv",
-  "artifact_sha256": "1f80f7e30d0e75b611e1355060e32e8e1315d91c9f76cceb52768f4e18c388bc",
-  "byte_size": 73652,
+  "artifact_path": "source_activity_manifest_one_slice_INVALID.csv",
+  "artifact_sha256": "8d00614f5452cc504c0d935b2d0ccb44c5dce67098f5b3800ac29be38381f244",
+  "byte_size": 73407,
   "columns": [
     "dataset",
     "subject_id",
@@ -30,7 +30,8 @@
     "slice_id"
   ],
   "row_count": 244,
-  "schema_name": "source_activity_manifest_v2",
+  "invalidation_reason": "BrainWeb incorrectly retained only one geometric-centre plane per source model; canonical preparation requires all finite nonnegative positive-activity axial planes.",
+  "schema_name": "invalid_one_slice_source_manifest_forensic_v1",
   "schema_version": 1,
   "split": null
 }

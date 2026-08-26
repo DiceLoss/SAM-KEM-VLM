@@ -495,7 +495,7 @@ def build_parser() -> argparse.ArgumentParser:
   split.set_defaults(func=_create_split)
   sources = sub.add_parser(
     "prepare-development-sources",
-    help="prepare one fixed PET slice per development subject without reading HE labels",
+    help="prepare declared PET planes under subject-level splits without reading HE labels",
   )
   sources.add_argument("--root", type=Path, default=Path("."))
   sources.add_argument("--config", type=Path, default=Path("code/configs/experiment.yaml"))

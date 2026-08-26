@@ -82,7 +82,9 @@ def atomic_csv_writer(path: Path, fieldnames: list[str]) -> Iterator[csv.DictWri
   temporary = Path(temporary_name)
   try:
     with os.fdopen(descriptor, "w", encoding="utf-8", newline="") as handle:
-      writer = csv.DictWriter(handle, fieldnames=fieldnames, extrasaction="raise")
+      writer = csv.DictWriter(
+        handle, fieldnames=fieldnames, extrasaction="raise", lineterminator="\n",
+      )
       writer.writeheader()
       yield writer
       handle.flush(); os.fsync(handle.fileno())

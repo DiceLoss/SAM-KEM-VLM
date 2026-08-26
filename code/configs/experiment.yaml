@@ -24,6 +24,9 @@ data:
   expected_subject_counts:
     brainweb: {train: 16, validation: 4, test_locked: 0}
     hecktor: {train: 179, validation: 45, test_locked: 0}
+  expected_source_plane_counts:
+    brainweb: {train: 2815, validation: 696, test_locked: 0}
+    hecktor: {train: 179, validation: 45, test_locked: 0}
 
 acquisition:
   count_levels: [100000, 200000, 500000, 1000000]

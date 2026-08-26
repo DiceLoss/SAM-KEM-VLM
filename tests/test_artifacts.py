@@ -32,6 +32,13 @@ def test_csv_manifest_detects_tampering_and_duplicate_keys(tmp_path):
   assert json.loads(manifest.read_text())["primary_key"] == ["id"]
 
 
+def test_atomic_csv_bytes_use_platform_independent_lf(tmp_path):
+  output = tmp_path / "result.csv"
+  with atomic_csv_writer(output, ["id", "value"]) as writer:
+    writer.writerow({"id": "1", "value": "x"})
+  assert output.read_bytes() == b"id,value\n1,x\n"
+
+
 def test_success_marker_requires_all_artifacts(tmp_path):
   present = tmp_path / "a.txt"; present.write_text("a", encoding="utf-8")
   with pytest.raises(FileNotFoundError):

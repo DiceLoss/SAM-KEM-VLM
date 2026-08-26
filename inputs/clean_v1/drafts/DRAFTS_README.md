@@ -34,6 +34,12 @@ invalidated forensic artifact. A regenerated manifest must use
 `resize_full_square_to_128` and the current template; scanner FOV and axis are
 not inputs to the pixel-domain operator. See `../hecktor_geometry.json`.
 
+`source_activity_manifest_one_slice_INVALID.csv` is the 2026-08-26 Step 1/2
+attempt. Its HE rows and source hashes are retained as forensic evidence, but
+its BrainWeb portion used only `z129` from each of 20 source models. This loses
+roughly 93% of the available positive-activity planes and must never be used for
+normalization, Qwen prompting, decoder training, validation, or reporting.
+
 ## `source_sha256.json`
 
 Raw SHAs computed for the BW per-subject `true_pet.nii.gz` files and

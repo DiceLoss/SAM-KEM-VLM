@@ -5,10 +5,13 @@ only. They are not admissible as final paper evidence. They were produced before
 the canonical implementation in `code/sam_kem/` and include known operator,
 checkpoint, box-cache, normalization, coverage, and validation-sweep violations.
 
-Development training may now begin under the SHA-pinned 16/4 BrainWeb and
+Development source preparation may proceed under the SHA-pinned 16/4 BrainWeb and
 179/45 HECKTOR train/validation split. All 244 subjects are explicitly marked
 as previously exposed development data; this split contains no `test_locked`
-rows and cannot support final generalization claims. The GPU worker must compare
+rows and cannot support final generalization claims. BrainWeb must expand every
+source model into all finite, nonnegative, positive-activity axial planes; a
+one-centre-slice manifest is invalid. The pinned development plane counts are
+2815/696 for BrainWeb and 179/45 for HECKTOR. The GPU worker must compare
 the train-derived fixed-scale and train-global-minmax candidates, training a
 separate BrainWeb and HECKTOR decoder for each candidate. Final evaluation
 remains blocked until genuinely unexposed external subjects are acquired.
