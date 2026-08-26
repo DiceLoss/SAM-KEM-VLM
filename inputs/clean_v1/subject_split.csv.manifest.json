@@ -1,0 +1,33 @@
+{
+  "split_id": "clean_v1_subject_holdout_CANDIDATE_INVALIDATED",
+  "split_locked_utc": "2026-08-26T00:00:00Z",
+  "subject_counts": {
+    "brainweb": {
+      "train": 14,
+      "validation": 3,
+      "test_locked": 3
+    },
+    "hecktor": {
+      "train": 156,
+      "validation": 34,
+      "test_locked": 34
+    }
+  },
+  "previous_exposure_status_summary": {
+    "brainweb": {
+      "development_allowed": 20
+    },
+    "hecktor": {
+      "development_allowed": 224
+    }
+  },
+  "split_validity": "INVALIDATED",
+  "invalidation_reason": "START_HERE_ZH.md requires every locked_test subject to have previous_exposure_status = 'never_used_for_training_validation_tuning_or_reporting'. In subject_inventory.csv all 244 v3 subjects are marked 'development_allowed' because the v3 sweep opened them. Therefore this split satisfies the COUNTS (14/3/3 BW + 156/34/34 HE) but NO subject is eligible for locked_test. The paper has no honest untouched test set under the current data inventory. The researcher must either (a) acquire genuinely unexposed subjects or (b) declare the study has no untouched test set. Both paths forbid relabelling previously exposed subjects.",
+  "next_steps_required": [
+    "Option A: source additional unexposed subjects (BrainWeb source models not in v3 inventory; HECKTOR subjects not in HECKTOR.npz or not opened during v3 sweep).",
+    "Option B: state in the manuscript that the study has no honest untouched test set, and replace locked_test with external holdout or peer-reviewed validation only.",
+    "Option C (forbidden): relabel previously exposed subjects as previous_exposure_status = 'never_used_...'. This is explicitly prohibited by the START_HERE_ZH.md guide."
+  ],
+  "experiment_yaml_split_sha256_to_set": null,
+  "comment": "data.split_sha256 in code/configs/experiment.yaml must remain null until this split is finalized. The audit's MEDSAM2_SOURCE, FIXED_SCALE_C and IMMUTABLE_ARCHIVE_URI blockers must be resolved first per the START_HERE_ZH.md ordering."
+}

@@ -1,0 +1,5 @@
+dataset,subject_id,slice_id,split,activity_path,activity_sha256,activity_unit
+brainweb,subject04,z125,train,arrays/clean_v1/brainweb/subject04/z125/raw_activity.npy,REPLACE_WITH_ARRAY_SHA256,BrainWeb_simulation_activity
+brainweb,subject41,z126,validation,arrays/clean_v1/brainweb/subject41/z126/raw_activity.npy,REPLACE_WITH_ARRAY_SHA256,BrainWeb_simulation_activity
+hecktor,1,z72,train,arrays/clean_v1/hecktor/1/z72/raw_activity.npy,REPLACE_WITH_ARRAY_SHA256,SUV
+hecktor,107,z72,validation,arrays/clean_v1/hecktor/107/z72/raw_activity.npy,REPLACE_WITH_ARRAY_SHA256,SUV

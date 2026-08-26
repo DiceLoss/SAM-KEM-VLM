@@ -1,0 +1,49 @@
+{
+  "official_repository": {
+    "url": "https://github.com/bowang-lab/MedSAM2",
+    "commit_pinned": "PENDING — must be SHA-pinned before any decoder training run.",
+    "rationale": "MedSAM2 (Bowang Lab) extends SAM2 (Meta AI) for medical image segmentation. Per the START_HERE_ZH.md guide, a fixed immutable Git commit is required so every trained decoder is reproducible from the exact source tree."
+  },
+  "source_checkout": {
+    "path": "PENDING — must be populated before training.",
+    "expected_contents": "Official MedSAM2 repository with the pinned commit above."
+  },
+  "released_pretrained_checkpoint": {
+    "path_local": "D:/MIAProject/EM-reconstruction/MedSAM2.pt",
+    "path_in_config": "checkpoints/MedSAM2.pt",
+    "sha256_observed": "c92743b99f00d078bf32a3afcc38aaa9faf1c1692dffe3eaa7a90938c1991060",
+    "size_bytes": 156046933,
+    "download_source": "Released by the Bowang Lab MedSAM2 team via the official repository's release page (https://github.com/bowang-lab/MedSAM2/releases). The exact URL/asset name must be recorded before training so the SHA can be re-verified.",
+    "note": "Released MedSAM2.pt is a SAM2.1_hiera_t fine-tuned for medical segmentation. It must be used as the pretrained backbone only; per START_HERE_ZH.md, BrainWeb and HECKTOR decoders must each be retrained on their own split and cannot be passed off as 'the released checkpoint'."
+  },
+  "decoder_checkpoints_v3_for_forensic_comparison": {
+    "_forensic_only": "These are the v3 trained decoders retained for forensic comparison only. They are NOT eligible clean_v1 inference checkpoints. clean_v1 must retrain both decoders on the new clean_v1 split.",
+    "brainweb": {
+      "path_local": "D:/MIAProject/SAM_KEM_v3_checkpoints/medsam2_decoder_brainweb_v4.pt",
+      "sha256": "2ee2b4c334c3fe4583092238742f9bd6d214c8e4af2d8221e94d005806f79ef7",
+      "size_bytes": 156046933
+    },
+    "hecktor": {
+      "path_local": "D:/MIAProject/SAM_KEM_v3_checkpoints/medsam2_decoder_hecktor.pt",
+      "sha256": "ab6fbbb89fbc7d15e1ceee88936522a35dc46a3879aea8d4047acd653bb32d18",
+      "size_bytes": 156045089
+    },
+    "audit_status": "AUDIT_ONLY — these checkpoints were trained on the v3 split that the strict review invalidated. They cannot be reused for the MIA submission."
+  },
+  "immutable_archive_uri": {
+    "_status": "PENDING — must be filled before final validation. Per OPERATIONS_RUNBOOK.md: 'A mutable local path alone is insufficient.' Suggested URI format: institutional object-store version, DOI-backed deposit, or other immutable project location.",
+    "value": null
+  },
+  "training_requirements_for_clean_v1": {
+    "epochs": 20,
+    "steps_per_epoch": 400,
+    "learning_rate": 1.0e-4,
+    "optimizer": "AdamW",
+    "loss": "L1",
+    "frozen_components": ["image_encoder", "prompt_encoder", "memory_encoder"],
+    "trainable_components": ["mask_decoder"],
+    "sampling": "balanced across all four count levels per dataset, one joint model per dataset",
+    "checkpoint_selection": "fixed_budget_final_checkpoint — no best-on-validation selection",
+    "input_subset_filter": "training rows only; no validation, no test_locked"
+  }
+}

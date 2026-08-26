@@ -1,0 +1,54 @@
+{
+  "policy": "Per START_HERE_ZH.md, fixed scale C must come from a physical source (scanner DICOM/manual, simulation definition) or a recorded derivation. Per-image min-max is prohibited as the primary scale. Training-set global min-max is permitted only as an explicitly identified sensitivity arm.",
+  "brainweb": {
+    "value": null,
+    "unit": null,
+    "source": null,
+    "status": "PENDING — BrainWeb PET simulation activity is a digital-phantom quantity with no direct physical Bq/mL constant. The BrainWeb simulator (http://brainweb.bic.mni.mcgill.ca/brainweb/) does not publish a fixed activity concentration. We must either (a) cite the simulation definition that ties each tissue class to a target concentration, (b) use a recorded data-derived candidate (e.g. training-set global maximum), or (c) contact the BrainWeb authors for a reference value.",
+    "candidates": {
+      "physical_from_simulation_definition": {
+        "value": null,
+        "evidence_path": "PENDING — must link to BrainWeb simulator tissue-class → activity table."
+      },
+      "training_set_global_max_zero_offset": {
+        "value": null,
+        "derivation_rule": "max over all train raw_activity arrays (after mean_pool_2x2_circular_fov). Compute via sam-kem calibrate-normalization on train only.",
+        "evidence_path": "PENDING — will be emitted by calibrate-normalization under protocol code/configs/protocols/normalization_calibration.yaml."
+      },
+      "training_set_global_minmax": {
+        "value": null,
+        "clip_rule": "validation values are clipped to [min_train, max_train] only as a sensitivity arm; zero point is min_train (not 0).",
+        "evidence_path": "PENDING — sensitivity arm, never the primary scale."
+      }
+    }
+  },
+  "hecktor": {
+    "value": null,
+    "unit": null,
+    "source": null,
+    "status": "PENDING — HECKTOR.npz::input[...,1] is SUV (max ~4.5-15.2 per the START_HERE_ZH.md guide). The HECKTOR challenge does not publish a single fixed scanner-count constant. The previous v3 attempt used ~30000, but that constant applies to raw scanner counts, not SUV, and MUST NOT be used on the current SUV arrays.",
+    "candidates": {
+      "physical_scanner_count_constant": {
+        "value": null,
+        "evidence_path": "PENDING — would require the original scanner list-mode / sinogram data, not present in HECKTOR.npz. This candidate is unavailable for the SUV arrays and should be excluded."
+      },
+      "training_set_global_max_zero_offset": {
+        "value": null,
+        "derivation_rule": "max over all train raw_activity arrays (after physical_resample_circular_fov). Compute via sam-kem calibrate-normalization on train only.",
+        "evidence_path": "PENDING — will be emitted by calibrate-normalization."
+      },
+      "training_set_global_minmax": {
+        "value": null,
+        "clip_rule": "validation values are clipped to [min_train, max_train] only as a sensitivity arm.",
+        "evidence_path": "PENDING — sensitivity arm."
+      }
+    }
+  },
+  "next_step": "Run sam-kem calibrate-normalization on the train split only. The output will populate training_set_global_max_zero_offset for both datasets. Until a physical source is recorded, the data-derived global-maximum candidate will be used as the PRIMARY scale. The training-set min-max and per-image min-max are sensitivity arms only.",
+  "forbidden_uses": [
+    "Per-image min-max as primary scale.",
+    "Per-dataset arbitrary constant (e.g. 30000) without recorded source.",
+    "Validation-set-derived constant.",
+    "Test-set-derived constant (must never be opened before freeze)."
+  ]
+}

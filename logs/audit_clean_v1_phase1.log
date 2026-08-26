@@ -1,0 +1,22 @@
+FATAL CONTRACT: clean split_id and 64-character split_sha256 are required
+FATAL CONFIG_UNLOCKED: set locked=true and status=locked_for_execution only after resolving provenance
+FATAL SPLIT: data.split_sha256 must pin the clean subject split
+FATAL SOURCE_MANIFEST: could not convert string to float: 'PENDING_PHYSICAL_GEOMETRY'
+FATAL MEDSAM2_CHECKOUT: not a readable Git checkout: D:\MIAProject\SAM_KEM_QWEN3_V3_REPO\PENDING_LOCAL_PATH_BEFORE_TRAINING
+FATAL MEDSAM2_PRETRAINED: pretrained MedSAM2 checkpoint/path SHA is unresolved
+FATAL CHECKPOINT_ARCHIVE: immutable checkpoint archive URI missing for brainweb
+FATAL CHECKPOINT_SHA: unresolved checkpoint SHA for brainweb
+FATAL CHECKPOINT_ARCHIVE: immutable checkpoint archive URI missing for hecktor
+FATAL CHECKPOINT_SHA: unresolved checkpoint SHA for hecktor
+FATAL BOX_CACHE: [Errno 2] No such file or directory: 'D:\\MIAProject\\SAM_KEM_QWEN3_V3_REPO\\prompts\\clean_v1\\final_box_cache.csv.manifest.json'
+FATAL TRAINING_BOX_CACHE: [Errno 2] No such file or directory: 'D:\\MIAProject\\SAM_KEM_QWEN3_V3_REPO\\prompts\\clean_v1\\train_validation_box_cache.csv.manifest.json'
+FATAL PRETRAINING_MANIFEST: [Errno 2] No such file or directory: 'D:\\MIAProject\\SAM_KEM_QWEN3_V3_REPO\\results\\clean_v1\\case_manifest_inputs.csv.manifest.json'
+FATAL VALIDATION_MANIFEST: [Errno 2] No such file or directory: 'D:\\MIAProject\\SAM_KEM_QWEN3_V3_REPO\\results\\clean_v1\\validation_case_manifest.csv.manifest.json'
+FATAL BOX_INPUT_MANIFEST: [Errno 2] No such file or directory: 'D:\\MIAProject\\SAM_KEM_QWEN3_V3_REPO\\results\\clean_v1\\final_box_inputs.csv.manifest.json'
+FATAL MANIFEST_MISSING: missing canonical case manifest: D:\MIAProject\SAM_KEM_QWEN3_V3_REPO\results\clean_v1\case_manifest.csv
+FATAL RESULT_ARCHIVE: immutable result archive URI is unresolved
+FATAL RUN_METADATA: missing D:\MIAProject\SAM_KEM_QWEN3_V3_REPO\runs\clean_v1\comparison\run_metadata.json
+FATAL RUN_INCOMPLETE: [Errno 2] No such file or directory: 'D:\\MIAProject\\SAM_KEM_QWEN3_V3_REPO\\runs\\clean_v1\\comparison\\_SUCCESS.json'
+FATAL RESULTS_MISSING: missing D:\MIAProject\SAM_KEM_QWEN3_V3_REPO\runs\clean_v1\comparison\per_case_metrics.csv
+FATAL SWEEP_MISSING: missing D:\MIAProject\SAM_KEM_QWEN3_V3_REPO\runs\clean_v1\hyperparameter_sweep\validation_sweep.csv
+FATAL FROZEN_HYPERPARAMETERS_MISSING: missing D:\MIAProject\SAM_KEM_QWEN3_V3_REPO\results\clean_v1\frozen_hyperparameters.csv
