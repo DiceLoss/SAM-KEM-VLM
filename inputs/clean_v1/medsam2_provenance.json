@@ -1,0 +1,77 @@
+{
+  "official_repository": {
+    "url": "https://github.com/bowang-lab/MedSAM2",
+    "default_branch": "main",
+    "official_download_script": "https://github.com/bowang-lab/MedSAM2/blob/main/download.sh",
+    "source_commit": null,
+    "source_checkout_path": null,
+    "_source_commit_pending": "The researcher must git clone https://github.com/bowang-lab/MedSAM2, capture git rev-parse HEAD of the commit that ships the download.sh currently in use, and set medsam2.source_commit in code/configs/experiment.yaml. Until then, the source_commit field remains null and the audit's MEDSAM2_CHECKOUT blocker remains unresolved."
+  },
+  "official_checkpoint_distribution": {
+    "hugging_face_org": "wanglab/MedSAM2",
+    "hugging_face_url_template": "https://huggingface.co/wanglab/MedSAM2/resolve/main/<filename>",
+    "files_offered_by_official_download_script": [
+      "MedSAM2_2411.pt",
+      "MedSAM2_US_Heart.pt",
+      "MedSAM2_MRI_LiverLesion.pt",
+      "MedSAM2_CTLesion.pt",
+      "MedSAM2_latest.pt"
+    ],
+    "backbone_for_architecture": {
+      "url": "https://dl.fbaipublicfiles.com/segment_anything_2/092824/sam2.1_hiera_tiny.pt",
+      "description": "SAM2.1 Hiera-T base weights from Meta AI. The bowang-lab/MedSAM2 download.sh pulls this as the upstream backbone before fine-tuning. This file is distinct from MedSAM2_latest.pt and has a different SHA-256.",
+      "expected_size_bytes": "~156 MB"
+    }
+  },
+  "released_pretrained_checkpoint_verified": {
+    "filename": "MedSAM2_latest.pt",
+    "official_hugging_face_file_url": "https://huggingface.co/wanglab/MedSAM2/blob/main/MedSAM2_latest.pt",
+    "official_hugging_face_revision": "c0b302de5e19211e9f1425c6215f6172eb5eca7f",
+    "official_hugging_face_commit_url": "https://huggingface.co/wanglab/MedSAM2/commit/c0b302de5e19211e9f1425c6215f6172eb5eca7f",
+    "official_sha256": "c92743b99f00d078bf32a3afcc38aaa9faf1c1692dffe3eaa7a90938c1991060",
+    "official_size_bytes": 156040129,
+    "local_path": "D:/MIAProject/EM-reconstruction/MedSAM2.pt",
+    "local_sha256_observed": "c92743b99f00d078bf32a3afcc38aaa9faf1c1692dffe3eaa7a90938c1991060",
+    "local_size_bytes_observed": 156040129,
+    "verification_status": "VERIFIED — local file is byte-identical to the official MedSAM2_latest.pt. SHA-256 and size both match exactly.",
+    "experiment_yaml_path_value": "checkpoints/MedSAM2_latest.pt",
+    "experiment_yaml_sha256_value": "c92743b99f00d078bf32a3afcc38aaa9faf1c1692dffe3eaa7a90938c1991060",
+    "_rename_recommendation": "The local file should be renamed MedSAM2.pt -> MedSAM2_latest.pt to match the official filename before any archive step. The bytes are unchanged; the rename is purely for clarity and to match experiment.yaml."
+  },
+  "decoder_checkpoints_v3_for_forensic_comparison": {
+    "_forensic_only": "The v3 trained decoders are retained for forensic comparison only. They are NOT eligible clean_v1 inference checkpoints. clean_v1 must retrain both decoders on the new clean_v1 split. Their SHAs are recorded here for forensic traceability only.",
+    "brainweb": {
+      "path_local": "D:/MIAProject/SAM_KEM_v3_checkpoints/medsam2_decoder_brainweb_v4.pt",
+      "sha256": "2ee2b4c334c3fe4583092238742f9bd6d214c8e4af2d8221e94d005806f79ef7",
+      "size_bytes": 156046933
+    },
+    "hecktor": {
+      "path_local": "D:/MIAProject/SAM_KEM_v3_checkpoints/medsam2_decoder_hecktor.pt",
+      "sha256": "ab6fbbb89fbc7d15e1ceee88936522a35dc46a3879aea8d4047acd653bb32d18",
+      "size_bytes": 156045089
+    },
+    "audit_status": "AUDIT_ONLY — these checkpoints were trained on the v3 split that the strict review invalidated. They cannot be reused for the MIA submission.",
+    "_note_on_size_discrepancy": "The forensic-only v3 decoder files are 156046933 and 156045089 bytes respectively. These differ from the released MedSAM2_latest.pt size 156040129 because the v3 training pipeline wrote new state_dict entries on top of the released checkpoint (a frozen-encoder + retrained-mask-decoder state with additional metadata), so a different file size is expected. Their SHA-256 values are the correct identity for these forensic checkpoints."
+  },
+  "immutable_archive_uri": {
+    "_status": "PENDING — must be filled before final validation. Per OPERATIONS_RUNBOOK.md: 'A mutable local path alone is insufficient.'",
+    "value": null
+  },
+  "training_requirements_for_clean_v1": {
+    "epochs": 20,
+    "steps_per_epoch": 400,
+    "learning_rate": 1.0e-4,
+    "optimizer": "AdamW",
+    "loss": "L1",
+    "frozen_components": ["image_encoder", "prompt_encoder", "memory_encoder"],
+    "trainable_components": ["mask_decoder"],
+    "sampling": "balanced across all four count levels per dataset, one joint model per dataset",
+    "checkpoint_selection": "fixed_budget_final_checkpoint — no best-on-validation selection",
+    "input_subset_filter": "training rows only; no validation, no test_locked",
+    "prerequisites_for_unblocking_training": [
+      "medsam2.source_commit set to the pinned Git commit of the official repo.",
+      "medsam2.source_checkout_path set to the local checkout that matches the pinned commit.",
+      "checkpoints/MedSAM2_latest.pt in place and its SHA matches the verified value above."
+    ]
+  }
+}

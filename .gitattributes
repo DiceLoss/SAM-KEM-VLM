@@ -1,0 +1,3 @@
+# Force LF line endings on all text files so SHA pinning of code,
+# manifests, and configuration is reproducible across Windows/Linux.
+* text=auto eol=lf

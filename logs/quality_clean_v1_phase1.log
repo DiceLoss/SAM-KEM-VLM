@@ -1,0 +1,6 @@
+All checks passed!
+ruff rc=0
+compile rc=0
+...................................................                      [100%]
+51 passed in 3.67s
+pytest rc=0

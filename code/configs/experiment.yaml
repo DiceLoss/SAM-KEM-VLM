@@ -54,6 +54,9 @@ forward_model:
   operator_id: pixel_driven_parallel_beam_circular_fov_size128_n180
   implementation_path: code/sam_kem/pet_operator.py
   implementation_sha256: 6e6e5d4f14963c9c995869b4ae2be2504afb918546d9e23ba678c261a9befb14
+  # SHA-256 is computed on the LF-normalized text. The .gitattributes
+  # in the repo root forces LF for every tracked text file so the same
+  # SHA is reproducible on Linux and Windows checkouts.
   angles: 180
   image_size: 128
   geometry: idealized_parallel_beam
@@ -87,11 +90,20 @@ prompts:
 
 medsam2:
   architecture: sam2.1_hiera_t
-  source_repository: null
+  source_repository: https://github.com/bowang-lab/MedSAM2
   source_commit: null
   source_checkout_path: null
-  pretrained_checkpoint_path: checkpoints/MedSAM2.pt
-  pretrained_checkpoint_sha256: null
+  pretrained_checkpoint_path: checkpoints/MedSAM2_latest.pt
+  pretrained_checkpoint_sha256: c92743b99f00d078bf32a3afcc38aaa9faf1c1692dffe3eaa7a90938c1991060
+  # Verified byte-identical to the official MedSAM2_latest.pt at
+  # https://huggingface.co/wanglab/MedSAM2/blob/main/MedSAM2_latest.pt
+  # (HF revision c0b302de5e19211e9f1425c6215f6172eb5eca7f).
+  # See inputs/clean_v1/medsam2_provenance.json.
+  # v3 retrained decoders are recorded there as forensic-only and
+  # MUST NOT be reused as the clean_v1 inference checkpoints.
+  # source_commit and source_checkout_path remain null until the
+  # researcher pins a Git commit of the bowang-lab/MedSAM2 repo
+  # that ships the download.sh used to verify the SHA above.
   checkpoint_scope: dataset_specific
   checkpoint_format: mask_decoder_only_inference_plus_separate_resumable_training_state
   checkpoint_selection_policy: fixed_budget_final_checkpoint_no_best_claim
