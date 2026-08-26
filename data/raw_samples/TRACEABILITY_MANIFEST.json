@@ -1,20 +1,26 @@
 {
   "brainweb": {
-    "file": "data\\raw_samples\\raw_pet_brainweb.npz",
+    "file": "data/raw_samples/raw_pet_brainweb.npz",
+    "file_sha256": "b4e24e6411d51a178eccd3ca13596b3f9fde7df05b9b476611fbe130fe20c863",
     "size_mb": 0.2,
     "n_subjects": 3,
     "format": "raw256 (256x256 float32) + target128 (128x128 float32) per slice",
     "source": "D:/MIAProject/brainweb/数据/brainweb_petmr/<sid>/sim_0/true_pet.nii.gz",
-    "preprocessing": "none on raw256 (kept as scanner-faithful); target128 is mean-pool 2x2 of raw256"
+    "activity_unit": "BrainWeb simulation units (not scanner calibrated)",
+    "preprocessing": "raw256 is an unnormalized float32 source slice; target128 is its exact 2x2 mean pool",
+    "source_and_array_hash_status": "not recorded in this first traceability export; regenerate with the revised exporter"
   },
   "hecktor": {
-    "file": "data\\raw_samples\\raw_pet_hecktor.npz",
+    "file": "data/raw_samples/raw_pet_hecktor.npz",
+    "file_sha256": "05020f01329c2fbd8b328d14badb9c756d4b7be5db2102636589de92c398afd7",
     "size_mb": 0.9,
     "n_subjects": 6,
     "format": "ct (144x144 float32 HU) + pet_input (144x144 float32 SUV-scale) per slice",
     "source": "D:/MIAProject/HECKTOR.npz::input[<sid>-1, 72, :, :, :]",
-    "preprocessing": "none — kept as scanner-faithful inputs from HECKTOR.npz",
+    "preprocessing": "no transformation after extraction from the upstream processed HECKTOR.npz container",
     "subject_id_to_npz_mapping": "subject_id -> npz axis 0 index (subject_id - 1)",
-    "pet_unit": "SUV-like normalized units (max ~ 25-40 across subjects)"
+    "pet_unit": "SUV (declared by data provider; source DICOM/NIfTI metadata is not included here)",
+    "source_and_array_hash_status": "not recorded in this first traceability export; regenerate with the revised exporter",
+    "spatial_metadata_status": "missing voxel spacing, affine/orientation, and scanner transaxial FOV"
   }
 }
