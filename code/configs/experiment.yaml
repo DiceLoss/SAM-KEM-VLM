@@ -1,0 +1,172 @@
+schema_version: 1
+status: blocked_pending_required_physical_constants_and_rerun
+locked: false
+
+reproducibility:
+  experiment_seed: 20260817
+  deterministic_algorithms: true
+
+data:
+  split_file: code/configs/subject_split_v3.csv
+  split_unit:
+    brainweb: source_model
+    hecktor: patient
+  expected_subject_counts:
+    brainweb: {train: 14, validation: 3, test_locked: 3}
+    hecktor: {train: 156, validation: 34, test_locked: 34}
+
+acquisition:
+  count_levels: [100000, 200000, 500000, 1000000]
+  realizations: [0, 1, 2]
+  observation_model: poisson_scaled_noise_free_projection
+  dose_interpretation: expected_detected_counts_proxy_not_calibrated_injected_activity
+  independent_realizations_across_count_levels: true
+
+normalization:
+  normalization_id: fixed_physical_C
+  rule: divide_by_fixed_dataset_physical_constant
+  # These values must be supplied from scanner/simulation provenance before a run.
+  # Do not replace them with per-image or dataset-wide min-max normalization.
+  scale_constants:
+    brainweb: null
+    hecktor: null
+  # Required evidence, e.g. scanner DICOM field/manual or simulation definition.
+  scale_constant_sources:
+    brainweb: null
+    hecktor: null
+  offsets: {brainweb: 0.0, hecktor: 0.0}
+  clip_to_expected_target_range: false
+  expected_target_range: [0.0, 1.0]
+  target_range_tolerance: 1.0e-6
+  kernel_feature_rule: per_prior_minmax_only
+
+forward_model:
+  operator_id: pixel_driven_parallel_beam_circular_fov_size128_n180
+  implementation_path: code/src/original/discrete_radon.py
+  implementation_sha256: ffe86c4282bda79200bab669cedab34d95a8f0fe73c87941c250c3d21be67b80
+  angles: 180
+  image_size: 128
+  geometry: idealized_parallel_beam
+  axial_model: independent_2d_ring_positions_no_axial_coincidence_model
+  field_of_view: inscribed_circle
+  out_of_fov_activity_mass_tolerance: 1.0e-6
+  attenuation: none
+  scatter: none
+  randoms: none
+  detector_normalization: none
+  point_spread_function: none
+  time_of_flight: none
+  dead_time: none
+  require_adjoint_test: true
+  same_operator_for_simulation_reconstruction_and_deviance: true
+
+prompts:
+  provider: dashscope
+  model: qwen3-vl-plus
+  text: "框选出所有明亮团块，返回包含它们的最小单个外接矩形框。"
+  anchor_realization: 0
+  cache_key: [dataset, subject_id, slice_id, count_level]
+  coordinate_convention: xyxy_half_open_on_128x128
+  share_across_realizations: true
+  box_cache: prompts/anchor_box_lookup_v2.csv
+  fallback: intensity_centroid_box
+  fallback_box_size: [32, 32]
+  fallback_relative_threshold: 0.5
+  zero_mass_rule: geometric_center
+
+medsam2:
+  architecture: sam2.1_hiera_t
+  source_repository: null
+  source_commit: null
+  source_checkout_path: null
+  pretrained_checkpoint_path: checkpoints/MedSAM2.pt
+  pretrained_checkpoint_sha256: null
+  checkpoint_scope: dataset_specific
+  checkpoint_format: mask_decoder_only_inference_plus_separate_resumable_training_state
+  checkpoint_selection_policy: fixed_budget_final_checkpoint_no_best_claim
+  checkpoint_atomic_write: true
+  frozen_components: [image_encoder, prompt_encoder, memory_encoder]
+  trainable_components: [mask_decoder]
+  loss: l1
+  training_count_levels: [100000, 200000, 500000, 1000000]
+  training_model_scope: one_joint_model_per_dataset
+  inference_output: continuous_raw_decoder_output
+  raw_prior_kernel_transform: per_prior_minmax
+  physical_prior_output_constraint: clip_to_fixed_target_range_without_sigmoid_or_minmax
+  allow_pretrained_fallback: false
+  checkpoint_sha256:
+    brainweb: null
+    hecktor: null
+  checkpoint_paths:
+    brainweb: checkpoints/medsam2_decoder_brainweb.pt
+    hecktor: checkpoints/medsam2_decoder_hecktor.pt
+  checkpoint_archive_uri:
+    brainweb: null
+    hecktor: null
+  training:
+    epochs: 20
+    steps_per_epoch: 400
+    learning_rate: 1.0e-4
+    optimizer: AdamW
+    weight_decay: 1.0e-4
+    batch_size: 1
+    budget_source: predeclared_before_training
+    checkpoint_every_epochs: 1
+    save_optimizer_and_rng_state: true
+
+reconstruction:
+  prompt_mlem_iterations: 10
+  mlem_baseline_iteration_candidates: [1, 5, 10, 20, 40, 60, 80, 120]
+  osem_baseline_cycle_candidates: [1, 2, 5, 10, 20]
+  osem_subsets: 10
+  bowsher_neighbour_candidates: [4, 8, 12]
+  bowsher_radius_candidates: [1, 2, 3]
+  bowsher_method_id: Bowsher-KEM
+  bowsher_formulation: anatomy_selected_neighbour_coefficient_kernel_em_not_classic_map_bowsher
+  kem_formulation: coefficient_space_x_equals_K_alpha
+  normalize_inside_iterations: false
+  sigma_candidates: [0.025, 0.05, 0.1]
+  radius_candidates: [1, 2, 3]
+  iteration_candidates: [10, 20, 40, 60, 80, 100, 120]
+  alpha_candidates: [0.0, 0.1, 0.2, 0.3, 0.4, 0.5]
+  selection_split: validation
+  selection_primary_metric: subject_level_nrmse
+  selection_tiebreaker: subject_level_ssim
+  expand_boundary_optimum: true
+
+evaluation:
+  locked_test_used_once_after_freezing: true
+  region: full_128x128_fov
+  anatomy_used_to_define_metric_mask: false
+  required_methods:
+    - MLEM
+    - OSEM
+    - Bowsher-KEM
+    - SelfKEM
+    - MR-KEM
+    - CT-KEM
+    - SAM-prior-MedSAM2-Qwen3
+    - SAM-KEM-MedSAM2-Qwen3-no-post
+    - SAM-KEM-MedSAM2-Qwen3-full
+  required_methods_by_dataset:
+    brainweb: [MLEM, OSEM, Bowsher-KEM, SelfKEM, MR-KEM, SAM-prior-MedSAM2-Qwen3, SAM-KEM-MedSAM2-Qwen3-no-post, SAM-KEM-MedSAM2-Qwen3-full]
+    hecktor: [MLEM, OSEM, Bowsher-KEM, SelfKEM, CT-KEM, SAM-prior-MedSAM2-Qwen3, SAM-KEM-MedSAM2-Qwen3-no-post, SAM-KEM-MedSAM2-Qwen3-full]
+  proposed_method_uses_anatomy: false
+  hecktor_tumor_mask_use: prohibited
+  psnr_data_range_after_fixed_C_scaling: 1.0
+  nonnegative_tolerance: 1.0e-7
+
+outputs:
+  artifact_policy:
+    immutable: true
+    atomic_write: true
+    csv_manifest_required: true
+    success_marker_required: true
+    checksum: sha256
+    partial_run_eligible_for_paper: false
+    immutable_archive_uri: null
+  per_case_metrics: runs/comparison/per_case_metrics.csv
+  hyperparameter_sweep: runs/hyperparameter_sweep/validation_sweep.csv
+  frozen_hyperparameters: results/metrics/frozen_hyperparameters_v2.csv
+  raw_array_manifest: results/metrics/case_manifest_v2.csv
+  legacy_per_case_metrics: results/metrics/per_case_metrics_v3.csv

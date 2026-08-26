@@ -406,6 +406,11 @@ class MyDatasetRaw(Dataset):
 
 from torch_radon_impl import ParallelBeam
 def PET2Sinogram(img,radon,count=5e4):
+    raise RuntimeError(
+        "retired PET simulator: its random gain and flat additive background "
+        "are not part of the declared study model; use `sam-kem simulate`"
+    )
+    # Historical implementation retained below for forensic inspection only.
     # count 是计数 用于控制噪声 count高 100e4 就是低噪声 count低20e4 就是低噪声
     if isinstance(img,np.ndarray):
         x = torch.from_numpy(img).float().cuda()

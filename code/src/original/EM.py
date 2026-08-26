@@ -220,6 +220,11 @@ def pad_and_center_image(images, size):
     assert total_imgs.shape[-2:] == size, 'total_imgs.shape={}, size={}'.format(total_imgs.shape, size)
     return total_imgs
 def PET2Sinogram(img,radon,count=5e4):
+    raise RuntimeError(
+        "retired PET simulator: its random gain and flat additive background "
+        "are not part of the declared study model; use `sam-kem simulate`"
+    )
+    # Historical implementation retained below for forensic inspection only.
     # count 是计数 用于控制噪声 count高 100e4 就是低噪声 count低20e4 就是低噪声
     if isinstance(img,np.ndarray):
         x = torch.from_numpy(img).float().cuda()

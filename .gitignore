@@ -16,12 +16,14 @@ data/processed/
 # Python caches
 __pycache__/
 *.pyc
+*.egg-info/
+.pytest_cache/
 
-# v3_repo_complete.bundle (offline transfer bundle, optional)
+# Offline transfer bundle (optional)
 v3_repo_complete.bundle
 
 # Allow small per-dataset sample NPZ files for reproducibility
 # (these are < 50 MB each, intentionally committed so reviewers
 # can reproduce single cases without the full array tree)
 !data/samples/*.npz
-!data/samples/*.jsonv3_repo_complete.bundle
+!data/samples/*.json
