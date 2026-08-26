@@ -91,20 +91,19 @@ prompts:
 medsam2:
   architecture: sam2.1_hiera_t
   source_repository: https://github.com/bowang-lab/MedSAM2
-  source_commit: PENDING_SHA_PIN_BEFORE_TRAINING
-  source_checkout_path: PENDING_LOCAL_PATH_BEFORE_TRAINING
-  pretrained_checkpoint_path: checkpoints/MedSAM2.pt
-  pretrained_checkpoint_sha256: PENDING_VERIFY_AGAINST_OFFICIAL_DOWNLOAD
-  # The local file D:/MIAProject/EM-reconstruction/MedSAM2.pt is 156 MB
-  # with sha256 c92743b99f00d078bf32a3afcc38aaa9faf1c1692dffe3eaa7a90938c1991060,
-  # but its filename does not match any of the official MedSAM2 release
-  # names (MedSAM2_latest.pt, MedSAM2_2411.pt, etc.) AND no published
-  # SHA-256 exists for the released files. The researcher must download
-  # MedSAM2_latest.pt from the official Hugging Face URL, compare
-  # SHA-256, and replace the local file (and experiment.yaml value)
-  # before training. See inputs/clean_v1/medsam2_provenance.json.
-  # The v3 retrained decoders are recorded there as forensic-only and
+  source_commit: null
+  source_checkout_path: null
+  pretrained_checkpoint_path: checkpoints/MedSAM2_latest.pt
+  pretrained_checkpoint_sha256: c92743b99f00d078bf32a3afcc38aaa9faf1c1692dffe3eaa7a90938c1991060
+  # Verified byte-identical to the official MedSAM2_latest.pt at
+  # https://huggingface.co/wanglab/MedSAM2/blob/main/MedSAM2_latest.pt
+  # (HF revision c0b302de5e19211e9f1425c6215f6172eb5eca7f).
+  # See inputs/clean_v1/medsam2_provenance.json.
+  # v3 retrained decoders are recorded there as forensic-only and
   # MUST NOT be reused as the clean_v1 inference checkpoints.
+  # source_commit and source_checkout_path remain null until the
+  # researcher pins a Git commit of the bowang-lab/MedSAM2 repo
+  # that ships the download.sh used to verify the SHA above.
   checkpoint_scope: dataset_specific
   checkpoint_format: mask_decoder_only_inference_plus_separate_resumable_training_state
   checkpoint_selection_policy: fixed_budget_final_checkpoint_no_best_claim
