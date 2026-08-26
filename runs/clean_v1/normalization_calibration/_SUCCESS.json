@@ -1,0 +1,42 @@
+{
+  "artifacts": [
+    {
+      "byte_size": 1043,
+      "path": "run_metadata.json",
+      "sha256": "f8849c1d9065be8e703985d7248d8b59e09e7d364e5bb5c5c43ab76a002a49f0"
+    },
+    {
+      "byte_size": 32318,
+      "path": "environment_freeze.txt",
+      "sha256": "4cf1d2d557af4171fa95661b548eb4ef0254a04c9f3640d469724b0f0716e991"
+    },
+    {
+      "byte_size": 1448,
+      "path": "normalization_candidates.csv",
+      "sha256": "322e4da195af3cfbdcc42ff5c264dff465fd29b60256d3bc6084f8d495b77bbe"
+    },
+    {
+      "byte_size": 703,
+      "path": "normalization_candidates.csv.manifest.json",
+      "sha256": "9b4f5e80f1af9635216fc8bb7b52a6014bad8f845e00cd7da73b21b55832f6b3"
+    },
+    {
+      "byte_size": 446144,
+      "path": "validation_diagnostics.csv",
+      "sha256": "002bec3bfe1098e2fd837e95e5bb4ba91ebcffe9f8bfdfbd8a9d3f81f16492b6"
+    },
+    {
+      "byte_size": 761,
+      "path": "validation_diagnostics.csv.manifest.json",
+      "sha256": "a20eee0320ffc403b70e8c9c977f2234498613b2354dfe784b6bae15b3bf60cc"
+    },
+    {
+      "byte_size": 670866,
+      "path": "../../../inputs/clean_v1/normalization_activity_manifest.csv",
+      "sha256": "13c33fb7af4fe160df66934e167ceb34e97de248abb0c23abf66bc8f2faa2c69"
+    }
+  ],
+  "completed_utc": "2026-08-26T11:13:03.801623+00:00",
+  "schema_version": 1,
+  "status": "complete"
+}

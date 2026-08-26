@@ -1,0 +1,34 @@
+{
+  "artifact_path": "validation_diagnostics.csv",
+  "artifact_sha256": "002bec3bfe1098e2fd837e95e5bb4ba91ebcffe9f8bfdfbd8a9d3f81f16492b6",
+  "byte_size": 446144,
+  "columns": [
+    "run_id",
+    "dataset",
+    "subject_id",
+    "slice_id",
+    "candidate",
+    "activity_unit",
+    "raw_min",
+    "raw_max",
+    "normalized_min",
+    "normalized_max",
+    "normalized_mean",
+    "normalized_std",
+    "fraction_below_zero",
+    "fraction_above_one",
+    "paper_role"
+  ],
+  "completed_utc": "2026-08-26T11:13:03.703202+00:00",
+  "primary_key": [
+    "run_id",
+    "dataset",
+    "subject_id",
+    "slice_id",
+    "candidate"
+  ],
+  "row_count": 2223,
+  "schema_name": "normalization_validation_diagnostics_v2",
+  "schema_version": 1,
+  "split": "validation"
+}

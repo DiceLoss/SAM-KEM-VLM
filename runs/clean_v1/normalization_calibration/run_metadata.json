@@ -1,0 +1,25 @@
+{
+  "accelerator": {
+    "cuda_available": true,
+    "cuda_version": "13.0",
+    "cudnn_version": 91200,
+    "gpu_names": [
+      "NVIDIA GeForce RTX 3090"
+    ],
+    "torch_available": true,
+    "torch_version": "2.10.0+cu130"
+  },
+  "config_path": "code\\configs\\experiment.yaml",
+  "config_sha256": "8ca1939f3cf2e10f1cccf74774feb8059b03bba304ecbc39f1ab967b868a61e6",
+  "created_utc": "2026-08-26T11:13:00.771234+00:00",
+  "environment_freeze_sha256": "4cf1d2d557af4171fa95661b548eb4ef0254a04c9f3640d469724b0f0716e991",
+  "git_commit": "cfe478027cd85ee5ad84f046e770b9b396343cc8",
+  "git_worktree_dirty": false,
+  "pid": 63408,
+  "platform": "Windows-11-10.0.26200-SP0",
+  "protocol_path": "code\\configs\\protocols\\normalization_calibration.yaml",
+  "protocol_sha256": "1308ad5ef1774c44991d8015346942ad8fefb5a9160d3ef6940c374c794ca064",
+  "python": "3.13.9 | packaged by Anaconda, Inc. | (main, Oct 21 2025, 19:09:58) [MSC v.1929 64 bit (AMD64)]",
+  "python_executable": "C:\\Users\\Admin\\anaconda3\\python.exe",
+  "run_id": "clean_v1"
+}

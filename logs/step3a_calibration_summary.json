@@ -1,0 +1,188 @@
+{
+  "train_minmax": {
+    "brainweb": {
+      "dataset": "brainweb",
+      "split": "train",
+      "n": 3511,
+      "min": 0.0,
+      "max": 5.79693603515625,
+      "mean": 0.40589118003845215,
+      "median": 0.0
+    },
+    "hecktor": {
+      "dataset": "hecktor",
+      "split": "train",
+      "n": 224,
+      "min": 0.0,
+      "max": 34.93264389038086,
+      "mean": 1.6127455234527588,
+      "median": 1.3011126518249512
+    }
+  },
+  "per_candidate_offset_scale_clip": [
+    {
+      "dataset": "brainweb",
+      "candidate": "configured_physical_C",
+      "available": false,
+      "offset": null,
+      "scale": null,
+      "clip": false,
+      "activity_unit": "BrainWeb_simulation_activity",
+      "fitted_from": "external_physical_metadata",
+      "paper_role": "unavailable_until_physical_C_is_supplied",
+      "train_cases": 2815,
+      "validation_cases": 696,
+      "validation_max_clipped_fraction": null,
+      "validation_mean_clipped_fraction": null
+    },
+    {
+      "dataset": "brainweb",
+      "candidate": "train_max_fixed_C",
+      "available": true,
+      "offset": 0.0,
+      "scale": 5.698180198669434,
+      "clip": false,
+      "activity_unit": "BrainWeb_simulation_activity",
+      "fitted_from": "train_only_global_max",
+      "paper_role": "data_derived_sensitivity_not_physical_scale",
+      "train_cases": 2815,
+      "validation_cases": 696,
+      "validation_max_clipped_fraction": 0.00146484375,
+      "validation_mean_clipped_fraction": 3.3060709635416664e-05
+    },
+    {
+      "dataset": "brainweb",
+      "candidate": "train_global_minmax",
+      "available": true,
+      "offset": 0.0,
+      "scale": 5.698180198669434,
+      "clip": true,
+      "activity_unit": "BrainWeb_simulation_activity",
+      "fitted_from": "train_only_global_min_and_max",
+      "paper_role": "sensitivity_analysis_only",
+      "train_cases": 2815,
+      "validation_cases": 696,
+      "validation_max_clipped_fraction": 0.00146484375,
+      "validation_mean_clipped_fraction": 3.3060709635416664e-05
+    },
+    {
+      "dataset": "brainweb",
+      "candidate": "per_image_minmax",
+      "available": true,
+      "offset": null,
+      "scale": null,
+      "clip": true,
+      "activity_unit": "BrainWeb_simulation_activity",
+      "fitted_from": "each_evaluated_image",
+      "paper_role": "diagnostic_only_never_primary",
+      "train_cases": 2815,
+      "validation_cases": 696,
+      "validation_max_clipped_fraction": 0.0,
+      "validation_mean_clipped_fraction": 0.0
+    },
+    {
+      "dataset": "hecktor",
+      "candidate": "configured_physical_C",
+      "available": false,
+      "offset": null,
+      "scale": null,
+      "clip": false,
+      "activity_unit": "SUV",
+      "fitted_from": "external_physical_metadata",
+      "paper_role": "unavailable_until_physical_C_is_supplied",
+      "train_cases": 179,
+      "validation_cases": 45,
+      "validation_max_clipped_fraction": null,
+      "validation_mean_clipped_fraction": null
+    },
+    {
+      "dataset": "hecktor",
+      "candidate": "train_max_fixed_C",
+      "available": true,
+      "offset": 0.0,
+      "scale": 34.93264389038086,
+      "clip": false,
+      "activity_unit": "SUV",
+      "fitted_from": "train_only_global_max",
+      "paper_role": "data_derived_sensitivity_not_physical_scale",
+      "train_cases": 179,
+      "validation_cases": 45,
+      "validation_max_clipped_fraction": 0.0,
+      "validation_mean_clipped_fraction": 0.0
+    },
+    {
+      "dataset": "hecktor",
+      "candidate": "train_global_minmax",
+      "available": true,
+      "offset": 0.0,
+      "scale": 34.93264389038086,
+      "clip": true,
+      "activity_unit": "SUV",
+      "fitted_from": "train_only_global_min_and_max",
+      "paper_role": "sensitivity_analysis_only",
+      "train_cases": 179,
+      "validation_cases": 45,
+      "validation_max_clipped_fraction": 0.0,
+      "validation_mean_clipped_fraction": 0.0
+    },
+    {
+      "dataset": "hecktor",
+      "candidate": "per_image_minmax",
+      "available": true,
+      "offset": null,
+      "scale": null,
+      "clip": true,
+      "activity_unit": "SUV",
+      "fitted_from": "each_evaluated_image",
+      "paper_role": "diagnostic_only_never_primary",
+      "train_cases": 179,
+      "validation_cases": 45,
+      "validation_max_clipped_fraction": 0.0,
+      "validation_mean_clipped_fraction": 0.0
+    }
+  ],
+  "per_candidate_validation_clip_summary": {
+    "brainweb/train_max_fixed_C": {
+      "n_cases": 696,
+      "max_below_zero": 0.0,
+      "mean_below_zero": 0.0,
+      "max_above_one": 0.00146484375,
+      "mean_above_one": 3.3060709635416664e-05
+    },
+    "brainweb/train_global_minmax": {
+      "n_cases": 696,
+      "max_below_zero": 0.0,
+      "mean_below_zero": 0.0,
+      "max_above_one": 0.00146484375,
+      "mean_above_one": 3.3060709635416664e-05
+    },
+    "brainweb/per_image_minmax": {
+      "n_cases": 696,
+      "max_below_zero": 0.0,
+      "mean_below_zero": 0.0,
+      "max_above_one": 0.0,
+      "mean_above_one": 0.0
+    },
+    "hecktor/train_max_fixed_C": {
+      "n_cases": 45,
+      "max_below_zero": 0.0,
+      "mean_below_zero": 0.0,
+      "max_above_one": 0.0,
+      "mean_above_one": 0.0
+    },
+    "hecktor/train_global_minmax": {
+      "n_cases": 45,
+      "max_below_zero": 0.0,
+      "mean_below_zero": 0.0,
+      "max_above_one": 0.0,
+      "mean_above_one": 0.0
+    },
+    "hecktor/per_image_minmax": {
+      "n_cases": 45,
+      "max_below_zero": 0.0,
+      "mean_below_zero": 0.0,
+      "max_above_one": 0.0,
+      "mean_above_one": 0.0
+    }
+  }
+}

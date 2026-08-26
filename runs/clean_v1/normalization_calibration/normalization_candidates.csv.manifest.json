@@ -1,0 +1,31 @@
+{
+  "artifact_path": "normalization_candidates.csv",
+  "artifact_sha256": "322e4da195af3cfbdcc42ff5c264dff465fd29b60256d3bc6084f8d495b77bbe",
+  "byte_size": 1448,
+  "columns": [
+    "run_id",
+    "dataset",
+    "candidate",
+    "available",
+    "offset",
+    "scale",
+    "clip",
+    "activity_unit",
+    "fitted_from",
+    "paper_role",
+    "train_cases",
+    "validation_cases",
+    "validation_max_clipped_fraction",
+    "validation_mean_clipped_fraction"
+  ],
+  "completed_utc": "2026-08-26T11:13:03.628845+00:00",
+  "primary_key": [
+    "run_id",
+    "dataset",
+    "candidate"
+  ],
+  "row_count": 8,
+  "schema_name": "normalization_candidates_v2",
+  "schema_version": 1,
+  "split": "validation"
+}

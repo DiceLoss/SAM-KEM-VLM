@@ -1,0 +1,9 @@
+run_id,dataset,candidate,available,offset,scale,clip,activity_unit,fitted_from,paper_role,train_cases,validation_cases,validation_max_clipped_fraction,validation_mean_clipped_fraction
+clean_v1,brainweb,configured_physical_C,False,,,False,BrainWeb_simulation_activity,external_physical_metadata,unavailable_until_physical_C_is_supplied,2815,696,,
+clean_v1,brainweb,train_max_fixed_C,True,0.0,5.698180198669434,False,BrainWeb_simulation_activity,train_only_global_max,data_derived_sensitivity_not_physical_scale,2815,696,0.00146484375,3.3060709635416664e-05
+clean_v1,brainweb,train_global_minmax,True,0.0,5.698180198669434,True,BrainWeb_simulation_activity,train_only_global_min_and_max,sensitivity_analysis_only,2815,696,0.00146484375,3.3060709635416664e-05
+clean_v1,brainweb,per_image_minmax,True,,,True,BrainWeb_simulation_activity,each_evaluated_image,diagnostic_only_never_primary,2815,696,0.0,0.0
+clean_v1,hecktor,configured_physical_C,False,,,False,SUV,external_physical_metadata,unavailable_until_physical_C_is_supplied,179,45,,
+clean_v1,hecktor,train_max_fixed_C,True,0.0,34.93264389038086,False,SUV,train_only_global_max,data_derived_sensitivity_not_physical_scale,179,45,0.0,0.0
+clean_v1,hecktor,train_global_minmax,True,0.0,34.93264389038086,True,SUV,train_only_global_min_and_max,sensitivity_analysis_only,179,45,0.0,0.0
+clean_v1,hecktor,per_image_minmax,True,,,True,SUV,each_evaluated_image,diagnostic_only_never_primary,179,45,0.0,0.0
