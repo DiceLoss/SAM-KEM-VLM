@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import csv
+import json
 from pathlib import Path
 
 import yaml
@@ -19,6 +20,13 @@ def _replace_namespace(value, source: str, destination: str):
   if isinstance(value, str):
     return value.replace(source, destination)
   return value
+
+
+def _portable_path(path: Path, root: Path) -> str:
+  try:
+    return path.resolve().relative_to(root.resolve()).as_posix()
+  except ValueError:
+    return str(path.resolve())
 
 
 def generate_candidate_configuration(
@@ -40,6 +48,16 @@ def generate_candidate_configuration(
     raise FileExistsError("candidate configuration/protocol output already exists")
   with candidates_path.open("r", encoding="utf-8", newline="") as handle:
     rows = [row for row in csv.DictReader(handle) if row["candidate"] == candidate]
+  decision_path = root / "inputs/clean_v1/normalization_decision.json"
+  if not decision_path.is_file():
+    raise FileNotFoundError("audited normalization decision is required before training")
+  decision = json.loads(decision_path.read_text(encoding="utf-8"))
+  selected_candidate = decision.get("selected_candidate")
+  if candidate != selected_candidate:
+    raise ValueError(
+      f"candidate {candidate!r} is not the audited development training candidate "
+      f"{selected_candidate!r}; see {decision_path}"
+    )
   by_dataset = {row["dataset"]: row for row in rows if row.get("available", "").lower() == "true"}
   if set(by_dataset) != {"brainweb", "hecktor"}:
     raise ValueError(f"candidate {candidate!r} is not available for both datasets")
@@ -56,6 +74,10 @@ def generate_candidate_configuration(
   cfg["status"] = "development_candidate_ready"
   cfg["locked"] = False
   cfg["normalization"]["normalization_id"] = candidate
+  cfg["normalization"]["development_training_candidate"] = selected_candidate
+  cfg["normalization"]["development_decision"] = (
+    f"{_portable_path(decision_path, root)}:sha256={file_sha256(decision_path)}"
+  )
   cfg["normalization"]["scale_constants"] = {
     dataset: float(by_dataset[dataset]["scale"]) for dataset in ("brainweb", "hecktor")
   }
@@ -65,7 +87,7 @@ def generate_candidate_configuration(
   }
   cfg["normalization"]["scale_constant_sources"] = {
     dataset: (
-      f"{candidates_path}:sha256={file_sha256(candidates_path)};"
+      f"{_portable_path(candidates_path, root)}:sha256={file_sha256(candidates_path)};"
       f"candidate={candidate};fitted_from={by_dataset[dataset]['fitted_from']}"
     ) for dataset in ("brainweb", "hecktor")
   }

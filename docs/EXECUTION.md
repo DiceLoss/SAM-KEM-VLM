@@ -51,7 +51,7 @@ sam-kem calibrate-normalization --root . \
   --protocol code/configs/protocols/normalization_calibration.yaml
 ```
 
-It compares four explicitly different possibilities:
+It records four declared possibilities:
 
 1. scanner/simulation-derived physical C, when its source is recorded;
 2. zero-offset fixed C equal to the training-set global maximum;
@@ -66,12 +66,15 @@ scale. Global min-max changes the zero point when the training minimum is not
 zero. Per-image min-max destroys between-case quantitative comparability and is
 never eligible as the primary experiment.
 
-Distribution diagnostics do not select a final method. For every viable
-candidate, regenerate train/validation inputs, train a separate pair of
-dataset-specific decoders, repeat the complete validation hyperparameter sweep,
-and compare subject-level NRMSE/SSIM plus clipping rate. Freeze the winner before
-opening the test set. Checkpoint and result paths must include the normalization
-candidate ID so artifacts cannot be mixed.
+Distribution diagnostics do not select a reconstruction method. A normalization
+arm needs separate training only when its transformation changes at least one
+training input. In this calibration, both training minima are zero, so
+train-global min-max and train-maximum fixed C are identical on every training
+image. The clipped arm is therefore retained as a validation diagnostic rather
+than used to train duplicate decoders. The audited development configuration uses
+the non-clipping train-maximum fixed C; this is a data-derived fixed scale, not a
+physical constant. Checkpoint and result paths include the normalization ID so
+artifacts cannot be mixed.
 
 Run the audit immediately to obtain the remaining-blocker list:
 

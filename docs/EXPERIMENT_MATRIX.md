@@ -8,7 +8,7 @@ to select a scientific choice.
 
 | Order | Protocol | Split | Counts | Role | May select parameters? | Principal output |
 |---:|---|---|---|---|---:|---|
-| 0 | normalization calibration | train fit, validation diagnose | native activity | Compare configured physical C, train maximum, train-global min-max, and diagnostic per-image min-max | No automatic winner; a candidate needs complete retraining and validation comparison | `runs/clean_v1/normalization_calibration/` |
+| 0 | normalization calibration | train fit, validation diagnose | native activity | Record configured physical C, train maximum, train-global min-max, and diagnostic per-image min-max | Remove mathematically duplicate training arms; record the audited development choice | `runs/clean_v1/normalization_calibration/` |
 | 1 | decoder training | train | 100k, 200k, 500k, 1M balanced | Train one joint four-count decoder per dataset | Fixed budget only; no test or “best” selection | `checkpoints/clean_v1/` and `runs/clean_v1/training/` |
 | 2 | hyperparameter sweep | validation | all configured counts | Select baseline/KEM stopping and kernel/fusion parameters | Yes, subject-level NRMSE then SSIM | validation sweep plus `results/clean_v1/frozen_hyperparameters.csv` |
 | 3 | comparison | test locked | all configured counts | Paired evaluation of all applicable methods | No | `runs/clean_v1/comparison/per_case_metrics.csv` |

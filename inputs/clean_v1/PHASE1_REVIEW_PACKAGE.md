@@ -4,7 +4,10 @@
 > forensic review record. The active repository now contains a SHA-pinned
 > development-only 16/4/0 BrainWeb and 179/45/0 HECKTOR split, a pinned MedSAM2
 > source commit, and no HE scanner-geometry blocker. It still has no untouched
-> test. GPU execution follows `docs/GPU_WORKER_START_ZH.md`.
+> test. Its pre-calibration requirement to train every candidate was superseded
+> after Step 3A proved the fixed-scale and clipped min-max training tensors are
+> identical. GPU execution follows `docs/GPU_WORKER_START_ZH.md` and
+> `inputs/clean_v1/normalization_decision.json`.
 
 **Branch:** `clean-v1-data-provenance`
 **Head commit:** see `git rev-parse HEAD`

@@ -47,9 +47,12 @@ records.
 
 - Only train/validation raw activities appear in the normalization manifest.
 - Physical C and its source are recorded when known.
-- Data-derived alternatives have separate normalization/run identities.
-- Every viable alternative is evaluated through separate decoder training and a
-  complete validation sweep; distribution plots alone do not choose a winner.
+- Data-derived alternatives have separate normalization identities.
+- Before allocating GPU work, prove whether alternatives differ on training
+  arrays. Mathematically identical arms are recorded as diagnostics and are not
+  assigned duplicate decoder training.
+- The audited development choice, evidence hashes, clipping behavior and claim
+  boundary are recorded before generating a training configuration.
 
 ### Before decoder training
 

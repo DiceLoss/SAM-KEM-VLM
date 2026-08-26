@@ -1,66 +1,43 @@
 {
-  "policy": "Per START_HERE_ZH.md and CLEAN_PIPELINE.md, the fixed scale C must come from one of four explicitly identified candidates. Per-image min-max is prohibited as the primary scale. No candidate may be pre-selected as PRIMARY; the primary scale is determined by a complete validation-based selection protocol that requires separate decoder training and a complete validation sweep per candidate.",
+  "policy": "Use a dataset-wide zero-offset fixed scale for PET input and target. Per-image min-max is prohibited for the primary experiment and remains limited to the SAM prior kernel transform. A candidate that is mathematically identical on every training array does not justify duplicate decoder training.",
   "current_locked_value": null,
-  "lock_status": "UNLOCKED — no scale value can be locked for paper use until the validation-based selection protocol (Section below) has been executed across all viable candidates.",
+  "lock_status": "DEVELOPMENT CANDIDATE SELECTED, NOT PAPER-LOCKED — no untouched test set is currently registered.",
+  "development_training_candidate": "train_max_fixed_C",
+  "decision_record": "inputs/clean_v1/normalization_decision.json",
   "candidates": {
     "domain_physical_fixed_C": {
-      "description": "A scale constant derived from a physical source: scanner DICOM field, vendor manual, or simulation definition. This is the only candidate that can be called a 'physical constant'.",
-      "brainweb": {
-        "value": null,
-        "source": null,
-        "status": "PENDING — BrainWeb PET simulation activity is a digital-phantom quantity with no published Bq/mL constant. Either contact the BrainWeb authors or accept that no domain-physical C exists for this dataset."
-      },
-      "hecktor": {
-        "value": null,
-        "source": null,
-        "status": "PENDING — the traceability arrays are declared as reconstructed PET exported directly from DICOM and currently labelled SUV. The exact export unit/rescale provenance must be verified before deciding whether a machine-derived constant such as ~30000 applies to this representation. This normalization issue is separate from image geometry."
-      },
-      "eligibility": "If a value with a recorded source exists for a dataset, it is a candidate. It is NOT automatically PRIMARY — it must still go through the validation-based selection protocol below."
+      "description": "A scale constant derived from scanner metadata, a vendor definition, or a simulation definition. This is the only candidate that may be called a physical constant.",
+      "brainweb": {"value": null, "source": null, "status": "UNAVAILABLE"},
+      "hecktor": {"value": null, "source": null, "status": "UNAVAILABLE"},
+      "eligibility": "Unavailable until a traceable physical source is supplied."
     },
     "train_derived_zero_offset_fixed_C": {
-      "description": "A scale constant derived from the training set as the global maximum of all ingested train raw_activity arrays (after the approved spatial transform). Zero offset. This is a data-derived fixed scale, NOT a physical constant.",
-      "brainweb": {
-        "value": null,
-        "derivation_rule": "max over all train raw_activity arrays for brainweb after mean_pool_2x2_full_square.",
-        "status": "PENDING — compute via sam-kem calibrate-normalization on train only."
-      },
-      "hecktor": {
-        "value": null,
-        "derivation_rule": "max over all train raw_activity arrays for hecktor after resize_full_square_to_128.",
-        "status": "PENDING — same."
-      },
-      "eligibility": "Valid candidate. May become the PRIMARY scale after the validation-based selection protocol below selects it. Must never be called a 'physical constant'."
+      "description": "Training-set global maximum, with zero offset and no clipping. This is a data-derived fixed scale, not a physical constant.",
+      "brainweb": {"value": 5.698180198669434, "unit": "BrainWeb_simulation_activity", "fitted_from": "2815 train planes"},
+      "hecktor": {"value": 34.93264389038086, "unit": "SUV", "fitted_from": "179 train planes"},
+      "eligibility": "Selected for the development training run because it preserves a common zero and does not clip validation activity."
     },
     "train_global_minmax_sensitivity": {
-      "description": "A per-dataset [min_train, max_train] scale with non-zero offset. Validation values are clipped to [min_train, max_train].",
-      "brainweb": {"value": null, "derivation_rule": "[min, max] over train raw_activity for brainweb.", "status": "PENDING."},
-      "hecktor": {"value": null, "derivation_rule": "[min, max] over train raw_activity for hecktor.", "status": "PENDING."},
-      "eligibility": "Sensitivity arm. May become the PRIMARY scale after the validation-based selection protocol below selects it. The non-zero offset is a documented data-derived choice, not a physical claim."
+      "description": "Training-set [min,max] affine normalization with clipping to [0,1].",
+      "brainweb": {"offset": 0.0, "scale": 5.698180198669434, "validation_slices_with_values_above_one_before_clipping": 27},
+      "hecktor": {"offset": 0.0, "scale": 34.93264389038086, "validation_slices_with_values_above_one_before_clipping": 0},
+      "eligibility": "DIAGNOSTIC ONLY in this study. Both training minima are zero, so it is pixel-identical to train_max_fixed_C on all training arrays and differs only by validation clipping."
     },
     "per_image_minmax_diagnostic_only": {
-      "description": "Per-image [min, max] normalization, computed independently for every image.",
-      "eligibility": "DIAGNOSTIC ONLY. Never eligible as the primary scale because it destroys between-case quantitative comparability."
+      "description": "Per-image [min,max] normalization computed independently for every image.",
+      "eligibility": "DIAGNOSTIC ONLY. It destroys between-case quantitative comparability and is never eligible as the primary PET scale."
     }
   },
-  "validation_based_selection_protocol": {
-    "step_1": "For each viable candidate, regenerate train+validation inputs with that candidate's C.",
-    "step_2": "Train a separate pair of dataset-specific decoders (BW + HE) under that candidate's C.",
-    "step_3": "Run the complete validation hyperparameter sweep under that candidate's C.",
-    "step_4": "Compare candidate results by subject-level NRMSE + SSIM plus clipping rate on validation only.",
-    "step_5": "If a candidate wins, it becomes the PRIMARY scale for that dataset. It may be called a data-derived fixed scale. Only domain_physical_fixed_C, if selected, may be called a physical constant.",
-    "step_6": "Locked hyperparameters and final primary scale are recorded in code/configs/experiment.yaml under normalization.scale_constants.<dataset> and frozen before any test_locked ingestion."
-  },
   "forbidden_uses": [
-    "Per-image min-max as primary scale.",
-    "Per-dataset arbitrary constant (e.g. 30000) without recorded source.",
-    "Validation-set-derived constant.",
-    "Test-set-derived constant (must never be opened before freeze).",
-    "Pre-declaring any candidate as PRIMARY before the validation-based selection protocol has run.",
-    "Calling train_derived_zero_offset_fixed_C a 'physical constant'."
+    "Per-image min-max as the PET input or target scale.",
+    "An arbitrary constant such as 30000 without a recorded source for the ingested representation.",
+    "Any validation- or test-derived scale constant.",
+    "Calling train_max_fixed_C a physical constant.",
+    "Training a duplicate global-min-max decoder when its training transform is identical to train_max_fixed_C."
   ],
-  "current_yaml_state": {
-    "normalization.scale_constants.brainweb": "null",
-    "normalization.scale_constants.hecktor": "null",
-    "_comment": "These remain null until the validation-based selection protocol has produced a winner. They will be set to the winner's value at that point, and the protocol SHA will be recorded alongside."
+  "base_yaml_state": {
+    "normalization.scale_constants.brainweb": null,
+    "normalization.scale_constants.hecktor": null,
+    "reason": "The development values are injected into a namespaced generated configuration. The base configuration remains unresolved and cannot be mistaken for a paper-locked run."
   }
 }

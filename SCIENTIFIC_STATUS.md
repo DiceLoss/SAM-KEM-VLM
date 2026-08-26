@@ -11,19 +11,23 @@ as previously exposed development data; this split contains no `test_locked`
 rows and cannot support final generalization claims. BrainWeb must expand every
 source model into all finite, nonnegative, positive-activity axial planes; a
 one-centre-slice manifest is invalid. The pinned development plane counts are
-2815/696 for BrainWeb and 179/45 for HECKTOR. The GPU worker must compare
-the train-derived fixed-scale and train-global-minmax candidates, training a
-separate BrainWeb and HECKTOR decoder for each candidate. Final evaluation
-remains blocked until genuinely unexposed external subjects are acquired.
+2815/696 for BrainWeb and 179/45 for HECKTOR. Step 3A found a zero training
+minimum in both datasets. Train-global-minmax is therefore identical to the
+train-derived fixed scale on every training array and differs only by validation
+clipping. The GPU worker must train one BrainWeb and one HECKTOR decoder under
+the non-clipping `train_max_fixed_C` configuration; the min-max arm remains a
+diagnostic and must not receive duplicate training. Final evaluation remains
+blocked until genuinely unexposed external subjects are acquired.
 
 The official MedSAM2 source is pinned at commit `332f30d420f1d1b08e2a79b3ae6a602458808383`
 with `configs/sam2.1_hiera_t512.yaml`; the released checkpoint SHA is pinned in
 the configuration. The fixed constant must match the declared activity unit. The uploaded HECKTOR
 traceability arrays are labelled SUV and have maxima on the order of 4.5--15.2;
 a constant around 30000 would only be meaningful for a different scanner-count
-representation and must not be transplanted to these SUV arrays. The sample
-audit's `C_BW=6` and `C_HE=35` values are provisional train/validation coverage
-candidates, not accepted physical constants.
+representation and must not be transplanted to these SUV arrays. The calibrated
+development values are `C_BW=5.698180198669434` and
+`C_HE=34.93264389038086`, fitted on train only. They are data-derived fixed
+scales, not accepted physical constants.
 
 No script may rename a failed or partial run to “final.” A run becomes eligible
 for paper use only when `sam-kem validate` exits with code 0 and the raw-array,

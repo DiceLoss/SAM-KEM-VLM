@@ -1,0 +1,47 @@
+{
+  "schema": "normalization_development_decision_v1",
+  "scope": "development_only_no_locked_test",
+  "decision": "train_only_one_decoder_pair_with_train_max_fixed_C",
+  "selected_candidate": "train_max_fixed_C",
+  "selected_parameters": {
+    "brainweb": {"offset": 0.0, "scale": 5.698180198669434, "clip": false, "unit": "BrainWeb_simulation_activity"},
+    "hecktor": {"offset": 0.0, "scale": 34.93264389038086, "clip": false, "unit": "SUV"}
+  },
+  "evidence": {
+    "normalization_activity_manifest_sha256": "13c33fb7af4fe160df66934e167ceb34e97de248abb0c23abf66bc8f2faa2c69",
+    "normalization_candidates_sha256": "322e4da195af3cfbdcc42ff5c264dff465fd29b60256d3bc6084f8d495b77bbe",
+    "validation_diagnostics_sha256": "002bec3bfe1098e2fd837e95e5bb4ba91ebcffe9f8bfdfbd8a9d3f81f16492b6",
+    "calibration_commit": "83b7291968e43ef119bfd9cbc82e8945e10cc408",
+    "brainweb": {
+      "train_planes": 2815,
+      "train_min": 0.0,
+      "train_max": 5.698180198669434,
+      "validation_planes": 696,
+      "validation_min": 0.0,
+      "validation_max": 5.79693603515625,
+      "validation_planes_above_train_max": 27,
+      "mean_fraction_of_validation_pixels_above_train_max": 0.000033060709635416664,
+      "maximum_per_plane_fraction_above_train_max": 0.00146484375
+    },
+    "hecktor": {
+      "train_planes": 179,
+      "train_min": 0.0,
+      "train_max": 34.93264389038086,
+      "validation_planes": 45,
+      "validation_min": 0.0,
+      "validation_max": 26.976642608642578,
+      "validation_planes_above_train_max": 0,
+      "mean_fraction_of_validation_pixels_above_train_max": 0.0,
+      "maximum_per_plane_fraction_above_train_max": 0.0
+    }
+  },
+  "equivalence_argument": "For both datasets min_train=0. Therefore (x-min_train)/(max_train-min_train) equals x/max_train. Every training value is at most max_train, so clip(x/max_train,0,1) also equals x/max_train on every training pixel. The two arms would train on identical tensors.",
+  "why_non_clipping_is_used": "The intended PET protocol uses one dataset-wide constant for input and target. Clipping validation values would alter quantitative target activity and would turn a normalization comparison into a target-definition change.",
+  "classification": {
+    "train_max_fixed_C": "development training configuration; data-derived fixed scale, not physical",
+    "train_global_minmax": "redundant training arm; validation clipping diagnostic only",
+    "per_image_minmax": "diagnostic only; prohibited for PET input and target",
+    "configured_physical_C": "unavailable"
+  },
+  "test_status": "No untouched test subjects are registered; this decision authorizes development training and validation only."
+}

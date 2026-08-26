@@ -1,22 +1,24 @@
 {
-  "train_minmax": {
+  "split_minmax": {
     "brainweb": {
       "dataset": "brainweb",
-      "split": "train",
-      "n": 3511,
-      "min": 0.0,
-      "max": 5.79693603515625,
-      "mean": 0.40589118003845215,
-      "median": 0.0
+      "train_n": 2815,
+      "train_min": 0.0,
+      "train_max": 5.698180198669434,
+      "validation_n": 696,
+      "validation_min": 0.0,
+      "validation_max": 5.79693603515625,
+      "validation_slices_above_train_max": 27
     },
     "hecktor": {
       "dataset": "hecktor",
-      "split": "train",
-      "n": 224,
-      "min": 0.0,
-      "max": 34.93264389038086,
-      "mean": 1.6127455234527588,
-      "median": 1.3011126518249512
+      "train_n": 179,
+      "train_min": 0.0,
+      "train_max": 34.93264389038086,
+      "validation_n": 45,
+      "validation_min": 0.0,
+      "validation_max": 26.976642608642578,
+      "validation_slices_above_train_max": 0
     }
   },
   "per_candidate_offset_scale_clip": [

@@ -99,7 +99,10 @@ git add runs/clean_v1/normalization_calibration
 git commit -m 'Calibrate development normalization candidates'
 ```
 
-必须生成两个训练候选，不允许用 per-image min-max 作为主实验：
+Step 3A 审计后只生成一个训练配置。两个数据集的训练集最小值均为 0，因而
+`train_global_minmax` 与 `train_max_fixed_C` 在所有训练输入上逐像素相同；前者只会
+在验证阶段额外裁剪。它保留为诊断项，不重复训练 decoder。禁止用 per-image
+min-max 作为主实验：
 
 ```bash
 sam-kem generate-candidate-config \
@@ -109,21 +112,11 @@ sam-kem generate-candidate-config \
   --output code/configs/generated/dev_trainmax_v1.yaml \
   --protocol-output-dir code/configs/generated/dev_trainmax_v1_protocols
 
-sam-kem generate-candidate-config \
-  --root . --base-config code/configs/experiment.yaml \
-  --candidates runs/clean_v1/normalization_calibration/normalization_candidates.csv \
-  --candidate train_global_minmax --run-id dev_globalminmax_v1 \
-  --output code/configs/generated/dev_globalminmax_v1.yaml \
-  --protocol-output-dir code/configs/generated/dev_globalminmax_v1_protocols
-
 git add code/configs/generated
-git commit -m 'Freeze development normalization candidate configs'
+git commit -m 'Freeze development fixed-scale config'
 ```
 
-## 4. 为每个候选生成训练输入和 Qwen box
-
-下面代码块分别执行两次，把 `RUN` 依次设为 `dev_trainmax_v1` 和
-`dev_globalminmax_v1`。
+## 4. 为固定尺度配置生成训练输入和 Qwen box
 
 ```bash
 RUN=dev_trainmax_v1
@@ -163,7 +156,7 @@ r=0/1/2 共用该 box。失败调用必须保留，并使用已实现的质心 f
 
 ## 5. GPU 开工门和正式训练
 
-每个候选只运行下面一条命令。它先执行真实 CUDA 模型构造、512 网格 box、前向、
+只运行下面一条命令。它先执行真实 CUDA 模型构造、512 网格 box、前向、
 L1、反向和冻结参数检查；任何一步失败都不会开始长训练。通过后依次训练 BrainWeb
 和 HECKTOR，各自一个四剂量联合 decoder。
 
@@ -173,20 +166,12 @@ python code/experiments/run_gpu_training.py \
   --config code/configs/generated/dev_trainmax_v1.yaml \
   2>&1 | tee logs/gpu_dev_trainmax_v1.log
 
-# 固定第一候选的小型 provenance/metrics；二进制 .pt 仍由 .gitignore 排除。
+# 固定小型 provenance/metrics；二进制 .pt 仍由 .gitignore 排除。
 git add checkpoints/dev_trainmax_v1/*.json \
   checkpoints/dev_trainmax_v1/*.training.csv \
   checkpoints/dev_trainmax_v1/*.training.csv.manifest.json
 git commit -m 'Record dev_trainmax_v1 decoder training provenance'
 
-python code/experiments/run_gpu_training.py \
-  --config code/configs/generated/dev_globalminmax_v1.yaml \
-  2>&1 | tee logs/gpu_dev_globalminmax_v1.log
-
-git add checkpoints/dev_globalminmax_v1/*.json \
-  checkpoints/dev_globalminmax_v1/*.training.csv \
-  checkpoints/dev_globalminmax_v1/*.training.csv.manifest.json
-git commit -m 'Record dev_globalminmax_v1 decoder training provenance'
 ```
 
 训练协议固定为 20 epochs、每 epoch 400 steps、AdamW、学习率 `1e-4`、batch 1、
@@ -195,16 +180,16 @@ L1-only。image/prompt/memory encoder 全部冻结，只更新 mask decoder。�
 
 ## 6. GPU 完成后立即交回
 
-对两个候选、两个数据集分别交回：
+对 `dev_trainmax_v1` 的两个数据集分别交回：
 
 - `medsam2_decoder_*.pt`；
 - `.resume.pt`；
 - `.json` provenance；
 - `.training.csv` 及 manifest；
-- 两份 `logs/gpu_*.log`；
+- `logs/gpu_dev_trainmax_v1.log`；
 - `nvidia-smi`、Python、PyTorch、CUDA 版本；
 - 所有文件 SHA-256 和不可变归档 URI。
 
-不要自行选择 normalization 胜者，不要运行 test，不要修改 epochs、学习率、loss、
-box 或 checkpoint。GPU 训练完成后停止，等待主研究员注册 checkpoint SHA 并启动
-validation sweep。
+不要另行生成或训练 `dev_globalminmax_v1`，不要运行 test，不要修改 epochs、学习率、
+loss、box 或 checkpoint。GPU 训练完成后停止，等待主研究员注册 checkpoint SHA 并
+启动 validation sweep。

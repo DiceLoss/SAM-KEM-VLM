@@ -1,6 +1,7 @@
 import csv
 from pathlib import Path
 
+import pytest
 import yaml
 
 from sam_kem.candidate_config import generate_candidate_configuration
@@ -34,7 +35,37 @@ def test_candidate_config_is_normalization_and_output_namespaced(tmp_path):
   assert cfg["data"]["split_id"] == "clean_v1_development_train_validation"
   assert len(load_configured_subject_splits(ROOT, cfg)) == 244
   assert cfg["data"]["canonical_activity_root"] == "arrays/dev_trainmax_v1"
+  assert cfg["normalization"]["development_decision"].startswith(
+    "inputs/clean_v1/normalization_decision.json:sha256="
+  )
   assert cfg["medsam2"]["checkpoint_paths"]["hecktor"].startswith(
     "checkpoints/dev_trainmax_v1/"
   )
   assert (protocols / "training.yaml").is_file()
+
+
+def test_redundant_minmax_candidate_is_not_trainable(tmp_path):
+  candidates = tmp_path / "candidates.csv"
+  with candidates.open("w", encoding="utf-8", newline="") as handle:
+    writer = csv.DictWriter(handle, fieldnames=(
+      "dataset", "candidate", "available", "offset", "scale", "fitted_from",
+    ))
+    writer.writeheader()
+    writer.writerows([
+      {
+        "dataset": "brainweb", "candidate": "train_global_minmax",
+        "available": "true", "offset": 0, "scale": 6,
+        "fitted_from": "train_only_global_min_and_max",
+      },
+      {
+        "dataset": "hecktor", "candidate": "train_global_minmax",
+        "available": "true", "offset": 0, "scale": 35,
+        "fitted_from": "train_only_global_min_and_max",
+      },
+    ])
+  with pytest.raises(ValueError, match="not the audited development training candidate"):
+    generate_candidate_configuration(
+      ROOT, ROOT / "code/configs/experiment.yaml", candidates,
+      candidate="train_global_minmax", run_id="dev_globalminmax_v1",
+      output_path=tmp_path / "config.yaml", protocol_output_dir=tmp_path / "protocols",
+    )

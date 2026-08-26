@@ -110,8 +110,12 @@ representations rather than interchangeable numerical choices.
 
 The new normalization calibration protocol fits data-derived candidates from
 train subjects only and inspects validation clipping without reading locked test.
-Its global min-max arm is a sensitivity study; its per-image arm is diagnostic
-only. A physical fixed C remains preferable when scanner/simulation provenance
-exists. If a data-derived scale is selected, the manuscript must say that it is
-not a preserved physical PET scale, and every decoder and reconstruction
-hyperparameter must be retrained/reselected under that scale.
+Its global min-max arm is a sensitivity diagnostic; its per-image arm is
+diagnostic only. The observed training minima are zero for both datasets, making
+global min-max exactly equal to train-maximum scaling on all training arrays.
+Training a second decoder would therefore be a duplicate experiment; only the
+non-clipping train-maximum fixed-scale configuration proceeds. A physical fixed C
+remains preferable when scanner/simulation provenance exists. The manuscript must
+state that the current values are data-derived rather than preserved physical PET
+scales, and every reconstruction hyperparameter must be selected under that
+scale.
