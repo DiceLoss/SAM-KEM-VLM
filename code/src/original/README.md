@@ -1,4 +1,8 @@
-# Original Algorithm Code (copied for self-contained review)
+# Retired original algorithm snapshot (forensic only)
+
+> **Do not import or execute these files for a clean run.** They are preserved
+> byte-for-byte where possible to support the v3 audit. The active tested
+> implementations live in `code/sam_kem/`.
 
 This directory contains the algorithm source files used by the v3
 canonical pipeline. **These files are copied verbatim from the

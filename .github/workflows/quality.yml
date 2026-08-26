@@ -1,0 +1,27 @@
+name: repository-quality
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  quality:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+      - name: Install package and quality dependencies
+        run: python -m pip install -e '.[test,evaluation]'
+      - name: Run static, unit, documentation, and protocol checks
+        run: make quality
+
+      # The scientific release audit is deliberately excluded here. A fresh
+      # clone lacks private source data, model checkpoints, and immutable result
+      # archives, so sam-kem validate must fail closed until a full run exists.

@@ -1,10 +1,17 @@
 # SAM-KEM: auditable PET reconstruction code
 
-This repository is being scientifically refactored after an audit found that the
-previous v3 results were not reproducible paper evidence. The canonical code now
-lives in `code/sam_kem/`. Historical `code/src/original/` and
-`code/scripts/_*.py` files are preserved only to document how the invalid v3
-artifacts were produced; they are not execution entry points.
+This repository contains the clean, fail-closed implementation of the SAM-KEM
+PET reconstruction study and a separately identified forensic snapshot of the
+invalid v3 workflow.
+Only `code/sam_kem/`, `code/experiments/`,
+`code/configs/experiment.yaml`, and `code/configs/protocols/` are active
+experiment sources.
+The current configuration is intentionally blocked: no clean paper result is
+present yet, and the validator will remain non-zero until the missing physical,
+split, MedSAM2, prompt, checkpoint, sweep, and archive provenance is supplied.
+
+Start with the [documentation index](docs/README.md) and the
+[Chinese researcher handoff](docs/RESEARCHER_HANDOFF_ZH.md).
 
 ## What the canonical core enforces
 
@@ -33,14 +40,9 @@ not a scanner-faithful or injected-dose simulator. HECKTOR projections are
 pseudo-sinograms generated from reconstructed clinical PET. See the explicit
 claim boundary in [SCIENTIFIC_STATUS.md](SCIENTIFIC_STATUS.md).
 
-The current scientific status is recorded in [SCIENTIFIC_STATUS.md](SCIENTIFIC_STATUS.md).
+The current scientific status is recorded in
+[SCIENTIFIC_STATUS.md](SCIENTIFIC_STATUS.md).
 The old CSV results are audit evidence only and must not be cited.
-The detailed PET/model audit for the experimenter is
-[docs/PET_AND_METHOD_AUDIT.md](docs/PET_AND_METHOD_AUDIT.md).
-The black-box audit of the uploaded sample NPZ files is
-[docs/UPLOADED_SAMPLE_AUDIT.md](docs/UPLOADED_SAMPLE_AUDIT.md).
-Result/checkpoint storage requirements are in
-[docs/ARTIFACT_SPEC.md](docs/ARTIFACT_SPEC.md).
 
 ## Quick start
 
@@ -48,13 +50,19 @@ Result/checkpoint storage requirements are in
 conda env create -f environment.yml
 conda activate sam-kem
 python -m pip install -e '.[test,evaluation]'
-PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 python -m pytest
+make quality
 sam-kem validate --root . --config code/configs/experiment.yaml
 ```
 
-The validator is expected to fail until the experimenter records the exact
-BrainWeb and HECKTOR physical scale constants, supplies verified decoder
-checkpoints, regenerates complete Qwen caches, and reruns all experiments.
+The validator is expected to fail until the experimenter pins a genuinely
+unexposed split, records the exact BrainWeb/HECKTOR physical scale and geometry,
+supplies the official MedSAM2 source/base artifact and verified retrained
+decoders, regenerates complete Qwen caches, finishes the validation sweep, and
+archives all clean experiments.
+
+The last command is a scientific release gate, not a smoke test.
+Its failure is expected in this checkout; do not suppress it or replace missing
+values with guesses.
 
 Experiment definitions are separate and reviewable:
 
@@ -66,23 +74,45 @@ Experiment definitions are separate and reviewable:
 - `code/configs/protocols/ablation.yaml`
 - `code/configs/protocols/convergence.yaml`
 - `code/configs/protocols/cross_count.yaml`
+- `code/configs/protocols/runtime.yaml`
 
-See [docs/EXECUTION.md](docs/EXECUTION.md) for the exact order, required
+See the [execution guide](docs/EXECUTION.md) for the exact order, required
 manifests, and paper-eligibility gate.
 
 ## Repository layout
 
 ```text
 code/sam_kem/                 canonical scientific library and CLI
+code/experiments/             thin active experiment entry points
 code/configs/experiment.yaml strict experiment contract
 code/configs/protocols/       experiment-specific protocols
 tests/                        synthetic mathematical and integrity tests
 code/src/original/            historical source snapshot (audit only)
 code/scripts/_*.py            invalid v3 drivers (audit only)
-results/                      historical v3 artifacts (audit only until rerun)
-prompts/                      historical evidence and clean_v1 prompt archives
+data/raw_samples/             small traceability exports (diagnostic only)
+data/raw_pet/, data/samples/  larger historical uploaded samples (diagnostic only)
+results/*_v3.csv              historical v3 artifacts (audit only)
+results/clean_v1/             future tracked clean manifests and summaries
+runs/clean_v1/                future immutable experiment run directories
 ```
 
 Do not suppress a failed validator, silently fall back to a pretrained
 checkpoint, select parameters from `test_locked`, or edit result CSV values by
 hand. Scientific corrections require rerunning the affected experiment.
+
+## Documentation map
+
+- [Repository map](docs/REPOSITORY_MAP.md): which files are active, diagnostic,
+  forensic, generated, or externally archived.
+- [Data dictionary](docs/DATA_DICTIONARY.md): source manifests, units, geometry,
+  case identities, arrays, and sidecars.
+- [Experiment matrix](docs/EXPERIMENT_MATRIX.md): datasets, methods, counts,
+  splits, selection rules, and output dependencies.
+- [Execution guide](docs/EXECUTION.md): complete command order from ingestion to
+  release.
+- [Operations runbook](docs/OPERATIONS_RUNBOOK.md): safe resume, failure
+  quarantine, archival, and handoff checks.
+- [Artifact specification](docs/ARTIFACT_SPEC.md): immutable CSV/checkpoint
+  schemas and completion rules.
+- [PET and method audit](docs/PET_AND_METHOD_AUDIT.md): scientific claim boundary
+  and retired implementation problems.

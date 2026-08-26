@@ -1,4 +1,9 @@
-# v3 Canonical Workflow
+# Retired v3 workflow (forensic only)
+
+> **Do not execute this workflow.** It is preserved only to explain the origin
+> of historical v3 artifacts. It uses exposed test data, mixed operators and
+> superseded checkpoints/normalization. The active workflow is
+> [`EXECUTION.md`](EXECUTION.md).
 
 This document describes the 10-step pipeline that produced the v3
 canonical results. **All algorithm code lives in

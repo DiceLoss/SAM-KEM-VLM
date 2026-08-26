@@ -1,7 +1,8 @@
 # Retired v3 decision log (forensic only)
 
 This file records historical decisions made during the invalid v3 rerun. It is
-not the decision log of the clean pipeline. In particular, D22/D24--D29 and all
+not the decision log of the clean pipeline and is not an execution guide. Do not
+apply these decisions to a clean run. In particular, D22/D24--D29 and all
 reported v3 performance values are superseded and are not paper evidence. The
 clean contract is defined by `code/configs/experiment.yaml`,
 `docs/CLEAN_PIPELINE.md`, and the protocol YAML files.
