@@ -1,0 +1,16 @@
+{
+  "brainweb": {
+    "file": "data\\raw_pet\\raw_pet_brainweb.npz",
+    "size_mb": 116.3,
+    "n_subjects": 20,
+    "shape": "(256, 256, 258) float32 per subject",
+    "source": "D:/MIAProject/brainweb/数据/brainweb_petmr/<subject>/sim_0/true_pet.nii.gz"
+  },
+  "hecktor": {
+    "file": "data\\raw_pet\\raw_pet_hecktor.npz",
+    "size_mb": 15.8,
+    "n_subjects": 223,
+    "shape": "(144, 144) float32 per subject (PET channel, HU scale)",
+    "source": "D:/MIAProject/HECKTOR.npz::input[sid, 72, :, :, 1]"
+  }
+}
