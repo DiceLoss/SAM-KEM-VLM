@@ -1,0 +1,13 @@
+{
+  "status": "corrected_before_step4",
+  "cause": "Step 3B was generated on Windows with CRLF worktree bytes. Git attributes normalized tracked text to LF during git add, so the worker-reported pre-add hashes do not identify the committed files.",
+  "invalid_worker_reported_config_sha256": "df0e12a5b61815c6d5bc080bd7ce6d38a334aa6d06996e5c849fd2881992b113",
+  "superseded_commit": "5639ce9f2fbabce9d39621a0a702481157d4e082",
+  "canonical_hash_source": "code/configs/generated/dev_trainmax_v1_protocols/generation_manifest.json",
+  "corrective_actions": [
+    "Candidate generation now writes UTF-8 LF bytes atomically on every platform.",
+    "The bundle contains a SHA-256 manifest generated from final published bytes.",
+    "The completed upstream normalization-calibration protocol is excluded from downstream candidate protocols.",
+    "The data-derived rule is named divide_by_fixed_dataset_constant rather than physical constant."
+  ]
+}

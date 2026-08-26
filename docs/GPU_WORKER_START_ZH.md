@@ -116,6 +116,11 @@ git add code/configs/generated
 git commit -m 'Freeze development fixed-scale config'
 ```
 
+生成器只复制 8 个下游协议；已经完成的 `normalization_calibration.yaml` 不属于候选
+训练 bundle，不得复制或重跑。`generation_manifest.json` 是配置和协议的权威 SHA
+清单。不要使用 Windows 工作树在 `git add` 之前计算的 CRLF 文件哈希；生成器以
+LF 原子写入，提交前后哈希必须一致。
+
 ## 4. 为固定尺度配置生成训练输入和 Qwen box
 
 ```bash

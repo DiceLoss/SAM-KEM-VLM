@@ -1,0 +1,63 @@
+{
+  "artifact_kind": "development_candidate_configuration_bundle",
+  "base_config": {
+    "path": "code/configs/experiment.yaml",
+    "sha256": "8ca1939f3cf2e10f1cccf74774feb8059b03bba304ecbc39f1ab967b868a61e6"
+  },
+  "calibration_candidates": {
+    "path": "runs/clean_v1/normalization_calibration/normalization_candidates.csv",
+    "sha256": "322e4da195af3cfbdcc42ff5c264dff465fd29b60256d3bc6084f8d495b77bbe"
+  },
+  "candidate": "train_max_fixed_C",
+  "configuration": {
+    "path": "code/configs/generated/dev_trainmax_v1.yaml",
+    "sha256": "dbbfdb5d770a8f1fa46bbb314d398a396216522e4fc97552e338e853d7cfdcdf"
+  },
+  "excluded_upstream_protocols": [
+    "normalization_calibration.yaml"
+  ],
+  "generator": {
+    "path": "code/sam_kem/candidate_config.py",
+    "sha256": "e49e5e55a1b6cfda6589f3ec77b2404dbe1e4049d78d7e09daf76e09d3f9abb5"
+  },
+  "normalization_decision": {
+    "path": "inputs/clean_v1/normalization_decision.json",
+    "sha256": "898641f4371d4ea80b1a5cba966aca6880f5f3accef590fce63a1cbb471985fa"
+  },
+  "protocols": [
+    {
+      "path": "code/configs/generated/dev_trainmax_v1_protocols/ablation.yaml",
+      "sha256": "ab416080284a22b3b00c47f86fad892ceb3306236d958a1d4f969d251c552b1b"
+    },
+    {
+      "path": "code/configs/generated/dev_trainmax_v1_protocols/comparison.yaml",
+      "sha256": "0b40756af989f95d947f43ccd5868a3f9a12f79563de38e30a2b5c9e5067a99d"
+    },
+    {
+      "path": "code/configs/generated/dev_trainmax_v1_protocols/convergence.yaml",
+      "sha256": "8fa56e52b0410f785e3452b19348f3646b278a9938a123842ce2550c67710fa5"
+    },
+    {
+      "path": "code/configs/generated/dev_trainmax_v1_protocols/cross_count.yaml",
+      "sha256": "eee928ac0311a79380edca6b6345cee02e69a15d5a0bd2d20f6fda87a1c3c8ea"
+    },
+    {
+      "path": "code/configs/generated/dev_trainmax_v1_protocols/hyperparameter_sweep.yaml",
+      "sha256": "1a353fe993b7f3986ab425c5d54bc70988988721b084a402851040ec55f4dd14"
+    },
+    {
+      "path": "code/configs/generated/dev_trainmax_v1_protocols/primary.yaml",
+      "sha256": "41aae1921dda2d36bc9f31370577c3f5f3c10704e91b29eaaffed9dc1226e3ac"
+    },
+    {
+      "path": "code/configs/generated/dev_trainmax_v1_protocols/runtime.yaml",
+      "sha256": "5132d58d1019e56c96f7b051b1d3f9ed5497f02f3e52d99a9400d74d4ef3f40a"
+    },
+    {
+      "path": "code/configs/generated/dev_trainmax_v1_protocols/training.yaml",
+      "sha256": "bf63af0e4c2c22f6550714a16f736dc8fc3b9a6472b8342c2ea2696a4e96aadb"
+    }
+  ],
+  "run_id": "dev_trainmax_v1",
+  "schema_version": 1
+}

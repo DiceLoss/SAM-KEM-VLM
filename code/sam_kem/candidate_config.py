@@ -8,7 +8,7 @@ from pathlib import Path
 
 import yaml
 
-from .artifacts import file_sha256
+from .artifacts import atomic_write_json, atomic_write_text, file_sha256
 from .config import ScientificContract, load_yaml_strict
 
 
@@ -91,7 +91,10 @@ def generate_candidate_configuration(
       f"candidate={candidate};fitted_from={by_dataset[dataset]['fitted_from']}"
     ) for dataset in ("brainweb", "hecktor")
   }
-  if candidate in {"train_max_fixed_C", "configured_physical_C"}:
+  if candidate == "train_max_fixed_C":
+    cfg["normalization"]["rule"] = "divide_by_fixed_dataset_constant"
+    cfg["normalization"]["clip_to_expected_target_range"] = False
+  elif candidate == "configured_physical_C":
     cfg["normalization"]["rule"] = "divide_by_fixed_dataset_physical_constant"
     cfg["normalization"]["clip_to_expected_target_range"] = False
   elif candidate == "train_global_minmax":
@@ -100,14 +103,47 @@ def generate_candidate_configuration(
   else:
     raise ValueError(f"candidate {candidate!r} is not eligible for decoder training")
   ScientificContract.from_mapping(cfg)
-  output_path.parent.mkdir(parents=True, exist_ok=True)
-  output_path.write_text(yaml.safe_dump(cfg, sort_keys=False), encoding="utf-8")
+  atomic_write_text(output_path, yaml.safe_dump(cfg, sort_keys=False))
 
   protocol_output_dir.mkdir(parents=True)
+  generated_protocols = []
   for protocol_path in sorted((root / "code/configs/protocols").glob("*.yaml")):
+    if protocol_path.name == "normalization_calibration.yaml":
+      continue
     protocol = load_yaml_strict(protocol_path)
     protocol = _replace_namespace(protocol, source_run, run_id)
-    (protocol_output_dir / protocol_path.name).write_text(
-      yaml.safe_dump(protocol, sort_keys=False), encoding="utf-8",
+    generated_path = protocol_output_dir / protocol_path.name
+    atomic_write_text(generated_path, yaml.safe_dump(protocol, sort_keys=False))
+    generated_protocols.append(
+      {"path": _portable_path(generated_path, root), "sha256": file_sha256(generated_path)}
     )
+  generator_path = root / "code/sam_kem/candidate_config.py"
+  atomic_write_json(protocol_output_dir / "generation_manifest.json", {
+    "schema_version": 1,
+    "artifact_kind": "development_candidate_configuration_bundle",
+    "candidate": candidate,
+    "run_id": run_id,
+    "base_config": {
+      "path": _portable_path(base_config_path, root),
+      "sha256": file_sha256(base_config_path),
+    },
+    "calibration_candidates": {
+      "path": _portable_path(candidates_path, root),
+      "sha256": file_sha256(candidates_path),
+    },
+    "normalization_decision": {
+      "path": _portable_path(decision_path, root),
+      "sha256": file_sha256(decision_path),
+    },
+    "generator": {
+      "path": _portable_path(generator_path, root),
+      "sha256": file_sha256(generator_path),
+    },
+    "configuration": {
+      "path": _portable_path(output_path, root),
+      "sha256": file_sha256(output_path),
+    },
+    "protocols": generated_protocols,
+    "excluded_upstream_protocols": ["normalization_calibration.yaml"],
+  })
   return output_path

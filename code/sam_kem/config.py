@@ -134,9 +134,12 @@ class ScientificContract:
       raise ConfigurationError("count levels and realizations must use independent random draws")
     normalization_rule = _require(cfg, "normalization.rule")
     normalization_clip = _require(cfg, "normalization.clip_to_expected_target_range")
-    if normalization_rule == "divide_by_fixed_dataset_physical_constant":
+    if normalization_rule in {
+      "divide_by_fixed_dataset_constant",
+      "divide_by_fixed_dataset_physical_constant",
+    }:
       if any(value != 0.0 for value in parsed_offsets.values()) or normalization_clip is not False:
-        raise ConfigurationError("physical fixed-C scaling requires zero offset and no clipping")
+        raise ConfigurationError("fixed-C scaling requires zero offset and no clipping")
     elif normalization_rule == "training_global_minmax_affine_clip01":
       if normalization_clip is not True:
         raise ConfigurationError("global min-max sensitivity requires explicit clipping")

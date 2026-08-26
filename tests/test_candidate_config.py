@@ -1,4 +1,5 @@
 import csv
+import json
 from pathlib import Path
 
 import pytest
@@ -31,6 +32,7 @@ def test_candidate_config_is_normalization_and_output_namespaced(tmp_path):
   )
   cfg = yaml.safe_load(output.read_text(encoding="utf-8"))
   assert cfg["normalization"]["scale_constants"] == {"brainweb": 6.0, "hecktor": 35.0}
+  assert cfg["normalization"]["rule"] == "divide_by_fixed_dataset_constant"
   assert cfg["data"]["split_file"] == "inputs/clean_v1/subject_split.csv"
   assert cfg["data"]["split_id"] == "clean_v1_development_train_validation"
   assert len(load_configured_subject_splits(ROOT, cfg)) == 244
@@ -42,6 +44,12 @@ def test_candidate_config_is_normalization_and_output_namespaced(tmp_path):
     "checkpoints/dev_trainmax_v1/"
   )
   assert (protocols / "training.yaml").is_file()
+  assert not (protocols / "normalization_calibration.yaml").exists()
+  manifest = json.loads((protocols / "generation_manifest.json").read_text(encoding="utf-8"))
+  assert manifest["candidate"] == "train_max_fixed_C"
+  assert manifest["excluded_upstream_protocols"] == ["normalization_calibration.yaml"]
+  assert output.read_bytes().count(b"\r\n") == 0
+  assert all(path.read_bytes().count(b"\r\n") == 0 for path in protocols.glob("*.yaml"))
 
 
 def test_redundant_minmax_candidate_is_not_trainable(tmp_path):

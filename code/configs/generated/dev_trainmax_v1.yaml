@@ -54,7 +54,7 @@ acquisition:
   independent_realizations_across_count_levels: true
 normalization:
   normalization_id: train_max_fixed_C
-  rule: divide_by_fixed_dataset_physical_constant
+  rule: divide_by_fixed_dataset_constant
   scale_constants:
     brainweb: 5.698180198669434
     hecktor: 34.93264389038086

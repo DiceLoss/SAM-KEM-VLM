@@ -19,6 +19,10 @@ the non-clipping `train_max_fixed_C` configuration; the min-max arm remains a
 diagnostic and must not receive duplicate training. Final evaluation remains
 blocked until genuinely unexposed external subjects are acquired.
 
+The generated development rule is named `divide_by_fixed_dataset_constant`.
+The word “physical” is reserved for a future constant with external physical
+provenance and must not label the present train-derived values.
+
 The official MedSAM2 source is pinned at commit `332f30d420f1d1b08e2a79b3ae6a602458808383`
 with `configs/sam2.1_hiera_t512.yaml`; the released checkpoint SHA is pinned in
 the configuration. The fixed constant must match the declared activity unit. The uploaded HECKTOR
