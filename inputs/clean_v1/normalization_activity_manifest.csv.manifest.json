@@ -1,0 +1,24 @@
+{
+  "artifact_path": "normalization_activity_manifest.csv",
+  "artifact_sha256": "13c33fb7af4fe160df66934e167ceb34e97de248abb0c23abf66bc8f2faa2c69",
+  "byte_size": 670866,
+  "columns": [
+    "dataset",
+    "subject_id",
+    "slice_id",
+    "split",
+    "activity_path",
+    "activity_sha256",
+    "activity_unit"
+  ],
+  "completed_utc": "2026-08-26T11:11:30.540118+00:00",
+  "primary_key": [
+    "dataset",
+    "subject_id",
+    "slice_id"
+  ],
+  "row_count": 3735,
+  "schema_name": "normalization_activity_manifest_v1",
+  "schema_version": 1,
+  "split": null
+}
