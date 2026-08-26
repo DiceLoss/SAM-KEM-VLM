@@ -3,8 +3,6 @@
 *.pth
 *.egg
 *.pkl
-*.npy
-*.npz
 *.pdf
 *.tar.gz
 *.zip
@@ -17,4 +15,13 @@ data/processed/
 
 # Python caches
 __pycache__/
-*.pycv3_repo_complete.bundle
+*.pyc
+
+# v3_repo_complete.bundle (offline transfer bundle, optional)
+v3_repo_complete.bundle
+
+# Allow small per-dataset sample NPZ files for reproducibility
+# (these are < 50 MB each, intentionally committed so reviewers
+# can reproduce single cases without the full array tree)
+!data/samples/*.npz
+!data/samples/*.jsonv3_repo_complete.bundle
