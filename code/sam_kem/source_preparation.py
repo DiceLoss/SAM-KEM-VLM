@@ -100,48 +100,66 @@ def prepare_development_sources(
     })
 
   output_root.mkdir(parents=True, exist_ok=True)
-  with tempfile.TemporaryDirectory(prefix="hecktor_input_", dir=output_root.parent) as temporary:
-    input_npy = _extract_npz_member(hecktor_npz, "input", Path(temporary) / "input.npy")
+  # Manually manage the temporary directory so we can release the mmap
+  # handle and the underlying input.npy file BEFORE rmtree runs. On
+  # Windows the read-only mmap keeps a file lock that blocks os.unlink
+  # inside TemporaryDirectory.__exit__; on Linux this is unnecessary but
+  # the explicit close is also harmless. The streaming extraction itself
+  # is unchanged: only HECKTOR.npz 'input' is read, no other member.
+  temporary = Path(tempfile.mkdtemp(prefix="hecktor_input_", dir=output_root.parent))
+  try:
+    input_npy = _extract_npz_member(hecktor_npz, "input", temporary / "input.npy")
     input_array = np.load(input_npy, allow_pickle=False, mmap_mode="r")
     if input_array.shape != (224, 144, 144, 144, 2):
       raise ValueError(f"unexpected HECKTOR input shape: {input_array.shape}")
-    for split_row in (row for row in splits if row["dataset"] == "hecktor"):
-      subject = split_row["subject_id"]
-      subject_index = int(subject) - 1
-      slice_index = 72
-      channel_index = 1
-      pet = np.asarray(
-        input_array[subject_index, slice_index, :, :, channel_index], dtype=np.float32,
-      )
-      if pet.shape != (144, 144) or np.any(pet < 0) or not np.all(np.isfinite(pet)):
-        raise ValueError(f"invalid HECKTOR PET slice for subject {subject}")
-      source = output_root / "hecktor" / subject / "z072_pet.npy"
-      if source.exists() or source.with_suffix(".json").exists():
-        raise FileExistsError(f"refusing to overwrite extracted source: {source}")
-      atomic_save_numpy(source, pet)
-      atomic_write_json(source.with_suffix(".json"), {
-        "schema_version": 1, "artifact_kind": "hecktor_dicom_export_pet_slice",
-        "dataset": "hecktor", "subject_id": subject, "slice_id": "z072",
-        "activity_unit": hecktor_unit, "array_sha256": array_sha256(pet),
-        "source_file_sha256": file_sha256(source),
-        "upstream_container_path": str(hecktor_npz.resolve()),
-        "upstream_container_sha256": actual_npz_sha,
-        "upstream_selector": f"input[{subject_index},72,:,:,1]",
-        "researcher_source_statement": "reconstructed clinical PET exported directly from DICOM",
-      })
-      rows.append({
-        "dataset": "hecktor", "subject_id": subject, "slice_id": "z072",
-        "split": split_row["split"], "source_path": _manifest_path(root, source),
-        "source_sha256": file_sha256(source), "source_kind": "npy_slice",
-        "source_key": "", "source_subject_index": subject_index,
-        "source_slice_axis": "", "source_slice_index": slice_index,
-        "source_channel_index": channel_index, "activity_unit": hecktor_unit,
-        "spatial_transform": "resize_full_square_to_128",
-        "source_spacing_y_mm": "", "source_spacing_x_mm": "",
-        "upstream_container_path": str(hecktor_npz.resolve()),
-        "upstream_container_sha256": actual_npz_sha,
-        "upstream_selector": f"input[{subject_index},72,:,:,1]",
-      })
+    try:
+      for split_row in (row for row in splits if row["dataset"] == "hecktor"):
+        subject = split_row["subject_id"]
+        subject_index = int(subject) - 1
+        slice_index = 72
+        channel_index = 1
+        pet = np.asarray(
+          input_array[subject_index, slice_index, :, :, channel_index], dtype=np.float32,
+        )
+        if pet.shape != (144, 144) or np.any(pet < 0) or not np.all(np.isfinite(pet)):
+          raise ValueError(f"invalid HECKTOR PET slice for subject {subject}")
+        source = output_root / "hecktor" / subject / "z072_pet.npy"
+        if source.exists() or source.with_suffix(".json").exists():
+          raise FileExistsError(f"refusing to overwrite extracted source: {source}")
+        atomic_save_numpy(source, pet)
+        atomic_write_json(source.with_suffix(".json"), {
+          "schema_version": 1, "artifact_kind": "hecktor_dicom_export_pet_slice",
+          "dataset": "hecktor", "subject_id": subject, "slice_id": "z072",
+          "activity_unit": hecktor_unit, "array_sha256": array_sha256(pet),
+          "source_file_sha256": file_sha256(source),
+          "upstream_container_path": str(hecktor_npz.resolve()),
+          "upstream_container_sha256": actual_npz_sha,
+          "upstream_selector": f"input[{subject_index},72,:,:,1]",
+          "researcher_source_statement": "reconstructed clinical PET exported directly from DICOM",
+        })
+        rows.append({
+          "dataset": "hecktor", "subject_id": subject, "slice_id": "z072",
+          "split": split_row["split"], "source_path": _manifest_path(root, source),
+          "source_sha256": file_sha256(source), "source_kind": "npy_slice",
+          "source_key": "", "source_subject_index": subject_index,
+          "source_slice_axis": "", "source_slice_index": slice_index,
+          "source_channel_index": channel_index, "activity_unit": hecktor_unit,
+          "spatial_transform": "resize_full_square_to_128",
+          "source_spacing_y_mm": "", "source_spacing_x_mm": "",
+          "upstream_container_path": str(hecktor_npz.resolve()),
+          "upstream_container_sha256": actual_npz_sha,
+          "upstream_selector": f"input[{subject_index},72,:,:,1]",
+        })
+    finally:
+      # Drop the mmap so the underlying input.npy file handle is
+      # released before shutil.rmtree tries to unlink it.
+      del input_array
+  finally:
+    # ignore_errors covers the (now unlikely) race where another
+    # process holds the file; this is best-effort cleanup of a
+    # scratch directory under output_root.parent and contains no
+    # long-lived artifacts.
+    shutil.rmtree(temporary, ignore_errors=True)
 
   with atomic_csv_writer(manifest_path, list(SOURCE_COLUMNS)) as writer:
     writer.writerows(sorted(rows, key=lambda row: (str(row["dataset"]), str(row["subject_id"]))))

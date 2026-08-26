@@ -1,0 +1,322 @@
+[
+  {
+    "subject_id": "subject04",
+    "path": "D:\\MIAProject\\brainweb\\数据\\brainweb_petmr\\subject04\\sim_0\\true_pet.nii.gz",
+    "sha256": "4a0309dffb10db8f...",
+    "sha256_full": "4a0309dffb10db8fa9b6ad3dc83180a5fa0f5da22d35680a3414cf4666e15db4",
+    "shape": [
+      256,
+      256,
+      258
+    ],
+    "selected_slice": 129,
+    "spacing_y_mm": 1.0,
+    "spacing_x_mm": 1.0,
+    "manifest_sha": "4a0309dffb10db8f...",
+    "sha_match": true
+  },
+  {
+    "subject_id": "subject05",
+    "path": "D:\\MIAProject\\brainweb\\数据\\brainweb_petmr\\subject05\\sim_0\\true_pet.nii.gz",
+    "sha256": "29316ab389ea5448...",
+    "sha256_full": "29316ab389ea54489f3379127a30e5147d402b228fdbd8ea94bd9e364a8d1238",
+    "shape": [
+      256,
+      256,
+      258
+    ],
+    "selected_slice": 129,
+    "spacing_y_mm": 1.0,
+    "spacing_x_mm": 1.0,
+    "manifest_sha": "29316ab389ea5448...",
+    "sha_match": true
+  },
+  {
+    "subject_id": "subject06",
+    "path": "D:\\MIAProject\\brainweb\\数据\\brainweb_petmr\\subject06\\sim_0\\true_pet.nii.gz",
+    "sha256": "05fada439661ea06...",
+    "sha256_full": "05fada439661ea06405b98cd9a9fc5790585e86d22c595fa90fdb9eddf473d20",
+    "shape": [
+      256,
+      256,
+      258
+    ],
+    "selected_slice": 129,
+    "spacing_y_mm": 1.0,
+    "spacing_x_mm": 1.0,
+    "manifest_sha": "05fada439661ea06...",
+    "sha_match": true
+  },
+  {
+    "subject_id": "subject18",
+    "path": "D:\\MIAProject\\brainweb\\数据\\brainweb_petmr\\subject18\\sim_0\\true_pet.nii.gz",
+    "sha256": "56416a9501e9b9aa...",
+    "sha256_full": "56416a9501e9b9aa064f0265fe8fa50738d4ffab9f361839a9b3b42ccd0e36c9",
+    "shape": [
+      256,
+      256,
+      258
+    ],
+    "selected_slice": 129,
+    "spacing_y_mm": 1.0,
+    "spacing_x_mm": 1.0,
+    "manifest_sha": "56416a9501e9b9aa...",
+    "sha_match": true
+  },
+  {
+    "subject_id": "subject20",
+    "path": "D:\\MIAProject\\brainweb\\数据\\brainweb_petmr\\subject20\\sim_0\\true_pet.nii.gz",
+    "sha256": "32bd2d7bbf19d78f...",
+    "sha256_full": "32bd2d7bbf19d78fe5e5f6671855d94af053c2492d3045224dbe43e7e422f6a4",
+    "shape": [
+      256,
+      256,
+      258
+    ],
+    "selected_slice": 129,
+    "spacing_y_mm": 1.0,
+    "spacing_x_mm": 1.0,
+    "manifest_sha": "32bd2d7bbf19d78f...",
+    "sha_match": true
+  },
+  {
+    "subject_id": "subject38",
+    "path": "D:\\MIAProject\\brainweb\\数据\\brainweb_petmr\\subject38\\sim_0\\true_pet.nii.gz",
+    "sha256": "b43e89c9d5af2b5c...",
+    "sha256_full": "b43e89c9d5af2b5c203af372141eb557ac5f57f495cdd077e740f081712cde2b",
+    "shape": [
+      256,
+      256,
+      258
+    ],
+    "selected_slice": 129,
+    "spacing_y_mm": 1.0,
+    "spacing_x_mm": 1.0,
+    "manifest_sha": "b43e89c9d5af2b5c...",
+    "sha_match": true
+  },
+  {
+    "subject_id": "subject41",
+    "path": "D:\\MIAProject\\brainweb\\数据\\brainweb_petmr\\subject41\\sim_0\\true_pet.nii.gz",
+    "sha256": "aac332f0bb97aad8...",
+    "sha256_full": "aac332f0bb97aad8aae7961044f878de5c06c1cb0520abc1b9a3d41247f7cd72",
+    "shape": [
+      256,
+      256,
+      258
+    ],
+    "selected_slice": 129,
+    "spacing_y_mm": 1.0,
+    "spacing_x_mm": 1.0,
+    "manifest_sha": "aac332f0bb97aad8...",
+    "sha_match": true
+  },
+  {
+    "subject_id": "subject42",
+    "path": "D:\\MIAProject\\brainweb\\数据\\brainweb_petmr\\subject42\\sim_0\\true_pet.nii.gz",
+    "sha256": "091e4f8a74287941...",
+    "sha256_full": "091e4f8a74287941a75624257984a55c104c98c45a07360dd9f5275f97dfad61",
+    "shape": [
+      256,
+      256,
+      258
+    ],
+    "selected_slice": 129,
+    "spacing_y_mm": 1.0,
+    "spacing_x_mm": 1.0,
+    "manifest_sha": "091e4f8a74287941...",
+    "sha_match": true
+  },
+  {
+    "subject_id": "subject43",
+    "path": "D:\\MIAProject\\brainweb\\数据\\brainweb_petmr\\subject43\\sim_0\\true_pet.nii.gz",
+    "sha256": "bd9517a5dbf2165a...",
+    "sha256_full": "bd9517a5dbf2165aa7ca5fe6d485aee6d9eb022abc23b7579243329032c32d71",
+    "shape": [
+      256,
+      256,
+      258
+    ],
+    "selected_slice": 129,
+    "spacing_y_mm": 1.0,
+    "spacing_x_mm": 1.0,
+    "manifest_sha": "bd9517a5dbf2165a...",
+    "sha_match": true
+  },
+  {
+    "subject_id": "subject44",
+    "path": "D:\\MIAProject\\brainweb\\数据\\brainweb_petmr\\subject44\\sim_0\\true_pet.nii.gz",
+    "sha256": "fb8a75d227d2225a...",
+    "sha256_full": "fb8a75d227d2225a5ca9ed8ee6aa133c431a31237e2474881639bcc1d173a210",
+    "shape": [
+      256,
+      256,
+      258
+    ],
+    "selected_slice": 129,
+    "spacing_y_mm": 1.0,
+    "spacing_x_mm": 1.0,
+    "manifest_sha": "fb8a75d227d2225a...",
+    "sha_match": true
+  },
+  {
+    "subject_id": "subject45",
+    "path": "D:\\MIAProject\\brainweb\\数据\\brainweb_petmr\\subject45\\sim_0\\true_pet.nii.gz",
+    "sha256": "a18c7fb710426fa7...",
+    "sha256_full": "a18c7fb710426fa7764607e2546a3db55898967f784e3305f82990e02ac75025",
+    "shape": [
+      256,
+      256,
+      258
+    ],
+    "selected_slice": 129,
+    "spacing_y_mm": 1.0,
+    "spacing_x_mm": 1.0,
+    "manifest_sha": "a18c7fb710426fa7...",
+    "sha_match": true
+  },
+  {
+    "subject_id": "subject46",
+    "path": "D:\\MIAProject\\brainweb\\数据\\brainweb_petmr\\subject46\\sim_0\\true_pet.nii.gz",
+    "sha256": "fc1ebf5a2da897f6...",
+    "sha256_full": "fc1ebf5a2da897f6f8ad0fffa3031b95f8a0c580adf0f30ad225c94c32083f71",
+    "shape": [
+      256,
+      256,
+      258
+    ],
+    "selected_slice": 129,
+    "spacing_y_mm": 1.0,
+    "spacing_x_mm": 1.0,
+    "manifest_sha": "fc1ebf5a2da897f6...",
+    "sha_match": true
+  },
+  {
+    "subject_id": "subject47",
+    "path": "D:\\MIAProject\\brainweb\\数据\\brainweb_petmr\\subject47\\sim_0\\true_pet.nii.gz",
+    "sha256": "7f53eff8f5a90b31...",
+    "sha256_full": "7f53eff8f5a90b31f1dfeeff6055c429bbf5268ae0924acc29e2931d193f5f17",
+    "shape": [
+      256,
+      256,
+      258
+    ],
+    "selected_slice": 129,
+    "spacing_y_mm": 1.0,
+    "spacing_x_mm": 1.0,
+    "manifest_sha": "7f53eff8f5a90b31...",
+    "sha_match": true
+  },
+  {
+    "subject_id": "subject48",
+    "path": "D:\\MIAProject\\brainweb\\数据\\brainweb_petmr\\subject48\\sim_0\\true_pet.nii.gz",
+    "sha256": "1d33f504241fe2c3...",
+    "sha256_full": "1d33f504241fe2c3c9855761cdfb1b059da981b8d55a4c4009353bd768e3dd2e",
+    "shape": [
+      256,
+      256,
+      258
+    ],
+    "selected_slice": 129,
+    "spacing_y_mm": 1.0,
+    "spacing_x_mm": 1.0,
+    "manifest_sha": "1d33f504241fe2c3...",
+    "sha_match": true
+  },
+  {
+    "subject_id": "subject49",
+    "path": "D:\\MIAProject\\brainweb\\数据\\brainweb_petmr\\subject49\\sim_0\\true_pet.nii.gz",
+    "sha256": "2a272c2609f91d35...",
+    "sha256_full": "2a272c2609f91d3563d20095b6b2ca9cf1875b4200df8d771bb5be3f5f7675df",
+    "shape": [
+      256,
+      256,
+      258
+    ],
+    "selected_slice": 129,
+    "spacing_y_mm": 1.0,
+    "spacing_x_mm": 1.0,
+    "manifest_sha": "2a272c2609f91d35...",
+    "sha_match": true
+  },
+  {
+    "subject_id": "subject50",
+    "path": "D:\\MIAProject\\brainweb\\数据\\brainweb_petmr\\subject50\\sim_0\\true_pet.nii.gz",
+    "sha256": "11a3e768122464de...",
+    "sha256_full": "11a3e768122464de2a9fb2d105a8ba119729c4b98c0efd661d83196ddd86a073",
+    "shape": [
+      256,
+      256,
+      258
+    ],
+    "selected_slice": 129,
+    "spacing_y_mm": 1.0,
+    "spacing_x_mm": 1.0,
+    "manifest_sha": "11a3e768122464de...",
+    "sha_match": true
+  },
+  {
+    "subject_id": "subject51",
+    "path": "D:\\MIAProject\\brainweb\\数据\\brainweb_petmr\\subject51\\sim_0\\true_pet.nii.gz",
+    "sha256": "7cbe600d82d5705d...",
+    "sha256_full": "7cbe600d82d5705d36bb4ff1f15932d1d9bb20b664601fc28be8d1123f065fe5",
+    "shape": [
+      256,
+      256,
+      258
+    ],
+    "selected_slice": 129,
+    "spacing_y_mm": 1.0,
+    "spacing_x_mm": 1.0,
+    "manifest_sha": "7cbe600d82d5705d...",
+    "sha_match": true
+  },
+  {
+    "subject_id": "subject52",
+    "path": "D:\\MIAProject\\brainweb\\数据\\brainweb_petmr\\subject52\\sim_0\\true_pet.nii.gz",
+    "sha256": "64db91e064b43764...",
+    "sha256_full": "64db91e064b43764d896d0b985177ae6a91d9c90e8419ff7f4d96f583cb984a6",
+    "shape": [
+      256,
+      256,
+      258
+    ],
+    "selected_slice": 129,
+    "spacing_y_mm": 1.0,
+    "spacing_x_mm": 1.0,
+    "manifest_sha": "64db91e064b43764...",
+    "sha_match": true
+  },
+  {
+    "subject_id": "subject53",
+    "path": "D:\\MIAProject\\brainweb\\数据\\brainweb_petmr\\subject53\\sim_0\\true_pet.nii.gz",
+    "sha256": "d05b4cfb999a4318...",
+    "sha256_full": "d05b4cfb999a4318f3a295d24db5dc6d37c60b75efaaa42fceae2f2ba1095668",
+    "shape": [
+      256,
+      256,
+      258
+    ],
+    "selected_slice": 129,
+    "spacing_y_mm": 1.0,
+    "spacing_x_mm": 1.0,
+    "manifest_sha": "d05b4cfb999a4318...",
+    "sha_match": true
+  },
+  {
+    "subject_id": "subject54",
+    "path": "D:\\MIAProject\\brainweb\\数据\\brainweb_petmr\\subject54\\sim_0\\true_pet.nii.gz",
+    "sha256": "4d6f099062022bf2...",
+    "sha256_full": "4d6f099062022bf28f139964ca76b7762d6f49bdf6bd4a9bf17921366e5d2f9b",
+    "shape": [
+      256,
+      256,
+      258
+    ],
+    "selected_slice": 129,
+    "spacing_y_mm": 1.0,
+    "spacing_x_mm": 1.0,
+    "manifest_sha": "4d6f099062022bf2...",
+    "sha_match": true
+  }
+]

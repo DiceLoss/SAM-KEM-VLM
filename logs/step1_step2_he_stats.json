@@ -1,0 +1,27 @@
+{
+  "n_slices": 224,
+  "shape": [
+    144,
+    144
+  ],
+  "dtype": "float32",
+  "overall_min": 0.0,
+  "overall_max": 34.95704650878906,
+  "per_slice_min_median": 0.0,
+  "per_slice_min_range": [
+    0.0,
+    0.003671107115224004
+  ],
+  "per_slice_max_range": [
+    0.6283360123634338,
+    34.95704650878906
+  ],
+  "per_slice_mean_range": [
+    0.1706230193376541,
+    4.639166831970215
+  ],
+  "total_nonfinite": 0,
+  "total_negative": 0,
+  "any_slice_with_nonfinite": false,
+  "any_slice_with_negative": false
+}

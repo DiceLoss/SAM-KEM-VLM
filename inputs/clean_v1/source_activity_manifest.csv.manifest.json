@@ -1,0 +1,36 @@
+{
+  "artifact_path": "source_activity_manifest.csv",
+  "artifact_sha256": "1f80f7e30d0e75b611e1355060e32e8e1315d91c9f76cceb52768f4e18c388bc",
+  "byte_size": 73652,
+  "columns": [
+    "dataset",
+    "subject_id",
+    "slice_id",
+    "split",
+    "source_path",
+    "source_sha256",
+    "source_kind",
+    "source_key",
+    "source_subject_index",
+    "source_slice_axis",
+    "source_slice_index",
+    "source_channel_index",
+    "activity_unit",
+    "spatial_transform",
+    "source_spacing_y_mm",
+    "source_spacing_x_mm",
+    "upstream_container_path",
+    "upstream_container_sha256",
+    "upstream_selector"
+  ],
+  "completed_utc": "2026-08-26T07:26:39.587414+00:00",
+  "primary_key": [
+    "dataset",
+    "subject_id",
+    "slice_id"
+  ],
+  "row_count": 244,
+  "schema_name": "source_activity_manifest_v2",
+  "schema_version": 1,
+  "split": null
+}
