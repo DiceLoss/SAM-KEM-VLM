@@ -1,0 +1,27 @@
+name: comparison_test
+kind: comparison
+split: test_locked
+methods:
+- MLEM
+- OSEM
+- Bowsher-KEM
+- SelfKEM
+- MR-KEM
+- CT-KEM
+- SAM-prior-MedSAM2-Qwen3
+- SAM-KEM-MedSAM2-Qwen3-no-post
+- SAM-KEM-MedSAM2-Qwen3-full
+datasets:
+- brainweb
+- hecktor
+method_applicability:
+  MR-KEM:
+  - brainweb
+  CT-KEM:
+  - hecktor
+  proposed_method_anatomy_input: false
+requires_frozen_hyperparameters: true
+same_cases_and_realizations_for_all_applicable_methods: true
+paired_statistics_by_subject: true
+bowsher_parameter_source: frozen_validation_sweep
+output: runs/dev_trainmax_v1/comparison

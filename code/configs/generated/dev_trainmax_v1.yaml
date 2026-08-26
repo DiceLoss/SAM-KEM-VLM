@@ -1,0 +1,274 @@
+schema_version: 1
+run_id: dev_trainmax_v1
+status: development_candidate_ready
+locked: false
+reproducibility:
+  experiment_seed: 20260817
+  deterministic_algorithms: true
+data:
+  split_file: inputs/clean_v1/subject_split.csv
+  split_id: clean_v1_development_train_validation
+  split_sha256: cffe83608da27f736abe02e8c0fa5d2f892df8773bbccb08ec1a916157c0a096
+  locked_test_required_exposure_status: never_used_for_training_validation_tuning_or_reporting
+  source_activity_manifest: inputs/clean_v1/source_activity_manifest.csv
+  canonical_activity_root: arrays/dev_trainmax_v1
+  ingestion_schema: canonical_activity_v1
+  allowed_spatial_transforms:
+    brainweb:
+    - mean_pool_2x2_full_square
+    hecktor:
+    - resize_full_square_to_128
+  split_unit:
+    brainweb: source_model
+    hecktor: patient
+  expected_subject_counts:
+    brainweb:
+      train: 16
+      validation: 4
+      test_locked: 0
+    hecktor:
+      train: 179
+      validation: 45
+      test_locked: 0
+  expected_source_plane_counts:
+    brainweb:
+      train: 2815
+      validation: 696
+      test_locked: 0
+    hecktor:
+      train: 179
+      validation: 45
+      test_locked: 0
+acquisition:
+  count_levels:
+  - 100000
+  - 200000
+  - 500000
+  - 1000000
+  realizations:
+  - 0
+  - 1
+  - 2
+  observation_model: poisson_scaled_noise_free_projection
+  dose_interpretation: expected_detected_counts_proxy_not_calibrated_injected_activity
+  independent_realizations_across_count_levels: true
+normalization:
+  normalization_id: train_max_fixed_C
+  rule: divide_by_fixed_dataset_physical_constant
+  scale_constants:
+    brainweb: 5.698180198669434
+    hecktor: 34.93264389038086
+  scale_constant_sources:
+    brainweb: runs/clean_v1/normalization_calibration/normalization_candidates.csv:sha256=322e4da195af3cfbdcc42ff5c264dff465fd29b60256d3bc6084f8d495b77bbe;candidate=train_max_fixed_C;fitted_from=train_only_global_max
+    hecktor: runs/clean_v1/normalization_calibration/normalization_candidates.csv:sha256=322e4da195af3cfbdcc42ff5c264dff465fd29b60256d3bc6084f8d495b77bbe;candidate=train_max_fixed_C;fitted_from=train_only_global_max
+  offsets:
+    brainweb: 0.0
+    hecktor: 0.0
+  clip_to_expected_target_range: false
+  expected_target_range:
+  - 0.0
+  - 1.0
+  target_range_tolerance: 1.0e-06
+  kernel_feature_rule: per_prior_minmax_only
+  development_training_candidate: train_max_fixed_C
+  development_decision: inputs/clean_v1/normalization_decision.json:sha256=898641f4371d4ea80b1a5cba966aca6880f5f3accef590fce63a1cbb471985fa
+forward_model:
+  operator_id: pixel_driven_parallel_beam_full_square_size128_n180_d182
+  implementation_path: code/sam_kem/pet_operator.py
+  implementation_sha256: fb4bc634179de684aa46b4d8c11db26eaf1e5ce1b5aa8df33ee81f6bfc0ea692
+  angles: 180
+  image_size: 128
+  detector_bins: 182
+  geometry: idealized_parallel_beam
+  axial_model: independent_2d_ring_positions_no_axial_coincidence_model
+  field_of_view: full_square_image_grid
+  attenuation: none
+  scatter: none
+  randoms: none
+  detector_normalization: none
+  point_spread_function: none
+  time_of_flight: none
+  dead_time: none
+  require_adjoint_test: true
+  same_operator_for_simulation_reconstruction_and_deviance: true
+prompts:
+  provider: dashscope
+  model: qwen3-vl-plus
+  text: "\u6846\u9009\u51FA\u6240\u6709\u660E\u4EAE\u56E2\u5757\uFF0C\u8FD4\u56DE\u5305\
+    \u542B\u5B83\u4EEC\u7684\u6700\u5C0F\u5355\u4E2A\u5916\u63A5\u77E9\u5F62\u6846\
+    \u3002"
+  anchor_realization: 0
+  cache_key:
+  - dataset
+  - subject_id
+  - slice_id
+  - count_level
+  coordinate_convention: xyxy_half_open_on_128x128
+  share_across_realizations: true
+  training_box_cache: prompts/dev_trainmax_v1/train_validation_box_cache.csv
+  box_cache: prompts/dev_trainmax_v1/final_box_cache.csv
+  fallback: intensity_centroid_box
+  fallback_box_size:
+  - 32
+  - 32
+  fallback_relative_threshold: 0.5
+  zero_mass_rule: geometric_center
+medsam2:
+  architecture: sam2.1_hiera_t
+  source_repository: https://github.com/bowang-lab/MedSAM2
+  source_commit: 332f30d420f1d1b08e2a79b3ae6a602458808383
+  source_checkout_path: external/MedSAM2
+  pretrained_checkpoint_path: checkpoints/MedSAM2_latest.pt
+  pretrained_checkpoint_sha256: c92743b99f00d078bf32a3afcc38aaa9faf1c1692dffe3eaa7a90938c1991060
+  checkpoint_scope: dataset_specific
+  checkpoint_format: mask_decoder_only_inference_plus_separate_resumable_training_state
+  checkpoint_selection_policy: fixed_budget_final_checkpoint_no_best_claim
+  checkpoint_atomic_write: true
+  frozen_components:
+  - image_encoder
+  - prompt_encoder
+  - memory_encoder
+  trainable_components:
+  - mask_decoder
+  loss: l1
+  training_count_levels:
+  - 100000
+  - 200000
+  - 500000
+  - 1000000
+  training_model_scope: one_joint_model_per_dataset
+  inference_output: continuous_raw_decoder_output
+  raw_prior_kernel_transform: per_prior_minmax
+  physical_prior_output_constraint: clip_to_fixed_target_range_without_sigmoid_or_minmax
+  allow_pretrained_fallback: false
+  checkpoint_sha256:
+    brainweb: null
+    hecktor: null
+  checkpoint_paths:
+    brainweb: checkpoints/dev_trainmax_v1/medsam2_decoder_brainweb.pt
+    hecktor: checkpoints/dev_trainmax_v1/medsam2_decoder_hecktor.pt
+  checkpoint_archive_uri:
+    brainweb: null
+    hecktor: null
+  training:
+    epochs: 20
+    steps_per_epoch: 400
+    learning_rate: 0.0001
+    optimizer: AdamW
+    weight_decay: 0.0001
+    batch_size: 1
+    sampling_unit: count_then_subject_then_slice_realization
+    budget_source: predeclared_before_training
+    checkpoint_every_epochs: 1
+    save_optimizer_and_rng_state: true
+reconstruction:
+  prompt_mlem_iterations: 10
+  mlem_baseline_iteration_candidates:
+  - 1
+  - 5
+  - 10
+  - 20
+  - 40
+  - 60
+  - 80
+  - 120
+  osem_baseline_cycle_candidates:
+  - 1
+  - 2
+  - 5
+  - 10
+  - 20
+  osem_subsets: 10
+  bowsher_neighbour_candidates:
+  - 4
+  - 8
+  - 12
+  bowsher_radius_candidates:
+  - 1
+  - 2
+  - 3
+  bowsher_method_id: Bowsher-KEM
+  bowsher_formulation: anatomy_selected_neighbour_coefficient_kernel_em_not_classic_map_bowsher
+  kem_formulation: coefficient_space_x_equals_K_alpha
+  normalize_inside_iterations: false
+  sigma_candidates:
+  - 0.025
+  - 0.05
+  - 0.1
+  radius_candidates:
+  - 1
+  - 2
+  - 3
+  iteration_candidates:
+  - 10
+  - 20
+  - 40
+  - 60
+  - 80
+  - 100
+  - 120
+  alpha_candidates:
+  - 0.0
+  - 0.1
+  - 0.2
+  - 0.3
+  - 0.4
+  - 0.5
+  selection_split: validation
+  selection_primary_metric: subject_level_nrmse
+  selection_tiebreaker: subject_level_ssim
+  expand_boundary_optimum: true
+evaluation:
+  locked_test_access_policy: only_after_validation_freeze_no_test_feedback
+  region: operator_full_square_support
+  metric_support_source: positive_operator_sensitivity
+  anatomy_used_to_define_metric_mask: false
+  required_methods:
+  - MLEM
+  - OSEM
+  - Bowsher-KEM
+  - SelfKEM
+  - MR-KEM
+  - CT-KEM
+  - SAM-prior-MedSAM2-Qwen3
+  - SAM-KEM-MedSAM2-Qwen3-no-post
+  - SAM-KEM-MedSAM2-Qwen3-full
+  required_methods_by_dataset:
+    brainweb:
+    - MLEM
+    - OSEM
+    - Bowsher-KEM
+    - SelfKEM
+    - MR-KEM
+    - SAM-prior-MedSAM2-Qwen3
+    - SAM-KEM-MedSAM2-Qwen3-no-post
+    - SAM-KEM-MedSAM2-Qwen3-full
+    hecktor:
+    - MLEM
+    - OSEM
+    - Bowsher-KEM
+    - SelfKEM
+    - CT-KEM
+    - SAM-prior-MedSAM2-Qwen3
+    - SAM-KEM-MedSAM2-Qwen3-no-post
+    - SAM-KEM-MedSAM2-Qwen3-full
+  proposed_method_uses_anatomy: false
+  hecktor_tumor_mask_use: prohibited
+  psnr_data_range_after_fixed_C_scaling: 1.0
+  nonnegative_tolerance: 1.0e-07
+outputs:
+  artifact_policy:
+    immutable: true
+    atomic_write: true
+    csv_manifest_required: true
+    success_marker_required: true
+    checksum: sha256
+    partial_run_eligible_for_paper: false
+    immutable_archive_uri: null
+  per_case_metrics: runs/dev_trainmax_v1/comparison/per_case_metrics.csv
+  hyperparameter_sweep: runs/dev_trainmax_v1/hyperparameter_sweep/validation_sweep.csv
+  frozen_hyperparameters: results/dev_trainmax_v1/frozen_hyperparameters.csv
+  pretraining_manifest: results/dev_trainmax_v1/case_manifest_inputs.csv
+  validation_manifest: results/dev_trainmax_v1/validation_case_manifest.csv
+  box_input_manifest: results/dev_trainmax_v1/final_box_inputs.csv
+  raw_array_manifest: results/dev_trainmax_v1/case_manifest.csv
