@@ -32,3 +32,7 @@ v3_repo_complete.bundle
 # These are the actual scanner-faithful inputs the v3 pipeline started from.
 !data/raw_pet/*.npz
 !data/raw_pet/*.json
+
+# Allow small traceability samples (a few subjects × one slice each)
+!data/raw_samples/*.npz
+!data/raw_samples/*.json
