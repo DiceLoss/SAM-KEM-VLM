@@ -32,6 +32,11 @@ def _stratified_select(rows: list[dict[str, str]], count: int, *, seed: int) -> 
   groups: dict[str, list[dict[str, str]]] = defaultdict(list)
   for row in rows:
     groups[row["stratum"] or "__all__"].append(row)
+  # A one-subject-per-stratum inventory carries no balancing information. If
+  # treated as real strata, quota ties select validation subjects by stratum
+  # name. Collapse this degenerate case to one reproducibly shuffled pool.
+  if len(groups) == len(rows):
+    groups = {"__all__": list(rows)}
   total = len(rows)
   quotas = {name: count * len(group) / total for name, group in groups.items()}
   allocations = {name: min(len(groups[name]), int(quota)) for name, quota in quotas.items()}

@@ -1,6 +1,10 @@
 import numpy as np
+import json
 
-from sam_kem.normalization import apply_candidate, fit_candidates
+from sam_kem.noise import array_sha256
+from sam_kem.normalization import (
+  apply_candidate, build_normalization_activity_manifest, fit_candidates,
+)
 
 
 def test_scale_fitting_uses_training_data_only():
@@ -24,3 +28,22 @@ def test_global_and_per_image_minmax_are_explicitly_distinct():
   assert np.allclose(global_value, [[0.5, 1.0]])
   assert np.allclose(local_value, [[0.0, 1.0]])
   assert per_image.paper_role == "diagnostic_only_never_primary"
+
+
+def test_normalization_manifest_is_built_only_from_verified_development_activity(tmp_path):
+  activity_dir = tmp_path / "arrays/brainweb/s1/z001"
+  activity_dir.mkdir(parents=True)
+  value = np.ones((128, 128), dtype=np.float32)
+  activity_path = activity_dir / "raw_activity.npy"
+  np.save(activity_path, value, allow_pickle=False)
+  activity_path.with_suffix(".json").write_text(json.dumps({
+    "schema_version": 1, "artifact_kind": "canonical_activity",
+    "dataset": "brainweb", "subject_id": "s1", "slice_id": "z001",
+    "split": "train", "activity_unit": "simulation_activity",
+    "activity_sha256": array_sha256(value),
+    "support_policy": "complete_square_no_content_crop_or_circular_mask",
+  }), encoding="utf-8")
+  output = tmp_path / "normalization.csv"
+  build_normalization_activity_manifest(tmp_path, tmp_path / "arrays", output)
+  assert output.is_file()
+  assert output.with_suffix(".csv.manifest.json").is_file()

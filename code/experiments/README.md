@@ -6,6 +6,8 @@ belong in the configuration/protocol YAML, not in ad-hoc command edits.
 
 | Entry point | Split/purpose |
 |---|---|
+| `gpu_preflight.py` | Mandatory CUDA/model/checkpoint/gradient preflight before training |
+| `run_gpu_training.py` | Sequential, resumable BrainWeb then HE decoder training |
 | `audit_traceability_samples.py` | Diagnostic-only summary of committed traceability archives |
 | `audit_uploaded_samples.py` | Diagnostic-only operator/scale checks on committed samples |
 | `run_normalization_calibration.py` | Train-fit/validation-diagnose normalization candidates |

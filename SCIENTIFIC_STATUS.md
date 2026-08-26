@@ -5,15 +5,17 @@ only. They are not admissible as final paper evidence. They were produced before
 the canonical implementation in `code/sam_kem/` and include known operator,
 checkpoint, box-cache, normalization, coverage, and validation-sweep violations.
 
-The canonical rerun is blocked until the experimenter supplies the fixed-scale
-provenance and the
-dataset-specific MedSAM2 decoder checkpoint files with verified SHA-256 values.
-It also requires a new SHA-pinned subject split: the historical v3 locked test
-was opened during tuning and is not an untouched test set.
-The validator is designed to fail until these requirements and all
-result-integrity checks pass.
+Development training may now begin under the SHA-pinned 16/4 BrainWeb and
+179/45 HECKTOR train/validation split. All 244 subjects are explicitly marked
+as previously exposed development data; this split contains no `test_locked`
+rows and cannot support final generalization claims. The GPU worker must compare
+the train-derived fixed-scale and train-global-minmax candidates, training a
+separate BrainWeb and HECKTOR decoder for each candidate. Final evaluation
+remains blocked until genuinely unexposed external subjects are acquired.
 
-The fixed constant must match the declared activity unit. The uploaded HECKTOR
+The official MedSAM2 source is pinned at commit `332f30d420f1d1b08e2a79b3ae6a602458808383`
+with `configs/sam2.1_hiera_t512.yaml`; the released checkpoint SHA is pinned in
+the configuration. The fixed constant must match the declared activity unit. The uploaded HECKTOR
 traceability arrays are labelled SUV and have maxima on the order of 4.5--15.2;
 a constant around 30000 would only be meaningful for a different scanner-count
 representation and must not be transplanted to these SUV arrays. The sample

@@ -42,6 +42,53 @@ class NormalizationCandidate:
   fitted_from: str
 
 
+def build_normalization_activity_manifest(
+  root: Path, arrays_root: Path, output_path: Path,
+) -> Path:
+  """Index verified train/validation canonical activities exactly once."""
+  import json
+
+  root = root.resolve()
+  rows = []
+  for activity_path in sorted(arrays_root.glob("*/*/*/raw_activity.npy")):
+    sidecar_path = activity_path.with_suffix(".json")
+    if not sidecar_path.is_file():
+      raise FileNotFoundError(f"canonical activity sidecar is missing: {sidecar_path}")
+    record = json.loads(sidecar_path.read_text(encoding="utf-8"))
+    if record.get("split") == "test_locked":
+      raise ValueError("normalization manifest must never include test_locked activity")
+    if record.get("split") not in {"train", "validation"}:
+      raise ValueError(f"unexpected canonical activity split: {record.get('split')!r}")
+    value = np.load(activity_path, allow_pickle=False)
+    actual_sha = array_sha256(value)
+    if (
+      record.get("schema_version") != 1
+      or record.get("artifact_kind") != "canonical_activity"
+      or record.get("activity_sha256") != actual_sha
+      or record.get("support_policy") != "complete_square_no_content_crop_or_circular_mask"
+    ):
+      raise ValueError(f"canonical activity provenance mismatch: {activity_path}")
+    try:
+      portable = str(activity_path.resolve().relative_to(root))
+    except ValueError:
+      portable = str(activity_path.resolve())
+    rows.append({
+      "dataset": record["dataset"], "subject_id": record["subject_id"],
+      "slice_id": record["slice_id"], "split": record["split"],
+      "activity_path": portable, "activity_sha256": actual_sha,
+      "activity_unit": record["activity_unit"],
+    })
+  if not rows:
+    raise ValueError(f"no canonical activities found under {arrays_root}")
+  with atomic_csv_writer(output_path, list(ACTIVITY_COLUMNS)) as writer:
+    writer.writerows(rows)
+  finalize_csv(
+    output_path, schema_name="normalization_activity_manifest_v1",
+    primary_key=["dataset", "subject_id", "slice_id"],
+  )
+  return output_path
+
+
 def load_activity_cases(root: Path, manifest: Path) -> list[ActivityCase]:
   with manifest.open("r", encoding="utf-8", newline="") as handle:
     reader = csv.DictReader(handle)

@@ -95,14 +95,15 @@ class ScientificContract:
       raw = constants.get(dataset)
       if raw is None:
         raise ConfigurationError(
-          f"normalization.scale_constants.{dataset} is unresolved; obtain the physical C value"
+          f"normalization.scale_constants.{dataset} is unresolved; provide a verified "
+          "physical C or generate a train-fitted development candidate"
         )
       value = float(raw)
       if value <= 0:
         raise ConfigurationError(f"scale constant for {dataset} must be positive")
       if not constant_sources.get(dataset):
         raise ConfigurationError(
-          f"normalization.scale_constant_sources.{dataset} must identify the physical provenance"
+          f"normalization.scale_constant_sources.{dataset} must identify normalization provenance"
         )
       parsed_constants[dataset] = value
       parsed_offsets[dataset] = float(offsets.get(dataset, 0.0))
@@ -236,6 +237,18 @@ def require_locked_execution(cfg: dict[str, Any]) -> None:
     raise ConfigurationError(
       "evaluation requires locked=true and status=locked_for_execution"
     )
+
+
+def require_development_execution(cfg: dict[str, Any]) -> None:
+  """Allow validation work for an explicit candidate, never an unlocked base."""
+  if cfg.get("locked") is True and cfg.get("status") == "locked_for_execution":
+    return
+  if cfg.get("locked") is False and cfg.get("status") == "development_candidate_ready":
+    return
+  raise ConfigurationError(
+    "validation execution requires a generated development_candidate_ready config "
+    "or a fully locked final config"
+  )
 
 
 def require_test_release(root: Path, cfg: dict[str, Any]) -> None:

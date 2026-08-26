@@ -17,6 +17,7 @@ SOURCE_COLUMNS = (
   "source_kind", "source_key", "source_subject_index", "source_slice_axis",
   "source_slice_index", "source_channel_index", "activity_unit", "spatial_transform",
   "source_spacing_y_mm", "source_spacing_x_mm",
+  "upstream_container_path", "upstream_container_sha256", "upstream_selector",
 )
 ALLOWED_SPLITS = {"train", "validation", "test_locked"}
 ALLOWED_TRANSFORMS = {
@@ -44,6 +45,9 @@ class SourceCase:
   spatial_transform: str
   source_spacing_y_mm: float | None
   source_spacing_x_mm: float | None
+  upstream_container_path: str
+  upstream_container_sha256: str
+  upstream_selector: str
 
 
 def _optional_int(value: str) -> int | None:
@@ -81,6 +85,9 @@ def load_source_manifest(root: Path, path: Path) -> list[SourceCase]:
       activity_unit=row["activity_unit"], spatial_transform=row["spatial_transform"],
       source_spacing_y_mm=_optional_float(row["source_spacing_y_mm"]),
       source_spacing_x_mm=_optional_float(row["source_spacing_x_mm"]),
+      upstream_container_path=row["upstream_container_path"],
+      upstream_container_sha256=row["upstream_container_sha256"],
+      upstream_selector=row["upstream_selector"],
     ))
   identities = [(case.dataset, case.subject_id, case.slice_id) for case in cases]
   if len(identities) != len(set(identities)):
@@ -217,6 +224,9 @@ def ingest_case(
       "spatial_transform": case.spatial_transform,
       "source_spacing_y_mm": case.source_spacing_y_mm,
       "source_spacing_x_mm": case.source_spacing_x_mm,
+      "upstream_container_path": case.upstream_container_path,
+      "upstream_container_sha256": case.upstream_container_sha256,
+      "upstream_selector": case.upstream_selector,
       "support_policy": "complete_square_no_content_crop_or_circular_mask",
       "activity_shape": list(activity.shape), "activity_dtype": activity.dtype.str,
       "activity_min": float(activity.min()), "activity_max": float(activity.max()),

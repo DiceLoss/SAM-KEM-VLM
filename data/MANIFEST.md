@@ -45,7 +45,7 @@ the retraining artifacts exist.
 | Data | Declared historical location | Clean action required |
 |---|---|---|
 | BrainWeb NIfTI volumes | `D:/MIAProject/brainweb/数据/brainweb_petmr/` | Enumerate exact source files, SHA-256, simulation/source-model identity, slice indices, and activity unit. |
-| HECKTOR archive | `D:/MIAProject/HECKTOR.npz` | Record archive SHA-256, patient mapping, PET channel, slice selector, SUV unit, pixel spacing, scanner FOV, and scanner axis. |
+| HECKTOR archive | `D:/MIAProject/HECKTOR.npz` | Verify the pinned archive SHA-256, `subject_id - 1` mapping, channel 1 PET, fixed slice 72, and DICOM-export value unit. Pixel spacing/orientation may be retained as provenance but scanner FOV is not an input to the declared full-square pixel-domain operator. |
 
 Machine-specific paths document the former workstation only.
 They must be replaced by accessible paths in the researcher's private

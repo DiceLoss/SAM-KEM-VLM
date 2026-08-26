@@ -9,7 +9,7 @@ from typing import Any
 
 
 MODEL_CONFIGS = {
-  "sam2.1_hiera_t": "configs/sam2.1/sam2.1_hiera_t.yaml",
+  "sam2.1_hiera_t": "configs/sam2.1_hiera_t512.yaml",
 }
 
 

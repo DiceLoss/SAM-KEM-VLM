@@ -1,0 +1,25 @@
+{
+  "artifact_path": "subject_split.csv",
+  "artifact_sha256": "cffe83608da27f736abe02e8c0fa5d2f892df8773bbccb08ec1a916157c0a096",
+  "byte_size": 63671,
+  "columns": [
+    "dataset",
+    "subject_id",
+    "split",
+    "split_id",
+    "stratum",
+    "split_locked_utc",
+    "source_inventory_sha256",
+    "split_script_sha256",
+    "previous_exposure_status"
+  ],
+  "completed_utc": "2026-08-26T06:48:38.451108+00:00",
+  "primary_key": [
+    "dataset",
+    "subject_id"
+  ],
+  "row_count": 244,
+  "schema_name": "subject_level_split_v1",
+  "schema_version": 1,
+  "split": null
+}

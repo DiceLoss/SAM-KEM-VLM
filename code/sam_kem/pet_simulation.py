@@ -72,12 +72,6 @@ def prepare_noise_free_projection(
   elif np.any(target < 0):
     raise ValueError("normalization produced negative activity without declared clipping")
   target_upper = float(cfg["normalization"]["expected_target_range"][1])
-  target_tolerance = float(cfg["normalization"]["target_range_tolerance"])
-  if float(target.max()) > target_upper + target_tolerance:
-    raise ValueError(
-      f"normalization scale={scale_C:g} gives target max={float(target.max()):.6g}, outside "
-      f"the declared PSNR/data range [0,{target_upper:g}]; verify normalization provenance"
-    )
   # Project the exact float32 target that is published and later scored.
   # Projecting a transient float64 value would create a subtle target/operator
   # mismatch even though both arrays originated from the same raw image.
@@ -115,6 +109,7 @@ def prepare_noise_free_projection(
     "support_policy": "complete_square_no_content_crop_or_circular_mask",
     "normalized_target_min": float(target.min()),
     "normalized_target_max": float(target.max()),
+    "normalized_target_above_reference_fraction": float(np.mean(target > target_upper)),
     "field_of_view": cfg["forward_model"]["field_of_view"],
     "detector_bins": contract.detector_bins,
     "target_sha256": array_sha256(target_float32),

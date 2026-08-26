@@ -6,11 +6,12 @@ from sam_kem.config import load_yaml_strict
 
 if __name__ == "__main__":
   parser = argparse.ArgumentParser()
+  parser.add_argument("--config", type=Path, required=True)
   parser.add_argument("--splits", nargs="+", choices=("train", "validation", "test_locked"), required=True)
   parser.add_argument("--manifest", type=Path)
   args = parser.parse_args()
   root = Path(__file__).resolve().parents[2]
-  config_path = root / "code/configs/experiment.yaml"
+  config_path = args.config.resolve()
   cfg = load_yaml_strict(config_path)
   manifest = root / (
     args.manifest if args.manifest is not None

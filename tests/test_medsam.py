@@ -2,6 +2,8 @@ import numpy as np
 
 from sam_kem.boxes import Box
 from sam_kem.medsam import freeze_except_mask_decoder, predict_continuous_prior
+from sam_kem.medsam_backend import MODEL_CONFIGS
+from sam_kem.medsam_training import _box_coordinates_on_model_grid
 
 
 class FakePredictor:
@@ -46,3 +48,14 @@ def test_only_exact_sam_mask_decoder_namespace_is_trainable():
   assert parameters["sam_mask_decoder.layers.0.weight"].requires_grad
   assert not parameters["image_encoder.mask_decoder_adapter.weight"].requires_grad
   assert not parameters["sam_prompt_encoder.weight"].requires_grad
+
+
+def test_training_box_is_scaled_to_official_medsam2_512_grid():
+  coordinates = _box_coordinates_on_model_grid(Box(16, 32, 96, 112), (128, 128), 512)
+  np.testing.assert_array_equal(
+    coordinates, np.array([[64, 128, 384, 448]], dtype=np.float32),
+  )
+
+
+def test_official_medsam2_configuration_path_is_used():
+  assert MODEL_CONFIGS["sam2.1_hiera_t"] == "configs/sam2.1_hiera_t512.yaml"

@@ -1,0 +1,91 @@
+"""Generate isolated development-run configurations from calibration output."""
+
+from __future__ import annotations
+
+import csv
+from pathlib import Path
+
+import yaml
+
+from .artifacts import file_sha256
+from .config import ScientificContract, load_yaml_strict
+
+
+def _replace_namespace(value, source: str, destination: str):
+  if isinstance(value, dict):
+    return {key: _replace_namespace(item, source, destination) for key, item in value.items()}
+  if isinstance(value, list):
+    return [_replace_namespace(item, source, destination) for item in value]
+  if isinstance(value, str):
+    return value.replace(source, destination)
+  return value
+
+
+def generate_candidate_configuration(
+  root: Path,
+  base_config_path: Path,
+  candidates_path: Path,
+  *,
+  candidate: str,
+  run_id: str,
+  output_path: Path,
+  protocol_output_dir: Path,
+) -> Path:
+  base = load_yaml_strict(base_config_path)
+  if base.get("status") != "development_only_no_locked_test":
+    raise ValueError("candidate configs must be derived from the development-only base")
+  if not run_id or not all(character.isalnum() or character in "_-" for character in run_id):
+    raise ValueError("run_id must contain only letters, digits, '_' or '-'")
+  if output_path.exists() or protocol_output_dir.exists():
+    raise FileExistsError("candidate configuration/protocol output already exists")
+  with candidates_path.open("r", encoding="utf-8", newline="") as handle:
+    rows = [row for row in csv.DictReader(handle) if row["candidate"] == candidate]
+  by_dataset = {row["dataset"]: row for row in rows if row.get("available", "").lower() == "true"}
+  if set(by_dataset) != {"brainweb", "hecktor"}:
+    raise ValueError(f"candidate {candidate!r} is not available for both datasets")
+
+  source_run = str(base["run_id"])
+  cfg = _replace_namespace(base, source_run, run_id)
+  # The split and extracted-source manifest are shared immutable development inputs.
+  cfg["data"]["split_file"] = base["data"]["split_file"]
+  cfg["data"]["split_id"] = base["data"]["split_id"]
+  cfg["data"]["source_activity_manifest"] = base["data"]["source_activity_manifest"]
+  cfg["medsam2"]["source_checkout_path"] = base["medsam2"]["source_checkout_path"]
+  cfg["medsam2"]["pretrained_checkpoint_path"] = base["medsam2"]["pretrained_checkpoint_path"]
+  cfg["run_id"] = run_id
+  cfg["status"] = "development_candidate_ready"
+  cfg["locked"] = False
+  cfg["normalization"]["normalization_id"] = candidate
+  cfg["normalization"]["scale_constants"] = {
+    dataset: float(by_dataset[dataset]["scale"]) for dataset in ("brainweb", "hecktor")
+  }
+  cfg["normalization"]["offsets"] = {
+    dataset: float(by_dataset[dataset]["offset"] or 0.0)
+    for dataset in ("brainweb", "hecktor")
+  }
+  cfg["normalization"]["scale_constant_sources"] = {
+    dataset: (
+      f"{candidates_path}:sha256={file_sha256(candidates_path)};"
+      f"candidate={candidate};fitted_from={by_dataset[dataset]['fitted_from']}"
+    ) for dataset in ("brainweb", "hecktor")
+  }
+  if candidate in {"train_max_fixed_C", "configured_physical_C"}:
+    cfg["normalization"]["rule"] = "divide_by_fixed_dataset_physical_constant"
+    cfg["normalization"]["clip_to_expected_target_range"] = False
+  elif candidate == "train_global_minmax":
+    cfg["normalization"]["rule"] = "training_global_minmax_affine_clip01"
+    cfg["normalization"]["clip_to_expected_target_range"] = True
+  else:
+    raise ValueError(f"candidate {candidate!r} is not eligible for decoder training")
+  ScientificContract.from_mapping(cfg)
+  output_path.parent.mkdir(parents=True, exist_ok=True)
+  output_path.write_text(yaml.safe_dump(cfg, sort_keys=False), encoding="utf-8")
+
+  protocol_output_dir.mkdir(parents=True)
+  for protocol_path in sorted((root / "code/configs/protocols").glob("*.yaml")):
+    protocol = load_yaml_strict(protocol_path)
+    protocol = _replace_namespace(protocol, source_run, run_id)
+    (protocol_output_dir / protocol_path.name).write_text(
+      yaml.safe_dump(protocol, sort_keys=False), encoding="utf-8",
+    )
+  return output_path

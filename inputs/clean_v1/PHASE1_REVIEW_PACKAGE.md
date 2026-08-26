@@ -1,5 +1,11 @@
 # Clean-v1 Phase 1 review package (v3)
 
+> **Superseded operationally on 2026-08-26.** This file remains the Phase-1
+> forensic review record. The active repository now contains a SHA-pinned
+> development-only 16/4/0 BrainWeb and 179/45/0 HECKTOR split, a pinned MedSAM2
+> source commit, and no HE scanner-geometry blocker. It still has no untouched
+> test. GPU execution follows `docs/GPU_WORKER_START_ZH.md`.
+
 **Branch:** `clean-v1-data-provenance`
 **Head commit:** see `git rev-parse HEAD`
 **Generated:** 2026-08-26 (v3 corrections applied after second review pass)

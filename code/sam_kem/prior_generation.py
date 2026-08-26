@@ -8,7 +8,7 @@ from pathlib import Path
 import numpy as np
 
 from .boxes import BoxCache, BoxKey, centroid_fallback
-from .config import load_contract, require_locked_execution, require_test_release
+from .config import load_contract, require_development_execution, require_test_release
 from .medsam import CheckpointSpec, PredictorRegistry, build_released_predictor, predict_continuous_prior, predictor_factory, sha256_file
 from .noise import array_sha256
 from .artifacts import atomic_save_numpy, atomic_write_json, verify_csv_artifact
@@ -19,13 +19,13 @@ def generate_priors(
   splits: set[str], include_ablation_variants: bool = True,
 ) -> int:
   cfg, _ = load_contract(config_path)
-  require_locked_execution(cfg)
   if "test_locked" in splits:
     if splits != {"test_locked"}:
       raise ValueError("generate locked-test priors in a separate post-freeze invocation")
     require_test_release(root, cfg)
     cache_path = root / str(cfg["prompts"]["box_cache"])
   else:
+    require_development_execution(cfg)
     cache_path = root / str(cfg["prompts"]["training_box_cache"])
   cache = BoxCache.read(cache_path)
   manifest_record = verify_csv_artifact(manifest_path)

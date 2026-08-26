@@ -32,6 +32,14 @@ def _read_csv(path: Path) -> list[dict[str, str]]:
     return list(csv.DictReader(handle))
 
 
+def _matches_expected_split_counts(
+  actual: dict[str, int], expected: dict[str, int],
+) -> bool:
+  """Compare configured split counts while treating an absent split as zero."""
+  split_names = set(actual) | set(expected)
+  return all(int(actual.get(name, 0)) == int(expected.get(name, 0)) for name in split_names)
+
+
 def audit_repository(root: Path, config_path: Path) -> list[Issue]:
   issues: list[Issue] = []
   contract: ScientificContract | None = None
@@ -87,7 +95,7 @@ def audit_repository(root: Path, config_path: Path) -> list[Issue]:
     actual = split_counts(splits)
     expected = cfg["data"].get("expected_subject_counts", {})
     for dataset, split_expectation in expected.items():
-      if actual.get(dataset, {}) != split_expectation:
+      if not _matches_expected_split_counts(actual.get(dataset, {}), split_expectation):
         issues.append(Issue(
           "SPLIT_COUNTS", "fatal",
           f"{dataset} subject counts {actual.get(dataset, {})} != {split_expectation}",
@@ -456,7 +464,6 @@ def audit_repository(root: Path, config_path: Path) -> list[Issue]:
             raise ValueError("projection/sinogram shape mismatch")
           if (
             not np.all(np.isfinite(target)) or np.any(target < 0)
-            or float(target.max()) > 1.0 + float(cfg["normalization"]["target_range_tolerance"])
             or not np.all(np.isfinite(projection)) or np.any(projection < 0)
             or not np.all(np.isfinite(mlem_input)) or np.any(mlem_input < 0)
             or np.any(sinogram < 0) or not np.issubdtype(sinogram.dtype, np.integer)

@@ -6,6 +6,9 @@
 *.pdf
 *.tar.gz
 *.zip
+external/
+staging/
+logs/gpu_*.log
 
 # Raw BrainWeb nii.gz (large, kept in D:/MIAProject/brainweb/)
 data/raw/*.nii.gz
@@ -16,8 +19,9 @@ data/processed/
 # Clean-run bulk arrays and rendered prompt pixels live in the immutable
 # external artifact archive. Their SHA-bound JSON/CSV manifests remain tracked.
 arrays/clean_v1/
-prompts/clean_v1/train_validation_images/**/*.png
-prompts/clean_v1/test_images/**/*.png
+arrays/*/
+prompts/*/train_validation_images/**/*.png
+prompts/*/test_images/**/*.png
 
 # Python caches
 __pycache__/

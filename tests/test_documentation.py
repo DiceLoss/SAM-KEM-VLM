@@ -19,6 +19,7 @@ def test_required_handoff_documents_exist():
     "docs/DATA_DICTIONARY.md",
     "docs/EXPERIMENT_MATRIX.md",
     "docs/EXECUTION.md",
+    "docs/GPU_WORKER_START_ZH.md",
     "docs/OPERATIONS_RUNBOOK.md",
     "docs/RESEARCHER_HANDOFF_ZH.md",
     "docs/ARTIFACT_SPEC.md",

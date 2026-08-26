@@ -6,12 +6,13 @@ invalid v3 workflow.
 Only `code/sam_kem/`, `code/experiments/`,
 `code/configs/experiment.yaml`, and `code/configs/protocols/` are active
 experiment sources.
-The current configuration is intentionally blocked: no clean paper result is
-present yet, and the validator will remain non-zero until the missing physical,
-split, MedSAM2, prompt, checkpoint, sweep, and archive provenance is supplied.
+The base configuration is development-only: its SHA-pinned split has train and
+validation subjects but deliberately no locked test. Normalization calibration
+and GPU decoder training may proceed; the release validator remains non-zero
+until an external untouched test and all final artifacts are supplied.
 
-Start with the [documentation index](docs/README.md) and the
-[Chinese start guide](docs/START_HERE_ZH.md).
+Start with the [documentation index](docs/README.md). GPU workers must follow
+the [Chinese GPU execution guide](docs/GPU_WORKER_START_ZH.md) exactly.
 
 ## What the canonical core enforces
 
@@ -54,11 +55,11 @@ make quality
 sam-kem validate --root . --config code/configs/experiment.yaml
 ```
 
-The validator is expected to fail until the experimenter pins a genuinely
-unexposed split, records the exact BrainWeb/HECKTOR fixed-scale provenance,
-supplies the official MedSAM2 source/base artifact and verified retrained
-decoders, regenerates complete Qwen caches, finishes the validation sweep, and
-archives all clean experiments.
+The validator is expected to fail during development. The official MedSAM2
+source and released checkpoint identity are already pinned; remaining release
+requirements include an external unexposed test, selected fixed-scale
+provenance, retrained decoders, complete Qwen caches, validation sweeps and an
+immutable artifact archive.
 
 The last command is a scientific release gate, not a smoke test.
 Its failure is expected in this checkout; do not suppress it or replace missing

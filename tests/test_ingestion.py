@@ -33,6 +33,8 @@ def test_manifest_ingestion_mean_pools_without_normalizing(tmp_path):
     "source_slice_index": "", "source_channel_index": "",
     "activity_unit": "simulation_activity", "spatial_transform": "mean_pool_2x2_full_square",
     "source_spacing_y_mm": "", "source_spacing_x_mm": "",
+    "upstream_container_path": "", "upstream_container_sha256": "",
+    "upstream_selector": "",
   })
   outputs = ingest_manifest(
     tmp_path, manifest, split_path, tmp_path / "arrays", splits={"train"},
@@ -58,7 +60,7 @@ def test_hecktor_resize_preserves_complete_constant_square_without_geometry():
   case = SourceCase(
     "hecktor", "1", "z72", "train", Path("unused"), "0" * 64,
     "npy_slice", "", None, None, None, None, "SUV",
-    "resize_full_square_to_128", None, None,
+    "resize_full_square_to_128", None, None, "", "", "",
   )
   transformed = transform_activity(np.ones((144, 144)), case)
   assert transformed.shape == (128, 128)
@@ -71,7 +73,7 @@ def test_ingestion_preserves_corner_activity():
   case = SourceCase(
     "hecktor", "1", "z72", "train", Path("unused"), "0" * 64,
     "npy_slice", "", None, None, None, None, "SUV",
-    "identity_128_full_square", None, None,
+    "identity_128_full_square", None, None, "", "", "",
   )
   transformed = transform_activity(activity, case)
   np.testing.assert_array_equal(transformed, activity.astype(np.float32))

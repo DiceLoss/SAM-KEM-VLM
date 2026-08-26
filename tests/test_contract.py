@@ -3,7 +3,9 @@ from pathlib import Path
 import pytest
 
 from sam_kem.boxes import Box, BoxCache, BoxKey, BoxRecord, centroid_fallback
-from sam_kem.config import ConfigurationError, load_yaml_strict, require_test_release
+from sam_kem.config import (
+  ConfigurationError, load_yaml_strict, require_development_execution, require_test_release,
+)
 from sam_kem.reproducibility import CaseKey, case_seed
 
 
@@ -58,3 +60,9 @@ def test_locked_test_stays_sealed_without_completed_validation(tmp_path: Path):
   }
   with pytest.raises(ConfigurationError, match="locked test is sealed"):
     require_test_release(tmp_path, cfg)
+
+
+def test_only_generated_candidate_can_run_unlocked_validation():
+  require_development_execution({"locked": False, "status": "development_candidate_ready"})
+  with pytest.raises(ConfigurationError, match="generated development_candidate_ready"):
+    require_development_execution({"locked": False, "status": "development_only_no_locked_test"})

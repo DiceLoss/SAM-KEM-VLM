@@ -1,5 +1,10 @@
 # 实验人员开工说明：先完成 clean_v1 第一阶段
 
+> **2026-08-26 更新：** provenance-only Phase 1 已结束，GPU 实验人员现在应
+> 直接执行 [`GPU_WORKER_START_ZH.md`](GPU_WORKER_START_ZH.md)。本文件保留
+> 背景规则；其中旧的 14/3/3、156/34/34 和 HE scanner-FOV 阻塞说明均已被
+> development-only 16/4/0、179/45/0 方案与完整方形像素域算子取代。
+
 请从这份说明开始，不要直接运行旧实验脚本，也不要使用旧 v3 的结果、split、
 checkpoint、box cache 或超参数。
 

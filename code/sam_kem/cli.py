@@ -237,6 +237,15 @@ def _run_normalization_calibration(args: argparse.Namespace) -> int:
   return 0
 
 
+def _build_normalization_manifest(args: argparse.Namespace) -> int:
+  from .normalization import build_normalization_activity_manifest
+  output = build_normalization_activity_manifest(
+    args.root.resolve(), args.arrays.resolve(), args.output.resolve(),
+  )
+  print(f"wrote {output}\nwrote {output.with_suffix(output.suffix + '.manifest.json')}")
+  return 0
+
+
 def _array_sha(args: argparse.Namespace) -> int:
   from .noise import array_sha256
   value = np.load(args.input)
@@ -250,6 +259,29 @@ def _create_split(args: argparse.Namespace) -> int:
     args.root.resolve(), args.config.resolve(), args.inventory.resolve(), args.output.resolve(),
   )
   print(f"wrote {output}\nset data.split_sha256 to the output of: sam-kem file-sha --input {output}")
+  return 0
+
+
+def _prepare_development_sources(args: argparse.Namespace) -> int:
+  from .source_preparation import prepare_development_sources
+  output = prepare_development_sources(
+    args.root.resolve(), args.config.resolve(),
+    brainweb_root=args.brainweb_root.resolve(), hecktor_npz=args.hecktor_npz.resolve(),
+    hecktor_unit=args.hecktor_unit, output_root=args.output_root.resolve(),
+    manifest_path=args.manifest.resolve(),
+  )
+  print(f"wrote {output}\nwrote {output.with_suffix(output.suffix + '.manifest.json')}")
+  return 0
+
+
+def _generate_candidate_config(args: argparse.Namespace) -> int:
+  from .candidate_config import generate_candidate_configuration
+  output = generate_candidate_configuration(
+    args.root.resolve(), args.base_config.resolve(), args.candidates.resolve(),
+    candidate=args.candidate, run_id=args.run_id, output_path=args.output.resolve(),
+    protocol_output_dir=args.protocol_output_dir.resolve(),
+  )
+  print(f"wrote {output}\nwrote protocols to {args.protocol_output_dir.resolve()}")
   return 0
 
 
@@ -440,6 +472,14 @@ def build_parser() -> argparse.ArgumentParser:
   normalization.add_argument("--config", type=Path, required=True)
   normalization.add_argument("--protocol", type=Path, required=True)
   normalization.set_defaults(func=_run_normalization_calibration)
+  normalization_manifest = sub.add_parser(
+    "build-normalization-manifest",
+    help="index verified train/validation raw activities for scale calibration",
+  )
+  normalization_manifest.add_argument("--root", type=Path, default=Path("."))
+  normalization_manifest.add_argument("--arrays", type=Path, required=True)
+  normalization_manifest.add_argument("--output", type=Path, required=True)
+  normalization_manifest.set_defaults(func=_build_normalization_manifest)
 
   array_sha = sub.add_parser("array-sha", help="print the canonical dtype/shape/content SHA of a NumPy array")
   array_sha.add_argument("--input", type=Path, required=True)
@@ -453,6 +493,35 @@ def build_parser() -> argparse.ArgumentParser:
   split.add_argument("--inventory", type=Path, required=True)
   split.add_argument("--output", type=Path, required=True)
   split.set_defaults(func=_create_split)
+  sources = sub.add_parser(
+    "prepare-development-sources",
+    help="prepare one fixed PET slice per development subject without reading HE labels",
+  )
+  sources.add_argument("--root", type=Path, default=Path("."))
+  sources.add_argument("--config", type=Path, default=Path("code/configs/experiment.yaml"))
+  sources.add_argument("--brainweb-root", type=Path, required=True)
+  sources.add_argument("--hecktor-npz", type=Path, required=True)
+  sources.add_argument("--hecktor-unit", required=True)
+  sources.add_argument("--output-root", type=Path, default=Path("staging/clean_v1_sources"))
+  sources.add_argument(
+    "--manifest", type=Path, default=Path("inputs/clean_v1/source_activity_manifest.csv"),
+  )
+  sources.set_defaults(func=_prepare_development_sources)
+  candidate = sub.add_parser(
+    "generate-candidate-config",
+    help="create an isolated train/validation run from a fitted normalization candidate",
+  )
+  candidate.add_argument("--root", type=Path, default=Path("."))
+  candidate.add_argument("--base-config", type=Path, default=Path("code/configs/experiment.yaml"))
+  candidate.add_argument("--candidates", type=Path, required=True)
+  candidate.add_argument(
+    "--candidate", choices=("configured_physical_C", "train_max_fixed_C", "train_global_minmax"),
+    required=True,
+  )
+  candidate.add_argument("--run-id", required=True)
+  candidate.add_argument("--output", type=Path, required=True)
+  candidate.add_argument("--protocol-output-dir", type=Path, required=True)
+  candidate.set_defaults(func=_generate_candidate_config)
   return parser
 
 

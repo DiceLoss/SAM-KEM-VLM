@@ -6,16 +6,18 @@ Read documents in the order appropriate to your role.
 
 ## Researchers running experiments
 
-1. Follow [`START_HERE_ZH.md`](START_HERE_ZH.md) to set up the environment and
+1. GPU workers must follow [`GPU_WORKER_START_ZH.md`](GPU_WORKER_START_ZH.md)
+   exactly; it is the current executable handoff.
+2. Follow [`START_HERE_ZH.md`](START_HERE_ZH.md) for the provenance rationale and
    deliver the first provenance/split package without opening locked test data.
-2. Read [`RESEARCHER_HANDOFF_ZH.md`](RESEARCHER_HANDOFF_ZH.md) for the current
+3. Read [`RESEARCHER_HANDOFF_ZH.md`](RESEARCHER_HANDOFF_ZH.md) for the current
    blockers and the exact deliverables expected from the experimenter.
-3. Read [`SCIENTIFIC_STATUS.md`](../SCIENTIFIC_STATUS.md) before making any PET,
+4. Read [`SCIENTIFIC_STATUS.md`](../SCIENTIFIC_STATUS.md) before making any PET,
    low-count, dose, or clinical claim.
-4. Use [`EXECUTION.md`](EXECUTION.md) as the canonical end-to-end command guide.
-5. Use [`OPERATIONS_RUNBOOK.md`](OPERATIONS_RUNBOOK.md) when resuming, archiving,
+5. Use [`EXECUTION.md`](EXECUTION.md) as the canonical end-to-end command guide.
+6. Use [`OPERATIONS_RUNBOOK.md`](OPERATIONS_RUNBOOK.md) when resuming, archiving,
    diagnosing, or handing off a run.
-6. Verify every result against [`ARTIFACT_SPEC.md`](ARTIFACT_SPEC.md).
+7. Verify every result against [`ARTIFACT_SPEC.md`](ARTIFACT_SPEC.md).
 
 ## Reviewers and maintainers
 

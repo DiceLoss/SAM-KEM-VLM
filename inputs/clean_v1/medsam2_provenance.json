@@ -3,9 +3,10 @@
     "url": "https://github.com/bowang-lab/MedSAM2",
     "default_branch": "main",
     "official_download_script": "https://github.com/bowang-lab/MedSAM2/blob/main/download.sh",
-    "source_commit": null,
-    "source_checkout_path": null,
-    "_source_commit_pending": "The researcher must git clone https://github.com/bowang-lab/MedSAM2, capture git rev-parse HEAD of the commit that ships the download.sh currently in use, and set medsam2.source_commit in code/configs/experiment.yaml. Until then, the source_commit field remains null and the audit's MEDSAM2_CHECKOUT blocker remains unresolved."
+    "source_commit": "332f30d420f1d1b08e2a79b3ae6a602458808383",
+    "source_checkout_path": "external/MedSAM2",
+    "configuration_path": "configs/sam2.1_hiera_t512.yaml",
+    "verification_status": "PINNED — GitHub main HEAD resolved on 2026-08-26. Each execution checkout must reproduce this exact commit."
   },
   "official_checkpoint_distribution": {
     "hugging_face_org": "wanglab/MedSAM2",
@@ -69,8 +70,7 @@
     "checkpoint_selection": "fixed_budget_final_checkpoint — no best-on-validation selection",
     "input_subset_filter": "training rows only; no validation, no test_locked",
     "prerequisites_for_unblocking_training": [
-      "medsam2.source_commit set to the pinned Git commit of the official repo.",
-      "medsam2.source_checkout_path set to the local checkout that matches the pinned commit.",
+      "external/MedSAM2 checked out exactly at 332f30d420f1d1b08e2a79b3ae6a602458808383.",
       "checkpoints/MedSAM2_latest.pt in place and its SHA matches the verified value above."
     ]
   }

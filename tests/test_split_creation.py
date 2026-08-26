@@ -4,7 +4,8 @@ from pathlib import Path
 import yaml
 
 from sam_kem.artifacts import file_sha256
-from sam_kem.split_creation import UNTOUCHED, create_subject_split
+from sam_kem.audit import _matches_expected_split_counts
+from sam_kem.split_creation import UNTOUCHED, _stratified_select, create_subject_split
 from sam_kem.splits import load_configured_subject_splits, split_counts
 
 
@@ -46,4 +47,25 @@ def test_split_is_subject_level_balanced_and_test_is_unexposed(tmp_path: Path):
   assert all(
     row["previous_exposure_status"] == UNTOUCHED
     for row in rows if row["split"] == "test_locked"
+  )
+
+
+def test_unique_subject_strata_fall_back_to_seeded_global_selection():
+  rows = [
+    {"dataset": "hecktor", "subject_id": f"s{index:02d}", "stratum": f"subject_{index:02d}"}
+    for index in range(20)
+  ]
+  selected = _stratified_select(rows, 5, seed=17)
+  assert selected == _stratified_select(rows, 5, seed=17)
+  assert {row["subject_id"] for row in selected} != {f"s{index:02d}" for index in range(5)}
+
+
+def test_audit_treats_absent_zero_count_split_as_zero():
+  assert _matches_expected_split_counts(
+    {"train": 16, "validation": 4},
+    {"train": 16, "validation": 4, "test_locked": 0},
+  )
+  assert not _matches_expected_split_counts(
+    {"train": 16, "validation": 4, "test_locked": 1},
+    {"train": 16, "validation": 4, "test_locked": 0},
   )

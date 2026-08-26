@@ -55,13 +55,29 @@ def _balanced_order(
   return order
 
 
-def _forward_logits(model, predictor, image: np.ndarray, box, *, device):
+def _box_coordinates_on_model_grid(box, source_shape: tuple[int, int], model_size: int):
+  """Map an XYXY box from the 2-D PET grid to MedSAM2's input grid."""
+  height, width = source_shape
+  if height < 1 or width < 1 or model_size < 1:
+    raise ValueError("source shape and MedSAM2 model size must be positive")
+  return np.array([[
+    box.xmin * model_size / width, box.ymin * model_size / height,
+    box.xmax * model_size / width, box.ymax * model_size / height,
+  ]], dtype=np.float32)
+
+
+def _forward_logits(
+  model, predictor, image: np.ndarray, box, *, source_shape: tuple[int, int], device,
+):
   import torch
 
   predictor.set_image(image)
   embedding = predictor.get_image_embedding()
   high_resolution = predictor._features["high_res_feats"]
-  coordinates = torch.tensor([[box.xmin, box.ymin, box.xmax, box.ymax]], dtype=torch.float32, device=device)
+  coordinates = torch.as_tensor(
+    _box_coordinates_on_model_grid(box, source_shape, int(model.image_size)),
+    dtype=torch.float32, device=device,
+  )
   labels = torch.tensor([[2, 3]], dtype=torch.int32, device=device)
   sparse, dense = model.sam_prompt_encoder(
     points=(coordinates.reshape(-1, 2, 2), labels), boxes=None, masks=None,
@@ -99,11 +115,28 @@ def train_dataset_decoder(
     ["git", "rev-parse", "HEAD"], cwd=root, check=True,
     capture_output=True, text=True,
   ).stdout.strip()
-  if subprocess.run(
+  dirty_lines = subprocess.run(
     ["git", "status", "--porcelain"], cwd=root, check=True,
     capture_output=True, text=True,
-  ).stdout.strip():
-    raise RuntimeError("refusing to train from a dirty Git worktree")
+  ).stdout.splitlines()
+  allowed_previous_outputs = set()
+  for configured_path in cfg["medsam2"]["checkpoint_paths"].values():
+    checkpoint = Path(str(configured_path))
+    allowed_previous_outputs.update({
+      str(checkpoint.with_suffix(".json")),
+      str(checkpoint.with_suffix(".training.csv")),
+      str(checkpoint.with_suffix(".training.csv.manifest.json")),
+    })
+  unexpected_dirty = []
+  for line in dirty_lines:
+    relative = line[3:].strip()
+    if relative not in allowed_previous_outputs:
+      unexpected_dirty.append(line)
+  if unexpected_dirty:
+    raise RuntimeError(
+      "refusing to train with uncommitted inputs/code; unexpected Git status: "
+      f"{unexpected_dirty[:5]}"
+    )
   config_sha = hashlib.sha256(config_path.read_bytes()).hexdigest()
   declared_training = cfg["medsam2"]["training"]
   supplied = {
@@ -264,13 +297,9 @@ def train_dataset_decoder(
         raise ValueError(f"box cache run_id mismatch for training key: {key}")
       box = record.box
       fallbacks += int(record.source != "qwen3-vl-plus")
-      scale_x = 1024 / mlem_image.shape[1]; scale_y = 1024 / mlem_image.shape[0]
-      scaled_box = type(box)(
-        int(round(box.xmin * scale_x)), int(round(box.ymin * scale_y)),
-        int(round(box.xmax * scale_x)), int(round(box.ymax * scale_y)),
-      )
       logits = _forward_logits(
-        model, predictor, pet_to_rgb(mlem_image), scaled_box, device=device,
+        model, predictor, pet_to_rgb(mlem_image), box,
+        source_shape=mlem_image.shape, device=device,
       )
       prediction = F.interpolate(logits, size=target.shape, mode="bilinear", align_corners=False)[0, 0]
       target_tensor = torch.from_numpy(target).to(device=device, dtype=prediction.dtype)

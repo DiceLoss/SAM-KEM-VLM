@@ -8,7 +8,7 @@ from pathlib import Path
 
 import numpy as np
 
-from .config import load_contract, require_locked_execution
+from .config import load_contract, require_development_execution
 from .experiments import load_case_manifest, validate_case_contract
 from .metrics import nrmse, ssim
 from .operator_factory import build_discrete_radon
@@ -27,7 +27,7 @@ def _mean_by_subject(records: list[dict], field: str) -> float:
 
 def run_validation_sweep(root: Path, config_path: Path, protocol_path: Path) -> tuple[Path, Path]:
   cfg, contract = load_contract(config_path)
-  require_locked_execution(cfg)
+  require_development_execution(cfg)
   protocol = load_protocol(protocol_path)
   if protocol.kind != "hyperparameter_sweep" or protocol.split != "validation":
     raise ValueError("sweep runner accepts validation hyperparameter_sweep protocol only")

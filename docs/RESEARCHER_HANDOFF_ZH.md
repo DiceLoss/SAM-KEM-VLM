@@ -2,10 +2,9 @@
 
 ## 先说结论
 
-当前仓库的代码质量检查应当通过，但论文实验的发布审计应当失败。
-这不是程序故障，而是有意设置的学术诚信保护：目前还缺少真实的固定
-尺度来源、新的未暴露测试集、MedSAM2 官方源码与基础权重来源、两个数据集
-各自重训的 decoder、完整 Qwen 缓存、验证集调参结果和不可变归档。
+当前仓库已经允许 development-only GPU 训练，具体命令以
+[`GPU_WORKER_START_ZH.md`](GPU_WORKER_START_ZH.md) 为准。发布审计仍应失败，
+因为没有未暴露测试集、训练后 decoder、验证 sweep 和不可变归档。
 
 旧 `results/*_v3.csv`、旧 checkpoint 哈希、旧 box 记录和旧 split 都不能写入
 新论文结果。
@@ -28,8 +27,7 @@
 - 完整 `HECKTOR.npz` 的 SHA-256、PET 通道和轴向切片选择规则；
 - PET 数值单位。当前上传样本标记为 SUV，不能直接使用约 30000 的
   scanner-count 常数；
-- 每例/每扫描协议的像素间距、PET 横断面 FOV 直径和扫描器轴心在源网格中的
-  row/column；
+- 若可取得，保留 DICOM spacing/orientation/rescale 标签用于来源和单位追踪；
 - CT 对应来源，仅供 CT-KEM/Bowsher-KEM 对比方法使用；
 - 证明 PET/CT 来自一体机配准流程的资料可用于论文说明，但不要用 CT 或肿瘤
   mask 定义评价区域。
@@ -44,8 +42,8 @@
 ## 必须按这个顺序执行
 
 1. 创建环境并运行 `make quality`。
-2. 完成 `inputs/clean_v1/subject_inventory.csv`，生成新的 subject-level split，
-   检查 14/3/3 BrainWeb 和 156/34/34 HECKTOR 数量，提交并固定 SHA。
+2. 使用已固定的 development-only subject split：BrainWeb 16/4/0，HECKTOR
+   179/45/0；其中没有 `test_locked`。
 3. 完成 `source_activity_manifest.csv`，只导入 train 和 validation。
 4. 明确两个数据集的固定 C；如果物理 C 仍不清楚，只能在 train/validation 上
    做规范化敏感性研究，不能查看 locked test。
@@ -73,7 +71,7 @@
   list-mode/sinogram，也不是真正无噪声活度真值。
 - 相邻切片可以作为独立二维模拟案例，但划分和统计汇总必须在 subject 层面，
   不能把同一病人的切片当成独立病人。
-- 评价 mask 使用 PET 算子正灵敏度的固定圆形 FOV；禁止使用 CT、MR 或肿瘤
+- 评价 mask 使用 PET 算子正灵敏度的完整方形支持；禁止使用 CT、MR 或肿瘤
   mask 改变评价区域。
 - 我们的方法不使用 CT/MR；MR-KEM、CT-KEM、Bowsher-KEM 是明确命名的
   解剖对比方法。

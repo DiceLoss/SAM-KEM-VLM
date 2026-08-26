@@ -71,21 +71,23 @@ expanded rerun. Locked-test convergence is descriptive and cannot choose an
 iteration. Cross-count summaries first average within subject, then across
 subjects, preventing adjacent slices from becoming independent replicates.
 
-## Inputs still missing from this checkout
+## Development artifacts still missing from this checkout
 
 The scientific validator intentionally remains fatal until the experimenter
 provides and records:
 
-1. an exact fixed BrainWeb scale with simulation provenance and a HECKTOR scale
-   whose SUV representation is explicitly identified;
-2. HECKTOR source spacing, orientation/affine, and scanner transaxial FOV for
-   the physical 144x144-to-128x128 transform;
-3. a real MedSAM2/SAM2 Git checkout path and its immutable commit;
-4. the official released MedSAM2 checkpoint and SHA-256;
-5. dataset-specific trained decoder checkpoints and sidecars;
-6. regenerated canonical arrays and their manifests;
-7. the new one-key-per-slice/count Qwen cache;
-8. validation sweep, frozen parameters and clean-run metadata.
+1. the generated train/validation PET source manifest and canonical arrays;
+2. train-derived fixed-scale and global-min-max normalization candidates;
+3. the official checkpoint bytes (its SHA is pinned) and dataset-specific
+   candidate decoder checkpoints with sidecars;
+4. the one-key-per-subject/slice/count Qwen caches;
+5. validation sweeps, frozen parameters and clean-run metadata;
+6. an immutable artifact archive URI.
+
+The official MedSAM2 source commit and configuration are now pinned. HECKTOR
+scanner FOV is deliberately not a prerequisite: the declared pseudo-sinogram
+operator acts on the complete DICOM-exported square pixel array. Source unit,
+channel, subject mapping and fixed slice selector remain mandatory provenance.
 
 Do not set `locked: true` or use old result CSVs to satisfy these checks. Follow
 `docs/EXECUTION.md`; after every required value/artifact is present, the final

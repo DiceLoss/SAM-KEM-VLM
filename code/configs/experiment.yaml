@@ -1,6 +1,6 @@
 schema_version: 1
 run_id: clean_v1
-status: blocked_pending_required_physical_constants_and_rerun
+status: development_only_no_locked_test
 locked: false
 
 reproducibility:
@@ -9,8 +9,8 @@ reproducibility:
 
 data:
   split_file: inputs/clean_v1/subject_split.csv
-  split_id: clean_v1_subject_holdout
-  split_sha256: null
+  split_id: clean_v1_development_train_validation
+  split_sha256: cffe83608da27f736abe02e8c0fa5d2f892df8773bbccb08ec1a916157c0a096
   locked_test_required_exposure_status: never_used_for_training_validation_tuning_or_reporting
   source_activity_manifest: inputs/clean_v1/source_activity_manifest.csv
   canonical_activity_root: arrays/clean_v1
@@ -22,8 +22,8 @@ data:
     brainweb: source_model
     hecktor: patient
   expected_subject_counts:
-    brainweb: {train: 14, validation: 3, test_locked: 3}
-    hecktor: {train: 156, validation: 34, test_locked: 34}
+    brainweb: {train: 16, validation: 4, test_locked: 0}
+    hecktor: {train: 179, validation: 45, test_locked: 0}
 
 acquisition:
   count_levels: [100000, 200000, 500000, 1000000]
@@ -91,8 +91,8 @@ prompts:
 medsam2:
   architecture: sam2.1_hiera_t
   source_repository: https://github.com/bowang-lab/MedSAM2
-  source_commit: null
-  source_checkout_path: null
+  source_commit: 332f30d420f1d1b08e2a79b3ae6a602458808383
+  source_checkout_path: external/MedSAM2
   pretrained_checkpoint_path: checkpoints/MedSAM2_latest.pt
   pretrained_checkpoint_sha256: c92743b99f00d078bf32a3afcc38aaa9faf1c1692dffe3eaa7a90938c1991060
   # Verified byte-identical to the official MedSAM2_latest.pt at
@@ -101,9 +101,9 @@ medsam2:
   # See inputs/clean_v1/medsam2_provenance.json.
   # v3 retrained decoders are recorded there as forensic-only and
   # MUST NOT be reused as the clean_v1 inference checkpoints.
-  # source_commit and source_checkout_path remain null until the
-  # researcher pins a Git commit of the bowang-lab/MedSAM2 repo
-  # that ships the download.sh used to verify the SHA above.
+  # The official source is pinned to commit 332f30d420f1d1b08e2a79b3ae6a602458808383
+  # and uses sam2/configs/sam2.1_hiera_t512.yaml. GPU workers must reproduce
+  # that exact checkout; no general SAM2 fallback is permitted.
   checkpoint_scope: dataset_specific
   checkpoint_format: mask_decoder_only_inference_plus_separate_resumable_training_state
   checkpoint_selection_policy: fixed_budget_final_checkpoint_no_best_claim
