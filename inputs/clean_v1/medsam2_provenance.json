@@ -1,23 +1,45 @@
 {
   "official_repository": {
     "url": "https://github.com/bowang-lab/MedSAM2",
-    "commit_pinned": "PENDING — must be SHA-pinned before any decoder training run.",
-    "rationale": "MedSAM2 (Bowang Lab) extends SAM2 (Meta AI) for medical image segmentation. Per the START_HERE_ZH.md guide, a fixed immutable Git commit is required so every trained decoder is reproducible from the exact source tree."
+    "default_branch": "main",
+    "commit_pinned": "PENDING — must be SHA-pinned before any decoder training run. The researcher must `git clone` the repo, capture `git rev-parse HEAD` of the commit that ships the MedSAM2_latest.pt being used as pretrained backbone, and pin it here."
   },
-  "source_checkout": {
-    "path": "PENDING — must be populated before training.",
-    "expected_contents": "Official MedSAM2 repository with the pinned commit above."
+  "official_checkpoint_distribution": {
+    "source_code": "https://github.com/bowang-lab/MedSAM2/blob/main/download.sh",
+    "hugging_face_org": "wanglab/MedSAM2 (mirror)",
+    "hugging_face_url_template": "https://huggingface.co/wanglab/MedSAM2/resolve/main/<filename>",
+    "files_offered_by_official_download_script": [
+      "MedSAM2_2411.pt",
+      "MedSAM2_US_Heart.pt",
+      "MedSAM2_MRI_LiverLesion.pt",
+      "MedSAM2_CTLesion.pt",
+      "MedSAM2_latest.pt"
+    ],
+    "backbone_for_architecture": {
+      "url": "https://dl.fbaipublicfiles.com/segment_anything_2/092824/sam2.1_hiera_tiny.pt",
+      "description": "SAM2.1 Hiera-T base weights from Meta AI, NOT a MedSAM2 fine-tuned checkpoint. The bowang-lab/MedSAM2 download.sh pulls this as the upstream backbone before fine-tuning.",
+      "expected_size_bytes": "~156 MB"
+    }
   },
-  "released_pretrained_checkpoint": {
+  "candidate_local_file_under_review": {
     "path_local": "D:/MIAProject/EM-reconstruction/MedSAM2.pt",
-    "path_in_config": "checkpoints/MedSAM2.pt",
+    "size_bytes_observed": 156046933,
     "sha256_observed": "c92743b99f00d078bf32a3afcc38aaa9faf1c1692dffe3eaa7a90938c1991060",
-    "size_bytes": 156046933,
-    "download_source": "Released by the Bowang Lab MedSAM2 team via the official repository's release page (https://github.com/bowang-lab/MedSAM2/releases). The exact URL/asset name must be recorded before training so the SHA can be re-verified.",
-    "note": "Released MedSAM2.pt is a SAM2.1_hiera_t fine-tuned for medical segmentation. It must be used as the pretrained backbone only; per START_HERE_ZH.md, BrainWeb and HECKTOR decoders must each be retrained on their own split and cannot be passed off as 'the released checkpoint'."
+    "filename_local": "MedSAM2.pt (NOT one of the official filenames)",
+    "ambiguity": "The observed size (~156 MB) matches BOTH MedSAM2_latest.pt AND sam2.1_hiera_tiny.pt. The local filename MedSAM2.pt is not used by the official download.sh. We CANNOT distinguish from size alone whether the local file is (a) a hand-renamed MedSAM2_latest.pt, (b) the SAM2.1 backbone sam2.1_hiera_tiny.pt mistakenly named MedSAM2.pt, or (c) some other artefact.",
+    "verification_protocol": "The researcher must download MedSAM2_latest.pt from the official huggingface URL and compare SHA-256 against c92743b99f00d078bf32a3afcc38aaa9faf1c1692dffe3eaa7a90938c1991060. If they match, the local file is the correct pretrained backbone and the SHA can be locked. If they differ, the local file must be replaced and the SHA recorded here. No training may proceed until this comparison is recorded.",
+    "official_urls_to_compare_against": {
+      "medsam2_latest_pt": "https://huggingface.co/wanglab/MedSAM2/resolve/main/MedSAM2_latest.pt",
+      "sam2_1_hiera_tiny_pt": "https://dl.fbaipublicfiles.com/segment_anything_2/092824/sam2.1_hiera_tiny.pt"
+    },
+    "no_published_sha256": "Neither the official GitHub README nor the Hugging Face card publishes a SHA-256 for these files. The integrity comparison must be done locally by the researcher."
+  },
+  "experiment_yaml_path_value": {
+    "path_in_config": "checkpoints/MedSAM2.pt",
+    "comment": "The local filename MedSAM2.pt must be renamed to MedSAM2_latest.pt (or the file replaced with a verified download) before training. The path in experiment.yaml should then point at the verified file."
   },
   "decoder_checkpoints_v3_for_forensic_comparison": {
-    "_forensic_only": "These are the v3 trained decoders retained for forensic comparison only. They are NOT eligible clean_v1 inference checkpoints. clean_v1 must retrain both decoders on the new clean_v1 split.",
+    "_forensic_only": "The v3 trained decoders are retained for forensic comparison only. They are NOT eligible clean_v1 inference checkpoints. clean_v1 must retrain both decoders on the new clean_v1 split. Their SHAs were recorded earlier and are kept here for audit only.",
     "brainweb": {
       "path_local": "D:/MIAProject/SAM_KEM_v3_checkpoints/medsam2_decoder_brainweb_v4.pt",
       "sha256": "2ee2b4c334c3fe4583092238742f9bd6d214c8e4af2d8221e94d005806f79ef7",
@@ -31,7 +53,7 @@
     "audit_status": "AUDIT_ONLY — these checkpoints were trained on the v3 split that the strict review invalidated. They cannot be reused for the MIA submission."
   },
   "immutable_archive_uri": {
-    "_status": "PENDING — must be filled before final validation. Per OPERATIONS_RUNBOOK.md: 'A mutable local path alone is insufficient.' Suggested URI format: institutional object-store version, DOI-backed deposit, or other immutable project location.",
+    "_status": "PENDING — must be filled before final validation. Per OPERATIONS_RUNBOOK.md: 'A mutable local path alone is insufficient.'",
     "value": null
   },
   "training_requirements_for_clean_v1": {
@@ -44,6 +66,11 @@
     "trainable_components": ["mask_decoder"],
     "sampling": "balanced across all four count levels per dataset, one joint model per dataset",
     "checkpoint_selection": "fixed_budget_final_checkpoint — no best-on-validation selection",
-    "input_subset_filter": "training rows only; no validation, no test_locked"
+    "input_subset_filter": "training rows only; no validation, no test_locked",
+    "prerequisites": [
+      "Official MedSAM2 repo cloned and pinned to a specific commit.",
+      "Pretrained checkpoint SHA verified against the official Hugging Face download.",
+      "Released MedSAM2_latest.pt (or the verified alternative) placed at the experiment.yaml path."
+    ]
   }
 }

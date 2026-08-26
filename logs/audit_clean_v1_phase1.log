@@ -1,7 +1,7 @@
 FATAL CONTRACT: clean split_id and 64-character split_sha256 are required
 FATAL CONFIG_UNLOCKED: set locked=true and status=locked_for_execution only after resolving provenance
 FATAL SPLIT: data.split_sha256 must pin the clean subject split
-FATAL SOURCE_MANIFEST: could not convert string to float: 'PENDING_PHYSICAL_GEOMETRY'
+FATAL SOURCE_MANIFEST: [Errno 2] No such file or directory: 'D:\\MIAProject\\SAM_KEM_QWEN3_V3_REPO\\inputs\\clean_v1\\source_activity_manifest.csv'
 FATAL MEDSAM2_CHECKOUT: not a readable Git checkout: D:\MIAProject\SAM_KEM_QWEN3_V3_REPO\PENDING_LOCAL_PATH_BEFORE_TRAINING
 FATAL MEDSAM2_PRETRAINED: pretrained MedSAM2 checkpoint/path SHA is unresolved
 FATAL CHECKPOINT_ARCHIVE: immutable checkpoint archive URI missing for brainweb
