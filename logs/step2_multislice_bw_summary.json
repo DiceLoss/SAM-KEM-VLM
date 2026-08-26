@@ -1,0 +1,162 @@
+[
+  {
+    "subject_id": "subject04",
+    "n_slices": 175,
+    "first_slice": 38,
+    "last_slice": 212,
+    "upstream_sha256_prefix": "4a0309dffb10db8f...",
+    "split": "validation"
+  },
+  {
+    "subject_id": "subject05",
+    "n_slices": 173,
+    "first_slice": 38,
+    "last_slice": 210,
+    "upstream_sha256_prefix": "29316ab389ea5448...",
+    "split": "train"
+  },
+  {
+    "subject_id": "subject06",
+    "n_slices": 176,
+    "first_slice": 38,
+    "last_slice": 213,
+    "upstream_sha256_prefix": "05fada439661ea06...",
+    "split": "train"
+  },
+  {
+    "subject_id": "subject18",
+    "n_slices": 181,
+    "first_slice": 38,
+    "last_slice": 218,
+    "upstream_sha256_prefix": "56416a9501e9b9aa...",
+    "split": "train"
+  },
+  {
+    "subject_id": "subject20",
+    "n_slices": 173,
+    "first_slice": 38,
+    "last_slice": 210,
+    "upstream_sha256_prefix": "32bd2d7bbf19d78f...",
+    "split": "train"
+  },
+  {
+    "subject_id": "subject38",
+    "n_slices": 175,
+    "first_slice": 38,
+    "last_slice": 212,
+    "upstream_sha256_prefix": "b43e89c9d5af2b5c...",
+    "split": "train"
+  },
+  {
+    "subject_id": "subject41",
+    "n_slices": 176,
+    "first_slice": 38,
+    "last_slice": 213,
+    "upstream_sha256_prefix": "aac332f0bb97aad8...",
+    "split": "train"
+  },
+  {
+    "subject_id": "subject42",
+    "n_slices": 172,
+    "first_slice": 38,
+    "last_slice": 209,
+    "upstream_sha256_prefix": "091e4f8a74287941...",
+    "split": "validation"
+  },
+  {
+    "subject_id": "subject43",
+    "n_slices": 175,
+    "first_slice": 38,
+    "last_slice": 212,
+    "upstream_sha256_prefix": "bd9517a5dbf2165a...",
+    "split": "train"
+  },
+  {
+    "subject_id": "subject44",
+    "n_slices": 176,
+    "first_slice": 38,
+    "last_slice": 213,
+    "upstream_sha256_prefix": "fb8a75d227d2225a...",
+    "split": "validation"
+  },
+  {
+    "subject_id": "subject45",
+    "n_slices": 174,
+    "first_slice": 38,
+    "last_slice": 211,
+    "upstream_sha256_prefix": "a18c7fb710426fa7...",
+    "split": "train"
+  },
+  {
+    "subject_id": "subject46",
+    "n_slices": 176,
+    "first_slice": 38,
+    "last_slice": 213,
+    "upstream_sha256_prefix": "fc1ebf5a2da897f6...",
+    "split": "train"
+  },
+  {
+    "subject_id": "subject47",
+    "n_slices": 174,
+    "first_slice": 38,
+    "last_slice": 211,
+    "upstream_sha256_prefix": "7f53eff8f5a90b31...",
+    "split": "train"
+  },
+  {
+    "subject_id": "subject48",
+    "n_slices": 178,
+    "first_slice": 38,
+    "last_slice": 215,
+    "upstream_sha256_prefix": "1d33f504241fe2c3...",
+    "split": "train"
+  },
+  {
+    "subject_id": "subject49",
+    "n_slices": 178,
+    "first_slice": 38,
+    "last_slice": 215,
+    "upstream_sha256_prefix": "2a272c2609f91d35...",
+    "split": "train"
+  },
+  {
+    "subject_id": "subject50",
+    "n_slices": 173,
+    "first_slice": 38,
+    "last_slice": 210,
+    "upstream_sha256_prefix": "11a3e768122464de...",
+    "split": "validation"
+  },
+  {
+    "subject_id": "subject51",
+    "n_slices": 173,
+    "first_slice": 38,
+    "last_slice": 210,
+    "upstream_sha256_prefix": "7cbe600d82d5705d...",
+    "split": "train"
+  },
+  {
+    "subject_id": "subject52",
+    "n_slices": 175,
+    "first_slice": 38,
+    "last_slice": 212,
+    "upstream_sha256_prefix": "64db91e064b43764...",
+    "split": "train"
+  },
+  {
+    "subject_id": "subject53",
+    "n_slices": 181,
+    "first_slice": 38,
+    "last_slice": 218,
+    "upstream_sha256_prefix": "d05b4cfb999a4318...",
+    "split": "train"
+  },
+  {
+    "subject_id": "subject54",
+    "n_slices": 177,
+    "first_slice": 38,
+    "last_slice": 214,
+    "upstream_sha256_prefix": "4d6f099062022bf2...",
+    "split": "train"
+  }
+]
