@@ -11,23 +11,48 @@ import numpy as np
 from .boxes import Box, BoxCache, BoxKey, BoxRecord, centroid_fallback
 from .config import load_contract
 from .noise import array_sha256
+from .artifacts import file_sha256, verify_csv_artifact, verify_success_marker
+from .qwen import instruction_sha256
 
 
 def build_box_cache(
-  manifest_path: Path, response_dir: Path, output_path: Path, config_path: Path,
+  manifest_path: Path, response_dirs: list[Path] | tuple[Path, ...] | Path,
+  output_path: Path, config_path: Path,
 ) -> Path:
   cfg, _ = load_contract(config_path)
+  repo_root = config_path.resolve().parents[2]
+  manifest_record = verify_csv_artifact(manifest_path)
+  if manifest_record.get("schema_name") != "canonical_case_manifest_v3":
+    raise ValueError("box-cache input must be a canonical v3 case manifest")
   responses: dict[BoxKey, dict] = {}
-  for path in sorted(response_dir.glob("*.json")):
+  directories = [response_dirs] if isinstance(response_dirs, Path) else list(response_dirs)
+  if not directories:
+    raise ValueError("at least one archived Qwen response directory is required")
+  for directory in directories:
+    verify_success_marker(directory)
+  response_paths = sorted(
+    path for directory in directories for path in directory.rglob("*.json")
+    if path.name != "_SUCCESS.json"
+  )
+  for path in response_paths:
     document = json.loads(path.read_text(encoding="utf-8"))
     record = document.get("record", {})
     if not {"dataset", "subject_id", "slice_id", "count_level"}.issubset(record):
       continue
     key = BoxKey(record["dataset"], record["subject_id"], record["slice_id"], int(record["count_level"]))
+    if record.get("run_id") != cfg["run_id"]:
+      raise ValueError(f"Qwen response has wrong run_id: {path}")
     if key in responses:
       raise ValueError(f"multiple Qwen calls for one cache key: {key}")
     responses[key] = record
   manifest = list(csv.DictReader(manifest_path.open("r", encoding="utf-8", newline="")))
+  if not manifest or any(
+    row.get("run_id") != cfg["run_id"]
+    or row.get("split_id") != cfg["data"]["split_id"]
+    or row.get("split_sha256") != cfg["data"]["split_sha256"]
+    for row in manifest
+  ):
+    raise ValueError("box-cache manifest has the wrong clean run/split identity")
   required_keys = {
     BoxKey(row["dataset"], row["subject_id"], row["slice_id"], int(row["count_level"]))
     for row in manifest
@@ -45,10 +70,24 @@ def build_box_cache(
     ]
     if len(anchor_rows) != 1:
       raise ValueError(f"expected one anchor realization for {key}, got {len(anchor_rows)}")
-    image_path = manifest_path.parents[2] / anchor_rows[0]["mlem10_input_path"]
+    image_path = repo_root / anchor_rows[0]["mlem10_input_path"]
     image = np.load(image_path)
     if response.get("source_mlem10_sha256") != array_sha256(image):
       raise ValueError(f"Qwen prompt image is not the declared anchor MLEM for {key}")
+    prompt_image = Path(str(response.get("image_path", "")))
+    if not prompt_image.is_absolute():
+      prompt_image = repo_root / prompt_image
+    prompt_metadata = prompt_image.with_suffix(".json")
+    if not prompt_image.is_file() or not prompt_metadata.is_file():
+      raise FileNotFoundError(f"archived Qwen prompt image/sidecar missing for {key}")
+    render_record = json.loads(prompt_metadata.read_text(encoding="utf-8"))
+    if (
+      file_sha256(prompt_image) != response.get("image_sha256")
+      or render_record.get("png_sha256") != response.get("image_sha256")
+      or render_record.get("source_mlem10_sha256") != array_sha256(image)
+      or response.get("prompt_sha256") != instruction_sha256(cfg["prompts"]["text"])
+    ):
+      raise ValueError(f"Qwen image/prompt provenance mismatch for {key}")
     if response is not None and response.get("box") is not None:
       box = Box(**{name: int(response["box"][name]) for name in ("xmin", "ymin", "xmax", "ymax")})
       source = "qwen3-vl-plus"
@@ -67,7 +106,7 @@ def build_box_cache(
       image_sha = str(response.get("image_sha256", ""))
     box.validate(width=128, height=128)
     records.append(BoxRecord(
-      key, box, source, request_id, image_sha,
+      key, cfg["run_id"], box, source, request_id, image_sha,
       str(response["source_mlem10_sha256"]),
       str(response.get("prompt_sha256", "")), str(response.get("model", "")),
     ))

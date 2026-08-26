@@ -8,4 +8,6 @@ realizations: [0, 1, 2]
 requires_frozen_hyperparameters: true
 box_cache_required: true
 fallback_cases_reported_separately: true
-output: runs/primary
+output: runs/clean_v1/primary
+source: runs/clean_v1/comparison/per_case_metrics.csv
+calculation: immutable_filter_only_no_second_test_reconstruction

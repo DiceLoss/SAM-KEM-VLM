@@ -16,9 +16,15 @@
 6. A rerun uses a new protocol output directory. Never append a new run to an
    old CSV and never manually edit a generated table.
 
+Bulk arrays, prompt PNGs and Torch checkpoints may be excluded from Git, but
+only when they are copied to the declared immutable archive. Their JSON/CSV
+sidecars, SHA-256 values, run ID, code/config commit, and archive URI remain part
+of the tracked experiment record.
+
 ## Decoder checkpoint bundle
 
-For an output such as `checkpoints/medsam2_decoder_brainweb.pt`, training writes:
+For an output such as
+`checkpoints/clean_v1/medsam2_decoder_brainweb.pt`, training writes:
 
 | File | Meaning |
 |---|---|
@@ -52,14 +58,16 @@ SHA-verified file for execution.
 
 | Artifact | Primary key |
 |---|---|
-| Per-case reconstruction metrics | `(protocol,dataset,subject_id,slice_id,realization_id,count_level,method)` |
-| Validation sweep | `(dataset,subject_id,slice_id,realization_id,count_level,method,sigma,radius,neighbours,iterations,alpha)` |
-| Frozen hyperparameters | `(dataset,count_level,method)` |
-| Ablation | `(dataset,subject_id,slice_id,realization_id,count_level,variant)` |
-| Convergence | `(dataset,subject_id,slice_id,realization_id,count_level,method,iteration)` |
-| Runtime | `(dataset,subject_id,slice_id,realization_id,count_level,method,repetition)` |
-| Cross-count summary | `(dataset,count_level,method)` |
-| Paired statistics | `(dataset,count_level,proposed_method,baseline_method)` |
+| Case manifest | `(run_id,dataset,subject_id,slice_id,realization_id,count_level)` |
+| Qwen box cache | `(run_id,dataset,subject_id,slice_id,count_level)` |
+| Per-case reconstruction metrics | `(run_id,protocol,dataset,subject_id,slice_id,realization_id,count_level,method)` |
+| Validation sweep | `(run_id,dataset,subject_id,slice_id,realization_id,count_level,method,sigma,radius,neighbours,iterations,alpha)` |
+| Frozen hyperparameters | `(run_id,dataset,count_level,method)` |
+| Ablation | `(run_id,dataset,subject_id,slice_id,realization_id,count_level,variant)` |
+| Convergence | `(run_id,dataset,subject_id,slice_id,realization_id,count_level,method,iteration)` |
+| Runtime | `(run_id,dataset,subject_id,slice_id,realization_id,count_level,method,repetition)` |
+| Cross-count summary | `(run_id,dataset,count_level,method)` |
+| Paired statistics | `(run_id,dataset,count_level,proposed_method,baseline_method)` |
 
 All per-case metrics must be finite, use the declared fixed physical scale and
 carry operator/checkpoint/seed/hyperparameter identity. Subject-level statistics
@@ -71,6 +79,19 @@ Final run directories, checkpoint bundles, array manifests, prompt records and
 locked configuration must be archived together. Record the immutable result
 archive URI in `outputs.artifact_policy.immutable_archive_uri` before manuscript
 eligibility validation.
+
+The clean subject split is itself immutable and SHA-pinned by
+`data.split_sha256`. Its primary key is `(dataset,subject_id)`, and every
+locked-test row must explicitly declare that it was never used in historical
+training, validation, tuning, or reporting. The exposed v3 test split is not
+eligible for the clean pipeline.
+
+The run identifier is part of every generated primary key and must also appear
+in the path namespace. Training/validation use
+`prompts/clean_v1/train_validation_box_cache.csv`; after validation parameters
+are frozen, the predeclared test suite uses the separately published
+`prompts/clean_v1/final_box_cache.csv`. The final cache may include all splits,
+but it can never replace the earlier cache in decoder training or validation.
 
 Normalization candidates are separate experiment identities. Their ID must be
 present in the run directory, checkpoint provenance and regenerated array

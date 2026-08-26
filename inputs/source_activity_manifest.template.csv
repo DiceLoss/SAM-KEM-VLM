@@ -1,0 +1,3 @@
+dataset,subject_id,slice_id,split,source_path,source_sha256,source_kind,source_key,source_subject_index,source_slice_axis,source_slice_index,source_channel_index,activity_unit,spatial_transform,source_spacing_y_mm,source_spacing_x_mm,scanner_fov_diameter_mm,scanner_axis_row_index,scanner_axis_column_index
+brainweb,subject04,z125,train,/absolute/path/subject04/sim_0/true_pet.nii.gz,REPLACE_WITH_FILE_SHA256,nifti_volume,,,2,125,,BrainWeb_simulation_activity,mean_pool_2x2_circular_fov,,,,,
+hecktor,1,z72,train,/absolute/path/HECKTOR.npz,REPLACE_WITH_FILE_SHA256,npz_hecktor_input,input,0,,72,1,SUV,physical_resample_circular_fov,REPLACE_MM,REPLACE_MM,REPLACE_SCANNER_FOV_MM,REPLACE_CONTINUOUS_ROW_INDEX,REPLACE_CONTINUOUS_COLUMN_INDEX

@@ -3,12 +3,13 @@
 from __future__ import annotations
 
 from pathlib import Path
+from io import BytesIO
 import hashlib
-import json
 
 import numpy as np
 
 from .noise import array_sha256
+from .artifacts import atomic_write_bytes, atomic_write_json
 
 
 def render_prompt_png(array_path: Path, output_path: Path) -> Path:
@@ -24,13 +25,21 @@ def render_prompt_png(array_path: Path, output_path: Path) -> Path:
   metadata_path = output_path.with_suffix(".json")
   if output_path.exists() or metadata_path.exists():
     raise FileExistsError(f"refusing to overwrite prompt rendering: {output_path}")
-  output_path.parent.mkdir(parents=True, exist_ok=True)
-  Image.fromarray(pixels, mode="L").convert("RGB").save(output_path, format="PNG", optimize=False)
-  metadata_path.write_text(json.dumps({
-    "schema_version": 1, "source_array_path": str(array_path),
+  buffer = BytesIO()
+  Image.fromarray(pixels, mode="L").convert("RGB").save(buffer, format="PNG", optimize=False)
+  png = buffer.getvalue()
+  atomic_write_bytes(output_path, png)
+  metadata = {
+    "schema_version": 2, "artifact_kind": "vlm_prompt_render",
+    "source_array_path": str(array_path),
     "source_mlem10_sha256": array_sha256(source_array),
     "display_transform": "per_image_minmax_round_to_uint8_rgb_only_for_vlm",
     "display_shape": [128, 128, 3],
-    "png_sha256": hashlib.sha256(output_path.read_bytes()).hexdigest(),
-  }, indent=2), encoding="utf-8")
+    "png_sha256": hashlib.sha256(png).hexdigest(),
+  }
+  try:
+    atomic_write_json(metadata_path, metadata)
+  except BaseException:
+    output_path.unlink(missing_ok=True)
+    raise
   return output_path

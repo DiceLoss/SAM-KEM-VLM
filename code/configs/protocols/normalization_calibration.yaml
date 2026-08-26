@@ -10,6 +10,6 @@ datasets: [brainweb, hecktor]
 fit_split: train
 evaluation_split: validation
 locked_test_access: prohibited
-activity_manifest: inputs/normalization_activity_manifest.csv
+activity_manifest: inputs/clean_v1/normalization_activity_manifest.csv
 selection_rule: no_automatic_winner_retrain_and_compare_on_validation
-output: runs/normalization_calibration
+output: runs/clean_v1/normalization_calibration

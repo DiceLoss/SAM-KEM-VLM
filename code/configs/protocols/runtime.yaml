@@ -10,4 +10,4 @@ scope: kernel_construction_and_iterative_reconstruction_from_cached_inputs_exclu
 warmup_repetitions: 3
 timed_repetitions: 10
 cuda_synchronize: true
-output: runs/runtime
+output: runs/clean_v1/runtime

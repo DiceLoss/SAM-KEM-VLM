@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-import csv
+import hashlib
 import json
 from pathlib import Path
 
@@ -10,13 +10,14 @@ import numpy as np
 
 from .config import load_contract
 from .reproducibility import CaseKey, case_seed
-from .splits import load_subject_splits
+from .splits import load_configured_subject_splits
 from .noise import array_sha256
 from .artifacts import atomic_csv_writer, finalize_csv
 
 
 FIELDS = [
-  "dataset", "subject_id", "slice_id", "realization_id", "count_level", "split",
+  "run_id", "split_id", "split_sha256", "dataset", "subject_id", "slice_id",
+  "realization_id", "count_level", "split",
   "seed", "normalization_id", "normalization_offset", "normalization_clip",
   "scale_constant_C", "operator_id", "target_path",
   "noise_free_projection_path", "projection_metadata_path", "projection_scale", "sinogram_path",
@@ -35,7 +36,7 @@ def _relative(path: Path, root: Path) -> str:
 
 def build_case_manifest(root: Path, config_path: Path, arrays_root: Path, output: Path) -> Path:
   cfg, contract = load_contract(config_path)
-  splits = load_subject_splits(root / str(cfg["data"]["split_file"]))
+  splits = load_configured_subject_splits(root, cfg)
   split_index = {(row["dataset"], row["subject_id"]): row["split"] for row in splits}
   records = []
   for dataset_dir in sorted(path for path in arrays_root.iterdir() if path.is_dir()):
@@ -50,9 +51,9 @@ def build_case_manifest(root: Path, config_path: Path, arrays_root: Path, output
         projection_metadata = projection.with_suffix(".json")
         anatomy = slice_dir / "anatomy.npy"
         mask = slice_dir / "evaluation_mask.npy"
-        if mask.is_file() and cfg["evaluation"]["region"] == "full_128x128_fov":
+        if mask.is_file():
           raise ValueError(
-            f"evaluation mask is prohibited by the full-FOV protocol: {mask}"
+            f"external evaluation mask is prohibited; operator support is used: {mask}"
           )
         for count in contract.count_levels:
           for realization in contract.realizations:
@@ -72,11 +73,16 @@ def build_case_manifest(root: Path, config_path: Path, arrays_root: Path, output
             projection_array = np.load(projection)
             sinogram_array = np.load(sinogram)
             projection_record = json.loads(projection_metadata.read_text(encoding="utf-8"))
+            ingestion_metadata = Path(str(projection_record.get("ingestion_metadata_path", "")))
+            if not ingestion_metadata.is_absolute():
+              ingestion_metadata = root / ingestion_metadata
             projection_sum = float(projection_array.sum())
             if projection_sum <= 0:
               raise ValueError(f"non-positive projection sum: {projection}")
             if (
-              projection_record.get("dataset") != dataset
+              projection_record.get("schema_version") != 2
+              or projection_record.get("artifact_kind") != "noise_free_pet_projection"
+              or projection_record.get("dataset") != dataset
               or projection_record.get("operator_id") != contract.operator_id
               or projection_record.get("normalization_id") != contract.normalization_id
               or float(projection_record.get("normalization_offset", "nan"))
@@ -86,13 +92,19 @@ def build_case_manifest(root: Path, config_path: Path, arrays_root: Path, output
               or projection_record.get("field_of_view") != cfg["forward_model"]["field_of_view"]
               or float(projection_record.get("out_of_fov_activity_mass_fraction", 1.0))
               > float(cfg["forward_model"]["out_of_fov_activity_mass_tolerance"])
-              or float(projection_record.get("fixed_scale_C", -1))
+              or float(projection_record.get("normalization_scale_C", -1))
               != contract.scale_constants[dataset]
               or projection_record.get("target_sha256") != array_sha256(np.load(target))
               or projection_record.get("noise_free_projection_sha256")
               != array_sha256(projection_array)
+              or not ingestion_metadata.is_file()
+              or projection_record.get("ingestion_metadata_sha256")
+              != hashlib.sha256(ingestion_metadata.read_bytes()).hexdigest()
             ):
               raise ValueError(f"noise-free projection provenance mismatch: {projection_metadata}")
+            ingestion_record = json.loads(ingestion_metadata.read_text(encoding="utf-8"))
+            if ingestion_record.get("split") != split_index[key]:
+              raise ValueError(f"ingested activity split differs from clean split: {ingestion_metadata}")
             expected_seed = case_seed(identity, experiment_seed=contract.experiment_seed)
             expected_scale = float(count) / projection_sum
             metadata = json.loads(simulation_metadata.read_text(encoding="utf-8"))
@@ -104,7 +116,9 @@ def build_case_manifest(root: Path, config_path: Path, arrays_root: Path, output
             if any(metadata.get(name) != value for name, value in expected_identity.items()):
               raise ValueError(f"simulation identity mismatch: {simulation_metadata}")
             if (
-              metadata.get("observation_model")
+              metadata.get("schema_version") != 2
+              or metadata.get("artifact_kind") != "poisson_sinogram"
+              or metadata.get("observation_model")
               != "independent_poisson_scaled_noise_free_projection"
               or metadata.get("rng") != "numpy.random.Generator(PCG64)"
             ):
@@ -120,7 +134,9 @@ def build_case_manifest(root: Path, config_path: Path, arrays_root: Path, output
             mlem_record = json.loads(mlem10_metadata.read_text(encoding="utf-8"))
             mlem_array = np.load(mlem10)
             if (
-              mlem_record.get("method") != "MLEM"
+              mlem_record.get("schema_version") != 2
+              or mlem_record.get("artifact_kind") != "mlem_prompt_input"
+              or mlem_record.get("method") != "MLEM"
               or int(mlem_record.get("iterations", -1)) != contract.prompt_mlem_iterations
               or mlem_record.get("operator_id") != contract.operator_id
               or mlem_record.get("operator_implementation_sha256")
@@ -147,7 +163,10 @@ def build_case_manifest(root: Path, config_path: Path, arrays_root: Path, output
                 else cfg["medsam2"]["checkpoint_sha256"][dataset]
               )
               if (
-                record.get("prior_sha256") != array_sha256(prior)
+                record.get("schema_version") != 2
+                or record.get("artifact_kind") != "medsam2_continuous_prior"
+                or record.get("run_id") != contract.run_id
+                or record.get("prior_sha256") != array_sha256(prior)
                 or record.get("input_mlem10_sha256") != array_sha256(np.load(mlem10))
                 or record.get("dataset") != dataset
                 or record.get("subject_id") != subject_dir.name
@@ -163,6 +182,8 @@ def build_case_manifest(root: Path, config_path: Path, arrays_root: Path, output
             centroid_prior, centroid_meta = optional_prior("sam_prior_centroid.npy")
             released_prior, released_meta = optional_prior("sam_prior_released.npy")
             records.append({
+              "run_id": contract.run_id,
+              "split_id": contract.split_id, "split_sha256": contract.split_sha256,
               "dataset": dataset, "subject_id": subject_dir.name,
               "slice_id": slice_dir.name, "realization_id": realization,
               "count_level": count, "split": split_index[key],
@@ -194,9 +215,9 @@ def build_case_manifest(root: Path, config_path: Path, arrays_root: Path, output
   with atomic_csv_writer(output, FIELDS) as writer:
     writer.writerows(records)
   finalize_csv(
-    output, schema_name="canonical_case_manifest_v2",
+    output, schema_name="canonical_case_manifest_v3",
     primary_key=[
-      "dataset", "subject_id", "slice_id", "realization_id", "count_level",
+      "run_id", "dataset", "subject_id", "slice_id", "realization_id", "count_level",
     ],
   )
   return output

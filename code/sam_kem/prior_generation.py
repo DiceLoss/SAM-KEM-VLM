@@ -3,15 +3,15 @@
 from __future__ import annotations
 
 import csv
-import json
 from pathlib import Path
 
 import numpy as np
 
 from .boxes import BoxCache, BoxKey, centroid_fallback
-from .config import load_contract, require_locked_execution
+from .config import load_contract, require_locked_execution, require_test_release
 from .medsam import CheckpointSpec, PredictorRegistry, build_released_predictor, predict_continuous_prior, predictor_factory, sha256_file
 from .noise import array_sha256
+from .artifacts import atomic_save_numpy, atomic_write_json, verify_csv_artifact
 
 
 def generate_priors(
@@ -20,17 +20,27 @@ def generate_priors(
 ) -> int:
   cfg, _ = load_contract(config_path)
   require_locked_execution(cfg)
-  cache = BoxCache.read(root / str(cfg["prompts"]["box_cache"]))
+  if "test_locked" in splits:
+    if splits != {"test_locked"}:
+      raise ValueError("generate locked-test priors in a separate post-freeze invocation")
+    require_test_release(root, cfg)
+    cache_path = root / str(cfg["prompts"]["box_cache"])
+  else:
+    cache_path = root / str(cfg["prompts"]["training_box_cache"])
+  cache = BoxCache.read(cache_path)
+  manifest_record = verify_csv_artifact(manifest_path)
+  if manifest_record.get("schema_name") != "canonical_case_manifest_v3":
+    raise ValueError("prior generation requires a canonical v3 case manifest")
   pretrained = root / str(cfg["medsam2"]["pretrained_checkpoint_path"])
   medsam_source = root / str(cfg["medsam2"]["source_checkout_path"])
   if sha256_file(pretrained) != cfg["medsam2"]["pretrained_checkpoint_sha256"]:
     raise ValueError("pretrained checkpoint SHA mismatch")
   registry = PredictorRegistry(predictor_factory(
-    repo_root=root, medsam_source=medsam_source, pretrained_checkpoint=pretrained,
+    medsam_source=medsam_source, pretrained_checkpoint=pretrained,
   ))
   released_predictor = (
     build_released_predictor(
-      repo_root=root, medsam_source=medsam_source, pretrained_checkpoint=pretrained,
+      medsam_source=medsam_source, pretrained_checkpoint=pretrained,
     )
     if include_ablation_variants else None
   )
@@ -39,9 +49,17 @@ def generate_priors(
       dataset, root / cfg["medsam2"]["checkpoint_paths"][dataset],
       cfg["medsam2"]["checkpoint_sha256"][dataset],
       cfg["normalization"]["normalization_id"],
+      cfg["run_id"],
     ) for dataset in ("brainweb", "hecktor")
   }
   rows = list(csv.DictReader(manifest_path.open("r", encoding="utf-8", newline="")))
+  if not rows or any(
+    row.get("run_id") != cfg["run_id"]
+    or row.get("split_id") != cfg["data"]["split_id"]
+    or row.get("split_sha256") != cfg["data"]["split_sha256"]
+    for row in rows
+  ):
+    raise ValueError("prior-generation manifest has the wrong clean run/split identity")
   anchor_rows = {
     BoxKey(row["dataset"], row["subject_id"], row["slice_id"], int(row["count_level"])): row
     for row in rows if int(row["realization_id"]) == int(cfg["prompts"]["anchor_realization"])
@@ -56,6 +74,8 @@ def generate_priors(
     box_record = cache.get(key)
     if box_record is None:
       raise ValueError(f"box cache missing {key}")
+    if box_record.run_id != cfg["run_id"]:
+      raise ValueError(f"box cache run_id mismatch for {key}")
     mlem_path = root / row["mlem10_input_path"]
     mlem_image = np.load(mlem_path)
     trained_spec = specs[row["dataset"]]
@@ -92,9 +112,10 @@ def generate_priors(
         predictor, mlem_image, box,
         output_shape=(128, 128),
       )
-      np.save(output, prior)
-      metadata_path.write_text(json.dumps({
-        "schema_version": 1,
+      atomic_save_numpy(output, prior)
+      metadata = {
+        "schema_version": 2, "artifact_kind": "medsam2_continuous_prior",
+        "run_id": cfg["run_id"],
         "normalization_id": cfg["normalization"]["normalization_id"],
         "dataset": row["dataset"], "subject_id": row["subject_id"],
         "slice_id": row["slice_id"], "count_level": int(row["count_level"]),
@@ -111,6 +132,11 @@ def generate_priors(
         "prior_sha256": array_sha256(prior),
         "prior_min": float(prior.min()), "prior_max": float(prior.max()),
         "negative_pixel_fraction": float(np.mean(prior < 0)),
-      }, indent=2), encoding="utf-8")
+      }
+      try:
+        atomic_write_json(metadata_path, metadata)
+      except BaseException:
+        output.unlink(missing_ok=True)
+        raise
       written += 1
   return written

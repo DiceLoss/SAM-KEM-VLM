@@ -12,6 +12,8 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Iterator
 
+import numpy as np
+
 
 def file_sha256(path: Path, *, chunk_size: int = 1024 * 1024) -> str:
   digest = hashlib.sha256()
@@ -45,6 +47,29 @@ def atomic_write_json(path: Path, value: dict, *, replace: bool = False) -> None
 
 def atomic_write_text(path: Path, value: str, *, replace: bool = False) -> None:
   _atomic_bytes(path, value.encode("utf-8"), replace=replace)
+
+
+def atomic_write_bytes(path: Path, value: bytes, *, replace: bool = False) -> None:
+  _atomic_bytes(path, value, replace=replace)
+
+
+def atomic_save_numpy(path: Path, value: np.ndarray, *, replace: bool = False) -> None:
+  """Atomically publish one unpickled NumPy array."""
+  path.parent.mkdir(parents=True, exist_ok=True)
+  if path.exists() and not replace:
+    raise FileExistsError(f"refusing to overwrite immutable array: {path}")
+  descriptor, temporary_name = tempfile.mkstemp(
+    prefix=f".{path.name}.", suffix=".npy", dir=path.parent,
+  )
+  temporary = Path(temporary_name)
+  try:
+    with os.fdopen(descriptor, "wb") as handle:
+      np.save(handle, np.asarray(value), allow_pickle=False)
+      handle.flush(); os.fsync(handle.fileno())
+    os.replace(temporary, path)
+  except BaseException:
+    temporary.unlink(missing_ok=True)
+    raise
 
 
 @contextmanager

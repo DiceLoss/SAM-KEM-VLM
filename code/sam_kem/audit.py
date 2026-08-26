@@ -13,10 +13,11 @@ import numpy as np
 
 from .boxes import BoxCache, BoxKey
 from .config import ConfigurationError, ScientificContract, load_yaml_strict
-from .splits import load_subject_splits, split_counts
+from .splits import load_configured_subject_splits, split_counts
 from .reproducibility import CaseKey, case_seed
 from .noise import array_sha256
 from .artifacts import file_sha256, verify_csv_artifact, verify_success_marker
+from .ingestion import load_source_manifest
 
 
 @dataclass(frozen=True)
@@ -33,6 +34,7 @@ def _read_csv(path: Path) -> list[dict[str, str]]:
 
 def audit_repository(root: Path, config_path: Path) -> list[Issue]:
   issues: list[Issue] = []
+  contract: ScientificContract | None = None
   try:
     cfg = load_yaml_strict(config_path)
   except (OSError, ConfigurationError, ValueError) as error:
@@ -43,10 +45,41 @@ def audit_repository(root: Path, config_path: Path) -> list[Issue]:
     issues.append(Issue("CONTRACT", "fatal", str(error)))
   if cfg.get("locked") is not True or cfg.get("status") != "locked_for_execution":
     issues.append(Issue("CONFIG_UNLOCKED", "fatal", "set locked=true and status=locked_for_execution only after resolving provenance"))
+  run_id = str(cfg.get("run_id", ""))
+  namespaced_paths = [
+    cfg.get("data", {}).get("split_file", ""),
+    cfg.get("data", {}).get("source_activity_manifest", ""),
+    cfg.get("data", {}).get("canonical_activity_root", ""),
+    cfg.get("prompts", {}).get("box_cache", ""),
+    cfg.get("prompts", {}).get("training_box_cache", ""),
+    *cfg.get("medsam2", {}).get("checkpoint_paths", {}).values(),
+    cfg.get("outputs", {}).get("per_case_metrics", ""),
+    cfg.get("outputs", {}).get("hyperparameter_sweep", ""),
+    cfg.get("outputs", {}).get("frozen_hyperparameters", ""),
+    cfg.get("outputs", {}).get("pretraining_manifest", ""),
+    cfg.get("outputs", {}).get("validation_manifest", ""),
+    cfg.get("outputs", {}).get("box_input_manifest", ""),
+    cfg.get("outputs", {}).get("raw_array_manifest", ""),
+  ]
+  missing_namespace = [path for path in namespaced_paths if run_id not in str(path)]
+  if not run_id or missing_namespace:
+    issues.append(Issue(
+      "RUN_NAMESPACE", "fatal",
+      f"clean run_id {run_id!r} is absent from artifact paths: {missing_namespace}",
+    ))
+  protocol_namespace_errors = []
+  for protocol_path in sorted((root / "code/configs/protocols").glob("*.yaml")):
+    protocol_mapping = load_yaml_strict(protocol_path)
+    if run_id not in str(protocol_mapping.get("output", "")):
+      protocol_namespace_errors.append(str(protocol_path.relative_to(root)))
+  if protocol_namespace_errors:
+    issues.append(Issue(
+      "PROTOCOL_NAMESPACE", "fatal",
+      f"protocol outputs omit run_id {run_id!r}: {protocol_namespace_errors}",
+    ))
 
-  split_path = root / str(cfg["data"]["split_file"])
   try:
-    splits = load_subject_splits(split_path)
+    splits = load_configured_subject_splits(root, cfg)
   except (OSError, ValueError) as error:
     issues.append(Issue("SPLIT", "fatal", str(error)))
     splits = []
@@ -59,18 +92,29 @@ def audit_repository(root: Path, config_path: Path) -> list[Issue]:
           "SPLIT_COUNTS", "fatal",
           f"{dataset} subject counts {actual.get(dataset, {})} != {split_expectation}",
         ))
-    provenance_bad = [
-      row for row in splits
-      if row.get("included", "1").lower() not in {"0", "false", "no"}
-      and any(
-        not row.get(field) or row.get(field, "").upper() == "TBD" or len(row.get(field, "")) != 64
-        for field in ("source_manifest_sha256", "split_script_sha256")
-      )
-    ]
-    if provenance_bad:
+
+  source_manifest_path = root / str(cfg.get("data", {}).get("source_activity_manifest", ""))
+  try:
+    source_cases = load_source_manifest(root, source_manifest_path)
+  except (OSError, ValueError) as error:
+    issues.append(Issue("SOURCE_MANIFEST", "fatal", str(error)))
+  else:
+    split_index = {
+      (row["dataset"], row["subject_id"]): row["split"] for row in splits
+    }
+    allowed_transforms = cfg["data"].get("allowed_spatial_transforms", {})
+    bad_sources = []
+    for case in source_cases:
+      identity = (case.dataset, case.subject_id)
+      if (
+        split_index.get(identity) != case.split
+        or case.spatial_transform not in set(allowed_transforms.get(case.dataset, ()))
+      ):
+        bad_sources.append((identity, case.slice_id))
+    if bad_sources:
       issues.append(Issue(
-        "SPLIT_PROVENANCE", "fatal",
-        f"{len(provenance_bad)} included split rows lack 64-character source/split SHA provenance",
+        "SOURCE_CONTRACT", "fatal",
+        f"{len(bad_sources)} source rows violate split/transform contract; first={bad_sources[0]}",
       ))
 
   operator_path = root / str(cfg["forward_model"].get("implementation_path", ""))
@@ -79,6 +123,27 @@ def audit_repository(root: Path, config_path: Path) -> list[Issue]:
     issues.append(Issue("OPERATOR_MISSING", "fatal", f"missing {operator_path}"))
   elif hashlib.sha256(operator_path.read_bytes()).hexdigest() != expected_operator_sha:
     issues.append(Issue("OPERATOR_SHA", "fatal", "forward-operator implementation SHA mismatch"))
+
+  clean_sources = list((root / "code/sam_kem").glob("*.py")) + list(
+    (root / "code/experiments").glob("*.py")
+  )
+  forbidden_legacy_references = {
+    "src/original", "code/src/original", "import recon  #", "import EM  #",
+    "from discrete_radon import",
+  }
+  legacy_links = []
+  for source in clean_sources:
+    if source.resolve() == Path(__file__).resolve():
+      continue
+    text = source.read_text(encoding="utf-8")
+    matches = sorted(token for token in forbidden_legacy_references if token in text)
+    if matches:
+      legacy_links.append((str(source.relative_to(root)), matches))
+  if legacy_links:
+    issues.append(Issue(
+      "LEGACY_CODE_DEPENDENCY", "fatal",
+      f"clean pipeline imports retired code: {legacy_links}",
+    ))
 
   checkpoint_cfg = cfg.get("medsam2", {})
   if not checkpoint_cfg.get("source_repository") or not checkpoint_cfg.get("source_commit"):
@@ -156,7 +221,7 @@ def audit_repository(root: Path, config_path: Path) -> list[Issue]:
       issues.append(Issue("RESUME_CHECKPOINT", "fatal", f"missing or changed resume state for {dataset}"))
     try:
       import torch
-      payload = torch.load(checkpoint_path, map_location="cpu")
+      payload = torch.load(checkpoint_path, map_location="cpu", weights_only=True)
     except (ImportError, OSError, RuntimeError, ValueError) as error:
       issues.append(Issue("CHECKPOINT_PAYLOAD", "fatal", f"cannot inspect {dataset} checkpoint: {error}"))
     else:
@@ -164,6 +229,8 @@ def audit_repository(root: Path, config_path: Path) -> list[Issue]:
         payload.get("schema_version") != 1
         or payload.get("artifact_kind") != "inference_mask_decoder"
         or payload.get("dataset") != dataset
+        or payload.get("run_id") != run_id
+        or contract is None
         or payload.get("normalization_id") != contract.normalization_id
         or payload.get("pretrained_checkpoint_sha256") != pretrained_sha
         or "mask_decoder_state" not in payload or "model_state" in payload
@@ -171,13 +238,28 @@ def audit_repository(root: Path, config_path: Path) -> list[Issue]:
         issues.append(Issue("CHECKPOINT_PAYLOAD", "fatal", f"invalid decoder-only payload for {dataset}"))
     if provenance.get("non_mask_decoder_trainable_names"):
       issues.append(Issue("ENCODER_NOT_FROZEN", "fatal", f"non-decoder trainable parameters for {dataset}"))
-    if provenance.get("normalization_id") != contract.normalization_id:
+    if provenance.get("run_id") != run_id:
+      issues.append(Issue("CHECKPOINT_RUN_ID", "fatal", f"wrong run_id for {dataset}"))
+    if contract is not None and provenance.get("normalization_id") != contract.normalization_id:
       issues.append(Issue("CHECKPOINT_NORMALIZATION", "fatal", f"wrong normalization identity for {dataset}"))
     if provenance.get("loss") != "l1_only_raw_decoder_output":
       issues.append(Issue("TRAINING_LOSS", "fatal", f"unexpected loss for {dataset}"))
     counts = {int(key): int(value) for key, value in provenance.get("training_count_samples", {}).items()}
     if set(counts) != set(cfg["acquisition"]["count_levels"]) or len(set(counts.values())) != 1:
       issues.append(Issue("TRAINING_IMBALANCE", "fatal", f"unbalanced/missing count samples for {dataset}: {counts}"))
+    subject_samples = {
+      str(key): int(value)
+      for key, value in provenance.get("training_subject_samples", {}).items()
+    }
+    if (
+      not subject_samples
+      or max(subject_samples.values()) - min(subject_samples.values())
+      > len(cfg["acquisition"]["count_levels"])
+    ):
+      issues.append(Issue(
+        "TRAINING_SUBJECT_IMBALANCE", "fatal",
+        f"subject-hierarchical training balance failed for {dataset}: {subject_samples}",
+      ))
     if splits:
       allowed_train = {
         row["subject_id"] for row in splits
@@ -197,26 +279,56 @@ def audit_repository(root: Path, config_path: Path) -> list[Issue]:
       provenance.get("optimizer") != declared_training.get("optimizer")
       or float(provenance.get("weight_decay", -1)) != float(declared_training.get("weight_decay", -2))
       or int(provenance.get("batch_size", -1)) != int(declared_training.get("batch_size", -2))
+      or provenance.get("sampling_unit") != declared_training.get("sampling_unit")
     ):
       issues.append(Issue("TRAINING_PROTOCOL", "fatal", f"optimizer/batch protocol mismatch for {dataset}"))
 
   cache_path = root / str(cfg["prompts"]["box_cache"])
   try:
     cache_record = verify_csv_artifact(cache_path)
-    if cache_record.get("schema_name") != "qwen_anchor_box_cache_v1":
+    if cache_record.get("schema_name") != "qwen_anchor_box_cache_v2":
       raise ValueError("unexpected box-cache schema")
     cache = BoxCache.read(cache_path)
   except (OSError, ValueError, KeyError, json.JSONDecodeError) as error:
     issues.append(Issue("BOX_CACHE", "fatal", str(error)))
     cache = None
+  training_cache_path = root / str(cfg["prompts"]["training_box_cache"])
+  try:
+    training_cache_record = verify_csv_artifact(training_cache_path)
+    if training_cache_record.get("schema_name") != "qwen_anchor_box_cache_v2":
+      raise ValueError("unexpected training box-cache schema")
+    training_cache = BoxCache.read(training_cache_path)
+  except (OSError, ValueError, KeyError, json.JSONDecodeError) as error:
+    issues.append(Issue("TRAINING_BOX_CACHE", "fatal", str(error)))
+    training_cache = None
 
   manifest_path = root / str(cfg["outputs"]["raw_array_manifest"])
+  for manifest_name in ("pretraining_manifest", "validation_manifest", "box_input_manifest"):
+    staged_manifest = root / str(cfg["outputs"][manifest_name])
+    try:
+      staged_record = verify_csv_artifact(staged_manifest)
+      if staged_record.get("schema_name") != "canonical_case_manifest_v3":
+        raise ValueError("unexpected case-manifest schema")
+      staged_rows = _read_csv(staged_manifest)
+      if not staged_rows or any(
+        row.get("run_id") != run_id
+        or row.get("split_id") != cfg["data"]["split_id"]
+        or row.get("split_sha256") != cfg["data"]["split_sha256"]
+        for row in staged_rows
+      ):
+        raise ValueError("manifest is empty or has wrong run/split identity")
+      if manifest_name == "pretraining_manifest" and any(
+        row.get("split") == "test_locked" for row in staged_rows
+      ):
+        raise ValueError("pretraining manifest contains locked-test rows")
+    except (OSError, ValueError, KeyError, json.JSONDecodeError) as error:
+      issues.append(Issue(manifest_name.upper(), "fatal", str(error)))
   if not manifest_path.is_file():
     issues.append(Issue("MANIFEST_MISSING", "fatal", f"missing canonical case manifest: {manifest_path}"))
   else:
     try:
       manifest_record = verify_csv_artifact(manifest_path)
-      if manifest_record.get("schema_name") != "canonical_case_manifest_v2":
+      if manifest_record.get("schema_name") != "canonical_case_manifest_v3":
         raise ValueError("unexpected canonical case-manifest schema")
     except (OSError, ValueError, KeyError, json.JSONDecodeError) as error:
       issues.append(Issue("MANIFEST_ARTIFACT", "fatal", str(error)))
@@ -229,12 +341,34 @@ def audit_repository(root: Path, config_path: Path) -> list[Issue]:
     missing_boxes = sorted(key for key in needed_boxes if cache.get(key) is None)
     if missing_boxes:
       issues.append(Issue("BOX_COVERAGE", "fatal", f"canonical cache misses {len(missing_boxes)} keys"))
+    wrong_cache_run = [
+      key for key in needed_boxes
+      if cache.get(key) is not None and cache.get(key).run_id != run_id
+    ]
+    if wrong_cache_run:
+      issues.append(Issue("BOX_RUN_ID", "fatal", f"{len(wrong_cache_run)} boxes have wrong run_id"))
+    if training_cache is not None:
+      training_needed = {
+        BoxKey(row["dataset"], row["subject_id"], row["slice_id"], int(row["count_level"]))
+        for row in manifest_rows if row["split"] in {"train", "validation"}
+      }
+      training_missing = [
+        key for key in training_needed
+        if training_cache.get(key) is None
+        or training_cache.get(key).run_id != run_id
+      ]
+      if training_missing:
+        issues.append(Issue(
+          "TRAINING_BOX_COVERAGE", "fatal",
+          f"training/validation cache misses {len(training_missing)} keys",
+        ))
     invalid_qwen_records = [
       key for key in needed_boxes
       if cache.get(key) is not None
       and cache.get(key).source == "qwen3-vl-plus"
       and (
-        not cache.get(key).request_id or not cache.get(key).image_sha256
+        cache.get(key).run_id != run_id
+        or not cache.get(key).request_id or not cache.get(key).image_sha256
         or not cache.get(key).prompt_sha256
         or cache.get(key).model != cfg["prompts"]["model"]
       )
@@ -264,7 +398,7 @@ def audit_repository(root: Path, config_path: Path) -> list[Issue]:
         "BOX_ANCHOR", "fatal",
         f"{len(anchor_errors)} box records are not bound to the declared anchor realization",
       ))
-    if "contract" in locals():
+    if contract is not None:
       bad_manifest_rows = []
       for row in manifest_rows:
         key = CaseKey(
@@ -273,7 +407,10 @@ def audit_repository(root: Path, config_path: Path) -> list[Issue]:
         )
         expected_seed = case_seed(key, experiment_seed=contract.experiment_seed)
         valid = (
-          int(row["seed"]) == expected_seed
+          row.get("run_id") == contract.run_id
+          and row.get("split_id") == contract.split_id
+          and row.get("split_sha256") == contract.split_sha256
+          and int(row["seed"]) == expected_seed
           and row["operator_id"] == contract.operator_id
           and float(row["scale_constant_C"]) == contract.scale_constants[row["dataset"]]
           and row.get("normalization_id") == contract.normalization_id
@@ -291,7 +428,7 @@ def audit_repository(root: Path, config_path: Path) -> list[Issue]:
       for row in manifest_rows:
         try:
           if row.get("evaluation_mask_path"):
-            raise ValueError("evaluation mask is prohibited by the full-FOV protocol")
+            raise ValueError("external evaluation mask is prohibited; use operator support")
           target_path = root / row["target_path"]
           projection_path = root / row["noise_free_projection_path"]
           projection_meta_path = root / row["projection_metadata_path"]
@@ -328,17 +465,44 @@ def audit_repository(root: Path, config_path: Path) -> list[Issue]:
           if projection_meta.get("target_sha256") != array_sha256(target):
             raise ValueError("target hash differs from projection sidecar")
           if (
-            projection_meta.get("normalization_id") != contract.normalization_id
+            projection_meta.get("schema_version") != 2
+            or projection_meta.get("artifact_kind") != "noise_free_pet_projection"
+            or projection_meta.get("normalization_id") != contract.normalization_id
             or float(projection_meta.get("normalization_offset", "nan"))
             != contract.normalization_offsets[row["dataset"]]
             or bool(projection_meta.get("normalization_clip"))
             != contract.normalization_clip
           ):
             raise ValueError("projection sidecar has the wrong normalization identity")
+          ingestion_meta_path = Path(str(projection_meta.get("ingestion_metadata_path", "")))
+          if not ingestion_meta_path.is_absolute():
+            ingestion_meta_path = root / ingestion_meta_path
+          if (
+            not ingestion_meta_path.is_file()
+            or projection_meta.get("ingestion_metadata_sha256")
+            != file_sha256(ingestion_meta_path)
+          ):
+            raise ValueError("projection is not bound to canonical ingestion provenance")
+          ingestion_meta = json.loads(ingestion_meta_path.read_text(encoding="utf-8"))
+          raw_activity_path = Path(str(projection_meta.get("raw_activity_path", "")))
+          if not raw_activity_path.is_absolute():
+            raw_activity_path = root / raw_activity_path
+          if (
+            ingestion_meta.get("artifact_kind") != "canonical_activity"
+            or not raw_activity_path.is_file()
+            or ingestion_meta.get("activity_sha256")
+            != array_sha256(np.load(raw_activity_path, allow_pickle=False))
+          ):
+            raise ValueError("canonical ingested activity is missing or changed")
           if projection_meta.get("noise_free_projection_sha256") != array_sha256(projection):
             raise ValueError("projection hash differs from projection sidecar")
           if simulation_meta.get("noise_free_projection_sha256") != array_sha256(projection):
             raise ValueError("projection hash differs from simulation sidecar")
+          if (
+            simulation_meta.get("schema_version") != 2
+            or simulation_meta.get("artifact_kind") != "poisson_sinogram"
+          ):
+            raise ValueError("sinogram sidecar has an obsolete schema")
           if simulation_meta.get("sinogram_sha256") != array_sha256(sinogram):
             raise ValueError("sinogram hash differs from simulation sidecar")
           if int(simulation_meta.get("expected_total_counts", -1)) != int(row["count_level"]):
@@ -346,7 +510,9 @@ def audit_repository(root: Path, config_path: Path) -> list[Issue]:
           if int(simulation_meta.get("realized_total_counts", -1)) != int(sinogram.sum()):
             raise ValueError("realized count differs from sinogram total")
           if (
-            mlem_meta.get("mlem10_sha256") != array_sha256(mlem_input)
+            mlem_meta.get("schema_version") != 2
+            or mlem_meta.get("artifact_kind") != "mlem_prompt_input"
+            or mlem_meta.get("mlem10_sha256") != array_sha256(mlem_input)
             or mlem_meta.get("sinogram_sha256") != array_sha256(sinogram)
             or mlem_meta.get("operator_id") != contract.operator_id
             or int(mlem_meta.get("iterations", -1)) != contract.prompt_mlem_iterations
@@ -377,6 +543,9 @@ def audit_repository(root: Path, config_path: Path) -> list[Issue]:
             )
             if (
               prior.shape != target.shape or not np.all(np.isfinite(prior))
+              or prior_meta.get("schema_version") != 2
+              or prior_meta.get("artifact_kind") != "medsam2_continuous_prior"
+              or prior_meta.get("run_id") != contract.run_id
               or prior_meta.get("prior_sha256") != array_sha256(prior)
               or prior_meta.get("input_mlem10_sha256") != array_sha256(mlem_input)
               or prior_meta.get("normalization_id") != contract.normalization_id
@@ -405,6 +574,8 @@ def audit_repository(root: Path, config_path: Path) -> list[Issue]:
     run_metadata = json.loads(run_metadata_path.read_text(encoding="utf-8"))
     if run_metadata.get("git_worktree_dirty") is not False:
       issues.append(Issue("DIRTY_RUN", "fatal", "canonical results were produced from a dirty worktree"))
+    if run_metadata.get("run_id") != run_id:
+      issues.append(Issue("RUN_METADATA_ID", "fatal", "result run metadata has wrong run_id"))
     if run_metadata.get("config_sha256") != hashlib.sha256(config_path.read_bytes()).hexdigest():
       issues.append(Issue("RUN_CONFIG", "fatal", "result run config does not match current locked config"))
   try:
@@ -419,7 +590,7 @@ def audit_repository(root: Path, config_path: Path) -> list[Issue]:
       rows = _read_csv(metrics_path)
     else:
       rows = _read_csv(metrics_path)
-      if result_record.get("schema_name") != "per_case_reconstruction_metrics_v1":
+      if result_record.get("schema_name") != "per_case_reconstruction_metrics_v2":
         issues.append(Issue("RESULT_SCHEMA", "fatal", "unexpected per-case result schema"))
     numeric_fields = (
       "psnr_db", "ssim", "nrmse", "mae", "poisson_deviance",
@@ -437,12 +608,13 @@ def audit_repository(root: Path, config_path: Path) -> list[Issue]:
       issues.append(Issue("RESULT_NUMERIC", "fatal", f"{len(invalid_numeric)} result rows have missing/non-finite values"))
     wrong_normalization = [
       row for row in rows
-      if row.get("normalization_id") != contract.normalization_id
+      if row.get("run_id") != contract.run_id
+      or row.get("normalization_id") != contract.normalization_id
       or float(row.get("normalization_offset", "nan"))
       != contract.normalization_offsets.get(row.get("dataset"), float("nan"))
       or (row.get("normalization_clip", "").lower() == "true")
       != contract.normalization_clip
-    ] if "contract" in locals() else []
+    ] if contract is not None else []
     if wrong_normalization:
       issues.append(Issue(
         "RESULT_NORMALIZATION", "fatal",
@@ -518,19 +690,6 @@ def audit_repository(root: Path, config_path: Path) -> list[Issue]:
   else:
     issues.append(Issue("RESULTS_MISSING", "fatal", f"missing {metrics_path}"))
 
-  legacy_path = root / str(cfg["outputs"].get("legacy_per_case_metrics", ""))
-  if legacy_path.is_file():
-    legacy_rows = _read_csv(legacy_path)
-    zero_legacy = sum(
-      row.get("poisson_deviance") in {"0", "0.0", "0.000000"}
-      for row in legacy_rows
-    )
-    if zero_legacy:
-      issues.append(Issue(
-        "LEGACY_ZERO_DEVIANCE", "warning",
-        f"retained audit-only v3 table has {zero_legacy} zero-deviance rows",
-      ))
-
   sweep_path = root / str(cfg["outputs"]["hyperparameter_sweep"])
   if sweep_path.is_file():
     try:
@@ -538,6 +697,9 @@ def audit_repository(root: Path, config_path: Path) -> list[Issue]:
     except (OSError, ValueError, KeyError, json.JSONDecodeError) as error:
       issues.append(Issue("SWEEP_ARTIFACT", "fatal", str(error)))
     sweep = _read_csv(sweep_path)
+    wrong_run = [row for row in sweep if row.get("run_id") != run_id]
+    if wrong_run:
+      issues.append(Issue("SWEEP_RUN_ID", "fatal", f"{len(wrong_run)} sweep rows have wrong run_id"))
     wrong_split = [row for row in sweep if row.get("split") != "validation"]
     if wrong_split:
       issues.append(Issue("SWEEP_LEAKAGE", "fatal", f"{len(wrong_split)} sweep rows are not validation"))
@@ -573,6 +735,8 @@ def audit_repository(root: Path, config_path: Path) -> list[Issue]:
     except (OSError, ValueError, KeyError, json.JSONDecodeError) as error:
       issues.append(Issue("FROZEN_HYPERPARAMETERS_ARTIFACT", "fatal", str(error)))
     frozen_rows = _read_csv(frozen_path)
+    if any(row.get("run_id") != run_id for row in frozen_rows):
+      issues.append(Issue("FROZEN_RUN_ID", "fatal", "frozen hyperparameters have wrong run_id"))
     frozen_keys = {(row["dataset"], int(row["count_level"]), row["method"]) for row in frozen_rows}
     expected_frozen = set()
     for dataset in ("brainweb", "hecktor"):
@@ -587,41 +751,6 @@ def audit_repository(root: Path, config_path: Path) -> list[Issue]:
       issues.append(Issue(
         "FROZEN_HYPERPARAMETERS_COVERAGE", "fatal",
         f"frozen keys mismatch: missing={sorted(expected_frozen - frozen_keys)[:5]}, extra={sorted(frozen_keys - expected_frozen)[:5]}",
-      ))
-
-  cross_count_path = root / "results/metrics/cross_count_results_v3.csv"
-  if cross_count_path.is_file():
-    cross_rows = _read_csv(cross_count_path)
-    cross_keys = [
-      (row.get("dataset"), row.get("count_level"), row.get("method"))
-      for row in cross_rows
-    ]
-    duplicate_cross_keys = len(cross_keys) - len(set(cross_keys))
-    if duplicate_cross_keys:
-      issues.append(Issue(
-        "LEGACY_CROSS_COUNT_DUPLICATES", "warning",
-        f"{duplicate_cross_keys} repeated aggregate keys in {cross_count_path.name}",
-      ))
-
-  ablation_path = root / "results/metrics/ablation_per_case_v3.csv"
-  if legacy_path.is_file() and ablation_path.is_file():
-    primary_rows = _read_csv(legacy_path)
-    ablation_rows = _read_csv(ablation_path)
-    common_fields = sorted(
-      (set(primary_rows[0]) & set(ablation_rows[0])) - {"audit_only_marker"}
-    ) if primary_rows and ablation_rows else []
-    scientifically_identical = (
-      len(primary_rows) == len(ablation_rows)
-      and all(
-        tuple(left.get(field) for field in common_fields)
-        == tuple(right.get(field) for field in common_fields)
-        for left, right in zip(primary_rows, ablation_rows)
-      )
-    )
-    if scientifically_identical:
-      issues.append(Issue(
-        "LEGACY_FAKE_ABLATION", "warning",
-        "ablation rows are scientifically identical to the primary per-case table",
       ))
 
   return issues

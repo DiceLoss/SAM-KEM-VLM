@@ -5,7 +5,6 @@ from __future__ import annotations
 import csv
 import hashlib
 import random
-import sys
 import subprocess
 from collections import Counter, defaultdict
 from pathlib import Path
@@ -14,39 +13,51 @@ import numpy as np
 
 from .boxes import BoxCache, BoxKey
 from .config import load_contract
-from .artifacts import atomic_csv_writer, atomic_torch_save, atomic_write_json, file_sha256, finalize_csv
+from .artifacts import atomic_csv_writer, atomic_torch_save, atomic_write_json, file_sha256, finalize_csv, verify_csv_artifact
 from .medsam import freeze_except_mask_decoder, pet_to_rgb, sha256_file
-from .splits import load_subject_splits
+from .medsam_backend import build_medsam2
+from .splits import load_configured_subject_splits
 
 
 def _balanced_order(
   rows: list[dict[str, str]], count_levels: tuple[int, ...], *, seed: int,
   total_steps: int,
 ) -> list[dict[str, str]]:
-  groups: dict[int, list[dict[str, str]]] = defaultdict(list)
+  groups: dict[int, dict[str, list[dict[str, str]]]] = defaultdict(
+    lambda: defaultdict(list)
+  )
   for row in rows:
-    groups[int(row["count_level"])].append(row)
+    groups[int(row["count_level"])][row["subject_id"]].append(row)
   if set(groups) != set(count_levels):
     raise ValueError(f"training rows do not cover all counts: {sorted(groups)}")
+  subject_sets = {count: set(subject_rows) for count, subject_rows in groups.items()}
+  if len({frozenset(subjects) for subjects in subject_sets.values()}) != 1:
+    raise ValueError(f"each count must cover identical training subjects: {subject_sets}")
   rng = random.Random(seed)
-  for group in groups.values():
-    rng.shuffle(group)
   if total_steps <= 0 or total_steps % len(count_levels):
     raise ValueError("total_steps must be positive and divisible by count-level count")
   length = total_steps // len(count_levels)
+  subjects_by_count = {}
+  for count, subject_rows in groups.items():
+    subjects = sorted(subject_rows); rng.shuffle(subjects)
+    subjects_by_count[count] = subjects
+    for cases in subject_rows.values():
+      rng.shuffle(cases)
   order = []
   for index in range(length):
     counts = list(count_levels); rng.shuffle(counts)
     for count in counts:
-      order.append(groups[count][index % len(groups[count])])
+      subjects = subjects_by_count[count]
+      subject = subjects[index % len(subjects)]
+      subject_cases = groups[count][subject]
+      subject_cycle = index // len(subjects)
+      order.append(subject_cases[subject_cycle % len(subject_cases)])
   return order
 
 
-def _forward_logits(model, image: np.ndarray, box, *, device):
+def _forward_logits(model, predictor, image: np.ndarray, box, *, device):
   import torch
-  from sam2.sam2_image_predictor import SAM2ImagePredictor
 
-  predictor = SAM2ImagePredictor(model)
   predictor.set_image(image)
   embedding = predictor.get_image_embedding()
   high_resolution = predictor._features["high_res_feats"]
@@ -124,21 +135,28 @@ def train_dataset_decoder(
     raise ValueError(
       f"pretrained MedSAM2 SHA mismatch/unresolved: expected={expected_pretrained_sha}, actual={actual_pretrained_sha}"
     )
-  split_rows = load_subject_splits(root / str(cfg["data"]["split_file"]))
+  split_rows = load_configured_subject_splits(root, cfg)
   train_subjects = {
     row["subject_id"] for row in split_rows
     if row["dataset"] == dataset and row["split"] == "train"
   }
+  manifest_record = verify_csv_artifact(manifest_path)
+  if manifest_record.get("schema_name") != "canonical_case_manifest_v3":
+    raise ValueError("decoder training requires a canonical v3 case manifest")
   rows = [
     row for row in csv.DictReader(manifest_path.open("r", encoding="utf-8", newline=""))
     if row["dataset"] == dataset and row["split"] == "train"
   ]
   if any(row["subject_id"] not in train_subjects for row in rows):
     raise ValueError("manifest contains non-train subject in training rows")
-  for column in ("mlem10_input_path", "target_path"):
+  for column in ("run_id", "split_id", "split_sha256", "mlem10_input_path", "target_path"):
     if not rows or column not in rows[0]:
       raise ValueError(f"training manifest missing {column}")
   for row in rows:
+    if row["run_id"] != contract.run_id:
+      raise ValueError(f"training case run_id mismatch: {row['subject_id']}/{row['slice_id']}")
+    if row["split_id"] != contract.split_id or row["split_sha256"] != contract.split_sha256:
+      raise ValueError(f"training case split mismatch: {row['subject_id']}/{row['slice_id']}")
     if row.get("operator_id") != contract.operator_id:
       raise ValueError(f"training case operator mismatch: {row['subject_id']}/{row['slice_id']}")
     if float(row.get("scale_constant_C", "nan")) != contract.scale_constants[dataset]:
@@ -149,7 +167,7 @@ def train_dataset_decoder(
       or (row.get("normalization_clip", "").lower() == "true") != contract.normalization_clip
     ):
       raise ValueError(f"training case normalization mismatch: {row['subject_id']}/{row['slice_id']}")
-  box_cache = BoxCache.read(root / str(cfg["prompts"]["box_cache"]))
+  box_cache = BoxCache.read(root / str(cfg["prompts"]["training_box_cache"]))
 
   medsam_source = root / str(cfg["medsam2"].get("source_checkout_path") or "")
   try:
@@ -161,16 +179,17 @@ def train_dataset_decoder(
     raise ValueError(f"invalid MedSAM2 source checkout: {medsam_source}") from error
   if source_head != cfg["medsam2"].get("source_commit"):
     raise ValueError("MedSAM2 checkout does not match configured source_commit")
-  sys.path.insert(0, str(medsam_source))
-  original = root / "code/src/original"; sys.path.insert(0, str(original))
-  import build_medsam2
-  model = build_medsam2.build_medsam2_hiera_t(
-    image_size=1024, checkpoint=str(pretrained_checkpoint), mode="train", reconfigure=False,
+  device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+  model = build_medsam2(
+    source_checkout=medsam_source,
+    architecture=str(cfg["medsam2"]["architecture"]),
+    checkpoint=pretrained_checkpoint, device=device, mode="train",
   )
+  from sam2.sam2_image_predictor import SAM2ImagePredictor
+  predictor = SAM2ImagePredictor(model)
   freeze_except_mask_decoder(model)
   model.eval()
   model.sam_mask_decoder.train()
-  device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
   model.to(device)
   optimizer = torch.optim.AdamW(
     [parameter for parameter in model.parameters() if parameter.requires_grad],
@@ -186,6 +205,7 @@ def train_dataset_decoder(
   if any(path.exists() for path in immutable_outputs):
     raise FileExistsError(f"immutable training output already exists: {output_checkpoint}")
   training_counts: Counter[int] = Counter()
+  training_subject_samples: Counter[str] = Counter()
   sampled_subjects: set[str] = set()
   sampled_case_counts: Counter[str] = Counter()
   fallbacks = 0
@@ -194,10 +214,11 @@ def train_dataset_decoder(
   if resume_checkpoint is not None:
     if resume_checkpoint.resolve() != resume_path.resolve():
       raise ValueError(f"resume path must be the canonical rolling state: {resume_path}")
-    state = torch.load(resume_checkpoint, map_location=device)
+    state = torch.load(resume_checkpoint, map_location=device, weights_only=False)
     if (
       state.get("schema_version") != 1 or state.get("artifact_kind") != "training_resume"
       or state.get("dataset") != dataset
+      or state.get("run_id") != contract.run_id
       or state.get("normalization_id") != contract.normalization_id
       or state.get("pretrained_checkpoint_sha256") != actual_pretrained_sha
       or state.get("config_sha256") != config_sha
@@ -212,6 +233,7 @@ def train_dataset_decoder(
       torch.cuda.set_rng_state_all(state["torch_cuda_rng_states"])
     start_epoch = int(state["completed_epochs"])
     training_counts.update({int(k): int(v) for k, v in state["training_count_samples"].items()})
+    training_subject_samples.update(state["training_subject_samples"])
     sampled_subjects.update(state["sampled_subjects"])
     sampled_case_counts.update(state["sampled_case_counts"])
     fallbacks = int(state["box_fallback_samples"])
@@ -222,12 +244,13 @@ def train_dataset_decoder(
     )
   if start_epoch >= epochs:
     raise ValueError(f"resume checkpoint already completed {start_epoch}/{epochs} epochs")
+  complete_order = _balanced_order(
+    rows, contract.count_levels, seed=contract.experiment_seed,
+    total_steps=epochs * steps_per_epoch,
+  )
   for epoch in range(start_epoch, epochs):
     epoch_losses: list[float] = []
-    order = _balanced_order(
-      rows, contract.count_levels, seed=contract.experiment_seed + epoch,
-      total_steps=steps_per_epoch,
-    )
+    order = complete_order[epoch * steps_per_epoch:(epoch + 1) * steps_per_epoch]
     if steps_per_epoch % len(contract.count_levels):
       raise ValueError("steps_per_epoch must be divisible by the number of count levels")
     for row in order[:steps_per_epoch]:
@@ -237,6 +260,8 @@ def train_dataset_decoder(
       record = box_cache.get(key)
       if record is None:
         raise ValueError(f"canonical box cache is incomplete for training key: {key}")
+      if record.run_id != contract.run_id:
+        raise ValueError(f"box cache run_id mismatch for training key: {key}")
       box = record.box
       fallbacks += int(record.source != "qwen3-vl-plus")
       scale_x = 1024 / mlem_image.shape[1]; scale_y = 1024 / mlem_image.shape[0]
@@ -244,13 +269,16 @@ def train_dataset_decoder(
         int(round(box.xmin * scale_x)), int(round(box.ymin * scale_y)),
         int(round(box.xmax * scale_x)), int(round(box.ymax * scale_y)),
       )
-      logits = _forward_logits(model, pet_to_rgb(mlem_image), scaled_box, device=device)
+      logits = _forward_logits(
+        model, predictor, pet_to_rgb(mlem_image), scaled_box, device=device,
+      )
       prediction = F.interpolate(logits, size=target.shape, mode="bilinear", align_corners=False)[0, 0]
       target_tensor = torch.from_numpy(target).to(device=device, dtype=prediction.dtype)
       loss = F.l1_loss(prediction, target_tensor)
       optimizer.zero_grad(set_to_none=True); loss.backward(); optimizer.step()
       epoch_losses.append(float(loss.detach().cpu()))
       training_counts[int(row["count_level"])] += 1
+      training_subject_samples[row["subject_id"]] += 1
       sampled_subjects.add(row["subject_id"])
       sampled_case_counts[
         "|".join((
@@ -266,6 +294,7 @@ def train_dataset_decoder(
     })
     atomic_torch_save({
       "schema_version": 1, "artifact_kind": "training_resume", "dataset": dataset,
+      "run_id": contract.run_id,
       "completed_epochs": epoch + 1, "global_step": (epoch + 1) * steps_per_epoch,
       "mask_decoder_state": model.sam_mask_decoder.state_dict(),
       "optimizer_state": optimizer.state_dict(),
@@ -273,6 +302,7 @@ def train_dataset_decoder(
       "torch_cpu_rng_state": torch.get_rng_state(),
       "torch_cuda_rng_states": torch.cuda.get_rng_state_all() if torch.cuda.is_available() else None,
       "training_count_samples": dict(training_counts),
+      "training_subject_samples": dict(training_subject_samples),
       "sampled_subjects": sorted(sampled_subjects),
       "sampled_case_counts": dict(sampled_case_counts),
       "box_fallback_samples": fallbacks, "epoch_summaries": epoch_summaries,
@@ -295,15 +325,17 @@ def train_dataset_decoder(
   }
   atomic_torch_save({
     "schema_version": 1, "artifact_kind": "inference_mask_decoder",
+    "run_id": contract.run_id,
     "selection_policy": "fixed_budget_final_checkpoint_no_best_claim",
     "mask_decoder_state": model.sam_mask_decoder.state_dict(), "dataset": dataset,
     "normalization_id": contract.normalization_id,
     "train_subject_ids": sorted(sampled_subjects), "training_count_samples": dict(training_counts),
+    "training_subject_samples": dict(sorted(training_subject_samples.items())),
     "sampled_case_counts": dict(sorted(sampled_case_counts.items())),
     "epochs": epochs, "steps_per_epoch": steps_per_epoch, "learning_rate": learning_rate,
     "loss": "l1_only_raw_decoder_output", "epoch_summaries": epoch_summaries,
     "optimizer": "AdamW", "weight_decay": float(declared_training["weight_decay"]),
-    "batch_size": 1,
+    "batch_size": 1, "sampling_unit": declared_training["sampling_unit"],
     "box_fallback_samples": fallbacks,
     "config_path": str(config_path), "pretrained_checkpoint_sha256": actual_pretrained_sha,
     "config_sha256": config_sha, "code_git_commit": code_commit,
@@ -322,6 +354,7 @@ def train_dataset_decoder(
   resume_sha = file_sha256(resume_path)
   atomic_write_json(provenance, {
     "schema_version": 1, "artifact_kind": "checkpoint_provenance",
+    "run_id": contract.run_id,
     "checkpoint_sha256": checkpoint_sha, "checkpoint_scope": "mask_decoder_only",
     "resume_checkpoint_sha256": resume_sha,
     "training_metrics_sha256": file_sha256(metrics_path),
@@ -331,6 +364,7 @@ def train_dataset_decoder(
     "dataset": dataset,
     "normalization_id": contract.normalization_id,
     "train_subject_ids": sorted(sampled_subjects), "training_count_samples": dict(training_counts),
+    "training_subject_samples": dict(sorted(training_subject_samples.items())),
     "sampled_case_counts": dict(sorted(sampled_case_counts.items())),
     "experiment_seed": seed,
     "config_sha256": config_sha, "code_git_commit": code_commit,
@@ -342,10 +376,11 @@ def train_dataset_decoder(
     ),
     "non_mask_decoder_trainable_names": sorted(
       name for name, parameter in model.named_parameters()
-      if parameter.requires_grad and "mask_decoder" not in name
+      if parameter.requires_grad and not name.startswith("sam_mask_decoder.")
     ),
     "loss": "l1_only_raw_decoder_output",
     "optimizer": "AdamW", "weight_decay": float(declared_training["weight_decay"]),
-    "batch_size": 1, "parameter_inventory": parameter_inventory,
+    "batch_size": 1, "sampling_unit": declared_training["sampling_unit"],
+    "parameter_inventory": parameter_inventory,
   })
   return output_checkpoint

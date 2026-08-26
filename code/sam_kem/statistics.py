@@ -3,11 +3,12 @@
 from __future__ import annotations
 
 import csv
+import hashlib
 from collections import defaultdict
 from pathlib import Path
 
 import numpy as np
-from .artifacts import atomic_csv_writer, finalize_csv
+from .artifacts import atomic_csv_writer, finalize_csv, verify_csv_artifact
 
 
 def _holm(p_values: list[float]) -> list[float]:
@@ -31,10 +32,17 @@ def paired_subject_statistics(
 ) -> Path:
   from scipy.stats import wilcoxon
 
+  record = verify_csv_artifact(per_case_path)
+  if record.get("schema_name") != "per_case_reconstruction_metrics_v2":
+    raise ValueError("paired statistics require canonical per-case reconstruction metrics")
   rows = list(csv.DictReader(per_case_path.open("r", encoding="utf-8", newline="")))
+  run_ids = {row.get("run_id") for row in rows}
+  if len(run_ids) != 1 or None in run_ids:
+    raise ValueError(f"paired statistics input mixes run IDs: {run_ids}")
+  run_id = next(iter(run_ids))
   primary_keys = [
     (
-      row["dataset"], row["count_level"], row["subject_id"], row["slice_id"],
+      row["run_id"], row["dataset"], row["count_level"], row["subject_id"], row["slice_id"],
       row["realization_id"], row["method"],
     ) for row in rows
   ]
@@ -72,13 +80,17 @@ def paired_subject_statistics(
       p_value = 1.0 if np.all(differences == 0) else float(
         wilcoxon(differences, zero_method="pratt", alternative="two-sided").pvalue
       )
-      rng = np.random.default_rng(experiment_seed)
+      comparison_seed = int.from_bytes(hashlib.sha256(
+        f"{experiment_seed}|{dataset}|{count}|{baseline}".encode("utf-8")
+      ).digest()[:8], "big")
+      rng = np.random.default_rng(comparison_seed)
       bootstrap = np.asarray([
         np.mean(rng.choice(differences, size=len(differences), replace=True))
         for _ in range(bootstrap_repetitions)
       ])
       comparisons.append({
-        "dataset": dataset, "count_level": count, "proposed_method": proposed_method,
+        "run_id": run_id, "dataset": dataset, "count_level": count,
+        "proposed_method": proposed_method,
         "baseline_method": baseline, "n_subjects": len(paired),
         "mean_difference_nrmse_proposed_minus_baseline": float(differences.mean()),
         "median_difference_nrmse_proposed_minus_baseline": float(np.median(differences)),
@@ -95,8 +107,8 @@ def paired_subject_statistics(
   with atomic_csv_writer(output_path, list(comparisons[0])) as writer:
     writer.writerows(comparisons)
   finalize_csv(
-    output_path, schema_name="paired_subject_statistics_v1",
-    primary_key=["dataset", "count_level", "proposed_method", "baseline_method"],
+    output_path, schema_name="paired_subject_statistics_v2",
+    primary_key=["run_id", "dataset", "count_level", "proposed_method", "baseline_method"],
     split="test_locked",
   )
   return output_path

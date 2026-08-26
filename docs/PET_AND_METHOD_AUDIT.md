@@ -35,8 +35,9 @@ pseudo-sinogram, not scanner raw data or a truly noise-free activity acquisition
 - the historical Poisson audit treated spatial variation between heterogeneous
   projection bins as noise variance.
 
-These functions now fail with a retirement message. Arrays/results produced by
-them are not compatible with the canonical rerun.
+These files are retained only for forensic review, and the repository audit
+fails if any clean module imports them. Arrays/results produced by them are not
+compatible with the canonical rerun.
 
 ## Provenance gates now enforced
 
@@ -75,13 +76,16 @@ subjects, preventing adjacent slices from becoming independent replicates.
 The scientific validator intentionally remains fatal until the experimenter
 provides and records:
 
-1. exact fixed `C_BrainWeb` and scanner-derived `C_HECKTOR`;
-2. a real MedSAM2/SAM2 Git checkout path and its immutable commit;
-3. the official released MedSAM2 checkpoint and SHA-256;
-4. dataset-specific trained decoder checkpoints and sidecars;
-5. regenerated canonical arrays and their manifests;
-6. the new one-key-per-slice/count Qwen cache;
-7. validation sweep, frozen parameters and clean-run metadata.
+1. an exact fixed BrainWeb scale with simulation provenance and a HECKTOR scale
+   whose SUV representation is explicitly identified;
+2. HECKTOR source spacing, orientation/affine, and scanner transaxial FOV for
+   the physical 144x144-to-128x128 transform;
+3. a real MedSAM2/SAM2 Git checkout path and its immutable commit;
+4. the official released MedSAM2 checkpoint and SHA-256;
+5. dataset-specific trained decoder checkpoints and sidecars;
+6. regenerated canonical arrays and their manifests;
+7. the new one-key-per-slice/count Qwen cache;
+8. validation sweep, frozen parameters and clean-run metadata.
 
 Do not set `locked: true` or use old result CSVs to satisfy these checks. Follow
 `docs/EXECUTION.md`; after every required value/artifact is present, the final

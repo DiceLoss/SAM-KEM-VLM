@@ -13,6 +13,12 @@ data/raw/*.nii.gz
 # Per-slice sinograms and SAM priors (large, kept in D:/MIAProject/SAM_KEM_QWEN3_MEDSAM2_DELIVERY/arrays/)
 data/processed/
 
+# Clean-run bulk arrays and rendered prompt pixels live in the immutable
+# external artifact archive. Their SHA-bound JSON/CSV manifests remain tracked.
+arrays/clean_v1/
+prompts/clean_v1/train_validation_images/**/*.png
+prompts/clean_v1/test_images/**/*.png
+
 # Python caches
 __pycache__/
 *.pyc

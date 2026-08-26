@@ -18,4 +18,4 @@ selection_tiebreaker: mean_ssim
 expand_iteration_boundary: true
 expand_all_nonphysical_boundaries: true
 test_locked_access: prohibited
-output: runs/hyperparameter_sweep
+output: runs/clean_v1/hyperparameter_sweep

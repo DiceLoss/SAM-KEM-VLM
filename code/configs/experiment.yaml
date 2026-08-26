@@ -1,4 +1,5 @@
 schema_version: 1
+run_id: clean_v1
 status: blocked_pending_required_physical_constants_and_rerun
 locked: false
 
@@ -7,7 +8,16 @@ reproducibility:
   deterministic_algorithms: true
 
 data:
-  split_file: code/configs/subject_split_v3.csv
+  split_file: inputs/clean_v1/subject_split.csv
+  split_id: clean_v1_subject_holdout
+  split_sha256: null
+  locked_test_required_exposure_status: never_used_for_training_validation_tuning_or_reporting
+  source_activity_manifest: inputs/clean_v1/source_activity_manifest.csv
+  canonical_activity_root: arrays/clean_v1
+  ingestion_schema: canonical_activity_v1
+  allowed_spatial_transforms:
+    brainweb: [mean_pool_2x2_circular_fov]
+    hecktor: [physical_resample_circular_fov]
   split_unit:
     brainweb: source_model
     hecktor: patient
@@ -42,8 +52,8 @@ normalization:
 
 forward_model:
   operator_id: pixel_driven_parallel_beam_circular_fov_size128_n180
-  implementation_path: code/src/original/discrete_radon.py
-  implementation_sha256: ffe86c4282bda79200bab669cedab34d95a8f0fe73c87941c250c3d21be67b80
+  implementation_path: code/sam_kem/pet_operator.py
+  implementation_sha256: 6e6e5d4f14963c9c995869b4ae2be2504afb918546d9e23ba678c261a9befb14
   angles: 180
   image_size: 128
   geometry: idealized_parallel_beam
@@ -68,7 +78,8 @@ prompts:
   cache_key: [dataset, subject_id, slice_id, count_level]
   coordinate_convention: xyxy_half_open_on_128x128
   share_across_realizations: true
-  box_cache: prompts/anchor_box_lookup_v2.csv
+  training_box_cache: prompts/clean_v1/train_validation_box_cache.csv
+  box_cache: prompts/clean_v1/final_box_cache.csv
   fallback: intensity_centroid_box
   fallback_box_size: [32, 32]
   fallback_relative_threshold: 0.5
@@ -98,8 +109,8 @@ medsam2:
     brainweb: null
     hecktor: null
   checkpoint_paths:
-    brainweb: checkpoints/medsam2_decoder_brainweb.pt
-    hecktor: checkpoints/medsam2_decoder_hecktor.pt
+    brainweb: checkpoints/clean_v1/medsam2_decoder_brainweb.pt
+    hecktor: checkpoints/clean_v1/medsam2_decoder_hecktor.pt
   checkpoint_archive_uri:
     brainweb: null
     hecktor: null
@@ -110,6 +121,7 @@ medsam2:
     optimizer: AdamW
     weight_decay: 1.0e-4
     batch_size: 1
+    sampling_unit: count_then_subject_then_slice_realization
     budget_source: predeclared_before_training
     checkpoint_every_epochs: 1
     save_optimizer_and_rng_state: true
@@ -135,8 +147,9 @@ reconstruction:
   expand_boundary_optimum: true
 
 evaluation:
-  locked_test_used_once_after_freezing: true
-  region: full_128x128_fov
+  locked_test_access_policy: only_after_validation_freeze_no_test_feedback
+  region: operator_circular_fov
+  metric_support_source: positive_operator_sensitivity
   anatomy_used_to_define_metric_mask: false
   required_methods:
     - MLEM
@@ -165,8 +178,10 @@ outputs:
     checksum: sha256
     partial_run_eligible_for_paper: false
     immutable_archive_uri: null
-  per_case_metrics: runs/comparison/per_case_metrics.csv
-  hyperparameter_sweep: runs/hyperparameter_sweep/validation_sweep.csv
-  frozen_hyperparameters: results/metrics/frozen_hyperparameters_v2.csv
-  raw_array_manifest: results/metrics/case_manifest_v2.csv
-  legacy_per_case_metrics: results/metrics/per_case_metrics_v3.csv
+  per_case_metrics: runs/clean_v1/comparison/per_case_metrics.csv
+  hyperparameter_sweep: runs/clean_v1/hyperparameter_sweep/validation_sweep.csv
+  frozen_hyperparameters: results/clean_v1/frozen_hyperparameters.csv
+  pretraining_manifest: results/clean_v1/case_manifest_inputs.csv
+  validation_manifest: results/clean_v1/validation_case_manifest.csv
+  box_input_manifest: results/clean_v1/final_box_inputs.csv
+  raw_array_manifest: results/clean_v1/case_manifest.csv

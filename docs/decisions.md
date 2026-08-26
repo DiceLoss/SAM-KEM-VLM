@@ -1,7 +1,10 @@
-# Decision Log (Mode B audit)
+# Retired v3 decision log (forensic only)
 
-This file records the decisions made during the v3 canonical rerun. Each
-entry references the audit deviation log in the AUDIT_ONLY archive.
+This file records historical decisions made during the invalid v3 rerun. It is
+not the decision log of the clean pipeline. In particular, D22/D24--D29 and all
+reported v3 performance values are superseded and are not paper evidence. The
+clean contract is defined by `code/configs/experiment.yaml`,
+`docs/CLEAN_PIPELINE.md`, and the protocol YAML files.
 
 ## D22 — Switch BW split to v4 (all slices per subject)
 - **Context**: v3 split used 1 axial_center slice per BW subject, giving

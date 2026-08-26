@@ -3,7 +3,7 @@ from pathlib import Path
 import pytest
 
 from sam_kem.boxes import Box, BoxCache, BoxKey, BoxRecord, centroid_fallback
-from sam_kem.config import ConfigurationError, load_yaml_strict
+from sam_kem.config import ConfigurationError, load_yaml_strict, require_test_release
 from sam_kem.reproducibility import CaseKey, case_seed
 
 
@@ -39,10 +39,22 @@ def test_centroid_fallback_and_zero_mass_rule():
 
 def test_box_cache_roundtrip_keeps_anchor_and_request_provenance(tmp_path):
   record = BoxRecord(
-    BoxKey("brainweb", "s1", "z1", 200000), Box(1, 2, 20, 30),
+    BoxKey("brainweb", "s1", "z1", 200000), "clean_v1", Box(1, 2, 20, 30),
     "qwen3-vl-plus", "request-1", "a" * 64, "b" * 64, "c" * 64,
     "qwen3-vl-plus",
   )
   path = tmp_path / "boxes.csv"
   BoxCache([record]).write(path)
   assert BoxCache.read(path).get(record.key) == record
+
+
+def test_locked_test_stays_sealed_without_completed_validation(tmp_path: Path):
+  cfg = {
+    "run_id": "clean_v1", "locked": True, "status": "locked_for_execution",
+    "outputs": {
+      "frozen_hyperparameters": "results/clean_v1/frozen.csv",
+      "hyperparameter_sweep": "runs/clean_v1/sweep/validation.csv",
+    },
+  }
+  with pytest.raises(ConfigurationError, match="locked test is sealed"):
+    require_test_release(tmp_path, cfg)

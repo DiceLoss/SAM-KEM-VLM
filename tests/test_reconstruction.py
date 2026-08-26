@@ -1,7 +1,7 @@
 import numpy as np
 
 from sam_kem.operators import CallableOperator, relative_adjoint_error
-from sam_kem.reconstruction import bowsher_kernel, identity_kernel, kem, mlem, osem
+from sam_kem.reconstruction import bowsher_kernel, identity_kernel, kem, mlem, osem, rbf_kernel
 
 
 def poisson_nll(measured, expected):
@@ -128,3 +128,17 @@ def test_bowsher_kem_kernel_is_nonnegative_and_row_normalized():
   kernel = bowsher_kernel(feature, neighbours=3, radius=1)
   assert np.all(kernel.data >= 0)
   np.testing.assert_allclose(np.asarray(kernel.sum(axis=1)).ravel(), 1.0)
+
+
+def test_pet_support_prevents_kernel_activity_leaking_outside_fov():
+  feature = np.arange(25, dtype=float).reshape(5, 5)
+  support = np.zeros((5, 5), dtype=bool)
+  support[1:4, 1:4] = True
+  for kernel in (
+    rbf_kernel(feature, sigma=0.5, radius=2, support=support),
+    bowsher_kernel(feature, neighbours=3, radius=1, support=support),
+  ):
+    outside = np.flatnonzero(~support.ravel())
+    assert kernel[outside].nnz == 0
+    row_sums = np.asarray(kernel.sum(axis=1)).ravel()
+    np.testing.assert_allclose(row_sums[support.ravel()], 1.0)

@@ -4,6 +4,7 @@ import numpy as np
 import pytest
 
 from sam_kem.training import TrainingSample, balanced_sample_weights, validate_training_samples
+from sam_kem.medsam_training import _balanced_order
 
 
 def sample(subject, count):
@@ -28,3 +29,25 @@ def test_validation_subject_is_rejected():
       train_subjects={"train_subject"}, count_levels=(100000,),
     )
 
+
+def test_decoder_schedule_balances_count_then_subject():
+  rows = [
+    {
+      "count_level": str(count), "subject_id": subject,
+      "slice_id": slice_id, "realization_id": "0",
+    }
+    for count in (100, 200)
+    for subject in ("a", "b", "c")
+    for slice_id in ("z1", "z2")
+  ]
+  order = _balanced_order(rows, (100, 200), seed=7, total_steps=24)
+  counts = {count: 0 for count in (100, 200)}
+  subjects = {subject: 0 for subject in ("a", "b", "c")}
+  cases = set()
+  for row in order:
+    counts[int(row["count_level"])] += 1
+    subjects[row["subject_id"]] += 1
+    cases.add((row["count_level"], row["subject_id"], row["slice_id"]))
+  assert counts == {100: 12, 200: 12}
+  assert subjects == {"a": 8, "b": 8, "c": 8}
+  assert len(cases) == 12

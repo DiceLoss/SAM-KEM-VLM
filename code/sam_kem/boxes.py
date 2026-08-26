@@ -7,7 +7,7 @@ from dataclasses import dataclass
 from pathlib import Path
 
 import numpy as np
-from .artifacts import atomic_csv_writer, finalize_csv
+from .artifacts import atomic_csv_writer, finalize_csv, verify_csv_artifact
 
 
 @dataclass(frozen=True, order=True)
@@ -33,6 +33,7 @@ class Box:
 @dataclass(frozen=True)
 class BoxRecord:
   key: BoxKey
+  run_id: str
   box: Box
   source: str
   request_id: str
@@ -43,7 +44,7 @@ class BoxRecord:
 
 
 REQUIRED_COLUMNS = (
-  "dataset", "subject_id", "slice_id", "count_level",
+  "run_id", "dataset", "subject_id", "slice_id", "count_level",
   "xmin", "ymin", "xmax", "ymax", "source", "request_id", "image_sha256",
   "source_mlem10_sha256", "prompt_sha256", "model",
 )
@@ -51,6 +52,11 @@ REQUIRED_COLUMNS = (
 
 class BoxCache:
   def __init__(self, records: list[BoxRecord]):
+    if not records:
+      raise ValueError("box cache cannot be empty")
+    run_ids = {record.run_id for record in records}
+    if len(run_ids) != 1 or not next(iter(run_ids)):
+      raise ValueError(f"box cache must contain exactly one non-empty run_id: {run_ids}")
     self._records: dict[BoxKey, BoxRecord] = {}
     for record in records:
       if record.key in self._records:
@@ -59,6 +65,9 @@ class BoxCache:
 
   @classmethod
   def read(cls, path: Path) -> "BoxCache":
+    manifest = verify_csv_artifact(path)
+    if manifest.get("schema_name") != "qwen_anchor_box_cache_v2":
+      raise ValueError(f"box cache uses an obsolete/unknown schema: {path}")
     with path.open("r", encoding="utf-8", newline="") as handle:
       reader = csv.DictReader(handle)
       missing = set(REQUIRED_COLUMNS) - set(reader.fieldnames or ())
@@ -70,7 +79,7 @@ class BoxCache:
         box.validate(width=128, height=128)
         records.append(BoxRecord(
           key=BoxKey(row["dataset"], row["subject_id"], row["slice_id"], int(row["count_level"])),
-          box=box,
+          run_id=row["run_id"], box=box,
           source=row["source"], request_id=row["request_id"], image_sha256=row["image_sha256"],
           source_mlem10_sha256=row["source_mlem10_sha256"],
           prompt_sha256=row["prompt_sha256"], model=row["model"],
@@ -88,7 +97,7 @@ class BoxCache:
       for key in sorted(self._records):
         record = self._records[key]
         writer.writerow({
-          "dataset": key.dataset, "subject_id": key.subject_id,
+          "run_id": record.run_id, "dataset": key.dataset, "subject_id": key.subject_id,
           "slice_id": key.slice_id, "count_level": key.count_level,
           **record.box.__dict__, "source": record.source,
           "request_id": record.request_id, "image_sha256": record.image_sha256,
@@ -96,8 +105,8 @@ class BoxCache:
           "prompt_sha256": record.prompt_sha256, "model": record.model,
         })
     finalize_csv(
-      path, schema_name="qwen_anchor_box_cache_v1",
-      primary_key=["dataset", "subject_id", "slice_id", "count_level"],
+      path, schema_name="qwen_anchor_box_cache_v2",
+      primary_key=["run_id", "dataset", "subject_id", "slice_id", "count_level"],
     )
 
 

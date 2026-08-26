@@ -14,6 +14,11 @@ from scipy.sparse import csr_matrix, identity, spmatrix
 from .operators import LinearOperator
 
 
+def operator_support_mask(operator: LinearOperator) -> np.ndarray:
+  """Return pixels observable under the declared forward operator."""
+  return operator.adjoint(np.ones(operator.projection_shape, dtype=np.float64)) > 0
+
+
 def _save_set(iterations: int, save_iterations: Iterable[int] | None) -> set[int]:
   saves = {iterations} if save_iterations is None else {int(x) for x in save_iterations}
   if any(x < 0 or x > iterations for x in saves):
@@ -78,11 +83,22 @@ def mlem(
   return outputs
 
 
-def rbf_kernel(feature: np.ndarray, *, sigma: float, radius: int) -> csr_matrix:
+def _support_mask(feature: np.ndarray, support: np.ndarray | None) -> np.ndarray:
+  active = np.ones(feature.shape, dtype=bool) if support is None else np.asarray(support, dtype=bool)
+  if active.shape != feature.shape or not active.any():
+    raise ValueError("kernel support must match the feature and contain active pixels")
+  return active
+
+
+def rbf_kernel(
+  feature: np.ndarray, *, sigma: float, radius: int,
+  support: np.ndarray | None = None,
+) -> csr_matrix:
   """Build a row-normalized local RBF kernel on a Manhattan neighborhood."""
   values = np.asarray(feature, dtype=np.float64)
   if values.ndim != 2 or sigma <= 0 or radius < 0:
     raise ValueError("feature must be 2-D, sigma > 0 and radius >= 0")
+  active = _support_mask(values, support)
   height, width = values.shape
   rows: list[int] = []
   columns: list[int] = []
@@ -91,12 +107,14 @@ def rbf_kernel(feature: np.ndarray, *, sigma: float, radius: int) -> csr_matrix:
   for row in range(height):
     for column in range(width):
       source = row * width + column
+      if not active[row, column]:
+        continue
       for dy in range(-radius, radius + 1):
         for dx in range(-radius, radius + 1):
           if abs(dy) + abs(dx) > radius:
             continue
           yy, xx = row + dy, column + dx
-          if not (0 <= yy < height and 0 <= xx < width):
+          if not (0 <= yy < height and 0 <= xx < width) or not active[yy, xx]:
             continue
           target = yy * width + xx
           difference = values[row, column] - values[yy, xx]
@@ -215,7 +233,10 @@ def osem(
   return outputs
 
 
-def bowsher_kernel(feature: np.ndarray, *, neighbours: int, radius: int) -> csr_matrix:
+def bowsher_kernel(
+  feature: np.ndarray, *, neighbours: int, radius: int,
+  support: np.ndarray | None = None,
+) -> csr_matrix:
   """Build a Bowsher-neighborhood coefficient kernel.
 
   This is an anatomy-selected KEM basis, not the classic quadratic/relative-
@@ -225,6 +246,7 @@ def bowsher_kernel(feature: np.ndarray, *, neighbours: int, radius: int) -> csr_
   values = np.asarray(feature, dtype=np.float64)
   if values.ndim != 2 or neighbours < 1 or radius < 1:
     raise ValueError("feature must be 2-D; neighbours and radius must be positive")
+  active = _support_mask(values, support)
   height, width = values.shape
   rows: list[int] = []
   columns: list[int] = []
@@ -232,11 +254,16 @@ def bowsher_kernel(feature: np.ndarray, *, neighbours: int, radius: int) -> csr_
   for row in range(height):
     for column in range(width):
       source = row * width + column
+      if not active[row, column]:
+        continue
       candidates: list[tuple[float, int]] = []
       for dy in range(-radius, radius + 1):
         for dx in range(-radius, radius + 1):
           yy, xx = row + dy, column + dx
-          if not (0 <= yy < height and 0 <= xx < width) or (dy == 0 and dx == 0):
+          if (
+            not (0 <= yy < height and 0 <= xx < width)
+            or not active[yy, xx] or (dy == 0 and dx == 0)
+          ):
             continue
           target = yy * width + xx
           candidates.append((abs(values[row, column] - values[yy, xx]), target))
@@ -246,4 +273,5 @@ def bowsher_kernel(feature: np.ndarray, *, neighbours: int, radius: int) -> csr_
         rows.append(source); columns.append(target); weights.append(1.0)
   kernel = csr_matrix((weights, (rows, columns)), shape=(values.size, values.size))
   sums = np.asarray(kernel.sum(axis=1)).ravel()
-  return csr_matrix(kernel.multiply((1.0 / sums)[:, None]))
+  inverse = np.divide(1.0, sums, out=np.zeros_like(sums), where=sums > 0)
+  return csr_matrix(kernel.multiply(inverse[:, None]))

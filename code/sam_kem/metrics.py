@@ -37,7 +37,7 @@ def psnr(reference: np.ndarray, estimate: np.ndarray, *, data_range: float, mask
 
 
 def ssim(reference: np.ndarray, estimate: np.ndarray, *, data_range: float, mask: np.ndarray | None = None) -> float:
-  """SSIM on the mask bounding crop; pixels outside the mask are zeroed."""
+  """SSIM averaged on an optional, fixed geometry-derived support."""
   from skimage.metrics import structural_similarity
 
   target = np.asarray(reference, dtype=np.float64)
@@ -46,14 +46,16 @@ def ssim(reference: np.ndarray, estimate: np.ndarray, *, data_range: float, mask
     raise ValueError("reference and estimate shapes differ")
   if mask is not None:
     selected = np.asarray(mask, dtype=bool)
-    yy, xx = np.where(selected)
-    if yy.size == 0:
+    if selected.shape != target.shape or not selected.any():
       raise ValueError("evaluation mask is empty")
-    target = np.where(selected, target, 0)[yy.min():yy.max() + 1, xx.min():xx.max() + 1]
-    reconstruction = np.where(selected, reconstruction, 0)[yy.min():yy.max() + 1, xx.min():xx.max() + 1]
+    _, similarity_map = structural_similarity(
+      target, reconstruction, data_range=data_range, gaussian_weights=True,
+      sigma=1.5, use_sample_covariance=False, full=True,
+    )
+    return float(np.mean(similarity_map[selected]))
   return float(structural_similarity(
-    target, reconstruction, data_range=data_range,
-    gaussian_weights=True, sigma=1.5, use_sample_covariance=False,
+    target, reconstruction, data_range=data_range, gaussian_weights=True,
+    sigma=1.5, use_sample_covariance=False,
   ))
 
 

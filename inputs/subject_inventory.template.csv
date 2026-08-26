@@ -1,0 +1,5 @@
+dataset,subject_id,stratum,previous_exposure_status
+brainweb,subjectXX,simulation_family_A,development_allowed
+brainweb,subjectYY,simulation_family_A,never_used_for_training_validation_tuning_or_reporting
+hecktor,1,scanner_or_site_A,development_allowed
+hecktor,2,scanner_or_site_A,never_used_for_training_validation_tuning_or_reporting

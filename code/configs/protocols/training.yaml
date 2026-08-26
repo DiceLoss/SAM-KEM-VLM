@@ -6,10 +6,10 @@ datasets: [brainweb, hecktor]
 model_scope: one_joint_four_count_model_per_dataset
 count_levels: [100000, 200000, 500000, 1000000]
 count_sampling: balanced
+within_count_sampling: balanced_by_subject_then_cycled_slice_realization
 frozen_components: [image_encoder, prompt_encoder, memory_encoder]
 trainable_components: [mask_decoder]
 loss: l1
 box_source: qwen_cache_with_recorded_centroid_fallback
 forbid_subjects_from: [validation, test_locked]
-output: runs/training
-
+output: runs/clean_v1/training

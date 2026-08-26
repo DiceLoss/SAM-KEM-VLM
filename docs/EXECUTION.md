@@ -9,7 +9,7 @@ only for audit traceability.
 ```bash
 conda env create -f environment.yml
 conda activate sam-kem
-python -m pip install -e '.[test,evaluation]'
+python -m pip install -e '.[data,test,evaluation]'
 PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 python -m pytest
 ```
 
@@ -22,9 +22,13 @@ Do not use the former Python 3.13 / “torch>=2.10” specification.
 
 Edit `code/configs/experiment.yaml` and fill:
 
+- a new SHA-pinned subject split whose locked-test rows have never appeared in
+  historical training, validation sweeps, tuning, or reported results;
 - `normalization.scale_constants.brainweb`;
-- `normalization.scale_constants.hecktor` (the scanner-derived value may be near
-  30000, but the exact recorded value must be used);
+- `normalization.scale_constants.hecktor`, in the same unit as the ingested PET
+  array. A scanner-count constant near 30000 cannot be applied to an SUV array;
+  uploaded SUV samples support only provisional train/validation candidates,
+  not a final physical constant;
 - the exact MedSAM2 source repository and immutable Git commit.
 - the released MedSAM2 checkpoint path and SHA-256 (no general-SAM fallback).
 
@@ -34,13 +38,14 @@ permitted only as an explicitly identified sensitivity arm. Per-prior min-max is
 used separately to build K.
 
 If either C is genuinely unknown, do not guess it and do not inspect the locked
-test set. Copy `inputs/normalization_activity_manifest.template.csv` to
-`inputs/normalization_activity_manifest.csv`, list each unique raw 128x128
-activity slice once, retain its native unit, and record its array SHA-256. Then
-run the train-only scale study from a clean committed worktree:
+test set. Complete the subject split and train/validation ingestion in Section 3
+first. Then copy `inputs/normalization_activity_manifest.template.csv` to
+`inputs/clean_v1/normalization_activity_manifest.csv`, list each unique
+ingested `raw_activity.npy` slice once, retain its native unit, and record its
+array SHA-256. Run the train-only scale study from a clean committed worktree:
 
 ```bash
-sam-kem array-sha --input inputs/raw/brainweb/subject04/axial_z040.npy
+sam-kem array-sha --input arrays/clean_v1/brainweb/subject04/z125/raw_activity.npy
 sam-kem calibrate-normalization --root . \
   --config code/configs/experiment.yaml \
   --protocol code/configs/protocols/normalization_calibration.yaml
@@ -88,39 +93,94 @@ For HECKTOR, `x` comes from a reconstructed clinical PET image and the generated
 sinogram is therefore a pseudo-sinogram. Do not describe it as raw acquisition,
 noise-free tracer activity, or a calibrated injected-dose reduction.
 
+First create the clean subject split. The historical `subject_split_v3.csv`
+cannot be reused because its test subjects were opened by the invalid v3 sweep.
+Fill `inputs/subject_inventory.template.csv`; use `stratum` for a predeclared
+scanner/site or simulation-family balancing variable, not an outcome selected
+after looking at performance. Only subjects declared
+`never_used_for_training_validation_tuning_or_reporting` are eligible for the
+new test set.
+
+```bash
+sam-kem create-split --root . --config code/configs/experiment.yaml \
+  --inventory inputs/clean_v1/subject_inventory.csv \
+  --output inputs/clean_v1/subject_split.csv
+sam-kem file-sha --input inputs/clean_v1/subject_split.csv
+```
+
+Enter that SHA as `data.split_sha256`, inspect the 14/3/3 BrainWeb and
+156/34/34 HECKTOR subject counts, then commit the split before ingestion. If
+there are not enough genuinely unexposed subjects, use an external holdout or
+state that the study has no untouched test set; do not relabel an exposed
+subject.
+
+Next create `inputs/clean_v1/source_activity_manifest.csv` from the template. Source
+channel, subject/slice selectors, units, SHA-256 and spatial geometry must all be
+explicit. Ingest train and validation without opening the locked test:
+
+```bash
+sam-kem ingest-activity --root . \
+  --manifest inputs/clean_v1/source_activity_manifest.csv \
+  --output arrays/clean_v1 --splits train validation
+```
+
+BrainWeb uses the exact `mean_pool_2x2_circular_fov` transform. HECKTOR must use
+`physical_resample_circular_fov` with source pixel spacing and scanner
+transaxial FOV plus the scanner-axis row/column on the source grid; missing
+geometry is a hard failure. A centred axis may be recorded only when supported
+by DICOM/NIfTI provenance. See `docs/CLEAN_PIPELINE.md`.
+
 Use this canonical layout before building the manifests:
 
 ```text
-arrays/<dataset>/<subject>/<slice>/target.npy
-arrays/<dataset>/<subject>/<slice>/noise_free_projection.npy
-arrays/<dataset>/<subject>/<slice>/noise_free_projection.json
-arrays/<dataset>/<subject>/<slice>/anatomy.npy                 # baseline only
-arrays/<dataset>/<subject>/<slice>/c<count>/r<r>/sinogram.npy
-arrays/<dataset>/<subject>/<slice>/c<count>/r<r>/sinogram.json
-arrays/<dataset>/<subject>/<slice>/c<count>/r<r>/mlem10.npy
-arrays/<dataset>/<subject>/<slice>/c<count>/r<r>/mlem10.json
-arrays/<dataset>/<subject>/<slice>/c<count>/r<r>/sam_prior.npy
+arrays/clean_v1/<dataset>/<subject>/<slice>/raw_activity.npy
+arrays/clean_v1/<dataset>/<subject>/<slice>/raw_activity.json
+arrays/clean_v1/<dataset>/<subject>/<slice>/target.npy
+arrays/clean_v1/<dataset>/<subject>/<slice>/noise_free_projection.npy
+arrays/clean_v1/<dataset>/<subject>/<slice>/noise_free_projection.json
+arrays/clean_v1/<dataset>/<subject>/<slice>/anatomy.npy        # baseline only
+arrays/clean_v1/<dataset>/<subject>/<slice>/c<count>/r<r>/sinogram.npy
+arrays/clean_v1/<dataset>/<subject>/<slice>/c<count>/r<r>/sinogram.json
+arrays/clean_v1/<dataset>/<subject>/<slice>/c<count>/r<r>/mlem10.npy
+arrays/clean_v1/<dataset>/<subject>/<slice>/c<count>/r<r>/mlem10.json
+arrays/clean_v1/<dataset>/<subject>/<slice>/c<count>/r<r>/sam_prior.npy
 ```
 
-The canonical protocol evaluates the full 128x128 field of view, so an
-`evaluation_mask.npy` is prohibited. Do not derive the HECKTOR evaluation region
-from CT or tumor masks. Anatomy arrays are inputs only to named MR/CT comparison
-baselines.
+The canonical protocol evaluates the circular support defined by positive PET
+operator sensitivity. This same geometry-only support is used for every method;
+an external `evaluation_mask.npy` is prohibited. Do not derive the HECKTOR
+evaluation region from CT or tumor masks. Anatomy arrays are inputs only to
+named MR/CT comparison baselines.
 
 The manifest contains one row per
 `(dataset, subject_id, slice_id, count_level, realization_id)` and relative paths
 to the target, noise-free projection, sinogram, optional MR/CT baseline image,
 evaluation mask, MLEM-10 prompt image, and SAM prior. Use only whole-subject/source
-model assignments from `subject_split_v3.csv`.
+model assignments from the canonical subject split referenced by the experiment
+configuration. Historical `subject_split_v3.csv` and `subject_split_v4.csv` are
+forensic inputs only and are not executable clean-pipeline splits.
 
-First divide each already-resampled 128x128 activity image by its fixed dataset C
-and create the noise-free projection with the canonical operator:
+Normally prepare every ingested train/validation case in one verified batch:
+
+```bash
+sam-kem prepare-cases --root . --config code/configs/experiment.yaml \
+  --arrays arrays/clean_v1 --splits train validation
+```
+
+The batch constructs each fixed-C target, matched noise-free projection,
+independent count/realization sinogram, and MLEM-10 input. A rerun refuses all
+existing outputs unless `--resume-verified` is supplied; that mode reopens and
+hash-verifies every complete artifact group and still rejects partial groups.
+The locked test split is refused until the configuration is fully locked.
+
+For single-case diagnosis, divide one already-ingested 128x128 activity image by
+its fixed dataset C and create the noise-free projection with:
 
 ```bash
 sam-kem project-activity --root . --config code/configs/experiment.yaml \
-  --dataset brainweb --activity source/subject01_axial_072.npy \
-  --target-output arrays/brainweb/subject01/axial_072/target.npy \
-  --projection-output arrays/brainweb/subject01/axial_072/noise_free_projection.npy
+  --dataset brainweb --activity arrays/clean_v1/brainweb/subject01/axial_072/raw_activity.npy \
+  --target-output arrays/clean_v1/brainweb/subject01/axial_072/target.npy \
+  --projection-output arrays/clean_v1/brainweb/subject01/axial_072/noise_free_projection.npy
 ```
 
 The command rejects non-negligible activity outside the declared inscribed
@@ -161,7 +221,7 @@ After target/projection/sinogram/MLEM arrays exist, build an input manifest:
 
 ```bash
 sam-kem build-manifest --root . --config code/configs/experiment.yaml \
-  --arrays arrays --output results/metrics/case_manifest_inputs.csv
+  --arrays arrays/clean_v1 --output results/clean_v1/case_manifest_inputs.csv
 ```
 
 ## 4. Qwen boxes and MedSAM2 training
@@ -175,17 +235,22 @@ latency, and fallback status. A failed call uses the documented intensity-centro
 box; a zero-mass image uses the geometric center. Fallback cases remain marked as
 fallback and must not be described as Qwen-guided.
 
-Example single request and cache construction:
+Generate and request every train/validation key as a verified batch. A resumed
+batch reuses archived attempts—including failures—and never selectively retries
+cases based on their result:
 
 ```bash
 export DASHSCOPE_API_KEY='...'
-sam-kem render-prompt --input arrays/.../mlem10.npy \
-  --output prompts/images/brainweb_subject01_axial_072_c200000.png
-sam-kem qwen-box --image prompts/images/brainweb_subject01_axial_072_c200000.png \
-  --output prompts/responses/brainweb_subject01_axial_072_c200000.json \
-  --dataset brainweb --subject subject01 --slice axial_072 --count 200000
-sam-kem build-box-cache --manifest results/metrics/case_manifest_inputs.csv \
-  --responses prompts/responses --output prompts/anchor_box_lookup_v2.csv \
+sam-kem prepare-prompt-images --root . --config code/configs/experiment.yaml \
+  --manifest results/clean_v1/case_manifest_inputs.csv \
+  --output prompts/clean_v1/train_validation_images \
+  --splits train validation
+sam-kem request-boxes --root . --config code/configs/experiment.yaml \
+  --manifest prompts/clean_v1/train_validation_images/prompt_manifest.csv \
+  --responses prompts/clean_v1/train_validation_responses
+sam-kem build-box-cache --manifest results/clean_v1/case_manifest_inputs.csv \
+  --responses prompts/clean_v1/train_validation_responses \
+  --output prompts/clean_v1/train_validation_box_cache.csv \
   --config code/configs/experiment.yaml
 ```
 
@@ -197,14 +262,14 @@ counts per epoch, checkpoint SHA, and frozen/trainable parameter inventory.
 
 ```bash
 python code/experiments/train_decoder.py --dataset brainweb \
-  --manifest results/metrics/case_manifest_inputs.csv \
+  --manifest results/clean_v1/case_manifest_inputs.csv \
   --pretrained checkpoints/MedSAM2.pt \
-  --output checkpoints/medsam2_decoder_brainweb.pt \
+  --output checkpoints/clean_v1/medsam2_decoder_brainweb.pt \
   --epochs 20 --steps-per-epoch 400 --learning-rate 1e-4
 python code/experiments/train_decoder.py --dataset hecktor \
-  --manifest results/metrics/case_manifest_inputs.csv \
+  --manifest results/clean_v1/case_manifest_inputs.csv \
   --pretrained checkpoints/MedSAM2.pt \
-  --output checkpoints/medsam2_decoder_hecktor.pt \
+  --output checkpoints/clean_v1/medsam2_decoder_hecktor.pt \
   --epochs 20 --steps-per-epoch 400 --learning-rate 1e-4
 ```
 
@@ -212,22 +277,56 @@ python code/experiments/train_decoder.py --dataset hecktor \
 files and retain each `.resume.pt`, `.training.csv`, and CSV manifest. These are
 fixed-budget final checkpoints, not validation-selected “best” checkpoints. To
 resume an interrupted epoch-boundary run, pass the canonical file, for example
-`--resume checkpoints/medsam2_decoder_brainweb.resume.pt`. Then enter both
+`--resume checkpoints/clean_v1/medsam2_decoder_brainweb.resume.pt`. Then enter both
 resulting inference-checkpoint SHA-256 values and immutable archive URIs in
 `experiment.yaml`. At that
 point set `status: locked_for_execution` and `locked: true`, commit the clean
 configuration, and do not change it during prior generation or evaluation.
 
-Generate validation/test priors, then build the final immutable manifest so its
-prior paths are populated:
+Generate validation priors only, then build the immutable validation manifest
+used by the sweep:
 
 ```bash
 python code/experiments/generate_priors.py \
-  --manifest results/metrics/case_manifest_inputs.csv \
-  --splits validation test_locked
+  --manifest results/clean_v1/case_manifest_inputs.csv \
+  --splits validation
 sam-kem build-manifest --root . --config code/configs/experiment.yaml \
-  --arrays arrays --output results/metrics/case_manifest_v2.csv
+  --arrays arrays/clean_v1 --output results/clean_v1/validation_case_manifest.csv
 ```
+
+Run and freeze the complete validation sweep before any locked-test ingestion.
+The code verifies the sweep CSV, frozen-parameter CSV and `_SUCCESS.json` before
+allowing `test_locked` access. After release, ingest and prepare the test cases,
+archive their Qwen responses, and build an all-split box-input manifest:
+
+```bash
+sam-kem ingest-activity --root . --config code/configs/experiment.yaml \
+  --manifest inputs/clean_v1/source_activity_manifest.csv \
+  --output arrays/clean_v1 --splits test_locked
+sam-kem prepare-cases --root . --config code/configs/experiment.yaml \
+  --arrays arrays/clean_v1 --splits test_locked --resume-verified
+sam-kem build-manifest --root . --config code/configs/experiment.yaml \
+  --arrays arrays/clean_v1 --output results/clean_v1/final_box_inputs.csv
+sam-kem prepare-prompt-images --root . --config code/configs/experiment.yaml \
+  --manifest results/clean_v1/final_box_inputs.csv \
+  --output prompts/clean_v1/test_images --splits test_locked
+sam-kem request-boxes --root . --config code/configs/experiment.yaml \
+  --manifest prompts/clean_v1/test_images/prompt_manifest.csv \
+  --responses prompts/clean_v1/test_responses
+sam-kem build-box-cache --manifest results/clean_v1/final_box_inputs.csv \
+  --responses prompts/clean_v1/train_validation_responses \
+              prompts/clean_v1/test_responses \
+  --output prompts/clean_v1/final_box_cache.csv \
+  --config code/configs/experiment.yaml
+python code/experiments/generate_priors.py \
+  --manifest results/clean_v1/final_box_inputs.csv --splits test_locked
+sam-kem build-manifest --root . --config code/configs/experiment.yaml \
+  --arrays arrays/clean_v1 --output results/clean_v1/case_manifest.csv
+```
+
+Do not generate test boxes or priors alongside validation. The two immutable
+caches prevent post-test boxes from changing the inputs used for decoder
+training or validation selection.
 
 ## 5. Run experiments in the required order
 
@@ -253,13 +352,16 @@ Execution order is:
    selected. Freeze one setting per dataset/count/method. The fixed MLEM-10 used
    to create prompts is not reused as the MLEM baseline unless validation selects
    ten iterations independently.
-4. `primary.yaml`: locked test, only after all choices are frozen.
-5. `comparison.yaml`: same locked cases and realizations for all applicable
+4. `comparison.yaml`: open the locked test only after all choices are frozen;
+   compute the unique per-case reconstruction artifact on the same cases and
+   realizations for all applicable
    baselines; MR-KEM is BrainWeb-only and CT-KEM is HECKTOR-only.
    `Bowsher-KEM` is specifically the anatomy-selected-neighbour coefficient KEM
    implemented here, not classic MAP-Bowsher. Report OSEM work as both complete
    subset cycles and total subset updates; do not imply equal runtime from equal
    outer-iteration numbers.
+5. `primary.yaml`: derive the 200k headline rows from the immutable comparison
+   artifact. It performs no second reconstruction or second test-data read.
 6. `ablation.yaml`: real one-factor-at-a-time reruns. Never alias comparison rows
    as ablations.
 7. `convergence.yaml`: descriptive locked-test curves only. Never select iteration
@@ -272,8 +374,8 @@ Canonical commands after data/prior preparation are:
 
 ```bash
 python code/experiments/run_hyperparameter_sweep.py
-python code/experiments/run_primary.py
 python code/experiments/run_comparison.py
+python code/experiments/run_primary.py
 python code/experiments/run_ablation.py
 python code/experiments/run_convergence.py
 python code/experiments/run_cross_count.py
@@ -288,6 +390,24 @@ Every result CSV has a schema/SHA sidecar. A run is eligible only after its
 `_SUCCESS.json` is written. See `docs/ARTIFACT_SPEC.md` for exact checkpoint and
 result primary-key requirements. Before final validation, archive the complete
 bundle and fill `outputs.artifact_policy.immutable_archive_uri`.
+
+The repository intentionally ignores bulk `arrays/clean_v1` data, rendered PNG
+pixels, and `*.pt` files. Copy them to the declared immutable archive before
+continuing; commit their SHA-bound JSON/CSV provenance. In particular, the
+worktree must be clean at each of these gates:
+
+1. before BrainWeb training (commit split, input manifests, prompt records/cache);
+2. before HECKTOR training (archive the BrainWeb checkpoint and commit its
+   training CSV/provenance);
+3. before the validation sweep (archive both checkpoints and validation priors,
+   then commit all SHA manifests and the locked configuration);
+4. before comparison (archive test arrays/PNGs/priors and commit the final box
+   cache and case manifest);
+5. before every subsequent result protocol (commit the prior completed run).
+
+Do not use `git add -f` to put bulk patient-derived arrays into GitHub. Git
+cleanliness proves the code/config/manifests were committed; array integrity is
+proved separately by the recorded SHA-256 values and immutable archive URI.
 
 ## 6. Final validation and paper eligibility
 

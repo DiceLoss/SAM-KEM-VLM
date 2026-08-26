@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-import csv
 import time
 from pathlib import Path
 
@@ -49,7 +48,10 @@ def run_runtime(root: Path, config_path: Path, protocol_path: Path) -> Path:
     selected[dataset] = one_per_subject[:int(protocol.raw["cases_per_dataset"])]
   if any(len(values) != int(protocol.raw["cases_per_dataset"]) for values in selected.values()):
     raise ValueError("runtime protocol lacks enough distinct validation subjects")
-  frozen = load_frozen_hyperparameters(root / str(cfg["outputs"]["frozen_hyperparameters"]))
+  frozen = load_frozen_hyperparameters(
+    root / str(cfg["outputs"]["frozen_hyperparameters"]),
+    expected_run_id=contract.run_id,
+  )
   operator = build_discrete_radon(
     repo_root=root, size=int(cfg["forward_model"]["image_size"]), angles=contract.angles,
     operator_id=contract.operator_id,
@@ -59,7 +61,7 @@ def run_runtime(root: Path, config_path: Path, protocol_path: Path) -> Path:
   run_metadata = write_run_metadata(output_dir, root=root, config_path=config_path, protocol_path=protocol_path)
   output = output_dir / "runtime_repetitions.csv"
   fields = [
-    "dataset", "subject_id", "slice_id", "realization_id", "count_level",
+    "run_id", "dataset", "subject_id", "slice_id", "realization_id", "count_level",
     "method", "repetition", "seconds", "scope",
   ]
   with atomic_csv_writer(output, fields) as writer:
@@ -76,16 +78,17 @@ def run_runtime(root: Path, config_path: Path, protocol_path: Path) -> Path:
             _synchronize(); elapsed = time.perf_counter() - start
             if repetition >= 0:
               writer.writerow({
-                "dataset": dataset, "subject_id": case.subject_id,
+                "run_id": contract.run_id, "dataset": dataset,
+                "subject_id": case.subject_id,
                 "slice_id": case.slice_id, "realization_id": case.realization_id,
                 "count_level": case.count_level, "method": method,
                 "repetition": repetition, "seconds": elapsed,
                 "scope": protocol.raw["scope"],
               })
   result_manifest = finalize_csv(
-    output, schema_name="runtime_repetitions_v1",
+    output, schema_name="runtime_repetitions_v2",
     primary_key=[
-      "dataset", "subject_id", "slice_id", "realization_id", "count_level",
+      "run_id", "dataset", "subject_id", "slice_id", "realization_id", "count_level",
       "method", "repetition",
     ],
     split=protocol.split,

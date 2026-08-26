@@ -142,13 +142,13 @@ def run_normalization_calibration(
   candidate_output = output_dir / "normalization_candidates.csv"
   diagnostic_output = output_dir / "validation_diagnostics.csv"
   candidate_fields = [
-    "dataset", "candidate", "available", "offset", "scale", "clip",
+    "run_id", "dataset", "candidate", "available", "offset", "scale", "clip",
     "activity_unit", "fitted_from", "paper_role", "train_cases",
     "validation_cases", "validation_max_clipped_fraction",
     "validation_mean_clipped_fraction",
   ]
   diagnostic_fields = [
-    "dataset", "subject_id", "slice_id", "candidate", "activity_unit",
+    "run_id", "dataset", "subject_id", "slice_id", "candidate", "activity_unit",
     "raw_min", "raw_max", "normalized_min", "normalized_max",
     "normalized_mean", "normalized_std", "fraction_below_zero",
     "fraction_above_one", "paper_role",
@@ -179,7 +179,8 @@ def run_normalization_calibration(
       matching = [candidate for candidate in candidates if candidate.name == candidate_name]
       if not matching:
         candidate_rows.append({
-          "dataset": dataset, "candidate": candidate_name, "available": False,
+          "run_id": cfg["run_id"], "dataset": dataset,
+          "candidate": candidate_name, "available": False,
           "offset": "", "scale": "", "clip": False,
           "activity_unit": next(iter(units)), "fitted_from": "external_physical_metadata",
           "paper_role": "unavailable_until_physical_C_is_supplied",
@@ -194,7 +195,8 @@ def run_normalization_calibration(
         transformed, below, above = apply_candidate(raw, candidate)
         clipped.append(below + above)
         diagnostic_rows.append({
-          "dataset": dataset, "subject_id": case.subject_id,
+          "run_id": cfg["run_id"], "dataset": dataset,
+          "subject_id": case.subject_id,
           "slice_id": case.slice_id, "candidate": candidate.name,
           "activity_unit": case.unit, "raw_min": float(raw.min()),
           "raw_max": float(raw.max()), "normalized_min": float(transformed.min()),
@@ -205,7 +207,8 @@ def run_normalization_calibration(
           "paper_role": candidate.paper_role,
         })
       candidate_rows.append({
-        "dataset": dataset, "candidate": candidate.name, "available": True,
+        "run_id": cfg["run_id"], "dataset": dataset,
+        "candidate": candidate.name, "available": True,
         "offset": "" if candidate.offset is None else candidate.offset,
         "scale": "" if candidate.scale is None else candidate.scale,
         "clip": candidate.clip, "activity_unit": next(iter(units)),
@@ -219,12 +222,12 @@ def run_normalization_calibration(
   with atomic_csv_writer(diagnostic_output, diagnostic_fields) as writer:
     writer.writerows(diagnostic_rows)
   candidate_manifest = finalize_csv(
-    candidate_output, schema_name="normalization_candidates_v1",
-    primary_key=["dataset", "candidate"], split="validation",
+    candidate_output, schema_name="normalization_candidates_v2",
+    primary_key=["run_id", "dataset", "candidate"], split="validation",
   )
   diagnostic_manifest = finalize_csv(
-    diagnostic_output, schema_name="normalization_validation_diagnostics_v1",
-    primary_key=["dataset", "subject_id", "slice_id", "candidate"],
+    diagnostic_output, schema_name="normalization_validation_diagnostics_v2",
+    primary_key=["run_id", "dataset", "subject_id", "slice_id", "candidate"],
     split="validation",
   )
   write_success_marker(output_dir, [

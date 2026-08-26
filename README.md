@@ -18,10 +18,14 @@ artifacts were produced; they are not execution entry points.
 - true coefficient-space KEM with `x = K alpha`;
 - Qwen box cache keyed by dataset/subject/slice/count and shared across
   realizations;
+- immutable batch prompt/request manifests that preserve failed calls and
+  prohibit selective retries;
 - dataset-specific MedSAM2 checkpoints cached by verified SHA;
 - frozen encoders, trainable mask decoder, L1-only training;
 - continuous raw decoder output, with min-max restricted to kernel features;
 - validation-only hyperparameter selection and immutable locked-test evaluation;
+- PET-operator support for both KEM neighbourhoods and image metrics, with no
+  CT/tumor-derived evaluation mask;
 - exact per-case primary keys and fail-closed validation.
 
 The PET simulator is an idealized circular-FOV parallel-beam low-count model,
@@ -76,7 +80,7 @@ tests/                        synthetic mathematical and integrity tests
 code/src/original/            historical source snapshot (audit only)
 code/scripts/_*.py            invalid v3 drivers (audit only)
 results/                      historical v3 artifacts (audit only until rerun)
-prompts/                      historical prompt evidence and future v2 cache
+prompts/                      historical evidence and clean_v1 prompt archives
 ```
 
 Do not suppress a failed validator, silently fall back to a pretrained

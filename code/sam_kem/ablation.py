@@ -12,6 +12,7 @@ from .experiments import compute_mlem_input, frozen_for_method, load_case_manife
 from .metrics import nrmse, psnr
 from .operator_factory import build_discrete_radon
 from .protocols import load_protocol
+from .reconstruction import operator_support_mask
 from .runmeta import write_run_metadata
 from .artifacts import atomic_csv_writer, finalize_csv, write_success_marker
 
@@ -35,16 +36,20 @@ def run_ablation(root: Path, config_path: Path, protocol_path: Path) -> Path:
   for column in ("sam_prior_centroid_path", "sam_prior_released_path"):
     if rows and column not in rows[0]:
       raise ValueError(f"real ablation requires manifest column {column}")
-  frozen = load_frozen_hyperparameters(root / str(cfg["outputs"]["frozen_hyperparameters"]))
+  frozen = load_frozen_hyperparameters(
+    root / str(cfg["outputs"]["frozen_hyperparameters"]),
+    expected_run_id=contract.run_id,
+  )
   operator = build_discrete_radon(
     repo_root=root, size=int(cfg["forward_model"]["image_size"]), angles=contract.angles,
     operator_id=contract.operator_id,
     expected_implementation_sha256=cfg["forward_model"]["implementation_sha256"],
   )
+  metric_mask = operator_support_mask(operator)
   output_dir = root / protocol.output; output_dir.mkdir(parents=True, exist_ok=True)
   run_metadata = write_run_metadata(output_dir, root=root, config_path=config_path, protocol_path=protocol_path)
   output = output_dir / "per_case_ablation.csv"
-  fields = ["dataset", "subject_id", "slice_id", "realization_id", "count_level", "variant", "split", "psnr_db", "nrmse"]
+  fields = ["run_id", "dataset", "subject_id", "slice_id", "realization_id", "count_level", "variant", "split", "psnr_db", "nrmse"]
   with atomic_csv_writer(output, fields) as writer:
     for case in cases:
       key = (case.dataset, case.subject_id, case.slice_id, case.realization_id, case.count_level)
@@ -64,7 +69,9 @@ def run_ablation(root: Path, config_path: Path, protocol_path: Path) -> Path:
         "prior_only": "SAM-prior-MedSAM2-Qwen3",
       }
       measured = np.load(case.sinogram_path); target = np.load(case.target_path)
-      mask = np.load(case.mask_path) if case.mask_path else None
+      if case.mask_path is not None:
+        raise ValueError("external evaluation masks are prohibited in the clean protocol")
+      mask = metric_mask
       mlem_image = compute_mlem_input(case, measured, operator, cfg)
       hp = frozen_for_method(
         frozen, case.dataset, case.count_level,
@@ -86,15 +93,16 @@ def run_ablation(root: Path, config_path: Path, protocol_path: Path) -> Path:
           )
         image = np.maximum(image, 0.0)
         writer.writerow({
-          "dataset": case.dataset, "subject_id": case.subject_id, "slice_id": case.slice_id,
+          "run_id": contract.run_id, "dataset": case.dataset,
+          "subject_id": case.subject_id, "slice_id": case.slice_id,
           "realization_id": case.realization_id, "count_level": case.count_level,
           "variant": variant, "split": case.split,
           "psnr_db": psnr(target, image, data_range=1.0, mask=mask), "nrmse": nrmse(target, image, mask),
         })
   result_manifest = finalize_csv(
-    output, schema_name="component_ablation_metrics_v1",
+    output, schema_name="component_ablation_metrics_v2",
     primary_key=[
-      "dataset", "subject_id", "slice_id", "realization_id", "count_level", "variant",
+      "run_id", "dataset", "subject_id", "slice_id", "realization_id", "count_level", "variant",
     ], split=protocol.split,
   )
   write_success_marker(output_dir, [

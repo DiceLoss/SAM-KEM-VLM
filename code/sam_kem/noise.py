@@ -4,10 +4,10 @@ from __future__ import annotations
 
 import numpy as np
 import hashlib
-import json
 from pathlib import Path
 
 from .reproducibility import CaseKey, case_seed
+from .artifacts import atomic_save_numpy, atomic_write_json
 
 
 def array_sha256(array: np.ndarray) -> str:
@@ -84,12 +84,12 @@ def write_low_count_simulation(
     case=case, experiment_seed=experiment_seed,
   )
   expectation = np.asarray(projection, dtype=np.float64) * scale
-  output_path.parent.mkdir(parents=True, exist_ok=True)
-  if output_path.exists() or output_path.with_suffix(".json").exists():
+  metadata_path = output_path.with_suffix(".json")
+  if output_path.exists() or metadata_path.exists():
     raise FileExistsError(f"refusing to overwrite simulation: {output_path}")
-  np.save(output_path, measured)
+  atomic_save_numpy(output_path, measured)
   metadata = {
-    "schema_version": 1,
+    "schema_version": 2, "artifact_kind": "poisson_sinogram",
     "observation_model": "independent_poisson_scaled_noise_free_projection",
     "rng": "numpy.random.Generator(PCG64)",
     "dataset": case.dataset, "subject_id": case.subject_id,
@@ -101,7 +101,9 @@ def write_low_count_simulation(
     "sinogram_sha256": array_sha256(measured),
     **simulation_diagnostics(measured, expectation),
   }
-  output_path.with_suffix(".json").write_text(
-    json.dumps(metadata, indent=2), encoding="utf-8"
-  )
+  try:
+    atomic_write_json(metadata_path, metadata)
+  except BaseException:
+    output_path.unlink(missing_ok=True)
+    raise
   return output_path

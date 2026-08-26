@@ -10,6 +10,7 @@ import sys
 from datetime import datetime, timezone
 from pathlib import Path
 from .artifacts import atomic_write_json, atomic_write_text
+from .config import load_yaml_strict
 
 
 def _sha(path: Path) -> str:
@@ -50,6 +51,7 @@ def write_run_metadata(output_dir: Path, *, root: Path, config_path: Path, proto
   except ImportError:
     pass
   metadata = {
+    "run_id": str(load_yaml_strict(config_path)["run_id"]),
     "created_utc": datetime.now(timezone.utc).isoformat(),
     "git_commit": commit, "git_worktree_dirty": dirty,
     "config_path": str(config_path.relative_to(root)), "config_sha256": _sha(config_path),

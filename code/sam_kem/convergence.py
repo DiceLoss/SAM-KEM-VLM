@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-import csv
 from pathlib import Path
 
 import numpy as np
@@ -12,7 +11,7 @@ from .experiments import frozen_for_method, load_case_manifest, load_frozen_hype
 from .metrics import nrmse
 from .operator_factory import build_discrete_radon
 from .protocols import load_protocol
-from .reconstruction import bowsher_kernel, kem, mlem, normalize_kernel_feature, osem, rbf_kernel
+from .reconstruction import bowsher_kernel, kem, mlem, normalize_kernel_feature, operator_support_mask, osem, rbf_kernel
 from .runmeta import write_run_metadata
 from .artifacts import atomic_csv_writer, finalize_csv, write_success_marker
 
@@ -28,24 +27,30 @@ def run_convergence(root: Path, config_path: Path, protocol_path: Path) -> Path:
   allowed_counts = {int(value) for value in protocol.raw.get("count_levels", contract.count_levels)}
   cases = [case for case in cases if case.count_level in allowed_counts]
   validate_case_contract(cases, contract)
-  frozen = load_frozen_hyperparameters(root / str(cfg["outputs"]["frozen_hyperparameters"]))
+  frozen = load_frozen_hyperparameters(
+    root / str(cfg["outputs"]["frozen_hyperparameters"]),
+    expected_run_id=contract.run_id,
+  )
   operator = build_discrete_radon(
     repo_root=root, size=int(cfg["forward_model"]["image_size"]), angles=contract.angles,
     operator_id=contract.operator_id,
     expected_implementation_sha256=cfg["forward_model"]["implementation_sha256"],
   )
+  operator_support = operator_support_mask(operator)
   output_dir = root / protocol.output; output_dir.mkdir(parents=True, exist_ok=True)
   run_metadata = write_run_metadata(output_dir, root=root, config_path=config_path, protocol_path=protocol_path)
   output = output_dir / "convergence.csv"
   fields = [
-    "dataset", "subject_id", "slice_id", "realization_id", "count_level",
+    "run_id", "dataset", "subject_id", "slice_id", "realization_id", "count_level",
     "method", "iteration", "subset_count", "effective_em_updates", "split",
     "nrmse", "selection_allowed",
   ]
   with atomic_csv_writer(output, fields) as writer:
     for case in cases:
       y = np.load(case.sinogram_path); target = np.load(case.target_path)
-      mask = np.load(case.mask_path) if case.mask_path else None
+      if case.mask_path is not None:
+        raise ValueError("external evaluation masks are prohibited in the clean protocol")
+      mask = operator_support
       gain = np.full_like(y, case.projection_scale, dtype=np.float64)
       for method in protocol.methods:
         if method == "MR-KEM" and case.dataset != "brainweb" or method == "CT-KEM" and case.dataset != "hecktor":
@@ -75,9 +80,13 @@ def run_convergence(root: Path, config_path: Path, protocol_path: Path) -> Path:
           kernel = (
             bowsher_kernel(
               feature, neighbours=int(hp["neighbours"]), radius=int(hp["radius"]),
+              support=operator_support,
             )
             if method == "Bowsher-KEM" else
-            rbf_kernel(feature, sigma=float(hp["sigma"]), radius=int(hp["radius"]))
+            rbf_kernel(
+              feature, sigma=float(hp["sigma"]), radius=int(hp["radius"]),
+              support=operator_support,
+            )
           )
           images = kem(y, operator, kernel, iterations=max(iterations), save_iterations=iterations, multiplicative=gain)
         for iteration, image in images.items():
@@ -96,7 +105,8 @@ def run_convergence(root: Path, config_path: Path, protocol_path: Path) -> Path:
             )
           image = np.maximum(image, 0.0)
           writer.writerow({
-            "dataset": case.dataset, "subject_id": case.subject_id, "slice_id": case.slice_id,
+            "run_id": contract.run_id, "dataset": case.dataset,
+            "subject_id": case.subject_id, "slice_id": case.slice_id,
             "realization_id": case.realization_id, "count_level": case.count_level,
             "method": method, "iteration": iteration, "split": case.split,
             "subset_count": int(cfg["reconstruction"]["osem_subsets"]) if method == "OSEM" else 1,
@@ -107,9 +117,9 @@ def run_convergence(root: Path, config_path: Path, protocol_path: Path) -> Path:
             "nrmse": nrmse(target, image, mask), "selection_allowed": "false",
           })
   result_manifest = finalize_csv(
-    output, schema_name="descriptive_convergence_metrics_v1",
+    output, schema_name="descriptive_convergence_metrics_v2",
     primary_key=[
-      "dataset", "subject_id", "slice_id", "realization_id", "count_level",
+      "run_id", "dataset", "subject_id", "slice_id", "realization_id", "count_level",
       "method", "iteration",
     ], split=protocol.split,
   )

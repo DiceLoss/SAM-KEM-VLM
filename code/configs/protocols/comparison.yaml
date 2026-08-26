@@ -11,4 +11,4 @@ requires_frozen_hyperparameters: true
 same_cases_and_realizations_for_all_applicable_methods: true
 paired_statistics_by_subject: true
 bowsher_parameter_source: frozen_validation_sweep
-output: runs/comparison
+output: runs/clean_v1/comparison

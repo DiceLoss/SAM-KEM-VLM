@@ -5,10 +5,20 @@ only. They are not admissible as final paper evidence. They were produced before
 the canonical implementation in `code/sam_kem/` and include known operator,
 checkpoint, box-cache, normalization, coverage, and validation-sweep violations.
 
-The canonical rerun is blocked until the experimenter supplies both fixed
-physical scale constants in `code/configs/experiment.yaml` and the dataset-specific
-MedSAM2 decoder checkpoint files with verified SHA-256 values. The validator is
-designed to fail until these requirements and all result-integrity checks pass.
+The canonical rerun is blocked until the experimenter supplies the fixed-scale
+provenance, the HECKTOR pixel spacing/affine and scanner transaxial FOV, and the
+dataset-specific MedSAM2 decoder checkpoint files with verified SHA-256 values.
+It also requires a new SHA-pinned subject split: the historical v3 locked test
+was opened during tuning and is not an untouched test set.
+The validator is designed to fail until these requirements and all
+result-integrity checks pass.
+
+The fixed constant must match the declared activity unit. The uploaded HECKTOR
+traceability arrays are labelled SUV and have maxima on the order of 4.5--15.2;
+a constant around 30000 would only be meaningful for a different scanner-count
+representation and must not be transplanted to these SUV arrays. The sample
+audit's `C_BW=6` and `C_HE=35` values are provisional train/validation coverage
+candidates, not accepted physical constants.
 
 No script may rename a failed or partial run to “final.” A run becomes eligible
 for paper use only when `sam-kem validate` exits with code 0 and the raw-array,
@@ -30,6 +40,10 @@ dead time are absent. HECKTOR starts from a clinical reconstructed PET image, so
 its Radon/Poisson data are image-domain pseudo-sinograms, not scanner raw data or
 a genuinely noise-free activity acquisition. The manuscript must use these
 qualifications.
+
+Image-domain metrics and KEM neighbourhoods use the same positive-sensitivity
+circular operator support. This geometry-derived support is fixed for every
+method and does not use CT, MR, tumor labels, or any other anatomical mask.
 
 Every axial slice is an independent 2-D ring-position experiment. The model has
 no 3-D activity volume, axial detector response, oblique lines of response, or
@@ -53,4 +67,7 @@ The MedSAM2 decoder artifact remains the continuous raw output. Kernel features
 use per-prior min-max as declared. When the prior itself is displayed as an
 image or enters the post-fusion convex combination, it is clipped to the fixed
 physical target interval [0,1]; it is not min-max rescaled or passed through an
-undocumented sigmoid.
+undocumented sigmoid. Inference resizes the official low-resolution decoder
+logits directly to 128x128 using the same bilinear/`align_corners=False`
+definition used for the L1 training loss; it does not resize an already
+postprocessed 1024x1024 display mask.

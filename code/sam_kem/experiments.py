@@ -14,13 +14,17 @@ from .operator_factory import build_discrete_radon
 from .protocols import Protocol, load_protocol
 from .reconstruction import (
   bowsher_kernel, kem, mlem, normalize_kernel_feature, osem, rbf_kernel,
+  operator_support_mask,
 )
 from .runmeta import write_run_metadata
-from .artifacts import atomic_csv_writer, finalize_csv, write_success_marker
+from .artifacts import atomic_csv_writer, finalize_csv, verify_csv_artifact, write_success_marker
 
 
 @dataclass(frozen=True)
 class Case:
+  run_id: str
+  split_id: str
+  split_sha256: str
   dataset: str
   subject_id: str
   slice_id: str
@@ -47,10 +51,14 @@ def _optional_path(root: Path, value: str) -> Path | None:
 
 
 def load_case_manifest(root: Path, path: Path, *, split: str) -> list[Case]:
+  record = verify_csv_artifact(path)
+  if record.get("schema_name") != "canonical_case_manifest_v3":
+    raise ValueError(f"case manifest uses an obsolete/unknown schema: {path}")
   with path.open("r", encoding="utf-8", newline="") as handle:
     rows = list(csv.DictReader(handle))
   required = {
-    "dataset", "subject_id", "slice_id", "realization_id", "count_level",
+    "run_id", "split_id", "split_sha256", "dataset", "subject_id", "slice_id",
+    "realization_id", "count_level",
     "split", "target_path", "sinogram_path", "anatomy_path", "sam_prior_path",
     "evaluation_mask_path", "mlem10_input_path", "seed", "normalization_id",
     "normalization_offset", "normalization_clip", "scale_constant_C", "operator_id",
@@ -59,6 +67,7 @@ def load_case_manifest(root: Path, path: Path, *, split: str) -> list[Case]:
   if not rows or not required.issubset(rows[0]):
     raise ValueError(f"case manifest missing columns: {sorted(required - set(rows[0] if rows else {}))}")
   cases = [Case(
+    run_id=row["run_id"], split_id=row["split_id"], split_sha256=row["split_sha256"],
     dataset=row["dataset"], subject_id=row["subject_id"], slice_id=row["slice_id"],
     realization_id=int(row["realization_id"]), count_level=int(row["count_level"]),
     split=row["split"], seed=int(row["seed"]),
@@ -79,10 +88,17 @@ def load_case_manifest(root: Path, path: Path, *, split: str) -> list[Case]:
   return cases
 
 
-def load_frozen_hyperparameters(path: Path) -> dict[tuple[str, int, str], dict[str, float | int]]:
+def load_frozen_hyperparameters(
+  path: Path, *, expected_run_id: str,
+) -> dict[tuple[str, int, str], dict[str, float | int]]:
+  record = verify_csv_artifact(path)
+  if record.get("schema_name") != "frozen_hyperparameters_v2":
+    raise ValueError(f"frozen parameters use an obsolete/unknown schema: {path}")
   rows = list(csv.DictReader(path.open("r", encoding="utf-8", newline="")))
   frozen: dict[tuple[str, int, str], dict[str, float | int]] = {}
   for row in rows:
+    if row.get("run_id") != expected_run_id:
+      raise ValueError(f"frozen hyperparameter run_id mismatch: {row.get('run_id')!r}")
     key = (row["dataset"], int(row["count_level"]), row["method"])
     if key in frozen:
       raise ValueError(f"duplicate frozen hyperparameter key: {key}")
@@ -109,6 +125,10 @@ def frozen_for_method(frozen: dict, dataset: str, count: int, method: str, cfg: 
 
 def validate_case_contract(cases: list[Case], contract) -> None:
   for case in cases:
+    if case.run_id != contract.run_id:
+      raise ValueError(f"case run namespace mismatch for {case.subject_id}/{case.slice_id}")
+    if case.split_id != contract.split_id or case.split_sha256 != contract.split_sha256:
+      raise ValueError(f"case subject-split mismatch for {case.subject_id}/{case.slice_id}")
     if case.operator_id != contract.operator_id:
       raise ValueError(f"case operator mismatch for {case.subject_id}/{case.slice_id}")
     if case.scale_constant_C != contract.scale_constants[case.dataset]:
@@ -151,6 +171,7 @@ def method_image(
   prior_path: Path | None = None, mlem_image: np.ndarray | None = None,
 ) -> np.ndarray | None:
   gain = np.full_like(measured, case.projection_scale, dtype=np.float64)
+  support = operator_support_mask(operator)
   if mlem_image is None:
     mlem_image = compute_mlem_input(case, measured, operator, cfg)
   if method == "MLEM":
@@ -174,6 +195,7 @@ def method_image(
     feature = normalize_kernel_feature(np.load(case.anatomy_path))
     kernel = bowsher_kernel(
       feature, neighbours=int(hp["neighbours"]), radius=int(hp["radius"]),
+      support=support,
     )
     return kem(measured, operator, kernel, iterations=int(hp["iterations"]), multiplicative=gain)[int(hp["iterations"])]
   elif method.startswith("SAM"):
@@ -187,7 +209,9 @@ def method_image(
     feature = normalize_kernel_feature(prior)
   else:
     raise ValueError(f"unimplemented method: {method}")
-  kernel = rbf_kernel(feature, sigma=float(hp["sigma"]), radius=int(hp["radius"]))
+  kernel = rbf_kernel(
+    feature, sigma=float(hp["sigma"]), radius=int(hp["radius"]), support=support,
+  )
   reconstruction = kem(measured, operator, kernel, iterations=int(hp["iterations"]), multiplicative=gain)[int(hp["iterations"])]
   if method.endswith("-full"):
     alpha = float(hp["alpha"])
@@ -201,7 +225,10 @@ def run_protocol(
   cfg, contract = load_contract(config_path)
   require_locked_execution(cfg)
   protocol: Protocol = load_protocol(protocol_path)
-  if protocol.kind in {"training", "hyperparameter_sweep", "ablation", "convergence", "cross_count", "runtime"}:
+  if protocol.kind in {
+    "training", "hyperparameter_sweep", "primary", "ablation", "convergence",
+    "cross_count", "runtime",
+  }:
     raise ValueError(f"{protocol.kind} uses its dedicated runner; generic evaluation runner refused")
   manifest = root / str(cfg["outputs"]["raw_array_manifest"])
   cases = load_case_manifest(root, manifest, split=protocol.split)
@@ -217,18 +244,22 @@ def run_protocol(
   if not cases:
     raise ValueError(f"no {protocol.split} cases in {manifest}")
   validate_case_contract(cases, contract)
-  frozen = load_frozen_hyperparameters(root / str(cfg["outputs"]["frozen_hyperparameters"]))
+  frozen = load_frozen_hyperparameters(
+    root / str(cfg["outputs"]["frozen_hyperparameters"]),
+    expected_run_id=contract.run_id,
+  )
   operator = build_discrete_radon(
     repo_root=root, size=int(cfg["forward_model"]["image_size"]), angles=contract.angles,
     operator_id=contract.operator_id,
     expected_implementation_sha256=cfg["forward_model"]["implementation_sha256"],
   )
+  metric_mask = operator_support_mask(operator)
   output_dir = root / protocol.output
   output_dir.mkdir(parents=True, exist_ok=True)
   run_metadata = write_run_metadata(output_dir, root=root, config_path=config_path, protocol_path=protocol_path)
   output_path = output_dir / "per_case_metrics.csv"
   fields = [
-    "protocol", "dataset", "subject_id", "slice_id", "realization_id", "count_level",
+    "run_id", "protocol", "dataset", "subject_id", "slice_id", "realization_id", "count_level",
     "method", "split", "psnr_db", "ssim", "nrmse", "mae", "poisson_deviance",
     "operator_id", "normalization_id", "normalization_offset", "normalization_clip",
     "scale_constant_C", "sigma", "radius", "neighbours", "iterations", "alpha",
@@ -238,7 +269,9 @@ def run_protocol(
     for case in cases:
       measured = np.load(case.sinogram_path)
       target = np.load(case.target_path)
-      mask = np.load(case.mask_path) if case.mask_path is not None else None
+      if case.mask_path is not None:
+        raise ValueError("external evaluation masks are prohibited in the clean protocol")
+      mask = metric_mask
       mlem_image = compute_mlem_input(case, measured, operator, cfg)
       for method in protocol.methods:
         if method == "MR-KEM" and case.dataset != "brainweb":
@@ -258,7 +291,7 @@ def run_protocol(
         image = np.maximum(image, 0.0)
         expected = case.projection_scale * operator.forward(image)
         writer.writerow({
-          "protocol": protocol.name, "dataset": case.dataset,
+          "run_id": contract.run_id, "protocol": protocol.name, "dataset": case.dataset,
           "subject_id": case.subject_id, "slice_id": case.slice_id,
           "realization_id": case.realization_id, "count_level": case.count_level,
           "method": method, "split": case.split,
@@ -283,9 +316,9 @@ def run_protocol(
           ),
         })
   result_manifest = finalize_csv(
-    output_path, schema_name="per_case_reconstruction_metrics_v1",
+    output_path, schema_name="per_case_reconstruction_metrics_v2",
     primary_key=[
-      "protocol", "dataset", "subject_id", "slice_id", "realization_id",
+      "run_id", "protocol", "dataset", "subject_id", "slice_id", "realization_id",
       "count_level", "method",
     ], split=protocol.split,
   )

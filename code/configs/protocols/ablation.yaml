@@ -18,4 +18,4 @@ variant_changes:
   prior_only: reconstruction_component
 requires_frozen_hyperparameters: true
 forbid_aliasing_from_other_methods: true
-output: runs/ablation
+output: runs/clean_v1/ablation

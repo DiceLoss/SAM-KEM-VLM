@@ -5,7 +5,6 @@ methods: [MLEM, SelfKEM, MR-KEM, CT-KEM, SAM-KEM-MedSAM2-Qwen3-full]
 datasets: [brainweb, hecktor]
 count_levels: [100000, 200000, 500000, 1000000]
 requires_frozen_hyperparameters: true
-unique_key: [dataset, count_level, method]
+unique_key: [run_id, dataset, count_level, method]
 aggregate_once: true
-output: runs/cross_count
-
+output: runs/clean_v1/cross_count
