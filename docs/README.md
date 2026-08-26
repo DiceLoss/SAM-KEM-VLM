@@ -6,14 +6,16 @@ Read documents in the order appropriate to your role.
 
 ## Researchers running experiments
 
-1. Read [`RESEARCHER_HANDOFF_ZH.md`](RESEARCHER_HANDOFF_ZH.md) for the current
+1. Follow [`START_HERE_ZH.md`](START_HERE_ZH.md) to set up the environment and
+   deliver the first provenance/split package without opening locked test data.
+2. Read [`RESEARCHER_HANDOFF_ZH.md`](RESEARCHER_HANDOFF_ZH.md) for the current
    blockers and the exact deliverables expected from the experimenter.
-2. Read [`SCIENTIFIC_STATUS.md`](../SCIENTIFIC_STATUS.md) before making any PET,
+3. Read [`SCIENTIFIC_STATUS.md`](../SCIENTIFIC_STATUS.md) before making any PET,
    low-count, dose, or clinical claim.
-3. Use [`EXECUTION.md`](EXECUTION.md) as the canonical end-to-end command guide.
-4. Use [`OPERATIONS_RUNBOOK.md`](OPERATIONS_RUNBOOK.md) when resuming, archiving,
+4. Use [`EXECUTION.md`](EXECUTION.md) as the canonical end-to-end command guide.
+5. Use [`OPERATIONS_RUNBOOK.md`](OPERATIONS_RUNBOOK.md) when resuming, archiving,
    diagnosing, or handing off a run.
-5. Verify every result against [`ARTIFACT_SPEC.md`](ARTIFACT_SPEC.md).
+6. Verify every result against [`ARTIFACT_SPEC.md`](ARTIFACT_SPEC.md).
 
 ## Reviewers and maintainers
 

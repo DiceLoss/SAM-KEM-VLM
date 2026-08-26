@@ -14,6 +14,7 @@ def test_required_handoff_documents_exist():
     "CONTRIBUTING.md",
     "data/MANIFEST.md",
     "docs/README.md",
+    "docs/START_HERE_ZH.md",
     "docs/REPOSITORY_MAP.md",
     "docs/DATA_DICTIONARY.md",
     "docs/EXPERIMENT_MATRIX.md",

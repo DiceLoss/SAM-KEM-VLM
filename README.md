@@ -11,7 +11,7 @@ present yet, and the validator will remain non-zero until the missing physical,
 split, MedSAM2, prompt, checkpoint, sweep, and archive provenance is supplied.
 
 Start with the [documentation index](docs/README.md) and the
-[Chinese researcher handoff](docs/RESEARCHER_HANDOFF_ZH.md).
+[Chinese start guide](docs/START_HERE_ZH.md).
 
 ## What the canonical core enforces
 
@@ -102,6 +102,8 @@ hand. Scientific corrections require rerunning the affected experiment.
 
 ## Documentation map
 
+- [Chinese start guide](docs/START_HERE_ZH.md): the exact first-stage commands,
+  required provenance package, stopping point, and prohibited actions.
 - [Repository map](docs/REPOSITORY_MAP.md): which files are active, diagnostic,
   forensic, generated, or externally archived.
 - [Data dictionary](docs/DATA_DICTIONARY.md): source manifests, units, geometry,
