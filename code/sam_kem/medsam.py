@@ -25,6 +25,7 @@ class CheckpointSpec:
   dataset: str
   path: Path
   sha256: str
+  normalization_id: str = ""
 
   def verify(self) -> None:
     if not self.path.is_file():
@@ -126,6 +127,7 @@ def predictor_factory(
       state.get("schema_version") != 1
       or state.get("artifact_kind") != "inference_mask_decoder"
       or state.get("dataset") != spec.dataset
+      or state.get("normalization_id") != spec.normalization_id
       or state.get("pretrained_checkpoint_sha256") != sha256_file(pretrained_checkpoint)
     ):
       raise ValueError(f"checkpoint payload identity mismatch for {spec.dataset}")

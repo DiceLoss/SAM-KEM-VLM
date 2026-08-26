@@ -44,15 +44,20 @@ def prepare_noise_free_projection(
       "crop/mask by a documented preprocessing protocol before simulation"
     )
   scale_C = contract.scale_constants[dataset]
+  offset = contract.normalization_offsets[dataset]
   in_fov_activity = np.asarray(raw, dtype=np.float64).copy()
   in_fov_activity[outside] = 0.0
-  target = in_fov_activity / scale_C
+  target = (in_fov_activity - offset) / scale_C
+  if contract.normalization_clip:
+    target = np.clip(target, *cfg["normalization"]["expected_target_range"])
+  elif np.any(target < 0):
+    raise ValueError("normalization produced negative activity without declared clipping")
   target_upper = float(cfg["normalization"]["expected_target_range"][1])
   target_tolerance = float(cfg["normalization"]["target_range_tolerance"])
   if float(target.max()) > target_upper + target_tolerance:
     raise ValueError(
-      f"fixed C={scale_C:g} gives target max={float(target.max()):.6g}, outside "
-      f"the declared PSNR/data range [0,{target_upper:g}]; verify C provenance"
+      f"normalization scale={scale_C:g} gives target max={float(target.max()):.6g}, outside "
+      f"the declared PSNR/data range [0,{target_upper:g}]; verify normalization provenance"
     )
   operator = build_discrete_radon(
     repo_root=root, size=int(cfg["forward_model"]["image_size"]),
@@ -79,8 +84,11 @@ def prepare_noise_free_projection(
     "schema_version": 1, "dataset": dataset,
     "raw_activity_path": str(raw_activity_path),
     "raw_activity_sha256": array_sha256(raw),
-    "fixed_scale_C": scale_C,
-    "normalization": "circular_fov_activity_divided_by_fixed_dataset_C",
+    "normalization_id": contract.normalization_id,
+    "normalization_offset": offset,
+    "normalization_scale_C": scale_C,
+    "normalization_clip": contract.normalization_clip,
+    "normalization": cfg["normalization"]["rule"],
     "circular_fov_mask_applied": True,
     "normalized_target_min": float(target.min()),
     "normalized_target_max": float(target.max()),

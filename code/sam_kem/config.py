@@ -59,6 +59,9 @@ class ScientificContract:
   count_levels: tuple[int, ...]
   realizations: tuple[int, ...]
   scale_constants: dict[str, float]
+  normalization_offsets: dict[str, float]
+  normalization_id: str
+  normalization_clip: bool
   operator_id: str
   angles: int
   prompt_mlem_iterations: int
@@ -69,6 +72,14 @@ class ScientificContract:
     if not isinstance(constants, dict):
       raise ConfigurationError("normalization.scale_constants must be a mapping")
     parsed_constants: dict[str, float] = {}
+    parsed_offsets: dict[str, float] = {}
+    constant_sources = _require(cfg, "normalization.scale_constant_sources")
+    offsets = _require(cfg, "normalization.offsets")
+    if not isinstance(constant_sources, dict) or not isinstance(offsets, dict):
+      raise ConfigurationError("normalization scale sources and offsets must be mappings")
+    normalization_id = str(_require(cfg, "normalization.normalization_id"))
+    if not normalization_id or normalization_id == "unresolved":
+      raise ConfigurationError("normalization.normalization_id must be explicit")
     for dataset in ("brainweb", "hecktor"):
       raw = constants.get(dataset)
       if raw is None:
@@ -78,7 +89,12 @@ class ScientificContract:
       value = float(raw)
       if value <= 0:
         raise ConfigurationError(f"scale constant for {dataset} must be positive")
+      if not constant_sources.get(dataset):
+        raise ConfigurationError(
+          f"normalization.scale_constant_sources.{dataset} must identify the physical provenance"
+        )
       parsed_constants[dataset] = value
+      parsed_offsets[dataset] = float(offsets.get(dataset, 0.0))
 
     counts = tuple(int(x) for x in _require(cfg, "acquisition.count_levels"))
     realizations = tuple(int(x) for x in _require(cfg, "acquisition.realizations"))
@@ -96,8 +112,16 @@ class ScientificContract:
       raise ConfigurationError("canonical observation must be scaled Poisson projection counts")
     if _require(cfg, "acquisition.independent_realizations_across_count_levels") is not True:
       raise ConfigurationError("count levels and realizations must use independent random draws")
-    if _require(cfg, "normalization.rule") != "divide_by_fixed_dataset_physical_constant":
-      raise ConfigurationError("inputs/targets must use fixed dataset C scaling")
+    normalization_rule = _require(cfg, "normalization.rule")
+    normalization_clip = _require(cfg, "normalization.clip_to_expected_target_range")
+    if normalization_rule == "divide_by_fixed_dataset_physical_constant":
+      if any(value != 0.0 for value in parsed_offsets.values()) or normalization_clip is not False:
+        raise ConfigurationError("physical fixed-C scaling requires zero offset and no clipping")
+    elif normalization_rule == "training_global_minmax_affine_clip01":
+      if normalization_clip is not True:
+        raise ConfigurationError("global min-max sensitivity requires explicit clipping")
+    else:
+      raise ConfigurationError(f"unsupported normalization rule: {normalization_rule}")
     forward = _require(cfg, "forward_model")
     expected_physics = {
       "geometry": "idealized_parallel_beam", "field_of_view": "inscribed_circle",
@@ -156,6 +180,9 @@ class ScientificContract:
       count_levels=counts,
       realizations=realizations,
       scale_constants=parsed_constants,
+      normalization_offsets=parsed_offsets,
+      normalization_id=normalization_id,
+      normalization_clip=bool(normalization_clip),
       operator_id=str(_require(cfg, "forward_model.operator_id")),
       angles=angles,
       prompt_mlem_iterations=int(_require(cfg, "reconstruction.prompt_mlem_iterations")),

@@ -93,3 +93,19 @@ sam-kem validate --root . --config code/configs/experiment.yaml
 ```
 
 Both commands must succeed before numbers are transferred into the manuscript.
+
+## Normalization conflict found in the historical code
+
+The historical sources do not establish one common scale. One HECKTOR/raw loader
+uses `clip(target/30000,0,1)`, a later HECKTOR path reads an already normalized
+and clipped `target.npy`, and the BrainWeb loader calls per-image `normalize`.
+Consequently, `C=1`, `C=30000`, and per-image min-max describe different source
+representations rather than interchangeable numerical choices.
+
+The new normalization calibration protocol fits data-derived candidates from
+train subjects only and inspects validation clipping without reading locked test.
+Its global min-max arm is a sensitivity study; its per-image arm is diagnostic
+only. A physical fixed C remains preferable when scanner/simulation provenance
+exists. If a data-derived scale is selected, the manuscript must say that it is
+not a preserved physical PET scale, and every decoder and reconstruction
+hyperparameter must be retrained/reselected under that scale.

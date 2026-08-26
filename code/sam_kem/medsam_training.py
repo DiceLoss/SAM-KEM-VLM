@@ -143,6 +143,12 @@ def train_dataset_decoder(
       raise ValueError(f"training case operator mismatch: {row['subject_id']}/{row['slice_id']}")
     if float(row.get("scale_constant_C", "nan")) != contract.scale_constants[dataset]:
       raise ValueError(f"training case scale mismatch: {row['subject_id']}/{row['slice_id']}")
+    if (
+      row.get("normalization_id") != contract.normalization_id
+      or float(row.get("normalization_offset", "nan")) != contract.normalization_offsets[dataset]
+      or (row.get("normalization_clip", "").lower() == "true") != contract.normalization_clip
+    ):
+      raise ValueError(f"training case normalization mismatch: {row['subject_id']}/{row['slice_id']}")
   box_cache = BoxCache.read(root / str(cfg["prompts"]["box_cache"]))
 
   medsam_source = root / str(cfg["medsam2"].get("source_checkout_path") or "")
@@ -192,6 +198,7 @@ def train_dataset_decoder(
     if (
       state.get("schema_version") != 1 or state.get("artifact_kind") != "training_resume"
       or state.get("dataset") != dataset
+      or state.get("normalization_id") != contract.normalization_id
       or state.get("pretrained_checkpoint_sha256") != actual_pretrained_sha
       or state.get("config_sha256") != config_sha
     ):
@@ -270,6 +277,7 @@ def train_dataset_decoder(
       "sampled_case_counts": dict(sampled_case_counts),
       "box_fallback_samples": fallbacks, "epoch_summaries": epoch_summaries,
       "pretrained_checkpoint_sha256": actual_pretrained_sha,
+      "normalization_id": contract.normalization_id,
       "config_sha256": config_sha, "code_git_commit": code_commit,
       "medsam2_source_commit": source_head,
     }, resume_path, replace=True)
@@ -289,6 +297,7 @@ def train_dataset_decoder(
     "schema_version": 1, "artifact_kind": "inference_mask_decoder",
     "selection_policy": "fixed_budget_final_checkpoint_no_best_claim",
     "mask_decoder_state": model.sam_mask_decoder.state_dict(), "dataset": dataset,
+    "normalization_id": contract.normalization_id,
     "train_subject_ids": sorted(sampled_subjects), "training_count_samples": dict(training_counts),
     "sampled_case_counts": dict(sorted(sampled_case_counts.items())),
     "epochs": epochs, "steps_per_epoch": steps_per_epoch, "learning_rate": learning_rate,
@@ -320,6 +329,7 @@ def train_dataset_decoder(
     "selection_policy": "fixed_budget_final_checkpoint_no_best_claim",
     "completed_epochs": epochs, "global_step": epochs * steps_per_epoch,
     "dataset": dataset,
+    "normalization_id": contract.normalization_id,
     "train_subject_ids": sorted(sampled_subjects), "training_count_samples": dict(training_counts),
     "sampled_case_counts": dict(sorted(sampled_case_counts.items())),
     "experiment_seed": seed,

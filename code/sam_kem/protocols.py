@@ -12,7 +12,7 @@ from .config import ConfigurationError, load_yaml_strict
 EXPERIMENT_KINDS = {
   "training", "hyperparameter_sweep", "primary", "comparison",
   "ablation", "convergence", "cross_count",
-  "runtime",
+  "runtime", "normalization_calibration",
 }
 
 
@@ -37,8 +37,13 @@ def load_protocol(path: Path) -> Protocol:
   methods = tuple(str(x) for x in raw.get("methods", ()))
   if not methods:
     raise ConfigurationError("protocol must list at least one method or variant")
-  if kind in {"training", "hyperparameter_sweep"} and split == "test_locked":
+  if kind in {"training", "hyperparameter_sweep", "normalization_calibration"} and split == "test_locked":
     raise ConfigurationError(f"{kind} is prohibited on test_locked")
+  if kind == "normalization_calibration":
+    if raw.get("fit_split") != "train" or raw.get("evaluation_split") != "validation":
+      raise ConfigurationError("normalization must be fitted on train and examined on validation")
+    if raw.get("locked_test_access") != "prohibited":
+      raise ConfigurationError("normalization calibration must prohibit locked-test access")
   if kind == "hyperparameter_sweep":
     axes = raw.get("search_space", {})
     for axis in (

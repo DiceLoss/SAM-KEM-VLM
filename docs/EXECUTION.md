@@ -28,8 +28,45 @@ Edit `code/configs/experiment.yaml` and fill:
 - the exact MedSAM2 source repository and immutable Git commit.
 - the released MedSAM2 checkpoint path and SHA-256 (no general-SAM fallback).
 
-Inputs and targets are divided by their dataset constant C. No per-image or
-dataset-wide min-max is permitted. Per-prior min-max is used only to build K.
+The canonical primary arm divides inputs and targets by its dataset constant C.
+Per-image min-max is prohibited as a primary scale. Train-only global min-max is
+permitted only as an explicitly identified sensitivity arm. Per-prior min-max is
+used separately to build K.
+
+If either C is genuinely unknown, do not guess it and do not inspect the locked
+test set. Copy `inputs/normalization_activity_manifest.template.csv` to
+`inputs/normalization_activity_manifest.csv`, list each unique raw 128x128
+activity slice once, retain its native unit, and record its array SHA-256. Then
+run the train-only scale study from a clean committed worktree:
+
+```bash
+sam-kem array-sha --input inputs/raw/brainweb/subject04/axial_z040.npy
+sam-kem calibrate-normalization --root . \
+  --config code/configs/experiment.yaml \
+  --protocol code/configs/protocols/normalization_calibration.yaml
+```
+
+It compares four explicitly different possibilities:
+
+1. scanner/simulation-derived physical C, when its source is recorded;
+2. zero-offset fixed C equal to the training-set global maximum;
+3. training-set global min-max, with validation values clipped only for this
+   sensitivity analysis;
+4. per-image min-max as a diagnostic only.
+
+The command never opens `test_locked` arrays. It writes candidate parameters,
+per-validation-case clipping diagnostics, SHA manifests and `_SUCCESS.json`.
+The training-maximum candidate is a fixed data-derived scale, not a physical
+scale. Global min-max changes the zero point when the training minimum is not
+zero. Per-image min-max destroys between-case quantitative comparability and is
+never eligible as the primary experiment.
+
+Distribution diagnostics do not select a final method. For every viable
+candidate, regenerate train/validation inputs, train a separate pair of
+dataset-specific decoders, repeat the complete validation hyperparameter sweep,
+and compare subject-level NRMSE/SSIM plus clipping rate. Freeze the winner before
+opening the test set. Checkpoint and result paths must include the normalization
+candidate ID so artifacts cannot be mixed.
 
 Run the audit immediately to obtain the remaining-blocker list:
 
@@ -204,27 +241,31 @@ done
 
 Execution order is:
 
-1. `training.yaml`: train-set only, one four-count-level model per dataset.
-2. `hyperparameter_sweep.yaml`: validation only; select MLEM stopping iterations
+1. `normalization_calibration.yaml`, when C is unresolved: fit candidates on
+   train and examine distributions on validation only. Any performance-based
+   choice requires separate retraining and validation reruns per candidate.
+2. `training.yaml`: train-set only, one four-count-level model per dataset and
+   normalization candidate.
+3. `hyperparameter_sweep.yaml`: validation only; select MLEM stopping iterations
    and OSEM complete subset cycles, and separately sweep sigma, radius and KEM
    iterations for Bowsher-KEM, SelfKEM, MR/CT-KEM and SAM-KEM. Sweep alpha only
    for SAM-KEM using real priors. Extend every non-physical grid boundary when
    selected. Freeze one setting per dataset/count/method. The fixed MLEM-10 used
    to create prompts is not reused as the MLEM baseline unless validation selects
    ten iterations independently.
-3. `primary.yaml`: locked test, only after all choices are frozen.
-4. `comparison.yaml`: same locked cases and realizations for all applicable
+4. `primary.yaml`: locked test, only after all choices are frozen.
+5. `comparison.yaml`: same locked cases and realizations for all applicable
    baselines; MR-KEM is BrainWeb-only and CT-KEM is HECKTOR-only.
    `Bowsher-KEM` is specifically the anatomy-selected-neighbour coefficient KEM
    implemented here, not classic MAP-Bowsher. Report OSEM work as both complete
    subset cycles and total subset updates; do not imply equal runtime from equal
    outer-iteration numbers.
-5. `ablation.yaml`: real one-factor-at-a-time reruns. Never alias comparison rows
+6. `ablation.yaml`: real one-factor-at-a-time reruns. Never alias comparison rows
    as ablations.
-6. `convergence.yaml`: descriptive locked-test curves only. Never select iteration
+7. `convergence.yaml`: descriptive locked-test curves only. Never select iteration
    count from these curves.
-7. `cross_count.yaml`: aggregate each dataset/count/method key exactly once.
-8. `runtime.yaml`: validation cases, cached-prior reconstruction scope, with raw
+8. `cross_count.yaml`: aggregate each dataset/count/method key exactly once.
+9. `runtime.yaml`: validation cases, cached-prior reconstruction scope, with raw
    warmup/timed repetitions; VLM/network latency is reported separately from logs.
 
 Canonical commands after data/prior preparation are:

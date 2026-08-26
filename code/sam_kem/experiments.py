@@ -29,6 +29,9 @@ class Case:
   split: str
   seed: int
   scale_constant_C: float
+  normalization_id: str
+  normalization_offset: float
+  normalization_clip: bool
   operator_id: str
   projection_scale: float
   target_path: Path
@@ -49,7 +52,9 @@ def load_case_manifest(root: Path, path: Path, *, split: str) -> list[Case]:
   required = {
     "dataset", "subject_id", "slice_id", "realization_id", "count_level",
     "split", "target_path", "sinogram_path", "anatomy_path", "sam_prior_path",
-    "evaluation_mask_path", "mlem10_input_path", "seed", "scale_constant_C", "operator_id", "projection_scale",
+    "evaluation_mask_path", "mlem10_input_path", "seed", "normalization_id",
+    "normalization_offset", "normalization_clip", "scale_constant_C", "operator_id",
+    "projection_scale",
   }
   if not rows or not required.issubset(rows[0]):
     raise ValueError(f"case manifest missing columns: {sorted(required - set(rows[0] if rows else {}))}")
@@ -57,6 +62,9 @@ def load_case_manifest(root: Path, path: Path, *, split: str) -> list[Case]:
     dataset=row["dataset"], subject_id=row["subject_id"], slice_id=row["slice_id"],
     realization_id=int(row["realization_id"]), count_level=int(row["count_level"]),
     split=row["split"], seed=int(row["seed"]),
+    normalization_id=row["normalization_id"],
+    normalization_offset=float(row["normalization_offset"]),
+    normalization_clip=row["normalization_clip"].lower() == "true",
     scale_constant_C=float(row["scale_constant_C"]), operator_id=row["operator_id"],
     projection_scale=float(row["projection_scale"]),
     target_path=root / row["target_path"],
@@ -105,6 +113,12 @@ def validate_case_contract(cases: list[Case], contract) -> None:
       raise ValueError(f"case operator mismatch for {case.subject_id}/{case.slice_id}")
     if case.scale_constant_C != contract.scale_constants[case.dataset]:
       raise ValueError(f"case physical scale mismatch for {case.subject_id}/{case.slice_id}")
+    if (
+      case.normalization_id != contract.normalization_id
+      or case.normalization_offset != contract.normalization_offsets[case.dataset]
+      or case.normalization_clip != contract.normalization_clip
+    ):
+      raise ValueError(f"case normalization mismatch for {case.subject_id}/{case.slice_id}")
 
 
 def compute_mlem_input(case: Case, measured: np.ndarray, operator, cfg) -> np.ndarray:
@@ -216,7 +230,8 @@ def run_protocol(
   fields = [
     "protocol", "dataset", "subject_id", "slice_id", "realization_id", "count_level",
     "method", "split", "psnr_db", "ssim", "nrmse", "mae", "poisson_deviance",
-    "operator_id", "scale_constant_C", "sigma", "radius", "neighbours", "iterations", "alpha",
+    "operator_id", "normalization_id", "normalization_offset", "normalization_clip",
+    "scale_constant_C", "sigma", "radius", "neighbours", "iterations", "alpha",
     "osem_subsets", "effective_em_updates", "seed", "checkpoint_sha256",
   ]
   with atomic_csv_writer(output_path, fields) as writer:
@@ -252,6 +267,9 @@ def run_protocol(
           "nrmse": nrmse(target, image, mask), "mae": mae(target, image, mask),
           "poisson_deviance": poisson_deviance(measured, expected),
           "operator_id": contract.operator_id,
+          "normalization_id": contract.normalization_id,
+          "normalization_offset": contract.normalization_offsets[case.dataset],
+          "normalization_clip": contract.normalization_clip,
           "scale_constant_C": contract.scale_constants[case.dataset], **hp,
           "osem_subsets": int(cfg["reconstruction"]["osem_subsets"]) if method == "OSEM" else 1,
           "effective_em_updates": (

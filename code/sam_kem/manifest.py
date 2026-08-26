@@ -17,7 +17,8 @@ from .artifacts import atomic_csv_writer, finalize_csv
 
 FIELDS = [
   "dataset", "subject_id", "slice_id", "realization_id", "count_level", "split",
-  "seed", "scale_constant_C", "operator_id", "target_path",
+  "seed", "normalization_id", "normalization_offset", "normalization_clip",
+  "scale_constant_C", "operator_id", "target_path",
   "noise_free_projection_path", "projection_metadata_path", "projection_scale", "sinogram_path",
   "simulation_metadata_path", "realized_total_counts", "mlem10_input_path",
   "mlem10_metadata_path",
@@ -77,6 +78,11 @@ def build_case_manifest(root: Path, config_path: Path, arrays_root: Path, output
             if (
               projection_record.get("dataset") != dataset
               or projection_record.get("operator_id") != contract.operator_id
+              or projection_record.get("normalization_id") != contract.normalization_id
+              or float(projection_record.get("normalization_offset", "nan"))
+              != contract.normalization_offsets[dataset]
+              or bool(projection_record.get("normalization_clip"))
+              != contract.normalization_clip
               or projection_record.get("field_of_view") != cfg["forward_model"]["field_of_view"]
               or float(projection_record.get("out_of_fov_activity_mass_fraction", 1.0))
               > float(cfg["forward_model"]["out_of_fov_activity_mass_tolerance"])
@@ -148,6 +154,7 @@ def build_case_manifest(root: Path, config_path: Path, arrays_root: Path, output
                 or record.get("slice_id") != slice_dir.name
                 or int(record.get("count_level", -1)) != count
                 or int(record.get("realization_id", -1)) != realization
+                or record.get("normalization_id") != contract.normalization_id
                 or record.get("decoder_checkpoint_sha256") != expected_checkpoint
               ):
                 raise ValueError(f"prior provenance mismatch: {sidecar}")
@@ -160,6 +167,9 @@ def build_case_manifest(root: Path, config_path: Path, arrays_root: Path, output
               "slice_id": slice_dir.name, "realization_id": realization,
               "count_level": count, "split": split_index[key],
               "seed": expected_seed,
+              "normalization_id": contract.normalization_id,
+              "normalization_offset": contract.normalization_offsets[dataset],
+              "normalization_clip": contract.normalization_clip,
               "scale_constant_C": contract.scale_constants[dataset],
               "operator_id": contract.operator_id,
               "target_path": _relative(target, root),

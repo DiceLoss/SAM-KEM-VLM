@@ -23,12 +23,19 @@ acquisition:
   independent_realizations_across_count_levels: true
 
 normalization:
+  normalization_id: fixed_physical_C
   rule: divide_by_fixed_dataset_physical_constant
   # These values must be supplied from scanner/simulation provenance before a run.
   # Do not replace them with per-image or dataset-wide min-max normalization.
   scale_constants:
     brainweb: null
     hecktor: null
+  # Required evidence, e.g. scanner DICOM field/manual or simulation definition.
+  scale_constant_sources:
+    brainweb: null
+    hecktor: null
+  offsets: {brainweb: 0.0, hecktor: 0.0}
+  clip_to_expected_target_range: false
   expected_target_range: [0.0, 1.0]
   target_range_tolerance: 1.0e-6
   kernel_feature_rule: per_prior_minmax_only

@@ -164,12 +164,15 @@ def audit_repository(root: Path, config_path: Path) -> list[Issue]:
         payload.get("schema_version") != 1
         or payload.get("artifact_kind") != "inference_mask_decoder"
         or payload.get("dataset") != dataset
+        or payload.get("normalization_id") != contract.normalization_id
         or payload.get("pretrained_checkpoint_sha256") != pretrained_sha
         or "mask_decoder_state" not in payload or "model_state" in payload
       ):
         issues.append(Issue("CHECKPOINT_PAYLOAD", "fatal", f"invalid decoder-only payload for {dataset}"))
     if provenance.get("non_mask_decoder_trainable_names"):
       issues.append(Issue("ENCODER_NOT_FROZEN", "fatal", f"non-decoder trainable parameters for {dataset}"))
+    if provenance.get("normalization_id") != contract.normalization_id:
+      issues.append(Issue("CHECKPOINT_NORMALIZATION", "fatal", f"wrong normalization identity for {dataset}"))
     if provenance.get("loss") != "l1_only_raw_decoder_output":
       issues.append(Issue("TRAINING_LOSS", "fatal", f"unexpected loss for {dataset}"))
     counts = {int(key): int(value) for key, value in provenance.get("training_count_samples", {}).items()}
@@ -273,6 +276,11 @@ def audit_repository(root: Path, config_path: Path) -> list[Issue]:
           int(row["seed"]) == expected_seed
           and row["operator_id"] == contract.operator_id
           and float(row["scale_constant_C"]) == contract.scale_constants[row["dataset"]]
+          and row.get("normalization_id") == contract.normalization_id
+          and float(row.get("normalization_offset", "nan"))
+          == contract.normalization_offsets[row["dataset"]]
+          and (row.get("normalization_clip", "").lower() == "true")
+          == contract.normalization_clip
           and float(row["projection_scale"]) > 0
         )
         if not valid:
@@ -319,6 +327,14 @@ def audit_repository(root: Path, config_path: Path) -> list[Issue]:
             raise ValueError("invalid PET array range, finiteness, or count dtype")
           if projection_meta.get("target_sha256") != array_sha256(target):
             raise ValueError("target hash differs from projection sidecar")
+          if (
+            projection_meta.get("normalization_id") != contract.normalization_id
+            or float(projection_meta.get("normalization_offset", "nan"))
+            != contract.normalization_offsets[row["dataset"]]
+            or bool(projection_meta.get("normalization_clip"))
+            != contract.normalization_clip
+          ):
+            raise ValueError("projection sidecar has the wrong normalization identity")
           if projection_meta.get("noise_free_projection_sha256") != array_sha256(projection):
             raise ValueError("projection hash differs from projection sidecar")
           if simulation_meta.get("noise_free_projection_sha256") != array_sha256(projection):
@@ -363,6 +379,7 @@ def audit_repository(root: Path, config_path: Path) -> list[Issue]:
               prior.shape != target.shape or not np.all(np.isfinite(prior))
               or prior_meta.get("prior_sha256") != array_sha256(prior)
               or prior_meta.get("input_mlem10_sha256") != array_sha256(mlem_input)
+              or prior_meta.get("normalization_id") != contract.normalization_id
               or prior_meta.get("decoder_checkpoint_sha256") != expected_checkpoint
             ):
               raise ValueError(f"prior or its provenance changed: {prior_name}")
@@ -418,6 +435,19 @@ def audit_repository(root: Path, config_path: Path) -> list[Issue]:
         invalid_numeric.append(row)
     if invalid_numeric:
       issues.append(Issue("RESULT_NUMERIC", "fatal", f"{len(invalid_numeric)} result rows have missing/non-finite values"))
+    wrong_normalization = [
+      row for row in rows
+      if row.get("normalization_id") != contract.normalization_id
+      or float(row.get("normalization_offset", "nan"))
+      != contract.normalization_offsets.get(row.get("dataset"), float("nan"))
+      or (row.get("normalization_clip", "").lower() == "true")
+      != contract.normalization_clip
+    ] if "contract" in locals() else []
+    if wrong_normalization:
+      issues.append(Issue(
+        "RESULT_NORMALIZATION", "fatal",
+        f"{len(wrong_normalization)} result rows have the wrong normalization identity",
+      ))
     if splits:
       declared_test = {
         (row["dataset"], row["subject_id"]) for row in splits

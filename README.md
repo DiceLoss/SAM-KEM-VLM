@@ -52,6 +52,7 @@ checkpoints, regenerates complete Qwen caches, and reruns all experiments.
 
 Experiment definitions are separate and reviewable:
 
+- `code/configs/protocols/normalization_calibration.yaml`
 - `code/configs/protocols/training.yaml`
 - `code/configs/protocols/hyperparameter_sweep.yaml`
 - `code/configs/protocols/primary.yaml`

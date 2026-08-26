@@ -38,6 +38,7 @@ def generate_priors(
     dataset: CheckpointSpec(
       dataset, root / cfg["medsam2"]["checkpoint_paths"][dataset],
       cfg["medsam2"]["checkpoint_sha256"][dataset],
+      cfg["normalization"]["normalization_id"],
     ) for dataset in ("brainweb", "hecktor")
   }
   rows = list(csv.DictReader(manifest_path.open("r", encoding="utf-8", newline="")))
@@ -94,6 +95,7 @@ def generate_priors(
       np.save(output, prior)
       metadata_path.write_text(json.dumps({
         "schema_version": 1,
+        "normalization_id": cfg["normalization"]["normalization_id"],
         "dataset": row["dataset"], "subject_id": row["subject_id"],
         "slice_id": row["slice_id"], "count_level": int(row["count_level"]),
         "realization_id": int(row["realization_id"]),

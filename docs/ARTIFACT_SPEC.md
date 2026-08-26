@@ -22,7 +22,7 @@ For an output such as `checkpoints/medsam2_decoder_brainweb.pt`, training writes
 
 | File | Meaning |
 |---|---|
-| `medsam2_decoder_brainweb.pt` | Immutable inference checkpoint containing only `mask_decoder_state`, dataset identity, exact base checkpoint SHA and fixed-budget selection statement. |
+| `medsam2_decoder_brainweb.pt` | Immutable inference checkpoint containing only `mask_decoder_state`, dataset and normalization identity, exact base checkpoint SHA and fixed-budget selection statement. |
 | `medsam2_decoder_brainweb.resume.pt` | Atomic rolling epoch-boundary recovery state containing decoder, optimizer, Python/NumPy/Torch CPU/CUDA RNG states, completed epoch/global step and sampling counters. |
 | `medsam2_decoder_brainweb.training.csv` | One unique row per completed epoch with mean/std/min/max L1 and sample count. |
 | `medsam2_decoder_brainweb.training.csv.manifest.json` | Training-curve schema, row count and SHA-256. |
@@ -71,6 +71,13 @@ Final run directories, checkpoint bundles, array manifests, prompt records and
 locked configuration must be archived together. Record the immutable result
 archive URI in `outputs.artifact_policy.immutable_archive_uri` before manuscript
 eligibility validation.
+
+Normalization candidates are separate experiment identities. Their ID must be
+present in the run directory, checkpoint provenance and regenerated array
+metadata. A checkpoint trained under fixed C, global min-max or per-image
+min-max may never be evaluated against arrays from another normalization arm.
+The calibration CSV and its input activity manifest are archived with the same
+SHA-bound rules as reconstruction results.
 
 ## Completion checks
 

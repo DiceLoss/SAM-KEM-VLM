@@ -199,6 +199,22 @@ def _prepare_mlem(args: argparse.Namespace) -> int:
   return 0
 
 
+def _run_normalization_calibration(args: argparse.Namespace) -> int:
+  from .normalization import run_normalization_calibration
+  candidates, diagnostics = run_normalization_calibration(
+    args.root.resolve(), args.config.resolve(), args.protocol.resolve(),
+  )
+  print(f"wrote {candidates}\nwrote {diagnostics}")
+  return 0
+
+
+def _array_sha(args: argparse.Namespace) -> int:
+  from .noise import array_sha256
+  value = np.load(args.input)
+  print(array_sha256(value))
+  return 0
+
+
 def build_parser() -> argparse.ArgumentParser:
   parser = argparse.ArgumentParser(prog="sam-kem")
   sub = parser.add_subparsers(required=True)
@@ -312,6 +328,19 @@ def build_parser() -> argparse.ArgumentParser:
   project.add_argument("--target-output", type=Path, required=True)
   project.add_argument("--projection-output", type=Path, required=True)
   project.set_defaults(func=_project_activity)
+
+  normalization = sub.add_parser(
+    "calibrate-normalization",
+    help="fit scale candidates on train data and diagnose them on validation",
+  )
+  normalization.add_argument("--root", type=Path, default=Path("."))
+  normalization.add_argument("--config", type=Path, required=True)
+  normalization.add_argument("--protocol", type=Path, required=True)
+  normalization.set_defaults(func=_run_normalization_calibration)
+
+  array_sha = sub.add_parser("array-sha", help="print the canonical dtype/shape/content SHA of a NumPy array")
+  array_sha.add_argument("--input", type=Path, required=True)
+  array_sha.set_defaults(func=_array_sha)
   return parser
 
 
