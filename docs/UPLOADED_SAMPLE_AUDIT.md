@@ -39,4 +39,49 @@ global and per-image min-max make no numerical change to these arrays. The
 samples therefore cannot identify the original C. BrainWeb extraction explicitly
 divided each slice by its own maximum; the HECKTOR targets are approximately
 binary and were loaded from the dataset `target` rather than the PET input
-channel. Raw, train-split activity arrays are required for scale calibration.
+channel.
+
+## Follow-up experiment on `data/raw_pet`
+
+The later raw upload permits a provisional distribution experiment but is not
+yet canonical input. Applying the declared BrainWeb 2x2 mean pooling to all v4
+train slices gives minimum `0`, maximum `5.796875`, and 99.99th percentile
+`5.431641`. Validation has maximum `5.213867`. Thus `C_BW=6` is a reasonable
+rounded **data-derived** fixed-scale candidate with no train/validation clipping;
+train-global min-max is nearly the same operation because its offset is zero.
+It is not a physical calibration claim.
+
+For HECKTOR, resizing the uploaded channel to 128x128 gives a provisional train
+maximum of `26.973867` and validation maximum of `34.933079`. A train-max
+min-max scale would clip `0.0242%` of validation pixels in one case. `C_HE=30`
+would still clip `0.0154%` in that case, whereas `C_HE=35` covers train and
+validation without clipping. `C_HE=30000` places the validation maximum at only
+`0.001164`; it is incompatible with this uploaded representation even though C
+cancels from the expected-count sinogram mathematically.
+
+These values remain provisional for three reasons:
+
+1. HECKTOR subject IDs are one-based, but `_make_raw_pet_samples.py` indexes the
+   source as `input_arr[sid]`. Cross-matching uploaded masks proves the resulting
+   keys are shifted: for example sample subject 107 exactly matches raw key 106,
+   not raw key 107. Source index 0 is absent and subject 224 is skipped.
+2. The script and manifest call channel 1 both PET and “HU scale,” while an older
+   preprocessing file calls it CT. Its non-negative 0--35 distribution is
+   consistent with a PET/SUV-like channel, but the original dataset metadata
+   must settle the channel and unit claim.
+3. BrainWeb was converted from float32 to float16 merely to split files, although
+   each compressed float32 subject would fit below GitHub's file limit. The
+   manifest still names a nonexistent combined `raw_pet_brainweb.npz` and records
+   no source/array hashes.
+
+The HE image square also does not fit the declared circular FOV: about `24.5%`
+of provisional train activity lies outside the inscribed circle. Canonical
+preprocessing must resize the entire 144x144 square to fit inside the circle and
+center-pad it, or change and revalidate the acquisition geometry. Silently
+discarding this mass is not acceptable.
+
+Accordingly, `C_BW=6` and `C_HE=35` are candidates for a corrected train/validation
+rerun, not values to paste into the locked configuration yet. The corrected raw
+export must preserve float32, use `pid=sid-1`, omit segmentation targets and
+locked-test data, identify the PET channel/unit, and record source plus array
+SHA-256 values.
