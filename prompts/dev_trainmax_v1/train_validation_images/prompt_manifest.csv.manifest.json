@@ -1,0 +1,32 @@
+{
+  "artifact_path": "prompt_manifest.csv",
+  "artifact_sha256": "44990e51a0d5a3bdb16575ea55dce760f3b93a2a2e6664a4d4bb65406ef8a152",
+  "byte_size": 7473116,
+  "columns": [
+    "run_id",
+    "dataset",
+    "subject_id",
+    "slice_id",
+    "count_level",
+    "split",
+    "source_mlem10_path",
+    "source_mlem10_sha256",
+    "prompt_image_path",
+    "prompt_image_sha256",
+    "prompt_metadata_path",
+    "prompt_sha256",
+    "model"
+  ],
+  "completed_utc": "2026-08-27T03:43:49.585842+00:00",
+  "primary_key": [
+    "run_id",
+    "dataset",
+    "subject_id",
+    "slice_id",
+    "count_level"
+  ],
+  "row_count": 14940,
+  "schema_name": "vlm_prompt_manifest_v1",
+  "schema_version": 1,
+  "split": null
+}
