@@ -1,0 +1,90 @@
+{
+  "brainweb/subject04/z038/c100000.json": {
+    "sha256": "fbeb4a682ebcdfa3befa6324a37dcb43550de1053cc36233df8c4b58825977d3",
+    "request_id": "chatcmpl-8d4d4c9d-3f92-9c6c-af04-49113e1a8af9",
+    "box": {
+      "xmax": 94,
+      "xmin": 52,
+      "ymax": 86,
+      "ymin": 38
+    },
+    "source": "qwen3-vl-plus"
+  },
+  "brainweb/subject04/z038/c1000000.json": {
+    "sha256": "853934866a4df8c3dd87d481653f7a6bf98ad0be697bc4e661e6cc03f3d47515",
+    "request_id": "chatcmpl-1c41a1ac-16fd-91ae-a068-2d83ed3df9b3",
+    "box": {
+      "xmax": 108,
+      "xmin": 48,
+      "ymax": 96,
+      "ymin": 24
+    },
+    "source": "qwen3-vl-plus"
+  },
+  "brainweb/subject04/z038/c200000.json": {
+    "sha256": "bebe59c59a438b2649a878d113a1f463289c64084e827d5728df0d7b9a186573",
+    "request_id": "chatcmpl-93025d81-10fc-9b88-aa64-b2743f48d20a",
+    "box": {
+      "xmax": 74,
+      "xmin": 68,
+      "ymax": 65,
+      "ymin": 59
+    },
+    "source": "qwen3-vl-plus"
+  },
+  "brainweb/subject04/z038/c500000.json": {
+    "sha256": "ca6c58ad1b88501228e815bc4652ae25f38e3e0e4d06d9320f423ab191befd84",
+    "request_id": "chatcmpl-8b6959ed-1bbf-935b-b944-4c36405ed3b9",
+    "box": {
+      "xmax": 116,
+      "xmin": 12,
+      "ymax": 104,
+      "ymin": 24
+    },
+    "source": "qwen3-vl-plus"
+  },
+  "hecktor/1/z072/c100000.json": {
+    "sha256": "cb0c6c407f16d8f5e3f60b5b99a08e92f33025e78ca23b9381a97fef81ecbee0",
+    "request_id": "chatcmpl-c1f68d38-a36f-9b91-a9f1-c8bd236c93a4",
+    "box": {
+      "xmax": 96,
+      "xmin": 48,
+      "ymax": 80,
+      "ymin": 32
+    },
+    "source": "qwen3-vl-plus"
+  },
+  "hecktor/1/z072/c1000000.json": {
+    "sha256": "a97454114b4e6510e4776e8af017d0f5cd8a058ca7795427462100b686a6a5c7",
+    "request_id": "chatcmpl-a4fc6f4b-7a65-96c3-bcde-8bac33f16679",
+    "box": {
+      "xmax": 96,
+      "xmin": 48,
+      "ymax": 72,
+      "ymin": 24
+    },
+    "source": "qwen3-vl-plus"
+  },
+  "hecktor/1/z072/c200000.json": {
+    "sha256": "1100d50d18701198d010a4e00737461b8a179cddc1b6904bd054a83014048305",
+    "request_id": "chatcmpl-b34357c2-a15e-9f3d-bbbb-4ca41ee093ae",
+    "box": {
+      "xmax": 88,
+      "xmin": 48,
+      "ymax": 72,
+      "ymin": 32
+    },
+    "source": "qwen3-vl-plus"
+  },
+  "hecktor/1/z072/c500000.json": {
+    "sha256": "ade865fa1edf33df9627ce29804df8c78b1903049e8fff7d9dc1a73c4985c84a",
+    "request_id": "chatcmpl-ebbd2b87-27f0-9751-a0a5-bcd95b49a14f",
+    "box": {
+      "xmax": 96,
+      "xmin": 48,
+      "ymax": 72,
+      "ymin": 32
+    },
+    "source": "qwen3-vl-plus"
+  }
+}
