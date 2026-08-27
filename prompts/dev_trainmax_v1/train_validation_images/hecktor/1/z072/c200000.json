@@ -1,0 +1,13 @@
+{
+  "artifact_kind": "vlm_prompt_render",
+  "display_shape": [
+    128,
+    128,
+    3
+  ],
+  "display_transform": "per_image_minmax_round_to_uint8_rgb_only_for_vlm",
+  "png_sha256": "394688cadee38b78a23ef08d2ea2ad16cbb9f7c9abbeebf257cc523106c0fa77",
+  "schema_version": 2,
+  "source_array_path": "D:\\MIAProject\\SAM_KEM_QWEN3_V3_REPO\\arrays\\dev_trainmax_v1\\hecktor\\1\\z072\\c200000\\r0\\mlem10.npy",
+  "source_mlem10_sha256": "109fbd93bf65e2fa27bc4e8e5ad5b17c85f28f2354bf8e9c6e587a461cc2f43b"
+}

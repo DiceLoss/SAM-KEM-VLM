@@ -1,0 +1,13 @@
+{
+  "artifact_kind": "vlm_prompt_render",
+  "display_shape": [
+    128,
+    128,
+    3
+  ],
+  "display_transform": "per_image_minmax_round_to_uint8_rgb_only_for_vlm",
+  "png_sha256": "02fcfc83bf9db37244b4021d6455bc662c355bc969dfbbc8c4f8b358e8a9f13a",
+  "schema_version": 2,
+  "source_array_path": "D:\\MIAProject\\SAM_KEM_QWEN3_V3_REPO\\arrays\\dev_trainmax_v1\\brainweb\\subject04\\z038\\c500000\\r0\\mlem10.npy",
+  "source_mlem10_sha256": "15fe6e54ffdca7c19e6e601911c6cdd67b2e26f4b2ea7ace10f1d89c82146a12"
+}
