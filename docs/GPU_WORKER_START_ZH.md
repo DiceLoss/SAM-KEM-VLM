@@ -169,10 +169,12 @@ PNG 和逐图 JSON sidecar 属于外部不可变归档的 bulk artifacts；Git �
 
 ```bash
 export DASHSCOPE_API_KEY='服务器环境变量中的真实 key'
+QWEN_IMPLEMENTATION_SHA256="$(sha256sum code/sam_kem/qwen.py | awk '{print $1}')"
 sam-kem request-boxes --root . --config "$CFG" \
   --manifest "prompts/${RUN}/train_validation_images/prompt_manifest.csv" \
   --responses "prompts/${RUN}/qwen_pilot_attempts" \
   --policy inputs/clean_v1/qwen_request_policy.json \
+  --implementation-sha256 "$QWEN_IMPLEMENTATION_SHA256" \
   --resume-verified --pilot-one-per-dataset-count
 
 # pilot 经研究员单独批准后才在独立的正式目录执行完整批次：
@@ -180,6 +182,7 @@ sam-kem request-boxes --root . --config "$CFG" \
   --manifest "prompts/${RUN}/train_validation_images/prompt_manifest.csv" \
   --responses "prompts/${RUN}/train_validation_responses" \
   --policy inputs/clean_v1/qwen_request_policy.json \
+  --implementation-sha256 "$QWEN_IMPLEMENTATION_SHA256" \
   --resume-verified
 
 # 立即清除当前 shell 中的凭证并停止；此时禁止 build-box-cache。

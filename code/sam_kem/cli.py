@@ -167,6 +167,7 @@ def _request_prompt_batch(args: argparse.Namespace) -> int:
   summary = request_prompt_manifest(
     args.root.resolve(), args.config.resolve(), args.manifest.resolve(),
     args.responses.resolve(), policy_path=args.policy.resolve(),
+    expected_implementation_sha256=args.implementation_sha256,
     resume_verified=args.resume_verified,
     pilot_one_per_dataset_count=args.pilot_one_per_dataset_count,
   )
@@ -437,6 +438,7 @@ def build_parser() -> argparse.ArgumentParser:
   request_batch.add_argument("--manifest", type=Path, required=True)
   request_batch.add_argument("--responses", type=Path, required=True)
   request_batch.add_argument("--policy", type=Path, required=True)
+  request_batch.add_argument("--implementation-sha256", required=True)
   request_batch.add_argument("--resume-verified", action="store_true")
   request_batch.add_argument("--pilot-one-per-dataset-count", action="store_true")
   request_batch.set_defaults(func=_request_prompt_batch)

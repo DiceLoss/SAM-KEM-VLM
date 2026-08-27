@@ -45,6 +45,10 @@ def build_box_cache(
     key = BoxKey(record["dataset"], record["subject_id"], record["slice_id"], int(record["count_level"]))
     if record.get("run_id") != cfg["run_id"]:
       raise ValueError(f"Qwen response has wrong run_id: {path}")
+    if record.get("source") == "qwen_batch_configuration_failure":
+      raise ValueError(
+        f"batch-configuration failure cannot become a box-cache fallback: {path}"
+      )
     if (
       document.get("request_policy", {}).get("policy_id") != policy["policy_id"]
       or document.get("request_policy", {}).get("sha256") != policy_sha256

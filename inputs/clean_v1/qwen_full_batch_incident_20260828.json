@@ -1,0 +1,40 @@
+{
+  "schema_version": 1,
+  "artifact_kind": "qwen_full_batch_incident",
+  "incident_date": "2026-08-28",
+  "run_id": "dev_trainmax_v1",
+  "development_only": true,
+  "reported_repository_commit": "5cbee74c6656f6ae5331b8a97cb86001a35e9755",
+  "formal_expected_cache_keys": 14940,
+  "archived_partial_records": 12580,
+  "success_marker_present": false,
+  "trigger": {
+    "cache_key": "brainweb/subject52/z204/c1000000",
+    "http_status": 400,
+    "provider_error_code": "invalid_parameter_error",
+    "provider_message_class": "InternalError.Algo.InvalidParameter: provided URL does not appear to be valid",
+    "archived_source": "qwen_batch_configuration_failure"
+  },
+  "reported_partial_source_counts": {
+    "qwen3-vl-plus": 12573,
+    "qwen_request_failure": 6,
+    "qwen_batch_configuration_failure": 1,
+    "qwen_no_detection": 0
+  },
+  "provenance_anomaly": {
+    "status": "suspected_stale_installed_entrypoint_pending_worker_fingerprint",
+    "evidence": [
+      "The worker reported that successful attempts lack explicit http_status, although commit 5cbee74 records it.",
+      "The worker did not report request_implementation.sha256, although commit 5cbee74 writes it into every response.",
+      "The repository HEAD alone does not prove which installed sam-kem entry point handled the requests."
+    ]
+  },
+  "disposition": {
+    "partial_batch_is_formal_evidence": false,
+    "delete_or_overwrite_allowed": false,
+    "resume_allowed": false,
+    "box_cache_allowed": false,
+    "gpu_training_allowed": false,
+    "next_action": "Fingerprint the executed entry point and imported module, then preserve and quarantine the entire partial response directory before any clean rerun."
+  }
+}

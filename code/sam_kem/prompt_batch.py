@@ -16,8 +16,8 @@ from .config import load_yaml_strict, require_test_release
 from .display import render_prompt_png
 from .noise import array_sha256
 from .qwen import (
-  REQUEST_IMPLEMENTATION_PATH, instruction_sha256, load_request_policy,
-  request_and_archive_box,
+  REQUEST_IMPLEMENTATION_PATH, QwenBatchFatalError, instruction_sha256,
+  load_request_policy, request_and_archive_box,
 )
 
 
@@ -142,12 +142,19 @@ def prepare_prompt_manifest(
 def request_prompt_manifest(
   root: Path, config_path: Path, prompt_manifest: Path, response_dir: Path, *,
   policy_path: Path,
+  expected_implementation_sha256: str,
   resume_verified: bool = False,
   pilot_one_per_dataset_count: bool = False,
 ) -> dict[str, int | str]:
   cfg = load_yaml_strict(config_path)
   policy = load_request_policy(policy_path)
   policy_sha256 = file_sha256(policy_path)
+  implementation_sha256 = file_sha256(REQUEST_IMPLEMENTATION_PATH)
+  if expected_implementation_sha256 != implementation_sha256:
+    raise ValueError(
+      "loaded Qwen implementation differs from --implementation-sha256: "
+      f"loaded={REQUEST_IMPLEMENTATION_PATH}, sha256={implementation_sha256}"
+    )
   record = verify_csv_artifact(prompt_manifest)
   if record.get("schema_name") != "vlm_prompt_manifest_v1":
     raise ValueError("box requests require a canonical prompt manifest")
@@ -183,6 +190,11 @@ def request_prompt_manifest(
         raise FileExistsError(f"Qwen attempt already archived: {output}")
       document = json.loads(output.read_text(encoding="utf-8"))
       archived = document.get("record", {})
+      if archived.get("source") == "qwen_batch_configuration_failure":
+        raise QwenBatchFatalError(
+          "archived batch-configuration failure cannot be resumed, reused, or "
+          f"converted to fallback: {output}"
+        )
       if (
         archived.get("run_id") != cfg["run_id"]
         or archived.get("image_sha256") != row["prompt_image_sha256"]
@@ -190,7 +202,7 @@ def request_prompt_manifest(
         or archived.get("model") != row["model"]
         or document.get("request_policy", {}).get("sha256") != policy_sha256
         or document.get("request_implementation", {}).get("sha256")
-        != file_sha256(REQUEST_IMPLEMENTATION_PATH)
+        != implementation_sha256
       ):
         raise ValueError(f"archived Qwen attempt failed resume verification: {output}")
       summary["reused"] += 1
