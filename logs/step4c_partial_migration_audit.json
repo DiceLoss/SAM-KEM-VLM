@@ -1,0 +1,17 @@
+{
+  "artifact_kind": "qwen_partial_batch_migration_audit",
+  "byte_identical_copies": 12579,
+  "destination_directory": "D:\\MIAProject\\SAM_KEM_QWEN3_V3_REPO\\prompts\\dev_trainmax_v1\\train_validation_responses_resolved_v1",
+  "destination_records": 12580,
+  "destination_response_set_sha256": "11646456899dfb693f36854c2d38c8b9582fa23faa8af347cb67776692bae642",
+  "incident_original_sha256": "065c0477bcc5afa5de638b61f139511709945c4b0c87117315374d56d5ee21b8",
+  "incident_transformed_sha256": "4f3fd2ce01cb7f6cbe53fbb3d5330288d02367dc59c0ae80da507ca9e30353e4",
+  "remaining_unprocessed_keys": 2360,
+  "resolution_manifest_sha256": "abc63ae6c32964a808fe0cdaba93368c84d5b167bfea601379d58e7084247580",
+  "schema_version": 1,
+  "source_directory": "D:\\MIAProject\\SAM_KEM_QWEN3_V3_REPO\\prompts\\dev_trainmax_v1\\train_validation_responses",
+  "source_records": 12580,
+  "source_response_set_sha256": "6e062360933980880714239ac15051e5880badcd37253453873bdcc97beaa3c4",
+  "success_marker_present": false,
+  "transformed_records": 1
+}
