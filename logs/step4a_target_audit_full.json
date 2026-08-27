@@ -1,0 +1,22 @@
+{
+  "brainweb": {
+    "n_unique_targets": 3511,
+    "nonfinite_total": 0,
+    "negative_total": 0,
+    "above_one_pixels": 377,
+    "above_one_affected_slices": 27,
+    "total_pixels": 57524224,
+    "fraction_over_all_targets": 6.553760725220735e-06
+  },
+  "hecktor": {
+    "n_unique_targets": 224,
+    "nonfinite_total": 0,
+    "negative_total": 0,
+    "above_one_pixels": 0,
+    "above_one_affected_slices": 0,
+    "total_pixels": 3670016
+  },
+  "missing_targets": [],
+  "method": "full scan of all unique (dataset, subject, slice) targets",
+  "timestamp_utc": "2026-08-26"
+}
