@@ -1,0 +1,151 @@
+{
+  "artifact_kind": "qwen_partial_batch_forensic_audit",
+  "read_only": true,
+  "responses": {
+    "attempt_count_distribution": {
+      "1": 12529,
+      "2": 38,
+      "3": 13
+    },
+    "directory": "D:\\MIAProject\\SAM_KEM_QWEN3_V3_REPO\\prompts\\dev_trainmax_v1\\train_validation_responses",
+    "duplicate_keys": 0,
+    "expected_records": 14940,
+    "explicit_http_status_distribution": {
+      "200": 12573,
+      "400": 1
+    },
+    "failure_records": [
+      {
+        "attempt_count": 3,
+        "error_classes": [
+          "ValueError",
+          "ValueError",
+          "ValueError"
+        ],
+        "http_statuses": [],
+        "path": "brainweb/subject05/z146/c1000000.json",
+        "source": "qwen_request_failure"
+      },
+      {
+        "attempt_count": 3,
+        "error_classes": [
+          "ValueError",
+          "ValueError",
+          "ValueError"
+        ],
+        "http_statuses": [],
+        "path": "brainweb/subject42/z155/c1000000.json",
+        "source": "qwen_request_failure"
+      },
+      {
+        "attempt_count": 3,
+        "error_classes": [
+          "ValueError",
+          "ValueError",
+          "ValueError"
+        ],
+        "http_statuses": [],
+        "path": "brainweb/subject43/z123/c1000000.json",
+        "source": "qwen_request_failure"
+      },
+      {
+        "attempt_count": 3,
+        "error_classes": [
+          "ValueError",
+          "ValueError",
+          "ValueError"
+        ],
+        "http_statuses": [],
+        "path": "brainweb/subject45/z141/c1000000.json",
+        "source": "qwen_request_failure"
+      },
+      {
+        "attempt_count": 3,
+        "error_classes": [
+          "ValueError",
+          "ValueError",
+          "ValueError"
+        ],
+        "http_statuses": [],
+        "path": "brainweb/subject45/z142/c1000000.json",
+        "source": "qwen_request_failure"
+      },
+      {
+        "attempt_count": 3,
+        "error_classes": [
+          "ValueError",
+          "ValueError",
+          "ValueError"
+        ],
+        "http_statuses": [],
+        "path": "brainweb/subject45/z142/c200000.json",
+        "source": "qwen_request_failure"
+      },
+      {
+        "attempt_count": 1,
+        "error_classes": [
+          "QwenAttemptError"
+        ],
+        "http_statuses": [
+          400
+        ],
+        "path": "brainweb/subject52/z204/c1000000.json",
+        "source": "qwen_batch_configuration_failure"
+      }
+    ],
+    "missing_expected_keys": 2360,
+    "nonempty_request_ids": 12573,
+    "records": 12580,
+    "records_missing_image_sha256": 0,
+    "records_missing_request_implementation": 0,
+    "request_implementation_sha256_counts": {
+      "3a129723846bc55edb33ac3cbf523915aea61b2a1e4c79333f53fdd036c3c516": 12580
+    },
+    "response_set_sha256": "6e062360933980880714239ac15051e5880badcd37253453873bdcc97beaa3c4",
+    "source_counts": {
+      "qwen3-vl-plus": 12573,
+      "qwen_batch_configuration_failure": 1,
+      "qwen_request_failure": 6
+    },
+    "success_marker_present": false,
+    "successful_attempts_missing_http_status": 0,
+    "unique_nonempty_request_ids": 12573,
+    "unknown_key_paths": []
+  },
+  "runtime": {
+    "imported_modules": [
+      {
+        "module": "sam_kem.qwen",
+        "path": "D:\\MIAProject\\SAM_KEM_QWEN3_V3_REPO\\code\\sam_kem\\qwen.py",
+        "sha256": "3a129723846bc55edb33ac3cbf523915aea61b2a1e4c79333f53fdd036c3c516"
+      },
+      {
+        "module": "sam_kem.prompt_batch",
+        "path": "D:\\MIAProject\\SAM_KEM_QWEN3_V3_REPO\\code\\sam_kem\\prompt_batch.py",
+        "sha256": "08b7e78a384b5d422e3786e20e56dfd9309cac6120b8c4815bf52d03d60fbc07"
+      },
+      {
+        "module": "sam_kem.cli",
+        "path": "D:\\MIAProject\\SAM_KEM_QWEN3_V3_REPO\\code\\sam_kem\\cli.py",
+        "sha256": "6a62e446e4b9284bf1c8e1f52e0fbe8cb22db04d60156c24f4d8f1c714e5eac3"
+      }
+    ],
+    "python_executable": "C:\\Users\\Admin\\anaconda3\\python.exe",
+    "repository_modules": [
+      {
+        "path": "code/sam_kem/qwen.py",
+        "sha256": "3a129723846bc55edb33ac3cbf523915aea61b2a1e4c79333f53fdd036c3c516"
+      },
+      {
+        "path": "code/sam_kem/prompt_batch.py",
+        "sha256": "08b7e78a384b5d422e3786e20e56dfd9309cac6120b8c4815bf52d03d60fbc07"
+      },
+      {
+        "path": "code/sam_kem/cli.py",
+        "sha256": "6a62e446e4b9284bf1c8e1f52e0fbe8cb22db04d60156c24f4d8f1c714e5eac3"
+      }
+    ],
+    "sam_kem_entrypoint": "C:\\Users\\Admin\\anaconda3\\Scripts\\sam-kem.EXE"
+  },
+  "schema_version": 1
+}
