@@ -28,7 +28,9 @@ prompts/*/train_validation_images/*/*/*/*.json
 prompts/*/test_images/*/*/*/*.json
 # Raw Qwen attempt documents are required in the immutable external archive;
 # only the response _SUCCESS marker, cache CSV, and audit summaries belong in Git.
-prompts/*/train_validation_responses/*/*/*/*.json
+# Include incident-resolved continuation directories while leaving their root
+# _SUCCESS marker trackable.
+prompts/*/train_validation_responses*/*/*/*/*.json
 prompts/*/test_responses/*/*/*/*.json
 prompts/*/qwen_pilot_attempts/*/*/*/*.json
 
