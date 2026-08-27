@@ -161,19 +161,21 @@ PNG 和逐图 JSON sidecar 属于外部不可变归档的 bulk artifacts；Git �
 
 ### 4C. 经单独批准后调用 Qwen 并构建 box cache
 
-先用 `--pilot-one-per-dataset-count` 固定选择每个 dataset/count 字典序第一条，共8条。
-pilot 不写 `_SUCCESS.json`；审核8条响应后，删除该参数并用 `--resume-verified` 继续
-完整批次。禁止跳过pilot直接发出14,940个请求任务。
+先用 `--pilot-one-per-dataset-count` 固定选择每个 dataset/count 字典序第一条，共8条，
+但写入独立的 `qwen_pilot_attempts` 目录。pilot 不写 `_SUCCESS.json`，也绝不复用为
+正式response；审核8条响应后，才允许在空的 `train_validation_responses` 中执行完整
+批次。禁止跳过pilot直接发出14,940个请求任务。401/403等不可恢复HTTP错误只归档
+一次并立即中止整个批次，禁止把认证/配置错误转为质心fallback。
 
 ```bash
 export DASHSCOPE_API_KEY='服务器环境变量中的真实 key'
 sam-kem request-boxes --root . --config "$CFG" \
   --manifest "prompts/${RUN}/train_validation_images/prompt_manifest.csv" \
-  --responses "prompts/${RUN}/train_validation_responses" \
+  --responses "prompts/${RUN}/qwen_pilot_attempts" \
   --policy inputs/clean_v1/qwen_request_policy.json \
   --resume-verified --pilot-one-per-dataset-count
 
-# pilot 经研究员单独批准后才执行完整批次：
+# pilot 经研究员单独批准后才在独立的正式目录执行完整批次：
 sam-kem request-boxes --root . --config "$CFG" \
   --manifest "prompts/${RUN}/train_validation_images/prompt_manifest.csv" \
   --responses "prompts/${RUN}/train_validation_responses" \

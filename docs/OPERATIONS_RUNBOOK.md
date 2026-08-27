@@ -111,6 +111,9 @@ Qwen batch resume reuses every completed fixed-policy request task, including
 tasks that exhausted all three attempts. It must not add retries selectively
 after inspecting boxes or downstream metrics. A circuit-breaker interruption is
 an incomplete batch, not a success marker and not a reason to alter the policy.
+Authentication, permission, endpoint and other non-retryable HTTP failures abort
+the batch after one forensic attempt; they are configuration blockers rather
+than cache-key failures and are never eligible for centroid fallback.
 
 ## Failure and quarantine procedure
 

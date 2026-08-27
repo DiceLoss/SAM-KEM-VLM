@@ -43,7 +43,7 @@ def test_box_cache_roundtrip_keeps_anchor_and_request_provenance(tmp_path):
   record = BoxRecord(
     BoxKey("brainweb", "s1", "z1", 200000), "clean_v1", Box(1, 2, 20, 30),
     "qwen3-vl-plus", "request-1", "a" * 64, "b" * 64, "c" * 64,
-    "qwen3-vl-plus", "qwen3_vl_plus_fixed_retry_v1", "d" * 64,
+    "qwen3-vl-plus", "qwen3_vl_plus_fixed_retry_v2", "d" * 64,
   )
   path = tmp_path / "boxes.csv"
   BoxCache([record]).write(path)

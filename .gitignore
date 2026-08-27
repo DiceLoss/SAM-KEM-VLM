@@ -30,6 +30,7 @@ prompts/*/test_images/*/*/*/*.json
 # only the response _SUCCESS marker, cache CSV, and audit summaries belong in Git.
 prompts/*/train_validation_responses/*/*/*/*.json
 prompts/*/test_responses/*/*/*/*.json
+prompts/*/qwen_pilot_attempts/*/*/*/*.json
 
 # Python caches
 __pycache__/

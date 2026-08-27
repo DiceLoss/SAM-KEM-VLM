@@ -28,6 +28,10 @@ one identical finite retry budget for every box key, archives every attempt, and
 has a consecutive-failure circuit breaker. Centroid fallback is applied only
 after a valid no-detection response or exhaustion of the complete fixed retry
 budget, with those two causes retained as distinct provenance categories.
+Non-retryable HTTP errors such as invalid authentication are global batch
+failures: one attempt is archived, the batch aborts without `_SUCCESS`, and no
+fallback box is created. Pilot attempts use a separate directory and are never
+reused as formal responses.
 
 The official MedSAM2 source is pinned at commit `332f30d420f1d1b08e2a79b3ae6a602458808383`
 with `configs/sam2.1_hiera_t512.yaml`; the released checkpoint SHA is pinned in

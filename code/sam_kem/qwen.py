@@ -21,9 +21,19 @@ DEFAULT_ENDPOINT = "https://dashscope.aliyuncs.com/compatible-mode/v1/chat/compl
 
 
 class QwenAttemptError(RuntimeError):
-  def __init__(self, message: str, *, raw_response=None):
+  def __init__(
+    self, message: str, *, raw_response=None, http_status: int | None = None,
+    request_id: str = "", latency_seconds: float | None = None,
+  ):
     super().__init__(message)
     self.raw_response = raw_response
+    self.http_status = http_status
+    self.request_id = request_id
+    self.latency_seconds = latency_seconds
+
+
+class QwenBatchFatalError(RuntimeError):
+  """A global request-configuration failure that must never become fallback."""
 
 
 @dataclass(frozen=True)
@@ -54,6 +64,11 @@ def load_request_policy(path: Path) -> dict:
     or int(policy.get("max_consecutive_live_failed_keys", 0)) < 1
     or policy.get("archive_every_attempt") is not True
     or policy.get("selection_policy") != "identical_for_every_cache_key_no_selective_retry"
+    or sorted(int(value) for value in policy.get("retryable_http_statuses", []))
+    != [408, 409, 425, 429]
+    or [int(value) for value in policy.get("retryable_http_status_classes", [])] != [5]
+    or policy.get("nonretryable_http_action")
+    != "archive_one_attempt_and_abort_batch_without_fallback"
   ):
     raise ValueError(f"invalid Qwen request policy: {path}")
   return policy
@@ -140,10 +155,13 @@ def request_box(
       raw_body = response.read().decode("utf-8", errors="replace")
       header_request_id = response.headers.get("x-request-id", "")
   except urllib.error.HTTPError as error:
+    latency = time.perf_counter() - start
     detail = error.read().decode("utf-8", errors="replace")
+    request_id = str(error.headers.get("x-request-id", "")) if error.headers else ""
     raise QwenAttemptError(
       f"DashScope HTTP {error.code}: {detail[:500]}",
       raw_response={"http_status": error.code, "body": detail[:5000]},
+      http_status=int(error.code), request_id=request_id, latency_seconds=latency,
     ) from error
   try:
     body = json.loads(raw_body)
@@ -216,6 +234,7 @@ def request_and_archive_box(
   raw_response = None
   success = False
   response = None
+  batch_fatal_error = None
   backoff = [float(value) for value in policy["backoff_seconds_before_attempt"]]
   for attempt_index in range(1, int(policy["max_attempts_per_key"]) + 1):
     if backoff[attempt_index - 1] > 0:
@@ -256,6 +275,15 @@ def request_and_archive_box(
       failed_attempt = {
         "attempt_index": attempt_index, "status": "failure", "error": repr(error),
       }
+      status = getattr(error, "http_status", None)
+      if status is not None:
+        failed_attempt["http_status"] = int(status)
+      error_request_id = str(getattr(error, "request_id", ""))
+      if error_request_id:
+        failed_attempt["request_id"] = error_request_id
+      error_latency = getattr(error, "latency_seconds", None)
+      if error_latency is not None:
+        failed_attempt["latency_seconds"] = float(error_latency)
       error_response = getattr(error, "raw_response", None)
       if error_response is not None:
         failed_attempt["raw_response"] = error_response
@@ -264,9 +292,24 @@ def request_and_archive_box(
         failed_attempt["request_id"] = response.request_id
         failed_attempt["latency_seconds"] = response.latency_seconds
       attempts.append(failed_attempt)
+      if status is not None:
+        retryable = (
+          int(status) in {int(value) for value in policy["retryable_http_statuses"]}
+          or int(status) // 100 in {
+            int(value) for value in policy["retryable_http_status_classes"]
+          }
+        )
+        if not retryable:
+          batch_fatal_error = error
+          break
   if not success:
     record = {
-      **identity, "source": "qwen_request_failure", "request_id": "",
+      **identity,
+      "source": (
+        "qwen_batch_configuration_failure"
+        if batch_fatal_error is not None else "qwen_request_failure"
+      ),
+      "request_id": "",
       "latency_seconds": "", "box": None, "attempt_count": len(attempts),
       "error": attempts[-1]["error"],
     }
@@ -274,4 +317,8 @@ def request_and_archive_box(
   if raw_response is not None:
     payload["raw_response"] = raw_response
   atomic_write_json(output_path, payload)
+  if batch_fatal_error is not None:
+    raise QwenBatchFatalError(
+      "non-retryable Qwen HTTP error archived; aborting batch without fallback"
+    ) from batch_fatal_error
   return record, success

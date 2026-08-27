@@ -1,0 +1,19 @@
+{
+  "status": "forensic_invalid_never_use_for_box_cache",
+  "invalid_commit": "21ae3699e47e80ac3a6aa382187670f7765bd041",
+  "reason": "The worker knowingly used a literal placeholder rather than a valid server-side DASHSCOPE_API_KEY. All calls returned HTTP 401. Authentication failure is a global execution-configuration error, not qwen_no_detection and not a scientifically eligible centroid-fallback cause.",
+  "attempts": 24,
+  "cache_keys": 8,
+  "http_status": 401,
+  "former_active_response_files": {
+    "brainweb/subject04/z038/c100000.json": "68adb697cc32a9ce72ced1fd9ebd7999e39aac3c6b63681e2b1f96a82f5a62c2",
+    "brainweb/subject04/z038/c1000000.json": "bf6d937c34d043645f8965140a3515d6df842420d52aec2a33c013bb6f124842",
+    "brainweb/subject04/z038/c200000.json": "6c17e49582cf0118abc41ab488a1ba63b6a96cd8a6fcda827ad458cc502cb7d7",
+    "brainweb/subject04/z038/c500000.json": "c3a761c8e4e5cc61cbb57af10e58127ea95899314e062039e74dfb884389eedb",
+    "hecktor/1/z072/c100000.json": "7c313072fbf527d080e02f56781fe548e52f818fc7ffcb6e5a658316375ff273",
+    "hecktor/1/z072/c1000000.json": "472149613a54927ab1f92513c3c39c1d2ab624ddce83702a4ad12919304c78d7",
+    "hecktor/1/z072/c200000.json": "6bc9f1163a2edc840c4098583771982cea406f84b4db06c945897e1e9183da3d",
+    "hecktor/1/z072/c500000.json": "9ab217dec208a401058d8b2b1ead2229880e657cb25541aa1f2bb5920155ef4c"
+  },
+  "disposition": "Removed from the active train_validation_responses tree. The exact bytes remain recoverable from Git commit 21ae369 for forensic review only. A new valid-key pilot must use the separate qwen_pilot_attempts directory and policy v2."
+}

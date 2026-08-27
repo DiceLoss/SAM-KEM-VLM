@@ -68,11 +68,12 @@ never eligible as the primary experiment.
 
 Qwen requests use the separately SHA-pinned
 `inputs/clean_v1/qwen_request_policy.json`. Every cache key receives the same
-three-attempt budget and fixed backoff schedule. Every failed and successful
-attempt is archived. Ten consecutive cache keys that exhaust the live retry
-budget trip a circuit breaker, leave the batch incomplete, and require a later
-verified resume; transient first-attempt errors are not silently converted into
-methodological fallback boxes.
+three-attempt budget and fixed backoff schedule for retryable errors. Every
+failed and successful attempt is archived. Ten consecutive cache keys that
+exhaust the live retry budget trip a circuit breaker, leave the batch incomplete,
+and require a later verified resume. Non-retryable HTTP errors such as invalid
+authentication abort the entire batch after one archived attempt and can never
+be converted into methodological fallback boxes.
 
 Distribution diagnostics do not select a reconstruction method. A normalization
 arm needs separate training only when its transformation changes at least one

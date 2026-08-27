@@ -3,12 +3,13 @@ import json
 from pathlib import Path
 
 import numpy as np
+import pytest
 
 from sam_kem.artifacts import file_sha256
 from sam_kem.boxes import Box
 from sam_kem.display import render_prompt_png
 from sam_kem.qwen import (
-  QwenAttemptError, QwenBoxResponse, instruction_sha256,
+  QwenAttemptError, QwenBatchFatalError, QwenBoxResponse, instruction_sha256,
   load_request_policy, request_and_archive_box,
 )
 
@@ -78,3 +79,30 @@ def test_qwen_policy_archives_terminal_failure_after_fixed_budget(tmp_path, monk
   assert not success and record["source"] == "qwen_request_failure"
   assert len(document["attempts"]) == policy["max_attempts_per_key"]
   assert delays == [2.0, 8.0]
+
+
+def test_nonretryable_http_error_aborts_after_one_archived_attempt(tmp_path, monkeypatch):
+  image, cfg = _prompt_case(tmp_path)
+  policy = load_request_policy(POLICY_PATH)
+  monkeypatch.setattr(
+    "sam_kem.qwen.request_box",
+    lambda *args, **kwargs: (_ for _ in ()).throw(QwenAttemptError(
+      "unauthorized", raw_response={"http_status": 401}, http_status=401,
+      request_id="auth-request", latency_seconds=0.25,
+    )),
+  )
+  delays = []
+  monkeypatch.setattr("sam_kem.qwen.time.sleep", delays.append)
+  output = tmp_path / "response.json"
+  with pytest.raises(QwenBatchFatalError):
+    request_and_archive_box(
+      image, output, cfg=cfg, dataset="brainweb", subject_id="s1", slice_id="z1",
+      count_level=100000, policy=policy, policy_path=POLICY_PATH,
+    )
+  document = json.loads(output.read_text(encoding="utf-8"))
+  assert document["record"]["source"] == "qwen_batch_configuration_failure"
+  assert len(document["attempts"]) == 1
+  assert document["attempts"][0]["http_status"] == 401
+  assert document["attempts"][0]["request_id"] == "auth-request"
+  assert document["attempts"][0]["latency_seconds"] == 0.25
+  assert delays == []
