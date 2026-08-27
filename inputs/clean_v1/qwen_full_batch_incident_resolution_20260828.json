@@ -1,0 +1,30 @@
+{
+  "schema_version": 1,
+  "resolution_id": "qwen_400_provider_url_failure_fallback_v1",
+  "run_id": "dev_trainmax_v1",
+  "development_only": true,
+  "forensic_audit": {
+    "path": "logs/step4c_partial_forensic_audit.json",
+    "sha256": "5b87a19bc737e1d4f9ad2ab88a78ae411ef5c78dad9c2066d41cb2d43325f573"
+  },
+  "source_response_set": {
+    "records": 12580,
+    "sha256": "6e062360933980880714239ac15051e5880badcd37253453873bdcc97beaa3c4"
+  },
+  "request_policy_sha256": "9664e72ef5d030dfe4c58557f5af4abd7bca340868f0ed7c5413c01a305b7deb",
+  "request_implementation_sha256": "3a129723846bc55edb33ac3cbf523915aea61b2a1e4c79333f53fdd036c3c516",
+  "incident": {
+    "relative_path": "brainweb/subject52/z204/c1000000.json",
+    "cache_key": ["brainweb", "subject52", "z204", 1000000],
+    "expected_original_source": "qwen_batch_configuration_failure",
+    "expected_http_status": 400,
+    "expected_provider_error_code": "invalid_parameter_error",
+    "resolved_source": "qwen_request_failure"
+  },
+  "scientific_decision": {
+    "additional_api_attempt_for_incident_key": false,
+    "fallback": "predeclared_intensity_centroid_box",
+    "rationale": "The shared request configuration produced 12573 successful boxes before this isolated provider-side URL error. The request produced no box, so retaining the first terminal event and applying the predeclared request-failure fallback avoids selective retry and response cherry-picking.",
+    "immutability_rule": "The interrupted source directory remains byte-identical. A separate canonical continuation directory copies every other record byte-for-byte and adds an explicit incident-resolution envelope only to the failed record."
+  }
+}
