@@ -1,0 +1,54 @@
+{
+  "attempts": [
+    {
+      "attempt_index": 1,
+      "error": "QwenAttemptError('DashScope HTTP 401: {\"error\":{\"message\":\"Incorrect API key provided. For details, see: https://help.aliyun.com/zh/model-studio/error-code#apikey-error\",\"type\":\"invalid_request_error\",\"param\":null,\"code\":\"invalid_api_key\"},\"request_id\":\"35d24c4b-e01c-92dd-8e3e-fc2ea0028c64\"}')",
+      "raw_response": {
+        "body": "{\"error\":{\"message\":\"Incorrect API key provided. For details, see: https://help.aliyun.com/zh/model-studio/error-code#apikey-error\",\"type\":\"invalid_request_error\",\"param\":null,\"code\":\"invalid_api_key\"},\"request_id\":\"35d24c4b-e01c-92dd-8e3e-fc2ea0028c64\"}",
+        "http_status": 401
+      },
+      "status": "failure"
+    },
+    {
+      "attempt_index": 2,
+      "error": "QwenAttemptError('DashScope HTTP 401: {\"error\":{\"message\":\"Incorrect API key provided. For details, see: https://help.aliyun.com/zh/model-studio/error-code#apikey-error\",\"type\":\"invalid_request_error\",\"param\":null,\"code\":\"invalid_api_key\"},\"request_id\":\"9fcce9df-3d32-95b2-81ad-9dfd81e50313\"}')",
+      "raw_response": {
+        "body": "{\"error\":{\"message\":\"Incorrect API key provided. For details, see: https://help.aliyun.com/zh/model-studio/error-code#apikey-error\",\"type\":\"invalid_request_error\",\"param\":null,\"code\":\"invalid_api_key\"},\"request_id\":\"9fcce9df-3d32-95b2-81ad-9dfd81e50313\"}",
+        "http_status": 401
+      },
+      "status": "failure"
+    },
+    {
+      "attempt_index": 3,
+      "error": "QwenAttemptError('DashScope HTTP 401: {\"error\":{\"message\":\"Incorrect API key provided. For details, see: https://help.aliyun.com/zh/model-studio/error-code#apikey-error\",\"type\":\"invalid_request_error\",\"param\":null,\"code\":\"invalid_api_key\"},\"request_id\":\"87e7260a-8eb7-948c-b7c7-22544d5a760f\"}')",
+      "raw_response": {
+        "body": "{\"error\":{\"message\":\"Incorrect API key provided. For details, see: https://help.aliyun.com/zh/model-studio/error-code#apikey-error\",\"type\":\"invalid_request_error\",\"param\":null,\"code\":\"invalid_api_key\"},\"request_id\":\"87e7260a-8eb7-948c-b7c7-22544d5a760f\"}",
+        "http_status": 401
+      },
+      "status": "failure"
+    }
+  ],
+  "record": {
+    "attempt_count": 3,
+    "box": null,
+    "count_level": 200000,
+    "dataset": "hecktor",
+    "error": "QwenAttemptError('DashScope HTTP 401: {\"error\":{\"message\":\"Incorrect API key provided. For details, see: https://help.aliyun.com/zh/model-studio/error-code#apikey-error\",\"type\":\"invalid_request_error\",\"param\":null,\"code\":\"invalid_api_key\"},\"request_id\":\"87e7260a-8eb7-948c-b7c7-22544d5a760f\"}')",
+    "image_path": "D:\\MIAProject\\SAM_KEM_QWEN3_V3_REPO\\prompts\\dev_trainmax_v1\\train_validation_images\\hecktor\\1\\z072\\c200000.png",
+    "image_sha256": "394688cadee38b78a23ef08d2ea2ad16cbb9f7c9abbeebf257cc523106c0fa77",
+    "latency_seconds": "",
+    "model": "qwen3-vl-plus",
+    "prompt_sha256": "f25912895490d6239dbc1f6658f535dee8ea5a75eae33293b97653c7629f9505",
+    "request_id": "",
+    "run_id": "dev_trainmax_v1",
+    "slice_id": "z072",
+    "source": "qwen_request_failure",
+    "source_mlem10_sha256": "109fbd93bf65e2fa27bc4e8e5ad5b17c85f28f2354bf8e9c6e587a461cc2f43b",
+    "subject_id": "1"
+  },
+  "request_policy": {
+    "path": "inputs/clean_v1/qwen_request_policy.json",
+    "policy_id": "qwen3_vl_plus_fixed_retry_v1",
+    "sha256": "f20ae67a8d77576dbbbe09afa35f2b7f06cb7043249c770c90d2e77c5831bb89"
+  }
+}
