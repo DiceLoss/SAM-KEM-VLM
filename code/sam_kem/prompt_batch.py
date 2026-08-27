@@ -15,7 +15,10 @@ from .artifacts import (
 from .config import load_yaml_strict, require_test_release
 from .display import render_prompt_png
 from .noise import array_sha256
-from .qwen import instruction_sha256, load_request_policy, request_and_archive_box
+from .qwen import (
+  REQUEST_IMPLEMENTATION_PATH, instruction_sha256, load_request_policy,
+  request_and_archive_box,
+)
 
 
 PROMPT_FIELDS = [
@@ -186,6 +189,8 @@ def request_prompt_manifest(
         or archived.get("prompt_sha256") != row["prompt_sha256"]
         or archived.get("model") != row["model"]
         or document.get("request_policy", {}).get("sha256") != policy_sha256
+        or document.get("request_implementation", {}).get("sha256")
+        != file_sha256(REQUEST_IMPLEMENTATION_PATH)
       ):
         raise ValueError(f"archived Qwen attempt failed resume verification: {output}")
       summary["reused"] += 1

@@ -159,7 +159,7 @@ sam-kem prepare-prompt-images --root . --config "$CFG" \
 PNG 和逐图 JSON sidecar 属于外部不可变归档的 bulk artifacts；Git 只提交
 `prompt_manifest.csv` 及其 manifest。此时不得设置 API key，完成后再次停止审核。
 
-### 4C. 经单独批准后调用 Qwen 并构建 box cache
+### 4C. 经单独批准后调用 Qwen；审核后再构建 box cache
 
 先用 `--pilot-one-per-dataset-count` 固定选择每个 dataset/count 字典序第一条，共8条，
 但写入独立的 `qwen_pilot_attempts` 目录。pilot 不写 `_SUCCESS.json`，也绝不复用为
@@ -181,6 +181,19 @@ sam-kem request-boxes --root . --config "$CFG" \
   --responses "prompts/${RUN}/train_validation_responses" \
   --policy inputs/clean_v1/qwen_request_policy.json \
   --resume-verified
+
+# 立即清除当前 shell 中的凭证并停止；此时禁止 build-box-cache。
+unset DASHSCOPE_API_KEY
+```
+
+正式批次必须从空目录开始，包含全部 14,940 个 cache key；独立 pilot 的 8 条不得
+复制或计入正式批次。每条正式成功 attempt 显式记录 HTTP 状态，并钉住实际执行的
+`code/sam_kem/qwen.py` SHA-256。完整批次结束后先提交 `_SUCCESS.json`、运行日志和
+汇总审计，按照 `inputs/clean_v1/qwen_pilot_visual_audit.json` 的规则完成分层视觉审核。
+在研究员再次明确批准之前，不得执行下面的 cache 命令。
+
+```bash
+# 仅在完整响应批次通过单独审核后执行：
 sam-kem build-box-cache --config "$CFG" \
   --manifest "results/${RUN}/case_manifest_inputs.csv" \
   --responses "prompts/${RUN}/train_validation_responses" \

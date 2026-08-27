@@ -9,8 +9,9 @@ from sam_kem.artifacts import file_sha256
 from sam_kem.boxes import Box
 from sam_kem.display import render_prompt_png
 from sam_kem.qwen import (
-  QwenAttemptError, QwenBatchFatalError, QwenBoxResponse, instruction_sha256,
-  load_request_policy, request_and_archive_box,
+  REQUEST_IMPLEMENTATION_PATH, QwenAttemptError, QwenBatchFatalError,
+  QwenBoxResponse, instruction_sha256, load_request_policy,
+  request_and_archive_box,
 )
 
 
@@ -56,8 +57,12 @@ def test_qwen_policy_retries_every_failed_attempt_and_archives_history(tmp_path,
   document = json.loads(output.read_text(encoding="utf-8"))
   assert success and record["attempt_count"] == 2
   assert [attempt["status"] for attempt in document["attempts"]] == ["failure", "success"]
+  assert document["attempts"][1]["http_status"] == 200
   assert document["attempts"][0]["raw_response"] == {"error": "rate_limit"}
   assert document["request_policy"]["sha256"] == file_sha256(POLICY_PATH)
+  assert document["request_implementation"]["sha256"] == file_sha256(
+    REQUEST_IMPLEMENTATION_PATH
+  )
   assert delays == [2.0]
 
 

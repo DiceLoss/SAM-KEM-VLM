@@ -1,0 +1,109 @@
+{
+  "schema_version": 1,
+  "artifact_kind": "qwen_pilot_visual_audit",
+  "review_date": "2026-08-27",
+  "development_only": true,
+  "pilot_evidence_commit": "c142dec4b787d1a5418211aa6444588144651945",
+  "run_id": "dev_trainmax_v1",
+  "prompt_sha256": "f25912895490d6239dbc1f6658f535dee8ea5a75eae33293b97653c7629f9505",
+  "request_policy": {
+    "policy_id": "qwen3_vl_plus_fixed_retry_v2",
+    "sha256": "9664e72ef5d030dfe4c58557f5af4abd7bca340868f0ed7c5413c01a305b7deb"
+  },
+  "scope": {
+    "eligible_formal_cache_keys": 14940,
+    "pilot_cache_keys": 8,
+    "pilot_reused_in_formal_batch": false,
+    "purpose": "API, provenance, parsing, and visual plausibility preflight; not an estimate of localization accuracy"
+  },
+  "visual_findings": [
+    {
+      "key": "brainweb/subject04/z038/c100000",
+      "box_xyxy": [52, 38, 94, 86],
+      "box_width_height": [42, 48],
+      "brightest_pixel_xy": [20, 70],
+      "brightest_pixel_inside_box": false,
+      "bright_pixel_recall": {"top_10_percent": 0.431, "top_5_percent": 0.432, "top_1_percent": 0.520}
+    },
+    {
+      "key": "brainweb/subject04/z038/c200000",
+      "box_xyxy": [68, 59, 74, 65],
+      "box_width_height": [6, 6],
+      "brightest_pixel_xy": [77, 64],
+      "brightest_pixel_inside_box": false,
+      "bright_pixel_recall": {"top_10_percent": 0.000, "top_5_percent": 0.000, "top_1_percent": 0.000}
+    },
+    {
+      "key": "brainweb/subject04/z038/c500000",
+      "box_xyxy": [12, 24, 116, 104],
+      "box_width_height": [104, 80],
+      "brightest_pixel_xy": [77, 64],
+      "brightest_pixel_inside_box": true,
+      "bright_pixel_recall": {"top_10_percent": 1.000, "top_5_percent": 1.000, "top_1_percent": 1.000}
+    },
+    {
+      "key": "brainweb/subject04/z038/c1000000",
+      "box_xyxy": [48, 24, 108, 96],
+      "box_width_height": [60, 72],
+      "brightest_pixel_xy": [77, 64],
+      "brightest_pixel_inside_box": true,
+      "bright_pixel_recall": {"top_10_percent": 0.948, "top_5_percent": 0.956, "top_1_percent": 0.990}
+    },
+    {
+      "key": "hecktor/1/z072/c100000",
+      "box_xyxy": [48, 32, 96, 80],
+      "box_width_height": [48, 48],
+      "brightest_pixel_xy": [71, 55],
+      "brightest_pixel_inside_box": true,
+      "bright_pixel_recall": {"top_10_percent": 0.654, "top_5_percent": 0.843, "top_1_percent": 1.000}
+    },
+    {
+      "key": "hecktor/1/z072/c200000",
+      "box_xyxy": [48, 32, 88, 72],
+      "box_width_height": [40, 40],
+      "brightest_pixel_xy": [69, 55],
+      "brightest_pixel_inside_box": true,
+      "bright_pixel_recall": {"top_10_percent": 0.575, "top_5_percent": 0.717, "top_1_percent": 0.950}
+    },
+    {
+      "key": "hecktor/1/z072/c500000",
+      "box_xyxy": [48, 32, 96, 72],
+      "box_width_height": [48, 40],
+      "brightest_pixel_xy": [70, 55],
+      "brightest_pixel_inside_box": true,
+      "bright_pixel_recall": {"top_10_percent": 0.654, "top_5_percent": 0.850, "top_1_percent": 1.000}
+    },
+    {
+      "key": "hecktor/1/z072/c1000000",
+      "box_xyxy": [48, 24, 96, 72],
+      "box_width_height": [48, 48],
+      "brightest_pixel_xy": [70, 56],
+      "brightest_pixel_inside_box": true,
+      "bright_pixel_recall": {"top_10_percent": 0.666, "top_5_percent": 0.831, "top_1_percent": 1.000}
+    }
+  ],
+  "interpretation": {
+    "api_and_provenance_preflight": "pass",
+    "semantic_localization_quality": "variable_and_not_validated_by_this_pilot",
+    "notable_observations": [
+      "The BrainWeb box changes from 6x6 pixels to 104x80 pixels for the same slice across count levels.",
+      "Two BrainWeb pilot boxes do not contain the brightest displayed pixel.",
+      "The HECKTOR boxes consistently cover the central uptake region but omit a visible peripheral lower-right region.",
+      "A geometrically valid response must not be relabelled as an API failure solely because its localization is poor."
+    ],
+    "bright_pixel_recall_role": "diagnostic_only; percentile thresholds are not ground-truth boxes and are not used to alter or retry Qwen responses"
+  },
+  "decision": {
+    "status": "approved_for_full_development_api_batch_with_post_batch_audit",
+    "prompt_changed_after_pilot": false,
+    "selective_retry_allowed": false,
+    "formal_request_count": 14940,
+    "required_api_key_state": "rotated_key_not_present_in_logs_json_git_or_chat",
+    "before_box_cache": [
+      "Verify the formal response directory has exactly one provenance-bound terminal record per cache key and a valid _SUCCESS marker.",
+      "Report source, attempt-count, latency, box-area, and no-detection/failure distributions by dataset and count level.",
+      "Compute brightest-pixel containment and top-1/top-5/top-10-percent displayed-intensity recall as diagnostics only.",
+      "Visually review a deterministic stratified sample spanning dataset, count level, and box-area quantiles before building the box cache."
+    ]
+  }
+}

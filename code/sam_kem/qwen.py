@@ -18,6 +18,7 @@ from .artifacts import atomic_write_json, file_sha256
 
 
 DEFAULT_ENDPOINT = "https://dashscope.aliyuncs.com/compatible-mode/v1/chat/completions"
+REQUEST_IMPLEMENTATION_PATH = Path(__file__).resolve()
 
 
 class QwenAttemptError(RuntimeError):
@@ -45,6 +46,7 @@ class QwenBoxResponse:
   prompt_sha256: str
   latency_seconds: float
   raw_response: dict
+  http_status: int = 200
 
 
 def load_request_policy(path: Path) -> dict:
@@ -152,6 +154,7 @@ def request_box(
   start = time.perf_counter()
   try:
     with urllib.request.urlopen(request, timeout=timeout_seconds) as response:
+      http_status = int(response.status)
       raw_body = response.read().decode("utf-8", errors="replace")
       header_request_id = response.headers.get("x-request-id", "")
   except urllib.error.HTTPError as error:
@@ -193,6 +196,7 @@ def request_box(
     prompt_sha256=instruction_sha256(prompt),
     latency_seconds=latency,
     raw_response=body,
+    http_status=http_status,
   )
 
 
@@ -230,6 +234,10 @@ def request_and_archive_box(
     "path": _portable_policy_path(policy_path),
     "sha256": file_sha256(policy_path),
   }
+  implementation_record = {
+    "path": _portable_policy_path(REQUEST_IMPLEMENTATION_PATH),
+    "sha256": file_sha256(REQUEST_IMPLEMENTATION_PATH),
+  }
   attempts = []
   raw_response = None
   success = False
@@ -258,6 +266,7 @@ def request_and_archive_box(
         response.box.validate(width=128, height=128)
       attempts.append({
         "attempt_index": attempt_index, "status": "success",
+        "http_status": response.http_status,
         "request_id": response.request_id,
         "latency_seconds": response.latency_seconds,
       })
@@ -313,7 +322,12 @@ def request_and_archive_box(
       "latency_seconds": "", "box": None, "attempt_count": len(attempts),
       "error": attempts[-1]["error"],
     }
-  payload = {"record": record, "attempts": attempts, "request_policy": policy_record}
+  payload = {
+    "record": record,
+    "attempts": attempts,
+    "request_policy": policy_record,
+    "request_implementation": implementation_record,
+  }
   if raw_response is not None:
     payload["raw_response"] = raw_response
   atomic_write_json(output_path, payload)
