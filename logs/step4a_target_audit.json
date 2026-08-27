@@ -1,0 +1,20 @@
+{
+  "sample_size": 449,
+  "sample_fraction": 0.010017849174475681,
+  "bw": {
+    "nonfinite": 0,
+    "negative": 0,
+    "total_pixels": 6914048,
+    "above_one_pixels": 46,
+    "above_one_fraction": 6.653121297393365e-06,
+    "planes_with_above_one": 4
+  },
+  "he": {
+    "nonfinite": 0,
+    "negative": 0,
+    "total_pixels": 442368,
+    "above_one_pixels": 0,
+    "above_one_fraction": 0.0,
+    "planes_with_above_one": 0
+  }
+}
