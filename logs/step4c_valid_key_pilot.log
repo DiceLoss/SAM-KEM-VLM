@@ -1,0 +1,9 @@
+{
+  "archived_failures": 0,
+  "eligible_total": 14940,
+  "failed": 0,
+  "requested": 8,
+  "reused": 0,
+  "selected": 8,
+  "status": "pilot_complete"
+}

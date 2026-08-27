@@ -1,0 +1,69 @@
+{
+  "attempts": [
+    {
+      "attempt_index": 1,
+      "latency_seconds": 1.7859435000027588,
+      "request_id": "chatcmpl-8b6959ed-1bbf-935b-b944-4c36405ed3b9",
+      "status": "success"
+    }
+  ],
+  "raw_response": {
+    "choices": [
+      {
+        "finish_reason": "stop",
+        "index": 0,
+        "logprobs": null,
+        "message": {
+          "content": "```json\n{\"detected\":true,\"xmin\":12,\"ymin\":24,\"xmax\":116,\"ymax\":104}\n```",
+          "reasoning_content": "",
+          "role": "assistant"
+        }
+      }
+    ],
+    "created": 1787817588,
+    "id": "chatcmpl-8b6959ed-1bbf-935b-b944-4c36405ed3b9",
+    "model": "qwen3-vl-plus",
+    "object": "chat.completion",
+    "system_fingerprint": null,
+    "usage": {
+      "completion_tokens": 34,
+      "completion_tokens_details": {
+        "text_tokens": 34
+      },
+      "prompt_tokens": 173,
+      "prompt_tokens_details": {
+        "cached_tokens": 0,
+        "image_tokens": 66,
+        "text_tokens": 107
+      },
+      "total_tokens": 207
+    }
+  },
+  "record": {
+    "attempt_count": 1,
+    "box": {
+      "xmax": 116,
+      "xmin": 12,
+      "ymax": 104,
+      "ymin": 24
+    },
+    "count_level": 500000,
+    "dataset": "brainweb",
+    "image_path": "D:\\MIAProject\\SAM_KEM_QWEN3_V3_REPO\\prompts\\dev_trainmax_v1\\train_validation_images\\brainweb\\subject04\\z038\\c500000.png",
+    "image_sha256": "02fcfc83bf9db37244b4021d6455bc662c355bc969dfbbc8c4f8b358e8a9f13a",
+    "latency_seconds": 1.7859435000027588,
+    "model": "qwen3-vl-plus",
+    "prompt_sha256": "f25912895490d6239dbc1f6658f535dee8ea5a75eae33293b97653c7629f9505",
+    "request_id": "chatcmpl-8b6959ed-1bbf-935b-b944-4c36405ed3b9",
+    "run_id": "dev_trainmax_v1",
+    "slice_id": "z038",
+    "source": "qwen3-vl-plus",
+    "source_mlem10_sha256": "15fe6e54ffdca7c19e6e601911c6cdd67b2e26f4b2ea7ace10f1d89c82146a12",
+    "subject_id": "subject04"
+  },
+  "request_policy": {
+    "path": "inputs/clean_v1/qwen_request_policy.json",
+    "policy_id": "qwen3_vl_plus_fixed_retry_v2",
+    "sha256": "9664e72ef5d030dfe4c58557f5af4abd7bca340868f0ed7c5413c01a305b7deb"
+  }
+}
