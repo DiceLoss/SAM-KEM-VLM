@@ -1,0 +1,26 @@
+{
+  "status": "accepted_with_report_corrections_before_step4c",
+  "commit_audited": "740b2b9685cd4983dcb6f4554b1ec6831a311f34",
+  "manifest_sha256": "44990e51a0d5a3bdb16575ea55dce760f3b93a2a2e6664a4d4bb65406ef8a152",
+  "manifest_bytes": 7473116,
+  "rows": 14940,
+  "unique_primary_keys": 14940,
+  "test_rows": 0,
+  "prompt_instruction_sha256": "f25912895490d6239dbc1f6658f535dee8ea5a75eae33293b97653c7629f9505",
+  "unique_source_mlem10_sha256": 14940,
+  "unique_prompt_image_sha256": 14939,
+  "render_collision": {
+    "status": "allowed_uint8_display_collision_not_source_duplication",
+    "png_sha256": "0e46b8b182f8ec142327066161bdad5b697d4b8fff677300f1a9baf579c211be",
+    "keys": [
+      "brainweb/subject50/z210/500000",
+      "brainweb/subject50/z210/1000000"
+    ],
+    "source_mlem10_sha256_are_distinct": true
+  },
+  "corrections": [
+    "prompt_sha256 identifies the common text instruction, not an image rendering.",
+    "The committed prompt manifest is 7.47 MB, not less than 8 KB.",
+    "One PNG hash collision is expected after per-image min-max and uint8 quantization and does not merge the two cache keys."
+  ]
+}

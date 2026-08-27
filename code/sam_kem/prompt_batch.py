@@ -15,7 +15,7 @@ from .artifacts import (
 from .config import load_yaml_strict, require_test_release
 from .display import render_prompt_png
 from .noise import array_sha256
-from .qwen import instruction_sha256, request_and_archive_box
+from .qwen import instruction_sha256, load_request_policy, request_and_archive_box
 
 
 PROMPT_FIELDS = [
@@ -43,6 +43,23 @@ def _verify_render(image_path: Path, source_path: Path) -> dict:
   ):
     raise ValueError(f"prompt rendering failed provenance verification: {image_path}")
   return image_record
+
+
+def _select_pilot_rows(rows: list[dict], cfg: dict) -> list[dict]:
+  selected = {}
+  ordered = sorted(rows, key=lambda row: (
+    row["dataset"], int(row["count_level"]), row["subject_id"], row["slice_id"],
+  ))
+  for row in ordered:
+    selected.setdefault((row["dataset"], int(row["count_level"])), row)
+  expected = {
+    (dataset, int(count))
+    for dataset in ("brainweb", "hecktor")
+    for count in cfg["acquisition"]["count_levels"]
+  }
+  if set(selected) != expected:
+    raise ValueError(f"pilot cannot cover every dataset/count group: {sorted(selected)}")
+  return [selected[key] for key in sorted(selected)]
 
 
 def prepare_prompt_manifest(
@@ -121,9 +138,13 @@ def prepare_prompt_manifest(
 
 def request_prompt_manifest(
   root: Path, config_path: Path, prompt_manifest: Path, response_dir: Path, *,
+  policy_path: Path,
   resume_verified: bool = False,
-) -> dict[str, int]:
+  pilot_one_per_dataset_count: bool = False,
+) -> dict[str, int | str]:
   cfg = load_yaml_strict(config_path)
+  policy = load_request_policy(policy_path)
+  policy_sha256 = file_sha256(policy_path)
   record = verify_csv_artifact(prompt_manifest)
   if record.get("schema_name") != "vlm_prompt_manifest_v1":
     raise ValueError("box requests require a canonical prompt manifest")
@@ -136,10 +157,18 @@ def request_prompt_manifest(
     if not resume_verified:
       raise FileExistsError(f"Qwen request batch is already complete: {response_dir}")
     verify_success_marker(response_dir)
-    return {"requested": 0, "reused": len(rows), "failed": 0}
+    return {"status": "complete", "requested": 0, "reused": len(rows), "failed": 0}
+  request_rows = rows
+  if pilot_one_per_dataset_count:
+    request_rows = _select_pilot_rows(rows, cfg)
   outputs = []
-  summary = {"requested": 0, "reused": 0, "failed": 0}
-  for row in rows:
+  summary = {
+    "status": "pilot_complete" if pilot_one_per_dataset_count else "complete",
+    "eligible_total": len(rows), "selected": len(request_rows),
+    "requested": 0, "reused": 0, "failed": 0, "archived_failures": 0,
+  }
+  consecutive_live_failures = 0
+  for row in request_rows:
     image = root / row["prompt_image_path"]
     output = (
       response_dir / _safe_component(row["dataset"])
@@ -149,27 +178,41 @@ def request_prompt_manifest(
     if output.is_file():
       if not resume_verified:
         raise FileExistsError(f"Qwen attempt already archived: {output}")
-      archived = json.loads(output.read_text(encoding="utf-8")).get("record", {})
+      document = json.loads(output.read_text(encoding="utf-8"))
+      archived = document.get("record", {})
       if (
         archived.get("run_id") != cfg["run_id"]
         or archived.get("image_sha256") != row["prompt_image_sha256"]
         or archived.get("prompt_sha256") != row["prompt_sha256"]
         or archived.get("model") != row["model"]
+        or document.get("request_policy", {}).get("sha256") != policy_sha256
       ):
         raise ValueError(f"archived Qwen attempt failed resume verification: {output}")
       summary["reused"] += 1
+      summary["archived_failures"] += int(
+        archived.get("source") == "qwen_request_failure"
+      )
     else:
       _, success = request_and_archive_box(
         image, output, cfg=cfg, dataset=row["dataset"],
         subject_id=row["subject_id"], slice_id=row["slice_id"],
         count_level=int(row["count_level"]),
+        policy=policy, policy_path=policy_path,
       )
       summary["requested"] += 1
       summary["failed"] += int(not success)
+      consecutive_live_failures = 0 if success else consecutive_live_failures + 1
+      if consecutive_live_failures >= int(policy["max_consecutive_live_failed_keys"]):
+        raise RuntimeError(
+          "Qwen circuit breaker: too many consecutive live cache-key failures; "
+          "batch remains incomplete and may be resumed after service recovery"
+        )
     outputs.append(output)
-  write_success_marker(response_dir, [
-    prompt_manifest,
-    prompt_manifest.with_suffix(prompt_manifest.suffix + ".manifest.json"),
-    *outputs,
-  ])
+  if not pilot_one_per_dataset_count:
+    write_success_marker(response_dir, [
+      prompt_manifest,
+      prompt_manifest.with_suffix(prompt_manifest.suffix + ".manifest.json"),
+      policy_path,
+      *outputs,
+    ])
   return summary

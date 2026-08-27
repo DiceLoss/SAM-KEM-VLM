@@ -88,8 +88,10 @@ def _check_protocol(args: argparse.Namespace) -> int:
 
 def _qwen_box(args: argparse.Namespace) -> int:
   from .config import load_yaml_strict
-  from .qwen import request_and_archive_box
+  from .qwen import load_request_policy, request_and_archive_box
   cfg = load_yaml_strict(args.config.resolve())
+  policy_path = args.policy.resolve()
+  policy = load_request_policy(policy_path)
   model = str(args.model or cfg["prompts"]["model"])
   prompt = str(args.prompt or cfg["prompts"]["text"])
   if model != cfg["prompts"]["model"] or prompt != cfg["prompts"]["text"]:
@@ -97,6 +99,7 @@ def _qwen_box(args: argparse.Namespace) -> int:
   record, success = request_and_archive_box(
     args.image, args.output, cfg=cfg, dataset=args.dataset,
     subject_id=args.subject, slice_id=args.slice, count_level=args.count,
+    policy=policy, policy_path=policy_path,
   )
   print(json.dumps(record, ensure_ascii=False))
   return 0 if success else 1
@@ -142,7 +145,9 @@ def _aggregate(args: argparse.Namespace) -> int:
 
 def _build_box_cache(args: argparse.Namespace) -> int:
   from .cache_builder import build_box_cache
-  print(f"wrote {build_box_cache(args.manifest, args.responses, args.output, args.config)}")
+  print(
+    f"wrote {build_box_cache(args.manifest, args.responses, args.output, args.config, args.policy)}"
+  )
   return 0
 
 
@@ -161,7 +166,9 @@ def _request_prompt_batch(args: argparse.Namespace) -> int:
   from .prompt_batch import request_prompt_manifest
   summary = request_prompt_manifest(
     args.root.resolve(), args.config.resolve(), args.manifest.resolve(),
-    args.responses.resolve(), resume_verified=args.resume_verified,
+    args.responses.resolve(), policy_path=args.policy.resolve(),
+    resume_verified=args.resume_verified,
+    pilot_one_per_dataset_count=args.pilot_one_per_dataset_count,
   )
   print(json.dumps(summary, indent=2, sort_keys=True))
   return 0
@@ -354,6 +361,7 @@ def build_parser() -> argparse.ArgumentParser:
   qwen.add_argument("--image", type=Path, required=True)
   qwen.add_argument("--config", type=Path, required=True)
   qwen.add_argument("--output", type=Path, required=True)
+  qwen.add_argument("--policy", type=Path, required=True)
   qwen.add_argument("--dataset", required=True)
   qwen.add_argument("--subject", required=True)
   qwen.add_argument("--slice", required=True)
@@ -404,6 +412,7 @@ def build_parser() -> argparse.ArgumentParser:
   cache.add_argument("--manifest", type=Path, required=True)
   cache.add_argument("--responses", type=Path, nargs="+", required=True)
   cache.add_argument("--output", type=Path, required=True)
+  cache.add_argument("--policy", type=Path, required=True)
   cache.set_defaults(func=_build_box_cache)
 
   prompt_batch = sub.add_parser(
@@ -427,7 +436,9 @@ def build_parser() -> argparse.ArgumentParser:
   request_batch.add_argument("--config", type=Path, required=True)
   request_batch.add_argument("--manifest", type=Path, required=True)
   request_batch.add_argument("--responses", type=Path, required=True)
+  request_batch.add_argument("--policy", type=Path, required=True)
   request_batch.add_argument("--resume-verified", action="store_true")
+  request_batch.add_argument("--pilot-one-per-dataset-count", action="store_true")
   request_batch.set_defaults(func=_request_prompt_batch)
 
   manifest = sub.add_parser("build-manifest", help="scan canonical arrays and write a verified case manifest")

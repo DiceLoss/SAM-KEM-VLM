@@ -26,6 +26,10 @@ prompts/*/test_images/**/*.png
 # Root prompt manifests and their CSV sidecars remain tracked.
 prompts/*/train_validation_images/*/*/*/*.json
 prompts/*/test_images/*/*/*/*.json
+# Raw Qwen attempt documents are required in the immutable external archive;
+# only the response _SUCCESS marker, cache CSV, and audit summaries belong in Git.
+prompts/*/train_validation_responses/*/*/*/*.json
+prompts/*/test_responses/*/*/*/*.json
 
 # Python caches
 __pycache__/

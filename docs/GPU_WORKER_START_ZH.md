@@ -161,28 +161,43 @@ PNG 和逐图 JSON sidecar 属于外部不可变归档的 bulk artifacts；Git �
 
 ### 4C. 经单独批准后调用 Qwen 并构建 box cache
 
+先用 `--pilot-one-per-dataset-count` 固定选择每个 dataset/count 字典序第一条，共8条。
+pilot 不写 `_SUCCESS.json`；审核8条响应后，删除该参数并用 `--resume-verified` 继续
+完整批次。禁止跳过pilot直接发出14,940个请求任务。
+
 ```bash
 export DASHSCOPE_API_KEY='服务器环境变量中的真实 key'
 sam-kem request-boxes --root . --config "$CFG" \
   --manifest "prompts/${RUN}/train_validation_images/prompt_manifest.csv" \
   --responses "prompts/${RUN}/train_validation_responses" \
+  --policy inputs/clean_v1/qwen_request_policy.json \
+  --resume-verified --pilot-one-per-dataset-count
+
+# pilot 经研究员单独批准后才执行完整批次：
+sam-kem request-boxes --root . --config "$CFG" \
+  --manifest "prompts/${RUN}/train_validation_images/prompt_manifest.csv" \
+  --responses "prompts/${RUN}/train_validation_responses" \
+  --policy inputs/clean_v1/qwen_request_policy.json \
   --resume-verified
 sam-kem build-box-cache --config "$CFG" \
   --manifest "results/${RUN}/case_manifest_inputs.csv" \
   --responses "prompts/${RUN}/train_validation_responses" \
+  --policy inputs/clean_v1/qwen_request_policy.json \
   --output "prompts/${RUN}/train_validation_box_cache.csv"
 
 git add "results/${RUN}" \
   "prompts/${RUN}/train_validation_images/prompt_manifest.csv" \
   "prompts/${RUN}/train_validation_images/prompt_manifest.csv.manifest.json" \
+  "prompts/${RUN}/train_validation_responses/_SUCCESS.json" \
   "prompts/${RUN}/train_validation_box_cache.csv" \
   "prompts/${RUN}/train_validation_box_cache.csv.manifest.json"
 git commit -m "Prepare ${RUN} decoder inputs and boxes"
 ```
 
-每个 `(dataset, subject, slice, count)` 只调用一次 Qwen，使用 r=0 MLEM-10；
-r=0/1/2 共用该 box。失败调用必须保留，并使用已实现的质心 fallback，禁止挑选性
-重试。
+每个 `(dataset, subject, slice, count)` 只有一个请求任务，使用 r=0 MLEM-10；
+r=0/1/2 共用该 box。每个任务严格使用同一份最多三次的固定重试预算，每次 attempt
+都归档；禁止按结果挑选性追加重试。合法 no-detection 和完整预算耗尽的 request
+failure 分别记录，再使用质心 fallback。
 
 ## 5. GPU 开工门和正式训练
 

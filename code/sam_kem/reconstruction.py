@@ -1,6 +1,6 @@
 """Reference MLEM and coefficient-space KEM implementations.
 
-The functions preserve the fixed physical intensity scale. They never perform
+The functions preserve the declared fixed activity scale. They never perform
 per-image normalization inside an iterative update.
 """
 

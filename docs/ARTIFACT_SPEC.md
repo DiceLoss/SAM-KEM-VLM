@@ -69,7 +69,11 @@ SHA-verified file for execution.
 | Cross-count summary | `(run_id,dataset,count_level,method)` |
 | Paired statistics | `(run_id,dataset,count_level,proposed_method,baseline_method)` |
 
-All per-case metrics must be finite, use the declared fixed physical scale and
+The Qwen box-cache v3 schema additionally stores the request-policy ID and
+SHA-256 in every row. The response `_SUCCESS.json` binds the prompt manifest,
+request policy, and every raw attempt document before a cache may be built.
+
+All per-case metrics must be finite, use the declared fixed activity scale and
 carry operator/checkpoint/seed/hyperparameter identity. Subject-level statistics
 are derived from per-case rows; aggregate rows are never copied back into the
 per-case table. Frozen parameters are generated from validation sweep output and

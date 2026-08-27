@@ -41,12 +41,15 @@ class BoxRecord:
   source_mlem10_sha256: str
   prompt_sha256: str
   model: str
+  request_policy_id: str
+  request_policy_sha256: str
 
 
 REQUIRED_COLUMNS = (
   "run_id", "dataset", "subject_id", "slice_id", "count_level",
   "xmin", "ymin", "xmax", "ymax", "source", "request_id", "image_sha256",
   "source_mlem10_sha256", "prompt_sha256", "model",
+  "request_policy_id", "request_policy_sha256",
 )
 
 
@@ -66,7 +69,7 @@ class BoxCache:
   @classmethod
   def read(cls, path: Path) -> "BoxCache":
     manifest = verify_csv_artifact(path)
-    if manifest.get("schema_name") != "qwen_anchor_box_cache_v2":
+    if manifest.get("schema_name") != "qwen_anchor_box_cache_v3":
       raise ValueError(f"box cache uses an obsolete/unknown schema: {path}")
     with path.open("r", encoding="utf-8", newline="") as handle:
       reader = csv.DictReader(handle)
@@ -83,6 +86,8 @@ class BoxCache:
           source=row["source"], request_id=row["request_id"], image_sha256=row["image_sha256"],
           source_mlem10_sha256=row["source_mlem10_sha256"],
           prompt_sha256=row["prompt_sha256"], model=row["model"],
+          request_policy_id=row["request_policy_id"],
+          request_policy_sha256=row["request_policy_sha256"],
         ))
     return cls(records)
 
@@ -103,9 +108,11 @@ class BoxCache:
           "request_id": record.request_id, "image_sha256": record.image_sha256,
           "source_mlem10_sha256": record.source_mlem10_sha256,
           "prompt_sha256": record.prompt_sha256, "model": record.model,
+          "request_policy_id": record.request_policy_id,
+          "request_policy_sha256": record.request_policy_sha256,
         })
     finalize_csv(
-      path, schema_name="qwen_anchor_box_cache_v2",
+      path, schema_name="qwen_anchor_box_cache_v3",
       primary_key=["run_id", "dataset", "subject_id", "slice_id", "count_level"],
     )
 

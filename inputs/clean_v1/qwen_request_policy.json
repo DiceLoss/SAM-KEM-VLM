@@ -1,0 +1,14 @@
+{
+  "schema_version": 1,
+  "policy_id": "qwen3_vl_plus_fixed_retry_v1",
+  "endpoint": "https://dashscope.aliyuncs.com/compatible-mode/v1/chat/completions",
+  "temperature": 0,
+  "timeout_seconds": 120,
+  "max_attempts_per_key": 3,
+  "backoff_seconds_before_attempt": [0.0, 2.0, 8.0],
+  "retry_scope": "all_transport_http_response_parse_and_box_validation_errors",
+  "max_consecutive_live_failed_keys": 10,
+  "archive_every_attempt": true,
+  "selection_policy": "identical_for_every_cache_key_no_selective_retry",
+  "terminal_failure_action": "record_failure_then_centroid_fallback_at_cache_build"
+}

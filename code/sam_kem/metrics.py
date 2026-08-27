@@ -1,4 +1,4 @@
-"""Metrics evaluated on the fixed physical scale."""
+"""Metrics evaluated on the declared fixed activity scale."""
 
 from __future__ import annotations
 
@@ -30,7 +30,7 @@ def mae(reference: np.ndarray, estimate: np.ndarray, mask: np.ndarray | None = N
 
 def psnr(reference: np.ndarray, estimate: np.ndarray, *, data_range: float, mask: np.ndarray | None = None) -> float:
   if data_range <= 0:
-    raise ValueError("data_range must be the positive fixed physical range")
+    raise ValueError("data_range must be the positive declared fixed range")
   target, reconstruction = _masked(reference, estimate, mask)
   mse = float(np.mean((reconstruction - target) ** 2))
   return float("inf") if mse == 0 else float(20 * np.log10(data_range / np.sqrt(mse)))

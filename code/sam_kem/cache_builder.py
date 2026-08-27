@@ -13,13 +13,16 @@ from .config import load_contract
 from .noise import array_sha256
 from .artifacts import file_sha256, verify_csv_artifact, verify_success_marker
 from .qwen import instruction_sha256
+from .qwen import load_request_policy
 
 
 def build_box_cache(
   manifest_path: Path, response_dirs: list[Path] | tuple[Path, ...] | Path,
-  output_path: Path, config_path: Path,
+  output_path: Path, config_path: Path, policy_path: Path,
 ) -> Path:
   cfg, _ = load_contract(config_path)
+  policy = load_request_policy(policy_path)
+  policy_sha256 = file_sha256(policy_path)
   repo_root = config_path.resolve().parents[2]
   manifest_record = verify_csv_artifact(manifest_path)
   if manifest_record.get("schema_name") != "canonical_case_manifest_v3":
@@ -42,6 +45,11 @@ def build_box_cache(
     key = BoxKey(record["dataset"], record["subject_id"], record["slice_id"], int(record["count_level"]))
     if record.get("run_id") != cfg["run_id"]:
       raise ValueError(f"Qwen response has wrong run_id: {path}")
+    if (
+      document.get("request_policy", {}).get("policy_id") != policy["policy_id"]
+      or document.get("request_policy", {}).get("sha256") != policy_sha256
+    ):
+      raise ValueError(f"Qwen response has wrong request policy: {path}")
     if key in responses:
       raise ValueError(f"multiple Qwen calls for one cache key: {key}")
     responses[key] = record
@@ -101,7 +109,11 @@ def build_box_cache(
         image, box_width=int(fallback_size[0]), box_height=int(fallback_size[1]),
         relative_threshold=float(cfg["prompts"]["fallback_relative_threshold"]),
       )
-      source = "centroid_fallback_qwen_failure"
+      source = (
+        "centroid_fallback_qwen_no_detection"
+        if response.get("source") == "qwen_no_detection"
+        else "centroid_fallback_qwen_request_failure"
+      )
       request_id = str(response.get("request_id", ""))
       image_sha = str(response.get("image_sha256", ""))
     box.validate(width=128, height=128)
@@ -109,6 +121,7 @@ def build_box_cache(
       key, cfg["run_id"], box, source, request_id, image_sha,
       str(response["source_mlem10_sha256"]),
       str(response.get("prompt_sha256", "")), str(response.get("model", "")),
+      str(policy["policy_id"]), policy_sha256,
     ))
   BoxCache(records).write(output_path)
   return output_path

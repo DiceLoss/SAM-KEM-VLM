@@ -307,7 +307,7 @@ def audit_repository(root: Path, config_path: Path) -> list[Issue]:
   cache_path = root / str(cfg["prompts"]["box_cache"])
   try:
     cache_record = verify_csv_artifact(cache_path)
-    if cache_record.get("schema_name") != "qwen_anchor_box_cache_v2":
+    if cache_record.get("schema_name") != "qwen_anchor_box_cache_v3":
       raise ValueError("unexpected box-cache schema")
     cache = BoxCache.read(cache_path)
   except (OSError, ValueError, KeyError, json.JSONDecodeError) as error:
@@ -316,7 +316,7 @@ def audit_repository(root: Path, config_path: Path) -> list[Issue]:
   training_cache_path = root / str(cfg["prompts"]["training_box_cache"])
   try:
     training_cache_record = verify_csv_artifact(training_cache_path)
-    if training_cache_record.get("schema_name") != "qwen_anchor_box_cache_v2":
+    if training_cache_record.get("schema_name") != "qwen_anchor_box_cache_v3":
       raise ValueError("unexpected training box-cache schema")
     training_cache = BoxCache.read(training_cache_path)
   except (OSError, ValueError, KeyError, json.JSONDecodeError) as error:

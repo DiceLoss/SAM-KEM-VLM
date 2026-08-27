@@ -66,6 +66,14 @@ scale. Global min-max changes the zero point when the training minimum is not
 zero. Per-image min-max destroys between-case quantitative comparability and is
 never eligible as the primary experiment.
 
+Qwen requests use the separately SHA-pinned
+`inputs/clean_v1/qwen_request_policy.json`. Every cache key receives the same
+three-attempt budget and fixed backoff schedule. Every failed and successful
+attempt is archived. Ten consecutive cache keys that exhaust the live retry
+budget trip a circuit breaker, leave the batch incomplete, and require a later
+verified resume; transient first-attempt errors are not silently converted into
+methodological fallback boxes.
+
 Distribution diagnostics do not select a reconstruction method. A normalization
 arm needs separate training only when its transformation changes at least one
 training input. In this calibration, both training minima are zero, so
@@ -250,10 +258,12 @@ sam-kem prepare-prompt-images --root . --config code/configs/experiment.yaml \
   --splits train validation
 sam-kem request-boxes --root . --config code/configs/experiment.yaml \
   --manifest prompts/clean_v1/train_validation_images/prompt_manifest.csv \
-  --responses prompts/clean_v1/train_validation_responses
+  --responses prompts/clean_v1/train_validation_responses \
+  --policy inputs/clean_v1/qwen_request_policy.json --resume-verified
 sam-kem build-box-cache --manifest results/clean_v1/case_manifest_inputs.csv \
   --responses prompts/clean_v1/train_validation_responses \
   --output prompts/clean_v1/train_validation_box_cache.csv \
+  --policy inputs/clean_v1/qwen_request_policy.json \
   --config code/configs/experiment.yaml
 ```
 
@@ -315,11 +325,13 @@ sam-kem prepare-prompt-images --root . --config code/configs/experiment.yaml \
   --output prompts/clean_v1/test_images --splits test_locked
 sam-kem request-boxes --root . --config code/configs/experiment.yaml \
   --manifest prompts/clean_v1/test_images/prompt_manifest.csv \
-  --responses prompts/clean_v1/test_responses
+  --responses prompts/clean_v1/test_responses \
+  --policy inputs/clean_v1/qwen_request_policy.json --resume-verified
 sam-kem build-box-cache --manifest results/clean_v1/final_box_inputs.csv \
   --responses prompts/clean_v1/train_validation_responses \
               prompts/clean_v1/test_responses \
   --output prompts/clean_v1/final_box_cache.csv \
+  --policy inputs/clean_v1/qwen_request_policy.json \
   --config code/configs/experiment.yaml
 python code/experiments/generate_priors.py \
   --manifest results/clean_v1/final_box_inputs.csv --splits test_locked

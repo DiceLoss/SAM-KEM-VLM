@@ -107,9 +107,10 @@ match.
 The rolling resume state may be atomically replaced; published inference
 checkpoints and final provenance may not.
 
-Qwen batch resume reuses every archived attempt, including failed attempts.
-It must not retry cases selectively after inspecting boxes or downstream
-metrics.
+Qwen batch resume reuses every completed fixed-policy request task, including
+tasks that exhausted all three attempts. It must not add retries selectively
+after inspecting boxes or downstream metrics. A circuit-breaker interruption is
+an incomplete batch, not a success marker and not a reason to alter the policy.
 
 ## Failure and quarantine procedure
 
