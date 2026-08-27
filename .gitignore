@@ -22,6 +22,10 @@ arrays/clean_v1/
 arrays/*/
 prompts/*/train_validation_images/**/*.png
 prompts/*/test_images/**/*.png
+# Per-image render sidecars are bulk artifacts archived with their PNGs.
+# Root prompt manifests and their CSV sidecars remain tracked.
+prompts/*/train_validation_images/*/*/*/*.json
+prompts/*/test_images/*/*/*/*.json
 
 # Python caches
 __pycache__/

@@ -123,6 +123,11 @@ LF 原子写入，提交前后哈希必须一致。
 
 ## 4. 为固定尺度配置生成训练输入和 Qwen box
 
+本阶段分三道门执行，禁止跨门：4A 生成 case，4B 只渲染提示图，4C 才允许产生
+付费 Qwen 调用。每道门结束后先审核数量、哈希、失败率和归档空间。
+
+### 4A. 生成 case 和输入 manifest
+
 ```bash
 RUN=dev_trainmax_v1
 CFG=code/configs/generated/${RUN}.yaml
@@ -132,26 +137,46 @@ sam-kem ingest-activity --root . --config "$CFG" \
   --output "arrays/${RUN}" --splits train validation
 
 sam-kem prepare-cases --root . --config "$CFG" \
-  --arrays "arrays/${RUN}" --splits train validation
+  --arrays "arrays/${RUN}" --splits train validation --resume-verified
 
 sam-kem build-manifest --root . --config "$CFG" \
   --arrays "arrays/${RUN}" \
   --output "results/${RUN}/case_manifest_inputs.csv"
+```
 
-export DASHSCOPE_API_KEY='服务器环境变量中的真实 key'
+4A 的 manifest 应为 44,820 行。提交 CSV 及 sidecar 后停止，等待审核。
+
+### 4B. 只渲染提示图
+
+```bash
 sam-kem prepare-prompt-images --root . --config "$CFG" \
   --manifest "results/${RUN}/case_manifest_inputs.csv" \
   --output "prompts/${RUN}/train_validation_images" \
-  --splits train validation
+  --splits train validation --resume-verified
+```
+
+4B 必须得到 14,940 行 prompt manifest，即 3,735 个切片乘 4 个 count level。
+PNG 和逐图 JSON sidecar 属于外部不可变归档的 bulk artifacts；Git 只提交
+`prompt_manifest.csv` 及其 manifest。此时不得设置 API key，完成后再次停止审核。
+
+### 4C. 经单独批准后调用 Qwen 并构建 box cache
+
+```bash
+export DASHSCOPE_API_KEY='服务器环境变量中的真实 key'
 sam-kem request-boxes --root . --config "$CFG" \
   --manifest "prompts/${RUN}/train_validation_images/prompt_manifest.csv" \
-  --responses "prompts/${RUN}/train_validation_responses"
+  --responses "prompts/${RUN}/train_validation_responses" \
+  --resume-verified
 sam-kem build-box-cache --config "$CFG" \
   --manifest "results/${RUN}/case_manifest_inputs.csv" \
   --responses "prompts/${RUN}/train_validation_responses" \
   --output "prompts/${RUN}/train_validation_box_cache.csv"
 
-git add "results/${RUN}" "prompts/${RUN}"
+git add "results/${RUN}" \
+  "prompts/${RUN}/train_validation_images/prompt_manifest.csv" \
+  "prompts/${RUN}/train_validation_images/prompt_manifest.csv.manifest.json" \
+  "prompts/${RUN}/train_validation_box_cache.csv" \
+  "prompts/${RUN}/train_validation_box_cache.csv.manifest.json"
 git commit -m "Prepare ${RUN} decoder inputs and boxes"
 ```
 
