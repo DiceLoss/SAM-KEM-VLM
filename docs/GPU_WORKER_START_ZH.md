@@ -255,10 +255,16 @@ python code/experiments/run_gpu_training.py \
   --config code/configs/generated/dev_trainmax_v1.yaml \
   2>&1 | tee logs/gpu_dev_trainmax_v1.log
 
+# 两个数据集均完成后执行；任何 provenance、输入绑定或训练协议不一致都会失败。
+python code/experiments/audit_decoder_training.py --root . \
+  --config code/configs/generated/dev_trainmax_v1.yaml \
+  --output logs/decoder_training_handoff_audit.json
+
 # 固定小型 provenance/metrics；二进制 .pt 仍由 .gitignore 排除。
 git add checkpoints/dev_trainmax_v1/*.json \
   checkpoints/dev_trainmax_v1/*.training.csv \
-  checkpoints/dev_trainmax_v1/*.training.csv.manifest.json
+  checkpoints/dev_trainmax_v1/*.training.csv.manifest.json \
+  logs/decoder_training_handoff_audit.json
 git commit -m 'Record dev_trainmax_v1 decoder training provenance'
 
 ```

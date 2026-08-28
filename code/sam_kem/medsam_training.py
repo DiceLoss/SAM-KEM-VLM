@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import csv
 import hashlib
+import json
 import random
 import subprocess
 from collections import Counter, defaultdict
@@ -35,6 +36,50 @@ def _training_input_bindings(manifest_path: Path, box_cache_path: Path) -> dict[
     "training_box_cache_sha256": file_sha256(box_cache_path),
     "training_box_cache_manifest_sha256": file_sha256(box_cache_sidecar),
   }
+
+
+def verify_completed_training(
+  output: Path, root: Path, config_path: Path, cfg: dict, dataset: str,
+) -> dict:
+  """Accept a final checkpoint only with its complete exact provenance group."""
+  provenance_path = output.with_suffix(".json")
+  metrics_path = output.with_suffix(".training.csv")
+  metrics_manifest = metrics_path.with_suffix(metrics_path.suffix + ".manifest.json")
+  resume_path = output.with_suffix(".resume.pt")
+  required = (output, provenance_path, metrics_path, metrics_manifest, resume_path)
+  missing = [str(path) for path in required if not path.is_file()]
+  if missing:
+    raise RuntimeError(f"partial completed-training group for {dataset}: {missing}")
+  record = json.loads(provenance_path.read_text(encoding="utf-8"))
+  manifest = root / cfg["outputs"]["pretraining_manifest"]
+  cache = root / cfg["prompts"]["training_box_cache"]
+  expected = {
+    "schema_version": 1,
+    "artifact_kind": "checkpoint_provenance",
+    "run_id": cfg["run_id"],
+    "dataset": dataset,
+    "normalization_id": cfg["normalization"]["normalization_id"],
+    "config_sha256": hashlib.sha256(config_path.read_bytes()).hexdigest(),
+    "medsam2_source_commit": cfg["medsam2"]["source_commit"],
+    "completed_epochs": int(cfg["medsam2"]["training"]["epochs"]),
+    **_training_input_bindings(manifest, cache),
+  }
+  mismatches = {
+    key: (record.get(key), value) for key, value in expected.items()
+    if record.get(key) != value
+  }
+  hashes_match = (
+    record.get("checkpoint_sha256") == file_sha256(output)
+    and record.get("resume_checkpoint_sha256") == file_sha256(resume_path)
+    and record.get("training_metrics_sha256") == file_sha256(metrics_path)
+    and record.get("training_metrics_manifest_sha256") == file_sha256(metrics_manifest)
+  )
+  if mismatches or not hashes_match:
+    raise RuntimeError(
+      f"existing completed training failed provenance verification for {dataset}: "
+      f"mismatches={mismatches}, hashes_match={hashes_match}"
+    )
+  return {"path": str(output), "sha256": file_sha256(output), "reused": True}
 
 
 def _balanced_order(
