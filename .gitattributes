@@ -1,3 +1,6 @@
 # Force LF line endings on all text files so SHA pinning of code,
 # manifests, and configuration is reproducible across Windows/Linux.
 * text=auto eol=lf
+
+# The verified development decoder bundle is content-addressed by Git LFS.
+delivery/dev_trainmax_v1_decoder_bundle.zip filter=lfs diff=lfs merge=lfs -text

@@ -61,3 +61,7 @@ v3_repo_complete.bundle
 # Allow small traceability samples (a few subjects × one slice each)
 !data/raw_samples/*.npz
 !data/raw_samples/*.json
+
+# This one verified bundle is deliberately published through Git LFS. Other
+# ZIP/checkpoint files remain ignored and belong to external artifact storage.
+!delivery/dev_trainmax_v1_decoder_bundle.zip

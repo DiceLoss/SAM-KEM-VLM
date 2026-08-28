@@ -69,3 +69,16 @@ def test_active_python_does_not_import_retired_modules():
       if any(token in content for token in prohibited):
         violations.append(str(source.relative_to(ROOT)))
   assert not violations
+
+
+def test_only_verified_decoder_bundle_is_declared_for_git_lfs():
+  attributes = (ROOT / ".gitattributes").read_text(encoding="utf-8")
+  ignore = (ROOT / ".gitignore").read_text(encoding="utf-8")
+  exact_rule = (
+    "delivery/dev_trainmax_v1_decoder_bundle.zip "
+    "filter=lfs diff=lfs merge=lfs -text"
+  )
+  assert exact_rule in attributes
+  assert "*.zip filter=lfs" not in attributes
+  assert "*.pt filter=lfs" not in attributes
+  assert "!delivery/dev_trainmax_v1_decoder_bundle.zip" in ignore

@@ -336,6 +336,14 @@ python code/experiments/register_decoder_archive.py \
 不一致，并保持全局 full-result `immutable_archive_uri: null`。validation prior 和 sweep
 只能读取 registered config；原训练配置继续作为不可变训练证据。
 
+当前 development bundle 可通过仓库内精确路径的 Git LFS 规则发布。只允许
+`delivery/dev_trainmax_v1_decoder_bundle.zip`；不得把 `*.pt`、其他 ZIP 或患者数组批量
+加入 LFS。LFS pointer 的 `oid sha256` 必须等于 bundle SHA
+`acacc789c28279b1084167659391d37a51cb6c97e319d96534dc522ca48c6347`，size 必须为
+`125563903`。推送后必须在一个不同的新 clone/checkout 中按固定 Git commit 执行
+`git lfs pull`，再把下载文件交给注册器。Git commit、LFS OID 和 bundle SHA 三者共同
+作为 development archive version；最终论文公开归档仍应迁移到长期 DOI/对象锁存储。
+
 不要另行生成或训练 `dev_globalminmax_v1`，不要运行 test，不要修改 epochs、学习率、
 loss、box 或 checkpoint。GPU 训练完成后停止，等待主研究员注册 checkpoint SHA 并
 启动 validation sweep。
