@@ -1,0 +1,9 @@
+{
+  "status": "PASS",
+  "torch_version": "2.10.0+cu130",
+  "first_sha256": "9b48209228c5793683c3bb9189472463bae9b986ff15e9d54f4f2940e8a4acf4",
+  "second_sha256": "483a96839e3a33539b9fa3a35ffd25f27fc63d787508a9aa6724176e35b01b93",
+  "replace_verified": true,
+  "round_trip_verified": true,
+  "temporary_files_remaining": []
+}
