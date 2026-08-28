@@ -6,6 +6,7 @@ def _record():
   inventory = {
     "sam_image_encoder.weight": {"numel": 10, "requires_grad": False},
     "sam_mask_decoder.weight": {"numel": 7, "requires_grad": True},
+    "sam_mask_decoder.iou_prediction_head.weight": {"numel": 3, "requires_grad": False},
   }
   return {
     "dataset": "brainweb", "completed_epochs": 2, "global_step": 8,
@@ -17,6 +18,8 @@ def _record():
     "epochs": 2, "steps_per_epoch": 4, "learning_rate": 0.001,
     "box_fallback_samples": 1, "parameter_inventory": inventory,
     "trainable_parameter_names": ["sam_mask_decoder.weight"],
+    "frozen_inactive_decoder_names": ["sam_mask_decoder.iou_prediction_head.weight"],
+    "single_mask_l1_trainable_rule_verified": True,
   }
 
 

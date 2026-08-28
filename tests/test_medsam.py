@@ -1,5 +1,4 @@
 import numpy as np
-
 from sam_kem.boxes import Box
 from sam_kem.medsam import freeze_except_mask_decoder, predict_continuous_prior
 from sam_kem.medsam_backend import MODEL_CONFIGS
@@ -38,6 +37,8 @@ def test_only_exact_sam_mask_decoder_namespace_is_trainable():
     "image_encoder.mask_decoder_adapter.weight": Parameter(2),
     "sam_prompt_encoder.weight": Parameter(3),
     "sam_mask_decoder.layers.0.weight": Parameter(4),
+    "sam_mask_decoder.iou_prediction_head.layers.0.weight": Parameter(5),
+    "sam_mask_decoder.output_hypernetworks_mlps.1.layers.0.weight": Parameter(6),
   }
 
   class Model:
@@ -46,6 +47,10 @@ def test_only_exact_sam_mask_decoder_namespace_is_trainable():
 
   freeze_except_mask_decoder(Model())
   assert parameters["sam_mask_decoder.layers.0.weight"].requires_grad
+  assert not parameters["sam_mask_decoder.iou_prediction_head.layers.0.weight"].requires_grad
+  assert not parameters[
+    "sam_mask_decoder.output_hypernetworks_mlps.1.layers.0.weight"
+  ].requires_grad
   assert not parameters["image_encoder.mask_decoder_adapter.weight"].requires_grad
   assert not parameters["sam_prompt_encoder.weight"].requires_grad
 

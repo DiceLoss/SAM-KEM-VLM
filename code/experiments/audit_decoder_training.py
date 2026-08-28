@@ -8,6 +8,7 @@ from pathlib import Path
 
 from sam_kem.artifacts import atomic_write_json, file_sha256
 from sam_kem.config import load_yaml_strict
+from sam_kem.medsam import is_single_mask_l1_trainable_parameter
 from sam_kem.medsam_training import verify_completed_training
 from sam_kem.splits import load_configured_subject_splits
 
@@ -26,6 +27,10 @@ def _validate_scientific_record(
     name for name, item in record["parameter_inventory"].items()
     if item["requires_grad"]
   }
+  expected_trainable = {
+    name for name in record["parameter_inventory"]
+    if is_single_mask_l1_trainable_parameter(name)
+  }
   expected_steps = int(training["epochs"]) * int(training["steps_per_epoch"])
   if (
     record.get("dataset") != dataset
@@ -40,7 +45,9 @@ def _validate_scientific_record(
     or max(subject_counts.values()) - min(subject_counts.values()) > len(count_levels)
     or not trainable_names
     or trainable_names != inventory_trainable
-    or any(not name.startswith("sam_mask_decoder.") for name in trainable_names)
+    or trainable_names != expected_trainable
+    or not record.get("frozen_inactive_decoder_names")
+    or record.get("single_mask_l1_trainable_rule_verified") is not True
     or record.get("non_mask_decoder_trainable_names") != []
     or record.get("loss") != "l1_only_raw_decoder_output"
     or record.get("optimizer") != "AdamW"

@@ -3,14 +3,30 @@
 from __future__ import annotations
 
 import hashlib
+from collections.abc import Callable
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Any, Callable
+from typing import Any
 
 import numpy as np
 
 from .boxes import Box
 from .medsam_backend import build_medsam2
+
+SINGLE_MASK_L1_INACTIVE_DECODER_PREFIXES = (
+  "sam_mask_decoder.iou_prediction_head.",
+  "sam_mask_decoder.pred_obj_score_head.",
+  "sam_mask_decoder.output_hypernetworks_mlps.1.",
+  "sam_mask_decoder.output_hypernetworks_mlps.2.",
+  "sam_mask_decoder.output_hypernetworks_mlps.3.",
+)
+
+
+def is_single_mask_l1_trainable_parameter(name: str) -> bool:
+  """Return whether a parameter contributes to the selected single-mask logit."""
+  return name.startswith("sam_mask_decoder.") and not name.startswith(
+    SINGLE_MASK_L1_INACTIVE_DECODER_PREFIXES
+  )
 
 
 def sha256_file(path: Path, *, chunk_size: int = 1024 * 1024) -> str:
@@ -107,10 +123,10 @@ def predict_continuous_prior(
 
 
 def freeze_except_mask_decoder(model: Any) -> None:
-  """Freeze every parameter except those owned by the mask decoder."""
+  """Train the single-mask L1 path; freeze encoders and disconnected decoder heads."""
   trainable = 0
   for name, parameter in model.named_parameters():
-    parameter.requires_grad = name.startswith("sam_mask_decoder.")
+    parameter.requires_grad = is_single_mask_l1_trainable_parameter(name)
     trainable += int(parameter.requires_grad) * parameter.numel()
   if trainable == 0:
     raise RuntimeError("no mask-decoder parameters were selected for training")

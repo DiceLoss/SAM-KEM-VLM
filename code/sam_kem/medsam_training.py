@@ -22,7 +22,12 @@ from .artifacts import (
 )
 from .boxes import BoxCache, BoxKey
 from .config import load_contract
-from .medsam import freeze_except_mask_decoder, pet_to_rgb, sha256_file
+from .medsam import (
+  freeze_except_mask_decoder,
+  is_single_mask_l1_trainable_parameter,
+  pet_to_rgb,
+  sha256_file,
+)
 from .medsam_backend import build_medsam2
 from .splits import load_configured_subject_splits
 
@@ -419,6 +424,10 @@ def train_dataset_decoder(
     name: {"requires_grad": bool(parameter.requires_grad), "numel": parameter.numel()}
     for name, parameter in model.named_parameters()
   }
+  frozen_inactive_decoder_names = sorted(
+    name for name, parameter in model.named_parameters()
+    if name.startswith("sam_mask_decoder.") and not parameter.requires_grad
+  )
   atomic_torch_save({
     "schema_version": 1, "artifact_kind": "inference_mask_decoder",
     "run_id": contract.run_id,
@@ -433,6 +442,7 @@ def train_dataset_decoder(
     "optimizer": "AdamW", "weight_decay": float(declared_training["weight_decay"]),
     "batch_size": 1, "sampling_unit": declared_training["sampling_unit"],
     "box_fallback_samples": fallbacks,
+    "frozen_inactive_decoder_names": frozen_inactive_decoder_names,
     "config_path": str(config_path), "pretrained_checkpoint_sha256": actual_pretrained_sha,
     "config_sha256": config_sha, "code_git_commit": code_commit,
     "medsam2_source_commit": source_head,
@@ -477,6 +487,11 @@ def train_dataset_decoder(
     "non_mask_decoder_trainable_names": sorted(
       name for name, parameter in model.named_parameters()
       if parameter.requires_grad and not name.startswith("sam_mask_decoder.")
+    ),
+    "frozen_inactive_decoder_names": frozen_inactive_decoder_names,
+    "single_mask_l1_trainable_rule_verified": all(
+      parameter.requires_grad == is_single_mask_l1_trainable_parameter(name)
+      for name, parameter in model.named_parameters()
     ),
     "loss": "l1_only_raw_decoder_output",
     "optimizer": "AdamW", "weight_decay": float(declared_training["weight_decay"]),

@@ -8,10 +8,14 @@ import subprocess
 from pathlib import Path
 
 import numpy as np
-
 from sam_kem.boxes import Box
 from sam_kem.config import load_yaml_strict
-from sam_kem.medsam import freeze_except_mask_decoder, pet_to_rgb, sha256_file
+from sam_kem.medsam import (
+  SINGLE_MASK_L1_INACTIVE_DECODER_PREFIXES,
+  freeze_except_mask_decoder,
+  pet_to_rgb,
+  sha256_file,
+)
 from sam_kem.medsam_backend import MODEL_CONFIGS, build_medsam2
 from sam_kem.medsam_training import _forward_logits
 
@@ -54,14 +58,20 @@ def preflight(root: Path, config_path: Path) -> dict:
   prediction = F.interpolate(logits, size=(128, 128), mode="bilinear", align_corners=False)
   loss = F.l1_loss(prediction, torch.zeros_like(prediction))
   loss.backward()
-  decoder_gradients = [
-    parameter.grad for name, parameter in model.named_parameters()
-    if name.startswith("sam_mask_decoder.") and parameter.requires_grad
+  decoder_parameters = [
+    (name, parameter) for name, parameter in model.named_parameters()
+    if parameter.requires_grad
   ]
-  if not decoder_gradients or not all(
-    gradient is not None and torch.isfinite(gradient).all() for gradient in decoder_gradients
-  ):
-    raise RuntimeError("mask-decoder backward pass produced missing/non-finite gradients")
+  missing_gradients = [name for name, parameter in decoder_parameters if parameter.grad is None]
+  nonfinite_gradients = [
+    name for name, parameter in decoder_parameters
+    if parameter.grad is not None and not torch.isfinite(parameter.grad).all()
+  ]
+  if not decoder_parameters or missing_gradients or nonfinite_gradients:
+    raise RuntimeError(
+      "single-mask L1 decoder backward failed: "
+      f"missing_gradients={missing_gradients}, nonfinite_gradients={nonfinite_gradients}"
+    )
   if any(
     parameter.grad is not None for name, parameter in model.named_parameters()
     if not name.startswith("sam_mask_decoder.")
@@ -76,6 +86,8 @@ def preflight(root: Path, config_path: Path) -> dict:
     "decoder_trainable_parameters": int(sum(
       parameter.numel() for parameter in model.parameters() if parameter.requires_grad
     )),
+    "inactive_decoder_head_prefixes": list(SINGLE_MASK_L1_INACTIVE_DECODER_PREFIXES),
+    "trainable_decoder_parameter_tensors": len(decoder_parameters),
     "smoke_loss": float(loss.detach().cpu()),
   }
 
