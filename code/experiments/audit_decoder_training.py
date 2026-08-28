@@ -18,6 +18,14 @@ def _validate_scientific_record(
   training = cfg["medsam2"]["training"]
   count_levels = {int(value) for value in cfg["acquisition"]["count_levels"]}
   counts = {int(key): int(value) for key, value in record["training_count_samples"].items()}
+  subject_counts = {
+    str(key): int(value) for key, value in record["training_subject_samples"].items()
+  }
+  trainable_names = set(record["trainable_parameter_names"])
+  inventory_trainable = {
+    name for name, item in record["parameter_inventory"].items()
+    if item["requires_grad"]
+  }
   expected_steps = int(training["epochs"]) * int(training["steps_per_epoch"])
   if (
     record.get("dataset") != dataset
@@ -27,10 +35,21 @@ def _validate_scientific_record(
     or len(set(counts.values())) != 1
     or sum(counts.values()) != expected_steps
     or set(record.get("train_subject_ids", [])) != expected_subjects
+    or not subject_counts
+    or set(subject_counts) != expected_subjects
+    or max(subject_counts.values()) - min(subject_counts.values()) > len(count_levels)
+    or not trainable_names
+    or trainable_names != inventory_trainable
+    or any(not name.startswith("sam_mask_decoder.") for name in trainable_names)
     or record.get("non_mask_decoder_trainable_names") != []
     or record.get("loss") != "l1_only_raw_decoder_output"
     or record.get("optimizer") != "AdamW"
+    or float(record.get("weight_decay", -1)) != float(training["weight_decay"])
     or int(record.get("batch_size", -1)) != 1
+    or record.get("sampling_unit") != training["sampling_unit"]
+    or int(record.get("epochs", -1)) != int(training["epochs"])
+    or int(record.get("steps_per_epoch", -1)) != int(training["steps_per_epoch"])
+    or float(record.get("learning_rate", -1)) != float(training["learning_rate"])
   ):
     raise ValueError(f"completed training violates the frozen scientific protocol: {dataset}")
   return {
@@ -42,7 +61,7 @@ def _validate_scientific_record(
     "trainable_parameter_count": sum(
       int(item["numel"])
       for name, item in record["parameter_inventory"].items()
-      if name in set(record["trainable_parameter_names"])
+      if name in trainable_names
     ),
   }
 

@@ -464,6 +464,8 @@ def train_dataset_decoder(
     "training_subject_samples": dict(sorted(training_subject_samples.items())),
     "sampled_case_counts": dict(sorted(sampled_case_counts.items())),
     "experiment_seed": seed,
+    "epochs": epochs, "steps_per_epoch": steps_per_epoch,
+    "learning_rate": learning_rate,
     "config_sha256": config_sha, "code_git_commit": code_commit,
     "medsam2_source_commit": source_head,
     **input_bindings,
