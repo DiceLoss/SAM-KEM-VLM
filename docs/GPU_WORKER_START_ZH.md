@@ -273,8 +273,11 @@ git commit -m 'Record dev_trainmax_v1 decoder training provenance'
 L1-only。image/prompt/memory encoder 全部冻结，只更新 mask decoder 中与所选 single-mask
 logit 相连的参数。与该 L1 目标无连接的 IoU/object-score 输出头及另外三个 multimask
 hypernetwork 输出头保持冻结；这不会改变 single-mask 前向值，只避免把必然
-`grad=None` 的旁路分支误报为训练失败。中断后重新执行同一命令会读取该 checkpoint
-对应的 `.resume.pt`，不得另建临时 checkpoint。
+`grad=None` 的旁路分支误报为训练失败。训练图像路径使用官方 `model.forward_image`：
+冻结的 image encoder 不建立梯度，而 decoder 的高分辨率 `conv_s0/conv_s1` 投影保留
+autograd；不能使用官方 predictor 中带 `@torch.no_grad()` 的 `set_image` 代替该训练
+路径。中断后重新执行同一命令会读取该 checkpoint 对应的 `.resume.pt`，不得另建临时
+checkpoint。
 
 ## 6. GPU 完成后立即交回
 

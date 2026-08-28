@@ -134,12 +134,34 @@ def _box_coordinates_on_model_grid(box, source_shape: tuple[int, int], model_siz
   ]], dtype=np.float32)
 
 
+def _set_image_for_decoder_training(model, predictor, image: np.ndarray, device) -> None:
+  """Run the frozen encoder normally while preserving gradients for conv_s0/conv_s1."""
+  predictor.reset_predictor()
+  predictor._orig_hw = [image.shape[:2]]
+  input_image = predictor._transforms(image)[None, ...].to(device)
+  # Encoder parameters and the input are non-trainable, so their outputs remain
+  # detached without a global no_grad context. model.forward_image then applies
+  # trainable decoder projections conv_s0/conv_s1 with autograd enabled.
+  backbone_out = model.forward_image(input_image)
+  _, vision_features, _, _ = model._prepare_backbone_features(backbone_out)
+  if model.directly_add_no_mem_embed:
+    vision_features[-1] = vision_features[-1] + model.no_mem_embed
+  features = [
+    feature.permute(1, 2, 0).view(1, -1, *feature_size)
+    for feature, feature_size in zip(
+      vision_features[::-1], predictor._bb_feat_sizes[::-1], strict=True,
+    )
+  ][::-1]
+  predictor._features = {"image_embed": features[-1], "high_res_feats": features[:-1]}
+  predictor._is_image_set = True
+
+
 def _forward_logits(
   model, predictor, image: np.ndarray, box, *, source_shape: tuple[int, int], device,
 ):
   import torch
 
-  predictor.set_image(image)
+  _set_image_for_decoder_training(model, predictor, image, device)
   embedding = predictor.get_image_embedding()
   high_resolution = predictor._features["high_res_feats"]
   coordinates = torch.as_tensor(
