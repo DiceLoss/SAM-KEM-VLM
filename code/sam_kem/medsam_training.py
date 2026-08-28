@@ -43,6 +43,41 @@ def _training_input_bindings(manifest_path: Path, box_cache_path: Path) -> dict[
   }
 
 
+def _declared_training_output_paths(cfg: dict) -> set[str]:
+  outputs = set()
+  for configured_path in cfg["medsam2"]["checkpoint_paths"].values():
+    checkpoint = Path(str(configured_path))
+    outputs.update({
+      checkpoint.as_posix(),
+      checkpoint.with_suffix(".resume.pt").as_posix(),
+      checkpoint.with_suffix(".json").as_posix(),
+      checkpoint.with_suffix(".training.csv").as_posix(),
+      checkpoint.with_suffix(".training.csv.manifest.json").as_posix(),
+    })
+  return outputs
+
+
+def _assert_clean_training_worktree(root: Path, cfg: dict) -> None:
+  """Reject dirty inputs/code while allowing exact untracked runtime outputs."""
+  dirty_lines = subprocess.run(
+    ["git", "status", "--porcelain", "--untracked-files=all"], cwd=root, check=True,
+    capture_output=True, text=True,
+  ).stdout.splitlines()
+  allowed_runtime_outputs = _declared_training_output_paths(cfg)
+  unexpected_dirty = []
+  for line in dirty_lines:
+    status = line[:2]
+    relative = line[3:].strip()
+    if status == "??" and relative in allowed_runtime_outputs:
+      continue
+    unexpected_dirty.append(line)
+  if unexpected_dirty:
+    raise RuntimeError(
+      "refusing to train with uncommitted inputs/code; unexpected Git status: "
+      f"{unexpected_dirty[:5]}"
+    )
+
+
 def verify_completed_training(
   output: Path, root: Path, config_path: Path, cfg: dict, dataset: str,
 ) -> dict:
@@ -205,28 +240,7 @@ def train_dataset_decoder(
     ["git", "rev-parse", "HEAD"], cwd=root, check=True,
     capture_output=True, text=True,
   ).stdout.strip()
-  dirty_lines = subprocess.run(
-    ["git", "status", "--porcelain"], cwd=root, check=True,
-    capture_output=True, text=True,
-  ).stdout.splitlines()
-  allowed_previous_outputs = set()
-  for configured_path in cfg["medsam2"]["checkpoint_paths"].values():
-    checkpoint = Path(str(configured_path))
-    allowed_previous_outputs.update({
-      str(checkpoint.with_suffix(".json")),
-      str(checkpoint.with_suffix(".training.csv")),
-      str(checkpoint.with_suffix(".training.csv.manifest.json")),
-    })
-  unexpected_dirty = []
-  for line in dirty_lines:
-    relative = line[3:].strip()
-    if relative not in allowed_previous_outputs:
-      unexpected_dirty.append(line)
-  if unexpected_dirty:
-    raise RuntimeError(
-      "refusing to train with uncommitted inputs/code; unexpected Git status: "
-      f"{unexpected_dirty[:5]}"
-    )
+  _assert_clean_training_worktree(root, cfg)
   config_sha = hashlib.sha256(config_path.read_bytes()).hexdigest()
   declared_training = cfg["medsam2"]["training"]
   supplied = {

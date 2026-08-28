@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import re
 from pathlib import Path
 
 from sam_kem.artifacts import atomic_write_json, file_sha256
@@ -57,6 +58,7 @@ def _validate_scientific_record(
     or int(record.get("epochs", -1)) != int(training["epochs"])
     or int(record.get("steps_per_epoch", -1)) != int(training["steps_per_epoch"])
     or float(record.get("learning_rate", -1)) != float(training["learning_rate"])
+    or re.fullmatch(r"[0-9a-f]{40}", str(record.get("code_git_commit", ""))) is None
   ):
     raise ValueError(f"completed training violates the frozen scientific protocol: {dataset}")
   return {
@@ -64,6 +66,7 @@ def _validate_scientific_record(
     "global_step": record["global_step"],
     "training_count_samples": dict(sorted(counts.items())),
     "train_subject_count": len(expected_subjects),
+    "training_code_git_commit": record["code_git_commit"],
     "box_fallback_samples": int(record["box_fallback_samples"]),
     "trainable_parameter_count": sum(
       int(item["numel"])

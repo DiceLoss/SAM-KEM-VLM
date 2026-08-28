@@ -1,9 +1,14 @@
+import subprocess
 from pathlib import Path
 
 import numpy as np
 import pytest
 from sam_kem.artifacts import file_sha256
-from sam_kem.medsam_training import _balanced_order, _training_input_bindings
+from sam_kem.medsam_training import (
+  _assert_clean_training_worktree,
+  _balanced_order,
+  _training_input_bindings,
+)
 from sam_kem.training import (
   TrainingSample,
   balanced_sample_weights,
@@ -73,3 +78,53 @@ def test_training_input_bindings_cover_manifest_and_box_cache(tmp_path):
     "training_box_cache_sha256": file_sha256(files[2]),
     "training_box_cache_manifest_sha256": file_sha256(files[3]),
   }
+
+
+def test_training_worktree_allows_only_exact_untracked_declared_outputs(tmp_path):
+  root = tmp_path / "repository"
+  root.mkdir()
+
+  def git(*arguments):
+    return subprocess.run(
+      ["git", *arguments], cwd=root, check=True, capture_output=True, text=True,
+    )
+
+  git("init")
+  baseline = root / "tracked.txt"
+  baseline.write_text("baseline\n", encoding="utf-8")
+  git("add", "tracked.txt")
+  git(
+    "-c", "user.name=Test", "-c", "user.email=test@example.invalid",
+    "commit", "-m", "baseline",
+  )
+
+  checkpoint = Path("checkpoints/run/decoder_brainweb.pt")
+  cfg = {"medsam2": {"checkpoint_paths": {"brainweb": checkpoint.as_posix()}}}
+  declared_outputs = (
+    checkpoint,
+    checkpoint.with_suffix(".resume.pt"),
+    checkpoint.with_suffix(".json"),
+    checkpoint.with_suffix(".training.csv"),
+    checkpoint.with_suffix(".training.csv.manifest.json"),
+  )
+  for output in declared_outputs:
+    path = root / output
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text("runtime output\n", encoding="utf-8")
+
+  _assert_clean_training_worktree(root, cfg)
+
+  unexpected = root / "unexpected.txt"
+  unexpected.write_text("not declared\n", encoding="utf-8")
+  with pytest.raises(RuntimeError, match="unexpected.txt"):
+    _assert_clean_training_worktree(root, cfg)
+  unexpected.unlink()
+
+  git("add", "checkpoints")
+  git(
+    "-c", "user.name=Test", "-c", "user.email=test@example.invalid",
+    "commit", "-m", "record outputs",
+  )
+  (root / checkpoint.with_suffix(".json")).write_text("changed\n", encoding="utf-8")
+  with pytest.raises(RuntimeError, match="decoder_brainweb.json"):
+    _assert_clean_training_worktree(root, cfg)

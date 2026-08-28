@@ -16,6 +16,7 @@ def _record():
     "loss": "l1_only_raw_decoder_output", "optimizer": "AdamW", "batch_size": 1,
     "weight_decay": 0.01, "sampling_unit": "count_then_subject",
     "epochs": 2, "steps_per_epoch": 4, "learning_rate": 0.001,
+    "code_git_commit": "a" * 40,
     "box_fallback_samples": 1, "parameter_inventory": inventory,
     "trainable_parameter_names": ["sam_mask_decoder.weight"],
     "frozen_inactive_decoder_names": ["sam_mask_decoder.iou_prediction_head.weight"],
@@ -37,6 +38,7 @@ def test_completed_training_scientific_record_is_summarized():
   result = _validate_scientific_record(_record(), _config(), "brainweb", {"a", "b"})
   assert result["global_step"] == 8
   assert result["training_count_samples"] == {100: 4, 200: 4}
+  assert result["training_code_git_commit"] == "a" * 40
   assert result["trainable_parameter_count"] == 7
 
 
