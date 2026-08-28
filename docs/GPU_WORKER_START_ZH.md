@@ -314,6 +314,28 @@ SHA，拒绝重复、缺失、额外或校验不符的成员。对 `dev_trainmax
 `null`。本地 ZIP、网盘共享路径或可覆盖 URL 不能冒充不可变 URI。只有上传到带版本、
 对象锁或 DOI 的外部位置并复核下载后 SHA 一致，才能另行登记 archive URI。
 
+### 6B. 外部发布后注册下游配置
+
+不得原地修改 `dev_trainmax_v1.yaml`：两个训练 provenance 已绑定其 SHA。外部归档
+发布后，必须从给定 URI 重新下载一份 ZIP 到不同路径，再生成独立的 registered config：
+
+```bash
+python code/experiments/register_decoder_archive.py \
+  --root . \
+  --training-config code/configs/generated/dev_trainmax_v1.yaml \
+  --build-record logs/decoder_checkpoint_archive_build.json \
+  --verify-record logs/decoder_checkpoint_archive_verify.json \
+  --verified-download /ABSOLUTE/PATH/REDOWNLOADED/dev_trainmax_v1_decoder_bundle.zip \
+  --archive-uri 'VERSIONED_OR_DOI_BACKED_URI' \
+  --archive-version 'IMMUTABLE_VERSION_OR_OBJECT_ID' \
+  --output-config code/configs/generated/dev_trainmax_v1_registered.yaml \
+  --registration-record logs/decoder_checkpoint_archive_registration.json
+```
+
+注册器拒绝本地原包冒充重新下载、拒绝无 URI scheme/版本标识、拒绝下载后 SHA/大小
+不一致，并保持全局 full-result `immutable_archive_uri: null`。validation prior 和 sweep
+只能读取 registered config；原训练配置继续作为不可变训练证据。
+
 不要另行生成或训练 `dev_globalminmax_v1`，不要运行 test，不要修改 epochs、学习率、
 loss、box 或 checkpoint。GPU 训练完成后停止，等待主研究员注册 checkpoint SHA 并
 启动 validation sweep。

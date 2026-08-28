@@ -13,6 +13,7 @@ import numpy as np
 
 from .artifacts import file_sha256, verify_csv_artifact, verify_success_marker
 from .boxes import BoxCache, BoxKey
+from .checkpoint_registration import validate_registered_decoder_configuration
 from .config import ConfigurationError, ScientificContract, load_yaml_strict
 from .ingestion import load_source_manifest
 from .noise import array_sha256
@@ -167,6 +168,10 @@ def audit_repository(root: Path, config_path: Path) -> list[Issue]:
     ))
 
   checkpoint_cfg = cfg.get("medsam2", {})
+  try:
+    validate_registered_decoder_configuration(root, config_path, cfg)
+  except (OSError, ValueError, KeyError, TypeError) as error:
+    issues.append(Issue("CHECKPOINT_REGISTRATION", "fatal", str(error)))
   if not checkpoint_cfg.get("source_repository") or not checkpoint_cfg.get("source_commit"):
     issues.append(Issue("MEDSAM2_SOURCE", "fatal", "MedSAM2 source repository/commit is unresolved"))
   source_checkout_value = checkpoint_cfg.get("source_checkout_path")

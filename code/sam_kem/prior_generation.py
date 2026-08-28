@@ -12,6 +12,7 @@ from .config import load_contract, require_development_execution, require_test_r
 from .medsam import CheckpointSpec, PredictorRegistry, build_released_predictor, predict_continuous_prior, predictor_factory, sha256_file
 from .noise import array_sha256
 from .artifacts import atomic_save_numpy, atomic_write_json, verify_csv_artifact
+from .checkpoint_registration import validate_registered_decoder_configuration
 
 
 def generate_priors(
@@ -19,6 +20,7 @@ def generate_priors(
   splits: set[str], include_ablation_variants: bool = True,
 ) -> int:
   cfg, _ = load_contract(config_path)
+  validate_registered_decoder_configuration(root, config_path, cfg)
   if "test_locked" in splits:
     if splits != {"test_locked"}:
       raise ValueError("generate locked-test priors in a separate post-freeze invocation")
