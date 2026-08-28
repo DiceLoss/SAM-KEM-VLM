@@ -195,22 +195,41 @@ unset DASHSCOPE_API_KEY
 汇总审计，按照 `inputs/clean_v1/qwen_pilot_visual_audit.json` 的规则完成分层视觉审核。
 在研究员再次明确批准之前，不得执行下面的 cache 命令。
 
+`dev_trainmax_v1` 的正式批次曾因单个服务商 HTTP 400 中断，原始目录已作只读取证；
+后续按 `inputs/clean_v1/qwen_full_batch_incident_resolution_20260828.json` 透明迁移并在
+`train_validation_responses_resolved_v1` 完成。该运行只能读取这个带有效
+`_SUCCESS.json` 的派生目录，禁止把原始目录与派生目录混用。语义审核结论固定在
+`inputs/clean_v1/qwen_box_semantic_decision.json`：14,928 个成功框原样保留，只有12个
+终止请求失败使用预先声明的质心框；不得后验扩框、筛框、改提示词或选择性重试。
+
 ```bash
 # 仅在完整响应批次通过单独审核后执行：
 sam-kem build-box-cache --config "$CFG" \
   --manifest "results/${RUN}/case_manifest_inputs.csv" \
-  --responses "prompts/${RUN}/train_validation_responses" \
+  --responses "prompts/${RUN}/train_validation_responses_resolved_v1" \
   --policy inputs/clean_v1/qwen_request_policy.json \
   --output "prompts/${RUN}/train_validation_box_cache.csv"
+
+# 必须通过逐框审计；它验证成功框坐标完全不变且 fallback 恰好对应12个终止失败键。
+python code/experiments/audit_qwen_box_cache.py \
+  --cache "prompts/${RUN}/train_validation_box_cache.csv" \
+  --diagnostics logs/qwen_box_diagnostics.csv \
+  --semantic-summary logs/qwen_box_semantic_summary.json \
+  --decision inputs/clean_v1/qwen_box_semantic_decision.json \
+  --output logs/qwen_box_cache_audit.json
 
 git add "results/${RUN}" \
   "prompts/${RUN}/train_validation_images/prompt_manifest.csv" \
   "prompts/${RUN}/train_validation_images/prompt_manifest.csv.manifest.json" \
-  "prompts/${RUN}/train_validation_responses/_SUCCESS.json" \
+  "prompts/${RUN}/train_validation_responses_resolved_v1/_SUCCESS.json" \
   "prompts/${RUN}/train_validation_box_cache.csv" \
-  "prompts/${RUN}/train_validation_box_cache.csv.manifest.json"
+  "prompts/${RUN}/train_validation_box_cache.csv.manifest.json" \
+  logs/qwen_box_cache_audit.json
 git commit -m "Prepare ${RUN} decoder inputs and boxes"
 ```
+
+完成 cache 与审计后再次停止。收到独立的 `Go Step 5` 之前，不得执行 GPU preflight
+或 decoder 训练。
 
 每个 `(dataset, subject, slice, count)` 只有一个请求任务，使用 r=0 MLEM-10；
 r=0/1/2 共用该 box。每个任务严格使用同一份最多三次的固定重试预算，每次 attempt
