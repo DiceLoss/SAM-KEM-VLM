@@ -9,6 +9,10 @@
 external/
 staging/
 logs/gpu_*.log
+# Superseded local output from the interrupted Step 4C batch. Its immutable
+# incident decision and forensic summaries are tracked separately.
+logs/step4c_full.log
+logs/step4c_full_audit.json
 
 # Raw BrainWeb nii.gz (large, kept in D:/MIAProject/brainweb/)
 data/raw/*.nii.gz

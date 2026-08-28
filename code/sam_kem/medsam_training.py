@@ -11,12 +11,30 @@ from pathlib import Path
 
 import numpy as np
 
+from .artifacts import (
+  atomic_csv_writer,
+  atomic_torch_save,
+  atomic_write_json,
+  file_sha256,
+  finalize_csv,
+  verify_csv_artifact,
+)
 from .boxes import BoxCache, BoxKey
 from .config import load_contract
-from .artifacts import atomic_csv_writer, atomic_torch_save, atomic_write_json, file_sha256, finalize_csv, verify_csv_artifact
 from .medsam import freeze_except_mask_decoder, pet_to_rgb, sha256_file
 from .medsam_backend import build_medsam2
 from .splits import load_configured_subject_splits
+
+
+def _training_input_bindings(manifest_path: Path, box_cache_path: Path) -> dict[str, str]:
+  manifest_sidecar = manifest_path.with_suffix(manifest_path.suffix + ".manifest.json")
+  box_cache_sidecar = box_cache_path.with_suffix(box_cache_path.suffix + ".manifest.json")
+  return {
+    "training_manifest_sha256": file_sha256(manifest_path),
+    "training_manifest_manifest_sha256": file_sha256(manifest_sidecar),
+    "training_box_cache_sha256": file_sha256(box_cache_path),
+    "training_box_cache_manifest_sha256": file_sha256(box_cache_sidecar),
+  }
 
 
 def _balanced_order(
@@ -200,7 +218,9 @@ def train_dataset_decoder(
       or (row.get("normalization_clip", "").lower() == "true") != contract.normalization_clip
     ):
       raise ValueError(f"training case normalization mismatch: {row['subject_id']}/{row['slice_id']}")
-  box_cache = BoxCache.read(root / str(cfg["prompts"]["training_box_cache"]))
+  box_cache_path = root / str(cfg["prompts"]["training_box_cache"])
+  box_cache = BoxCache.read(box_cache_path)
+  input_bindings = _training_input_bindings(manifest_path, box_cache_path)
 
   medsam_source = root / str(cfg["medsam2"].get("source_checkout_path") or "")
   try:
@@ -255,6 +275,7 @@ def train_dataset_decoder(
       or state.get("normalization_id") != contract.normalization_id
       or state.get("pretrained_checkpoint_sha256") != actual_pretrained_sha
       or state.get("config_sha256") != config_sha
+      or any(state.get(key) != value for key, value in input_bindings.items())
     ):
       raise ValueError("resume checkpoint identity/protocol mismatch")
     model.sam_mask_decoder.load_state_dict(state["mask_decoder_state"], strict=True)
@@ -339,6 +360,7 @@ def train_dataset_decoder(
       "normalization_id": contract.normalization_id,
       "config_sha256": config_sha, "code_git_commit": code_commit,
       "medsam2_source_commit": source_head,
+      **input_bindings,
     }, resume_path, replace=True)
 
   if sampled_subjects != train_subjects:
@@ -369,6 +391,7 @@ def train_dataset_decoder(
     "config_path": str(config_path), "pretrained_checkpoint_sha256": actual_pretrained_sha,
     "config_sha256": config_sha, "code_git_commit": code_commit,
     "medsam2_source_commit": source_head,
+    **input_bindings,
   }, output_checkpoint)
   metrics_fields = [
     "epoch", "global_step", "mean_l1", "std_l1", "min_l1", "max_l1", "samples",
@@ -398,6 +421,7 @@ def train_dataset_decoder(
     "experiment_seed": seed,
     "config_sha256": config_sha, "code_git_commit": code_commit,
     "medsam2_source_commit": source_head,
+    **input_bindings,
     "deterministic_algorithms": bool(cfg["reproducibility"].get("deterministic_algorithms", False)),
     "box_fallback_samples": fallbacks,
     "trainable_parameter_names": sorted(

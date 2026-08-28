@@ -11,13 +11,13 @@ from pathlib import Path
 
 import numpy as np
 
+from .artifacts import file_sha256, verify_csv_artifact, verify_success_marker
 from .boxes import BoxCache, BoxKey
 from .config import ConfigurationError, ScientificContract, load_yaml_strict
-from .splits import load_configured_subject_splits, split_counts
-from .reproducibility import CaseKey, case_seed
-from .noise import array_sha256
-from .artifacts import file_sha256, verify_csv_artifact, verify_success_marker
 from .ingestion import load_source_manifest
+from .noise import array_sha256
+from .reproducibility import CaseKey, case_seed
+from .splits import load_configured_subject_splits, split_counts
 
 
 @dataclass(frozen=True)
@@ -193,6 +193,28 @@ def audit_repository(root: Path, config_path: Path) -> list[Issue]:
     issues.append(Issue("MEDSAM2_PRETRAINED", "fatal", "pretrained MedSAM2 checkpoint/path SHA is unresolved"))
   elif hashlib.sha256(pretrained_path.read_bytes()).hexdigest() != pretrained_sha:
     issues.append(Issue("MEDSAM2_PRETRAINED", "fatal", "pretrained MedSAM2 checkpoint SHA mismatch"))
+  training_manifest_path = root / str(cfg["outputs"].get("pretraining_manifest", ""))
+  training_manifest_sidecar = training_manifest_path.with_suffix(
+    training_manifest_path.suffix + ".manifest.json"
+  )
+  training_cache_path = root / str(cfg["prompts"].get("training_box_cache", ""))
+  training_cache_sidecar = training_cache_path.with_suffix(
+    training_cache_path.suffix + ".manifest.json"
+  )
+  training_input_bindings = {
+    "training_manifest_sha256": (
+      file_sha256(training_manifest_path) if training_manifest_path.is_file() else None
+    ),
+    "training_manifest_manifest_sha256": (
+      file_sha256(training_manifest_sidecar) if training_manifest_sidecar.is_file() else None
+    ),
+    "training_box_cache_sha256": (
+      file_sha256(training_cache_path) if training_cache_path.is_file() else None
+    ),
+    "training_box_cache_manifest_sha256": (
+      file_sha256(training_cache_sidecar) if training_cache_sidecar.is_file() else None
+    ),
+  }
   for dataset in ("brainweb", "hecktor"):
     if not checkpoint_cfg.get("checkpoint_archive_uri", {}).get(dataset):
       issues.append(Issue("CHECKPOINT_ARCHIVE", "fatal", f"immutable checkpoint archive URI missing for {dataset}"))
@@ -215,6 +237,16 @@ def audit_repository(root: Path, config_path: Path) -> list[Issue]:
     provenance = json.loads(provenance_path.read_text(encoding="utf-8"))
     if provenance.get("checkpoint_sha256") != actual_sha:
       issues.append(Issue("TRAINING_PROVENANCE", "fatal", f"sidecar SHA mismatch for {dataset}"))
+    input_mismatches = {
+      key: (provenance.get(key), value)
+      for key, value in training_input_bindings.items()
+      if value is None or provenance.get(key) != value
+    }
+    if input_mismatches:
+      issues.append(Issue(
+        "TRAINING_INPUT_PROVENANCE", "fatal",
+        f"training inputs are missing or changed for {dataset}: {input_mismatches}",
+      ))
     if (
       provenance.get("checkpoint_scope") != "mask_decoder_only"
       or provenance.get("selection_policy")
@@ -254,6 +286,7 @@ def audit_repository(root: Path, config_path: Path) -> list[Issue]:
         or contract is None
         or payload.get("normalization_id") != contract.normalization_id
         or payload.get("pretrained_checkpoint_sha256") != pretrained_sha
+        or any(payload.get(key) != value for key, value in training_input_bindings.items())
         or "mask_decoder_state" not in payload or "model_state" in payload
       ):
         issues.append(Issue("CHECKPOINT_PAYLOAD", "fatal", f"invalid decoder-only payload for {dataset}"))
@@ -313,7 +346,6 @@ def audit_repository(root: Path, config_path: Path) -> list[Issue]:
   except (OSError, ValueError, KeyError, json.JSONDecodeError) as error:
     issues.append(Issue("BOX_CACHE", "fatal", str(error)))
     cache = None
-  training_cache_path = root / str(cfg["prompts"]["training_box_cache"])
   try:
     training_cache_record = verify_csv_artifact(training_cache_path)
     if training_cache_record.get("schema_name") != "qwen_anchor_box_cache_v3":

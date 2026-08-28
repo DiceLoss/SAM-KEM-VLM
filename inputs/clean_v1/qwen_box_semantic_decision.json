@@ -15,14 +15,13 @@
   "decision_date": "2026-08-28",
   "development_only": true,
   "evidence": {
-    "diagnostics_csv_sha256_lf": "000097cfccdff54ee3113fed9f7455ab4abe1e1a445e35b1d2794b425e9822ca",
+    "diagnostics_csv_sha256_lf": "f55a6d2b5a797e8bcd1b944dfb5825472cdfad898844e81f601eb66604bef9bf",
     "evidence_commit": "0713218e59ff26080da0f4344d9815fdc3cc6be8",
     "response_set_sha256": "988b4da86bf0b465c96fc307f27cbb72f167ff1436402cf71f9b5a59faae12dd",
     "response_success_marker_sha256": "aca0e24f8d296db8ddc956c5b06f602f81cf9c91ab9a3e10f3b7946714ade14a",
     "semantic_summary_path": "logs/qwen_box_semantic_summary.json",
-    "semantic_summary_sha256": "2ca831605c563fe19c1c949bb1f76e04165e463f3e5798e3fb9c1eba95510bf2",
-    "visual_sample_manifest_sha256_lf": "f752623641a1a8358150f38d468bee899e97bbe4db12c2ac205765dd943ad18b",
-    "_refresh_note": "rebound evidence SHAs to current on-disk LF files (no scientific content changed)"
+    "semantic_summary_sha256": "d99427b71a1eeb6f2fa03ad1edee80fc71e042bc2e10a015e891f901e2bd27a0",
+    "visual_sample_manifest_sha256_lf": "3faa45e33f6830148ac456be986af9d0eb79ee2ffca1f4bc0d29cc0c89c18a2a"
   },
   "observations": {
     "brainweb_brightest_pixel_inside_rate_range": [

@@ -11,10 +11,12 @@ from pathlib import Path
 from gpu_preflight import preflight
 from sam_kem.config import load_yaml_strict
 from sam_kem.medsam import sha256_file
-from sam_kem.medsam_training import train_dataset_decoder
+from sam_kem.medsam_training import _training_input_bindings, train_dataset_decoder
 
 
-def _verify_completed_training(output: Path, config_path: Path, cfg: dict, dataset: str) -> dict:
+def _verify_completed_training(
+  output: Path, root: Path, config_path: Path, cfg: dict, dataset: str,
+) -> dict:
   """Accept an existing final checkpoint only with its complete exact provenance group."""
   provenance_path = output.with_suffix(".json")
   metrics_path = output.with_suffix(".training.csv")
@@ -26,6 +28,8 @@ def _verify_completed_training(output: Path, config_path: Path, cfg: dict, datas
     raise RuntimeError(f"partial completed-training group for {dataset}: {missing}")
   record = json.loads(provenance_path.read_text(encoding="utf-8"))
   config_sha = hashlib.sha256(config_path.read_bytes()).hexdigest()
+  manifest = root / cfg["outputs"]["pretraining_manifest"]
+  cache = root / cfg["prompts"]["training_box_cache"]
   expected = {
     "schema_version": 1,
     "artifact_kind": "checkpoint_provenance",
@@ -35,6 +39,7 @@ def _verify_completed_training(output: Path, config_path: Path, cfg: dict, datas
     "config_sha256": config_sha,
     "medsam2_source_commit": cfg["medsam2"]["source_commit"],
     "completed_epochs": int(cfg["medsam2"]["training"]["epochs"]),
+    **_training_input_bindings(manifest, cache),
   }
   mismatches = {
     key: (record.get(key), value) for key, value in expected.items()
@@ -72,7 +77,7 @@ def main() -> None:
   for dataset in ("brainweb", "hecktor"):
     output = root / cfg["medsam2"]["checkpoint_paths"][dataset]
     if output.is_file():
-      completed[dataset] = _verify_completed_training(output, config_path, cfg, dataset)
+      completed[dataset] = _verify_completed_training(output, root, config_path, cfg, dataset)
       continue
     resume = output.with_suffix(".resume.pt")
     train_dataset_decoder(

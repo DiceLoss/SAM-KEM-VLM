@@ -13,6 +13,20 @@ from sam_kem.artifacts import atomic_write_json, file_sha256, verify_csv_artifac
 BOX_FIELDS = ("xmin", "ymin", "xmax", "ymax")
 
 
+def _require_canonical_lf(path: Path) -> None:
+  payload = path.read_bytes()
+  if b"\r" in payload or (payload and not payload.endswith(b"\n")):
+    raise ValueError(f"text evidence must use canonical LF and end with LF: {path}")
+
+
+def _portable_path(path: Path) -> str:
+  resolved = path.resolve()
+  for candidate in resolved.parents:
+    if (candidate / "pyproject.toml").is_file() and (candidate / "code" / "sam_kem").is_dir():
+      return resolved.relative_to(candidate).as_posix()
+  return resolved.as_posix()
+
+
 def _key(row: dict[str, str]) -> tuple[str, str, str, int]:
   return row["dataset"], row["subject_id"], row["slice_id"], int(row["count_level"])
 
@@ -33,6 +47,11 @@ def audit(
   decision_path: Path,
   output_path: Path,
 ) -> dict:
+  for path in (
+    cache_path, cache_path.with_suffix(cache_path.suffix + ".manifest.json"),
+    diagnostics_path, semantic_summary_path, decision_path,
+  ):
+    _require_canonical_lf(path)
   cache_manifest = verify_csv_artifact(cache_path)
   if cache_manifest.get("schema_name") != "qwen_anchor_box_cache_v3":
     raise ValueError("expected qwen_anchor_box_cache_v3 cache")
@@ -113,16 +132,17 @@ def audit(
     "schema_version": 1,
     "artifact_kind": "qwen_box_cache_audit",
     "status": "complete",
-    "cache_path": cache_path.as_posix(),
+    "text_binding": "canonical_lf",
+    "cache_path": _portable_path(cache_path),
     "cache_sha256": file_sha256(cache_path),
     "cache_manifest_sha256": file_sha256(
       cache_path.with_suffix(cache_path.suffix + ".manifest.json")
     ),
-    "diagnostics_path": diagnostics_path.as_posix(),
+    "diagnostics_path": _portable_path(diagnostics_path),
     "diagnostics_sha256": file_sha256(diagnostics_path),
-    "semantic_summary_path": semantic_summary_path.as_posix(),
+    "semantic_summary_path": _portable_path(semantic_summary_path),
     "semantic_summary_sha256": file_sha256(semantic_summary_path),
-    "semantic_decision_path": decision_path.as_posix(),
+    "semantic_decision_path": _portable_path(decision_path),
     "semantic_decision_sha256": file_sha256(decision_path),
     "records": len(cache),
     "unique_keys": len(cache),

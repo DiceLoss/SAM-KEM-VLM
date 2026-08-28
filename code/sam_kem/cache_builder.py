@@ -8,12 +8,19 @@ from pathlib import Path
 
 import numpy as np
 
+from .artifacts import file_sha256, verify_csv_artifact, verify_success_marker
 from .boxes import Box, BoxCache, BoxKey, BoxRecord, centroid_fallback
 from .config import load_contract
 from .noise import array_sha256
-from .artifacts import file_sha256, verify_csv_artifact, verify_success_marker
-from .qwen import instruction_sha256
-from .qwen import load_request_policy
+from .qwen import instruction_sha256, load_request_policy
+
+
+def _find_repository_root(config_path: Path) -> Path:
+  """Locate the checkout root without assuming a fixed config nesting depth."""
+  for candidate in config_path.resolve().parents:
+    if (candidate / "pyproject.toml").is_file() and (candidate / "code" / "sam_kem").is_dir():
+      return candidate
+  raise ValueError(f"cannot locate repository root from config path: {config_path}")
 
 
 def build_box_cache(
@@ -23,7 +30,7 @@ def build_box_cache(
   cfg, _ = load_contract(config_path)
   policy = load_request_policy(policy_path)
   policy_sha256 = file_sha256(policy_path)
-  repo_root = config_path.resolve().parents[3]
+  repo_root = _find_repository_root(config_path)
   manifest_record = verify_csv_artifact(manifest_path)
   if manifest_record.get("schema_name") != "canonical_case_manifest_v3":
     raise ValueError("box-cache input must be a canonical v3 case manifest")

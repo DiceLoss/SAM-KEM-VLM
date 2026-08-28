@@ -242,7 +242,14 @@ failure 分别记录，再使用质心 fallback。
 L1、反向和冻结参数检查；任何一步失败都不会开始长训练。通过后依次训练 BrainWeb
 和 HECKTOR，各自一个四剂量联合 decoder。
 
+Step 5 不调用 Qwen，也不需要任何 DashScope 凭证。训练前必须保持
+`DASHSCOPE_API_KEY` 未设置；旧 key 的轮换属于独立安全处置，不能把新 key 注入训练
+进程。checkpoint 与 resume state 会同时绑定训练 manifest、manifest sidecar、box
+cache 和 cache sidecar 的 SHA-256，任一输入变化都会拒绝恢复或复用。
+
 ```bash
+set -o pipefail
+unset DASHSCOPE_API_KEY
 mkdir -p logs
 python code/experiments/run_gpu_training.py \
   --config code/configs/generated/dev_trainmax_v1.yaml \

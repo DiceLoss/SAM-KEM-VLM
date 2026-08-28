@@ -2,9 +2,13 @@ from pathlib import Path
 
 import numpy as np
 import pytest
-
-from sam_kem.training import TrainingSample, balanced_sample_weights, validate_training_samples
-from sam_kem.medsam_training import _balanced_order
+from sam_kem.artifacts import file_sha256
+from sam_kem.medsam_training import _balanced_order, _training_input_bindings
+from sam_kem.training import (
+  TrainingSample,
+  balanced_sample_weights,
+  validate_training_samples,
+)
 
 
 def sample(subject, count):
@@ -51,3 +55,21 @@ def test_decoder_schedule_balances_count_then_subject():
   assert counts == {100: 12, 200: 12}
   assert subjects == {"a": 8, "b": 8, "c": 8}
   assert len(cases) == 12
+
+
+def test_training_input_bindings_cover_manifest_and_box_cache(tmp_path):
+  manifest = tmp_path / "cases.csv"
+  cache = tmp_path / "boxes.csv"
+  files = (
+    manifest, manifest.with_suffix(".csv.manifest.json"),
+    cache, cache.with_suffix(".csv.manifest.json"),
+  )
+  for index, path in enumerate(files):
+    path.write_text(f"artifact-{index}\n", encoding="utf-8")
+  bindings = _training_input_bindings(manifest, cache)
+  assert bindings == {
+    "training_manifest_sha256": file_sha256(files[0]),
+    "training_manifest_manifest_sha256": file_sha256(files[1]),
+    "training_box_cache_sha256": file_sha256(files[2]),
+    "training_box_cache_manifest_sha256": file_sha256(files[3]),
+  }

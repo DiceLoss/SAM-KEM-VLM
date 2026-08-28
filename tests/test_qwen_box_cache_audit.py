@@ -9,7 +9,7 @@ from sam_kem.artifacts import finalize_csv
 
 def _write_csv(path: Path, rows: list[dict[str, object]]) -> None:
   with path.open("w", encoding="utf-8", newline="") as handle:
-    writer = csv.DictWriter(handle, fieldnames=list(rows[0]))
+    writer = csv.DictWriter(handle, fieldnames=list(rows[0]), lineterminator="\n")
     writer.writeheader()
     writer.writerows(rows)
 
@@ -38,7 +38,7 @@ def _fixture(tmp_path: Path) -> tuple[Path, Path, Path, Path]:
       "dataset": "hecktor", "subject_id": "2", "slice_id": "z072",
       "count_level": 200000,
     }],
-  }), encoding="utf-8")
+  }) + "\n", encoding="utf-8")
   decision = tmp_path / "decision.json"
   decision.write_text(json.dumps({
     "decision": {
@@ -48,7 +48,7 @@ def _fixture(tmp_path: Path) -> tuple[Path, Path, Path, Path]:
       "semantic_summary_sha256": file_sha256(summary),
       "diagnostics_csv_sha256_lf": file_sha256(diagnostics),
     },
-  }), encoding="utf-8")
+  }) + "\n", encoding="utf-8")
   cache = tmp_path / "cache.csv"
   base = {
     "run_id": "run", "source_mlem10_sha256": "mlem", "prompt_sha256": "prompt",
@@ -95,4 +95,11 @@ def test_audit_rejects_changed_qwen_coordinates(tmp_path: Path):
     primary_key=["run_id", "dataset", "subject_id", "slice_id", "count_level"],
   )
   with pytest.raises(ValueError, match="changed coordinates"):
+    audit(cache, diagnostics, summary, decision, tmp_path / "audit.json")
+
+
+def test_audit_rejects_crlf_evidence(tmp_path: Path):
+  cache, diagnostics, summary, decision = _fixture(tmp_path)
+  diagnostics.write_bytes(diagnostics.read_bytes().replace(b"\n", b"\r\n"))
+  with pytest.raises(ValueError, match="canonical LF"):
     audit(cache, diagnostics, summary, decision, tmp_path / "audit.json")
