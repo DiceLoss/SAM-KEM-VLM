@@ -1,0 +1,170 @@
+{
+  "artifact_kind": "qwen_box_cache_audit",
+  "cache_manifest_sha256": "48d523a952b525ad5969a7cad1f02c5ec129d1fa671ac0c5b11a8156d915d2ec",
+  "cache_path": "D:/MIAProject/SAM_KEM_QWEN3_V3_REPO/prompts/dev_trainmax_v1/train_validation_box_cache.csv",
+  "cache_sha256": "3ae6a2b468fb704572e9309469251516b20d9476fd5d48aa182ede2fea1d0793",
+  "centroid_fallback_boxes": 12,
+  "diagnostics_path": "D:/MIAProject/SAM_KEM_QWEN3_V3_REPO/logs/qwen_box_diagnostics.csv",
+  "diagnostics_sha256": "000097cfccdff54ee3113fed9f7455ab4abe1e1a445e35b1d2794b425e9822ca",
+  "exact_qwen_boxes": 14928,
+  "fallback_records": [
+    {
+      "box_xyxy": [
+        48,
+        45,
+        80,
+        77
+      ],
+      "count_level": 1000000,
+      "dataset": "brainweb",
+      "slice_id": "z146",
+      "subject_id": "subject05"
+    },
+    {
+      "box_xyxy": [
+        48,
+        47,
+        80,
+        79
+      ],
+      "count_level": 1000000,
+      "dataset": "brainweb",
+      "slice_id": "z155",
+      "subject_id": "subject42"
+    },
+    {
+      "box_xyxy": [
+        46,
+        47,
+        78,
+        79
+      ],
+      "count_level": 1000000,
+      "dataset": "brainweb",
+      "slice_id": "z123",
+      "subject_id": "subject43"
+    },
+    {
+      "box_xyxy": [
+        49,
+        47,
+        81,
+        79
+      ],
+      "count_level": 1000000,
+      "dataset": "brainweb",
+      "slice_id": "z141",
+      "subject_id": "subject45"
+    },
+    {
+      "box_xyxy": [
+        49,
+        47,
+        81,
+        79
+      ],
+      "count_level": 200000,
+      "dataset": "brainweb",
+      "slice_id": "z142",
+      "subject_id": "subject45"
+    },
+    {
+      "box_xyxy": [
+        49,
+        47,
+        81,
+        79
+      ],
+      "count_level": 1000000,
+      "dataset": "brainweb",
+      "slice_id": "z142",
+      "subject_id": "subject45"
+    },
+    {
+      "box_xyxy": [
+        50,
+        47,
+        82,
+        79
+      ],
+      "count_level": 1000000,
+      "dataset": "brainweb",
+      "slice_id": "z204",
+      "subject_id": "subject52"
+    },
+    {
+      "box_xyxy": [
+        45,
+        47,
+        77,
+        79
+      ],
+      "count_level": 1000000,
+      "dataset": "brainweb",
+      "slice_id": "z097",
+      "subject_id": "subject53"
+    },
+    {
+      "box_xyxy": [
+        84,
+        87,
+        116,
+        119
+      ],
+      "count_level": 100000,
+      "dataset": "hecktor",
+      "slice_id": "z072",
+      "subject_id": "144"
+    },
+    {
+      "box_xyxy": [
+        82,
+        85,
+        114,
+        117
+      ],
+      "count_level": 200000,
+      "dataset": "hecktor",
+      "slice_id": "z072",
+      "subject_id": "144"
+    },
+    {
+      "box_xyxy": [
+        63,
+        38,
+        95,
+        70
+      ],
+      "count_level": 1000000,
+      "dataset": "hecktor",
+      "slice_id": "z072",
+      "subject_id": "32"
+    },
+    {
+      "box_xyxy": [
+        96,
+        94,
+        128,
+        126
+      ],
+      "count_level": 100000,
+      "dataset": "hecktor",
+      "slice_id": "z072",
+      "subject_id": "67"
+    }
+  ],
+  "records": 14940,
+  "request_policy_id": "qwen3_vl_plus_fixed_retry_v2",
+  "request_policy_sha256": "9664e72ef5d030dfe4c58557f5af4abd7bca340868f0ed7c5413c01a305b7deb",
+  "schema_version": 1,
+  "semantic_decision_path": "D:/MIAProject/SAM_KEM_QWEN3_V3_REPO/inputs/clean_v1/qwen_box_semantic_decision.json",
+  "semantic_decision_sha256": "0c97d9e4c2fbd08c7fea7e4e8f6b8897022e546bc1837b65a76d885d77488dc8",
+  "semantic_summary_path": "D:/MIAProject/SAM_KEM_QWEN3_V3_REPO/logs/qwen_box_semantic_summary.json",
+  "semantic_summary_sha256": "2ca831605c563fe19c1c949bb1f76e04165e463f3e5798e3fb9c1eba95510bf2",
+  "source_counts": {
+    "centroid_fallback_qwen_request_failure": 12,
+    "qwen3-vl-plus": 14928
+  },
+  "status": "complete",
+  "unique_keys": 14940
+}

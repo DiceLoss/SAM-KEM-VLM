@@ -1,0 +1,36 @@
+{
+  "artifact_path": "train_validation_box_cache.csv",
+  "artifact_sha256": "3ae6a2b468fb704572e9309469251516b20d9476fd5d48aa182ede2fea1d0793",
+  "byte_size": 6316842,
+  "columns": [
+    "run_id",
+    "dataset",
+    "subject_id",
+    "slice_id",
+    "count_level",
+    "xmin",
+    "ymin",
+    "xmax",
+    "ymax",
+    "source",
+    "request_id",
+    "image_sha256",
+    "source_mlem10_sha256",
+    "prompt_sha256",
+    "model",
+    "request_policy_id",
+    "request_policy_sha256"
+  ],
+  "completed_utc": "2026-08-28T04:22:59.988629+00:00",
+  "primary_key": [
+    "run_id",
+    "dataset",
+    "subject_id",
+    "slice_id",
+    "count_level"
+  ],
+  "row_count": 14940,
+  "schema_name": "qwen_anchor_box_cache_v3",
+  "schema_version": 1,
+  "split": null
+}
