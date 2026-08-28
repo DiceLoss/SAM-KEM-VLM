@@ -1,7 +1,7 @@
 {
   "artifact_kind": "qwen_box_semantic_diagnostic",
   "diagnostic_only_not_ground_truth": true,
-  "diagnostics_csv_sha256": "000097cfccdff54ee3113fed9f7455ab4abe1e1a445e35b1d2794b425e9822ca",
+  "diagnostics_csv_sha256": "f55a6d2b5a797e8bcd1b944dfb5825472cdfad898844e81f601eb66604bef9bf",
   "failure_records": [
     {
       "count_level": 1000000,
@@ -675,5 +675,5 @@
     "qwen_request_failure": 12
   },
   "visual_sample_count": 52,
-  "visual_sample_manifest_sha256": "f752623641a1a8358150f38d468bee899e97bbe4db12c2ac205765dd943ad18b"
+  "visual_sample_manifest_sha256": "3faa45e33f6830148ac456be986af9d0eb79ee2ffca1f4bc0d29cc0c89c18a2a"
 }

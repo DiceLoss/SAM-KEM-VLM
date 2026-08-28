@@ -42,7 +42,7 @@ def _sha256(path: Path) -> str:
 def _write_csv(path: Path, fields: list[str], rows: list[dict]) -> None:
   temporary = path.with_suffix(path.suffix + ".tmp")
   with temporary.open("w", encoding="utf-8", newline="") as handle:
-    writer = csv.DictWriter(handle, fieldnames=fields)
+    writer = csv.DictWriter(handle, fieldnames=fields, lineterminator="\n")
     writer.writeheader()
     writer.writerows(rows)
   temporary.replace(path)

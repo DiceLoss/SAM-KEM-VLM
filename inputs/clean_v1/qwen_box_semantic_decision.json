@@ -1,0 +1,57 @@
+{
+  "artifact_kind": "qwen_box_semantic_decision",
+  "decision": {
+    "box_padding_or_minimum_size_allowed": false,
+    "fallback": "predeclared_intensity_centroid_box",
+    "fallback_applies_only_to_terminal_request_failures": 12,
+    "model_substitution_allowed": false,
+    "prompt_revision_allowed": false,
+    "qwen_success_boxes_retained_exactly": 14928,
+    "rationale": "Changing or filtering boxes after inspecting the complete development response set would make the method result-dependent. The exact Qwen boxes are retained so downstream prior-quality and reconstruction comparisons measure the real prompt generator, including its weaknesses.",
+    "selective_retry_allowed": false,
+    "semantic_quality_filter_allowed": false,
+    "status": "approved_to_build_development_box_cache_without_post_hoc_box_changes"
+  },
+  "decision_date": "2026-08-28",
+  "development_only": true,
+  "evidence": {
+    "diagnostics_csv_sha256_lf": "f55a6d2b5a797e8bcd1b944dfb5825472cdfad898844e81f601eb66604bef9bf",
+    "evidence_commit": "0713218e59ff26080da0f4344d9815fdc3cc6be8",
+    "response_set_sha256": "988b4da86bf0b465c96fc307f27cbb72f167ff1436402cf71f9b5a59faae12dd",
+    "response_success_marker_sha256": "aca0e24f8d296db8ddc956c5b06f602f81cf9c91ab9a3e10f3b7946714ade14a",
+    "semantic_summary_path": "logs/qwen_box_semantic_summary.json",
+    "semantic_summary_sha256": "d99427b71a1eeb6f2fa03ad1edee80fc71e042bc2e10a015e891f901e2bd27a0",
+    "visual_sample_manifest_sha256_lf": "3faa45e33f6830148ac456be986af9d0eb79ee2ffca1f4bc0d29cc0c89c18a2a"
+  },
+  "observations": {
+    "brainweb_brightest_pixel_inside_rate_range": [
+      0.8051837083452008,
+      0.858162100456621
+    ],
+    "brainweb_small_box_counts_below_one_percent_by_count": {
+      "100000": 153,
+      "1000000": 125,
+      "200000": 156,
+      "500000": 144
+    },
+    "hecktor_box_area_median_approximate": 0.082,
+    "hecktor_top_ten_percent_recall_median_approximate": 0.46,
+    "successful_boxes": 14928,
+    "terminal_request_failures": 12,
+    "visual_review": [
+      "Some minimum-area BrainWeb boxes collapse to approximately one pixel and miss the displayed hotspot.",
+      "HECKTOR boxes frequently select one central or peripheral bright region rather than all visible high-uptake regions.",
+      "A small number of HECKTOR boxes cover nearly the full image.",
+      "The observed failures are semantic model-output failures, not evidence of a systematic coordinate-transform or prompt-image provenance error."
+    ]
+  },
+  "required_reporting_and_ablations": [
+    "Report terminal-failure rates and box-area distributions separately by dataset and count level.",
+    "Do not claim that Qwen boxes reliably enclose every bright uptake region.",
+    "Compare exact Qwen boxes with full-image, geometric-center, and intensity-centroid boxes under matched decoder-training and reconstruction settings.",
+    "Retain the preregistered box-perturbation analysis and report the weaker HECKTOR bright-region coverage.",
+    "Do not make clinical localization or segmentation-accuracy claims from this box audit."
+  ],
+  "run_id": "dev_trainmax_v1",
+  "schema_version": 1
+}
