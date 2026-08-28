@@ -23,7 +23,7 @@ def build_box_cache(
   cfg, _ = load_contract(config_path)
   policy = load_request_policy(policy_path)
   policy_sha256 = file_sha256(policy_path)
-  repo_root = config_path.resolve().parents[2]
+  repo_root = config_path.resolve().parents[3]
   manifest_record = verify_csv_artifact(manifest_path)
   if manifest_record.get("schema_name") != "canonical_case_manifest_v3":
     raise ValueError("box-cache input must be a canonical v3 case manifest")
