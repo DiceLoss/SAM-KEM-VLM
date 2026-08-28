@@ -1,10 +1,17 @@
 import json
+import os
+import sys
+import types
 
 import numpy as np
 import pytest
 
 from sam_kem.artifacts import (
-  atomic_csv_writer, atomic_save_numpy, finalize_csv, verify_csv_artifact,
+  atomic_csv_writer,
+  atomic_save_numpy,
+  atomic_torch_save,
+  finalize_csv,
+  verify_csv_artifact,
   write_success_marker,
 )
 
@@ -62,3 +69,47 @@ def test_atomic_numpy_refuses_overwrite(tmp_path):
   np.testing.assert_array_equal(np.load(path, allow_pickle=False), [1.0])
   with pytest.raises(FileExistsError):
     atomic_save_numpy(path, np.array([2.0], dtype=np.float32))
+
+
+def test_atomic_torch_save_flushes_open_writable_handle_before_publish(
+  tmp_path, monkeypatch,
+):
+  output = tmp_path / "checkpoint.pt"
+  observed = {}
+
+  def fake_save(payload, handle):
+    observed["payload"] = payload
+    observed["writable_during_save"] = not handle.closed and handle.writable()
+    handle.write(b"serialized-checkpoint")
+
+  def checked_fsync(descriptor):
+    os.fstat(descriptor)
+    observed["fsync_descriptor"] = descriptor
+
+  monkeypatch.setitem(sys.modules, "torch", types.SimpleNamespace(save=fake_save))
+  monkeypatch.setattr(os, "fsync", checked_fsync)
+
+  atomic_torch_save({"epoch": 0}, output)
+
+  assert observed["payload"] == {"epoch": 0}
+  assert observed["writable_during_save"] is True
+  assert isinstance(observed["fsync_descriptor"], int)
+  assert output.read_bytes() == b"serialized-checkpoint"
+
+
+def test_atomic_torch_save_removes_temporary_file_after_failed_serialization(
+  tmp_path, monkeypatch,
+):
+  output = tmp_path / "checkpoint.pt"
+
+  def failing_save(_payload, handle):
+    handle.write(b"partial")
+    raise RuntimeError("serialization interrupted")
+
+  monkeypatch.setitem(sys.modules, "torch", types.SimpleNamespace(save=failing_save))
+
+  with pytest.raises(RuntimeError, match="serialization interrupted"):
+    atomic_torch_save({"epoch": 0}, output)
+
+  assert not output.exists()
+  assert list(tmp_path.iterdir()) == []

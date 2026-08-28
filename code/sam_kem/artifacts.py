@@ -175,13 +175,19 @@ def atomic_torch_save(payload, path: Path, *, replace: bool = False) -> None:
   if path.exists() and not replace:
     raise FileExistsError(f"refusing to overwrite immutable checkpoint: {path}")
   descriptor, temporary_name = tempfile.mkstemp(prefix=f".{path.name}.", dir=path.parent)
-  os.close(descriptor)
   temporary = Path(temporary_name)
+  handle = None
   try:
-    torch.save(payload, temporary)
-    with temporary.open("rb") as handle:
+    # Windows requires fsync/_commit on a writable descriptor. Keep the
+    # mkstemp descriptor open through serialization and durability sync.
+    handle = os.fdopen(descriptor, "wb")
+    with handle:
+      torch.save(payload, handle)
+      handle.flush()
       os.fsync(handle.fileno())
     os.replace(temporary, path)
   except BaseException:
+    if handle is None:
+      os.close(descriptor)
     temporary.unlink(missing_ok=True)
     raise
