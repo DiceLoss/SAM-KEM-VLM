@@ -1,0 +1,13 @@
+{
+  "archive_byte_size": 125563903,
+  "archive_path": "D:/MIAProject/SAM_KEM_QWEN3_V3_REPO/delivery/dev_trainmax_v1_decoder_bundle.zip",
+  "archive_sha256": "acacc789c28279b1084167659391d37a51cb6c97e319d96534dc522ca48c6347",
+  "artifact_kind": "decoder_checkpoint_archive_verification",
+  "checksum_mismatch_count": 0,
+  "duplicate_member_count": 0,
+  "manifest_sha256": "626c705ce9fb73c4d0e77049597e75b88cb036c1d75ac77a4ad1cf60a37d6f58",
+  "missing_member_count": 0,
+  "schema_version": 1,
+  "status": "complete",
+  "verified_member_count": 26
+}

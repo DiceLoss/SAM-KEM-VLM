@@ -1,0 +1,25 @@
+{
+  "archive_byte_size": 125563903,
+  "archive_path": "delivery/dev_trainmax_v1_decoder_bundle.zip",
+  "archive_sha256": "acacc789c28279b1084167659391d37a51cb6c97e319d96534dc522ca48c6347",
+  "artifact_kind": "decoder_checkpoint_archive_build",
+  "datasets": {
+    "brainweb": {
+      "checkpoint_sha256": "5b3fad3469079c0c3c9738dada5548077e36f8878351f2616a1cb6b368cfb605",
+      "resume_checkpoint_sha256": "02d7ca917679e670994f38b3d46ee1b1112c78767d80c721d931bb0b498c3fef",
+      "training_code_git_commit": "2084e9a23d0e7d7035868f5fcacd9c6abef22bd1"
+    },
+    "hecktor": {
+      "checkpoint_sha256": "c264789fd0a084d6d0b4a9423ab83575911d3b50228873f6f91dbf6f8c3df7c1",
+      "resume_checkpoint_sha256": "8ce438cf9812787cac91e00e1b06a68672d32a68a6f9a900b2d1ed4f098a2dd1",
+      "training_code_git_commit": "fe595461f79c3f6379e71bc7eec3bad2d7d7dd47"
+    }
+  },
+  "immutable_archive_uri": null,
+  "manifest_member_count": 26,
+  "manifest_sha256": "626c705ce9fb73c4d0e77049597e75b88cb036c1d75ac77a4ad1cf60a37d6f58",
+  "packaging_git_commit": "b7504f5b188acf9a0bd493f38f51fed2874499c5",
+  "run_id": "dev_trainmax_v1",
+  "schema_version": 1,
+  "status": "local_bundle_complete_pending_immutable_upload"
+}
