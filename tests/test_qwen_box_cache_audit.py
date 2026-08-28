@@ -38,7 +38,7 @@ def _fixture(tmp_path: Path) -> tuple[Path, Path, Path, Path]:
       "dataset": "hecktor", "subject_id": "2", "slice_id": "z072",
       "count_level": 200000,
     }],
-  }) + "\n", encoding="utf-8")
+  }) + "\n", encoding="utf-8", newline="\n")
   decision = tmp_path / "decision.json"
   decision.write_text(json.dumps({
     "decision": {
@@ -48,7 +48,7 @@ def _fixture(tmp_path: Path) -> tuple[Path, Path, Path, Path]:
       "semantic_summary_sha256": file_sha256(summary),
       "diagnostics_csv_sha256_lf": file_sha256(diagnostics),
     },
-  }) + "\n", encoding="utf-8")
+  }) + "\n", encoding="utf-8", newline="\n")
   cache = tmp_path / "cache.csv"
   base = {
     "run_id": "run", "source_mlem10_sha256": "mlem", "prompt_sha256": "prompt",
