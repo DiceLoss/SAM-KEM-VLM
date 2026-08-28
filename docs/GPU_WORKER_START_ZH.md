@@ -281,7 +281,20 @@ checkpoint。
 
 ## 6. GPU 完成后立即交回
 
-对 `dev_trainmax_v1` 的两个数据集分别交回：
+两个数据集的 handoff audit 通过并提交 provenance 后，先构建只读本地交付包：
+
+```bash
+python code/experiments/package_decoder_checkpoints.py \
+  --root . \
+  --config code/configs/generated/dev_trainmax_v1.yaml \
+  --output delivery/dev_trainmax_v1_decoder_bundle.zip \
+  --record logs/decoder_checkpoint_archive_build.json
+```
+
+打包器会重新核验 `.pt`、`.resume.pt`、训练曲线及 sidecar、provenance 和 handoff audit
+之间的 SHA 绑定；使用固定 ZIP member 元数据并在包内写入 `MANIFEST.sha256`。它拒绝
+覆盖已有 archive/record，也拒绝从脏工作树打包。对 `dev_trainmax_v1` 的两个数据集
+分别交回：
 
 - `medsam2_decoder_*.pt`；
 - `.resume.pt`；
@@ -290,6 +303,11 @@ checkpoint。
 - `logs/gpu_dev_trainmax_v1.log`；
 - `nvidia-smi`、Python、PyTorch、CUDA 版本；
 - 所有文件 SHA-256 和不可变归档 URI。
+
+`decoder_checkpoint_archive_build.json` 的初始状态必须是
+`local_bundle_complete_pending_immutable_upload`，其中 `immutable_archive_uri` 保持
+`null`。本地 ZIP、网盘共享路径或可覆盖 URL 不能冒充不可变 URI。只有上传到带版本、
+对象锁或 DOI 的外部位置并复核下载后 SHA 一致，才能另行登记 archive URI。
 
 不要另行生成或训练 `dev_globalminmax_v1`，不要运行 test，不要修改 epochs、学习率、
 loss、box 或 checkpoint。GPU 训练完成后停止，等待主研究员注册 checkpoint SHA 并

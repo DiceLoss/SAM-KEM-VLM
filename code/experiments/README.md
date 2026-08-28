@@ -8,6 +8,7 @@ belong in the configuration/protocol YAML, not in ad-hoc command edits.
 |---|---|
 | `gpu_preflight.py` | Mandatory CUDA/model/checkpoint/gradient preflight before training |
 | `run_gpu_training.py` | Sequential, resumable BrainWeb then HE decoder training |
+| `package_decoder_checkpoints.py` | Verify and package both decoder groups for immutable upload |
 | `audit_traceability_samples.py` | Diagnostic-only summary of committed traceability archives |
 | `audit_uploaded_samples.py` | Diagnostic-only operator/scale checks on committed samples |
 | `run_normalization_calibration.py` | Train-fit/validation-diagnose normalization candidates |
