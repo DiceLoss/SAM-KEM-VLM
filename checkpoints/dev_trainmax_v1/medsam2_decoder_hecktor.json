@@ -1,0 +1,4570 @@
+{
+  "artifact_kind": "checkpoint_provenance",
+  "batch_size": 1,
+  "box_fallback_samples": 44,
+  "checkpoint_scope": "mask_decoder_only",
+  "checkpoint_sha256": "c264789fd0a084d6d0b4a9423ab83575911d3b50228873f6f91dbf6f8c3df7c1",
+  "code_git_commit": "fe595461f79c3f6379e71bc7eec3bad2d7d7dd47",
+  "completed_epochs": 20,
+  "config_sha256": "dbbfdb5d770a8f1fa46bbb314d398a396216522e4fc97552e338e853d7cfdcdf",
+  "dataset": "hecktor",
+  "deterministic_algorithms": true,
+  "epochs": 20,
+  "experiment_seed": 20260817,
+  "frozen_inactive_decoder_names": [
+    "sam_mask_decoder.iou_prediction_head.layers.0.bias",
+    "sam_mask_decoder.iou_prediction_head.layers.0.weight",
+    "sam_mask_decoder.iou_prediction_head.layers.1.bias",
+    "sam_mask_decoder.iou_prediction_head.layers.1.weight",
+    "sam_mask_decoder.iou_prediction_head.layers.2.bias",
+    "sam_mask_decoder.iou_prediction_head.layers.2.weight",
+    "sam_mask_decoder.output_hypernetworks_mlps.1.layers.0.bias",
+    "sam_mask_decoder.output_hypernetworks_mlps.1.layers.0.weight",
+    "sam_mask_decoder.output_hypernetworks_mlps.1.layers.1.bias",
+    "sam_mask_decoder.output_hypernetworks_mlps.1.layers.1.weight",
+    "sam_mask_decoder.output_hypernetworks_mlps.1.layers.2.bias",
+    "sam_mask_decoder.output_hypernetworks_mlps.1.layers.2.weight",
+    "sam_mask_decoder.output_hypernetworks_mlps.2.layers.0.bias",
+    "sam_mask_decoder.output_hypernetworks_mlps.2.layers.0.weight",
+    "sam_mask_decoder.output_hypernetworks_mlps.2.layers.1.bias",
+    "sam_mask_decoder.output_hypernetworks_mlps.2.layers.1.weight",
+    "sam_mask_decoder.output_hypernetworks_mlps.2.layers.2.bias",
+    "sam_mask_decoder.output_hypernetworks_mlps.2.layers.2.weight",
+    "sam_mask_decoder.output_hypernetworks_mlps.3.layers.0.bias",
+    "sam_mask_decoder.output_hypernetworks_mlps.3.layers.0.weight",
+    "sam_mask_decoder.output_hypernetworks_mlps.3.layers.1.bias",
+    "sam_mask_decoder.output_hypernetworks_mlps.3.layers.1.weight",
+    "sam_mask_decoder.output_hypernetworks_mlps.3.layers.2.bias",
+    "sam_mask_decoder.output_hypernetworks_mlps.3.layers.2.weight",
+    "sam_mask_decoder.pred_obj_score_head.layers.0.bias",
+    "sam_mask_decoder.pred_obj_score_head.layers.0.weight",
+    "sam_mask_decoder.pred_obj_score_head.layers.1.bias",
+    "sam_mask_decoder.pred_obj_score_head.layers.1.weight",
+    "sam_mask_decoder.pred_obj_score_head.layers.2.bias",
+    "sam_mask_decoder.pred_obj_score_head.layers.2.weight"
+  ],
+  "global_step": 8000,
+  "learning_rate": 0.0001,
+  "loss": "l1_only_raw_decoder_output",
+  "medsam2_source_commit": "332f30d420f1d1b08e2a79b3ae6a602458808383",
+  "non_mask_decoder_trainable_names": [],
+  "normalization_id": "train_max_fixed_C",
+  "optimizer": "AdamW",
+  "parameter_inventory": {
+    "image_encoder.neck.convs.0.conv.bias": {
+      "numel": 256,
+      "requires_grad": false
+    },
+    "image_encoder.neck.convs.0.conv.weight": {
+      "numel": 196608,
+      "requires_grad": false
+    },
+    "image_encoder.neck.convs.1.conv.bias": {
+      "numel": 256,
+      "requires_grad": false
+    },
+    "image_encoder.neck.convs.1.conv.weight": {
+      "numel": 98304,
+      "requires_grad": false
+    },
+    "image_encoder.neck.convs.2.conv.bias": {
+      "numel": 256,
+      "requires_grad": false
+    },
+    "image_encoder.neck.convs.2.conv.weight": {
+      "numel": 49152,
+      "requires_grad": false
+    },
+    "image_encoder.neck.convs.3.conv.bias": {
+      "numel": 256,
+      "requires_grad": false
+    },
+    "image_encoder.neck.convs.3.conv.weight": {
+      "numel": 24576,
+      "requires_grad": false
+    },
+    "image_encoder.trunk.blocks.0.attn.proj.bias": {
+      "numel": 96,
+      "requires_grad": false
+    },
+    "image_encoder.trunk.blocks.0.attn.proj.weight": {
+      "numel": 9216,
+      "requires_grad": false
+    },
+    "image_encoder.trunk.blocks.0.attn.qkv.bias": {
+      "numel": 288,
+      "requires_grad": false
+    },
+    "image_encoder.trunk.blocks.0.attn.qkv.weight": {
+      "numel": 27648,
+      "requires_grad": false
+    },
+    "image_encoder.trunk.blocks.0.mlp.layers.0.bias": {
+      "numel": 384,
+      "requires_grad": false
+    },
+    "image_encoder.trunk.blocks.0.mlp.layers.0.weight": {
+      "numel": 36864,
+      "requires_grad": false
+    },
+    "image_encoder.trunk.blocks.0.mlp.layers.1.bias": {
+      "numel": 96,
+      "requires_grad": false
+    },
+    "image_encoder.trunk.blocks.0.mlp.layers.1.weight": {
+      "numel": 36864,
+      "requires_grad": false
+    },
+    "image_encoder.trunk.blocks.0.norm1.bias": {
+      "numel": 96,
+      "requires_grad": false
+    },
+    "image_encoder.trunk.blocks.0.norm1.weight": {
+      "numel": 96,
+      "requires_grad": false
+    },
+    "image_encoder.trunk.blocks.0.norm2.bias": {
+      "numel": 96,
+      "requires_grad": false
+    },
+    "image_encoder.trunk.blocks.0.norm2.weight": {
+      "numel": 96,
+      "requires_grad": false
+    },
+    "image_encoder.trunk.blocks.1.attn.proj.bias": {
+      "numel": 192,
+      "requires_grad": false
+    },
+    "image_encoder.trunk.blocks.1.attn.proj.weight": {
+      "numel": 36864,
+      "requires_grad": false
+    },
+    "image_encoder.trunk.blocks.1.attn.qkv.bias": {
+      "numel": 576,
+      "requires_grad": false
+    },
+    "image_encoder.trunk.blocks.1.attn.qkv.weight": {
+      "numel": 55296,
+      "requires_grad": false
+    },
+    "image_encoder.trunk.blocks.1.mlp.layers.0.bias": {
+      "numel": 768,
+      "requires_grad": false
+    },
+    "image_encoder.trunk.blocks.1.mlp.layers.0.weight": {
+      "numel": 147456,
+      "requires_grad": false
+    },
+    "image_encoder.trunk.blocks.1.mlp.layers.1.bias": {
+      "numel": 192,
+      "requires_grad": false
+    },
+    "image_encoder.trunk.blocks.1.mlp.layers.1.weight": {
+      "numel": 147456,
+      "requires_grad": false
+    },
+    "image_encoder.trunk.blocks.1.norm1.bias": {
+      "numel": 96,
+      "requires_grad": false
+    },
+    "image_encoder.trunk.blocks.1.norm1.weight": {
+      "numel": 96,
+      "requires_grad": false
+    },
+    "image_encoder.trunk.blocks.1.norm2.bias": {
+      "numel": 192,
+      "requires_grad": false
+    },
+    "image_encoder.trunk.blocks.1.norm2.weight": {
+      "numel": 192,
+      "requires_grad": false
+    },
+    "image_encoder.trunk.blocks.1.proj.bias": {
+      "numel": 192,
+      "requires_grad": false
+    },
+    "image_encoder.trunk.blocks.1.proj.weight": {
+      "numel": 18432,
+      "requires_grad": false
+    },
+    "image_encoder.trunk.blocks.10.attn.proj.bias": {
+      "numel": 768,
+      "requires_grad": false
+    },
+    "image_encoder.trunk.blocks.10.attn.proj.weight": {
+      "numel": 589824,
+      "requires_grad": false
+    },
+    "image_encoder.trunk.blocks.10.attn.qkv.bias": {
+      "numel": 2304,
+      "requires_grad": false
+    },
+    "image_encoder.trunk.blocks.10.attn.qkv.weight": {
+      "numel": 884736,
+      "requires_grad": false
+    },
+    "image_encoder.trunk.blocks.10.mlp.layers.0.bias": {
+      "numel": 3072,
+      "requires_grad": false
+    },
+    "image_encoder.trunk.blocks.10.mlp.layers.0.weight": {
+      "numel": 2359296,
+      "requires_grad": false
+    },
+    "image_encoder.trunk.blocks.10.mlp.layers.1.bias": {
+      "numel": 768,
+      "requires_grad": false
+    },
+    "image_encoder.trunk.blocks.10.mlp.layers.1.weight": {
+      "numel": 2359296,
+      "requires_grad": false
+    },
+    "image_encoder.trunk.blocks.10.norm1.bias": {
+      "numel": 384,
+      "requires_grad": false
+    },
+    "image_encoder.trunk.blocks.10.norm1.weight": {
+      "numel": 384,
+      "requires_grad": false
+    },
+    "image_encoder.trunk.blocks.10.norm2.bias": {
+      "numel": 768,
+      "requires_grad": false
+    },
+    "image_encoder.trunk.blocks.10.norm2.weight": {
+      "numel": 768,
+      "requires_grad": false
+    },
+    "image_encoder.trunk.blocks.10.proj.bias": {
+      "numel": 768,
+      "requires_grad": false
+    },
+    "image_encoder.trunk.blocks.10.proj.weight": {
+      "numel": 294912,
+      "requires_grad": false
+    },
+    "image_encoder.trunk.blocks.11.attn.proj.bias": {
+      "numel": 768,
+      "requires_grad": false
+    },
+    "image_encoder.trunk.blocks.11.attn.proj.weight": {
+      "numel": 589824,
+      "requires_grad": false
+    },
+    "image_encoder.trunk.blocks.11.attn.qkv.bias": {
+      "numel": 2304,
+      "requires_grad": false
+    },
+    "image_encoder.trunk.blocks.11.attn.qkv.weight": {
+      "numel": 1769472,
+      "requires_grad": false
+    },
+    "image_encoder.trunk.blocks.11.mlp.layers.0.bias": {
+      "numel": 3072,
+      "requires_grad": false
+    },
+    "image_encoder.trunk.blocks.11.mlp.layers.0.weight": {
+      "numel": 2359296,
+      "requires_grad": false
+    },
+    "image_encoder.trunk.blocks.11.mlp.layers.1.bias": {
+      "numel": 768,
+      "requires_grad": false
+    },
+    "image_encoder.trunk.blocks.11.mlp.layers.1.weight": {
+      "numel": 2359296,
+      "requires_grad": false
+    },
+    "image_encoder.trunk.blocks.11.norm1.bias": {
+      "numel": 768,
+      "requires_grad": false
+    },
+    "image_encoder.trunk.blocks.11.norm1.weight": {
+      "numel": 768,
+      "requires_grad": false
+    },
+    "image_encoder.trunk.blocks.11.norm2.bias": {
+      "numel": 768,
+      "requires_grad": false
+    },
+    "image_encoder.trunk.blocks.11.norm2.weight": {
+      "numel": 768,
+      "requires_grad": false
+    },
+    "image_encoder.trunk.blocks.2.attn.proj.bias": {
+      "numel": 192,
+      "requires_grad": false
+    },
+    "image_encoder.trunk.blocks.2.attn.proj.weight": {
+      "numel": 36864,
+      "requires_grad": false
+    },
+    "image_encoder.trunk.blocks.2.attn.qkv.bias": {
+      "numel": 576,
+      "requires_grad": false
+    },
+    "image_encoder.trunk.blocks.2.attn.qkv.weight": {
+      "numel": 110592,
+      "requires_grad": false
+    },
+    "image_encoder.trunk.blocks.2.mlp.layers.0.bias": {
+      "numel": 768,
+      "requires_grad": false
+    },
+    "image_encoder.trunk.blocks.2.mlp.layers.0.weight": {
+      "numel": 147456,
+      "requires_grad": false
+    },
+    "image_encoder.trunk.blocks.2.mlp.layers.1.bias": {
+      "numel": 192,
+      "requires_grad": false
+    },
+    "image_encoder.trunk.blocks.2.mlp.layers.1.weight": {
+      "numel": 147456,
+      "requires_grad": false
+    },
+    "image_encoder.trunk.blocks.2.norm1.bias": {
+      "numel": 192,
+      "requires_grad": false
+    },
+    "image_encoder.trunk.blocks.2.norm1.weight": {
+      "numel": 192,
+      "requires_grad": false
+    },
+    "image_encoder.trunk.blocks.2.norm2.bias": {
+      "numel": 192,
+      "requires_grad": false
+    },
+    "image_encoder.trunk.blocks.2.norm2.weight": {
+      "numel": 192,
+      "requires_grad": false
+    },
+    "image_encoder.trunk.blocks.3.attn.proj.bias": {
+      "numel": 384,
+      "requires_grad": false
+    },
+    "image_encoder.trunk.blocks.3.attn.proj.weight": {
+      "numel": 147456,
+      "requires_grad": false
+    },
+    "image_encoder.trunk.blocks.3.attn.qkv.bias": {
+      "numel": 1152,
+      "requires_grad": false
+    },
+    "image_encoder.trunk.blocks.3.attn.qkv.weight": {
+      "numel": 221184,
+      "requires_grad": false
+    },
+    "image_encoder.trunk.blocks.3.mlp.layers.0.bias": {
+      "numel": 1536,
+      "requires_grad": false
+    },
+    "image_encoder.trunk.blocks.3.mlp.layers.0.weight": {
+      "numel": 589824,
+      "requires_grad": false
+    },
+    "image_encoder.trunk.blocks.3.mlp.layers.1.bias": {
+      "numel": 384,
+      "requires_grad": false
+    },
+    "image_encoder.trunk.blocks.3.mlp.layers.1.weight": {
+      "numel": 589824,
+      "requires_grad": false
+    },
+    "image_encoder.trunk.blocks.3.norm1.bias": {
+      "numel": 192,
+      "requires_grad": false
+    },
+    "image_encoder.trunk.blocks.3.norm1.weight": {
+      "numel": 192,
+      "requires_grad": false
+    },
+    "image_encoder.trunk.blocks.3.norm2.bias": {
+      "numel": 384,
+      "requires_grad": false
+    },
+    "image_encoder.trunk.blocks.3.norm2.weight": {
+      "numel": 384,
+      "requires_grad": false
+    },
+    "image_encoder.trunk.blocks.3.proj.bias": {
+      "numel": 384,
+      "requires_grad": false
+    },
+    "image_encoder.trunk.blocks.3.proj.weight": {
+      "numel": 73728,
+      "requires_grad": false
+    },
+    "image_encoder.trunk.blocks.4.attn.proj.bias": {
+      "numel": 384,
+      "requires_grad": false
+    },
+    "image_encoder.trunk.blocks.4.attn.proj.weight": {
+      "numel": 147456,
+      "requires_grad": false
+    },
+    "image_encoder.trunk.blocks.4.attn.qkv.bias": {
+      "numel": 1152,
+      "requires_grad": false
+    },
+    "image_encoder.trunk.blocks.4.attn.qkv.weight": {
+      "numel": 442368,
+      "requires_grad": false
+    },
+    "image_encoder.trunk.blocks.4.mlp.layers.0.bias": {
+      "numel": 1536,
+      "requires_grad": false
+    },
+    "image_encoder.trunk.blocks.4.mlp.layers.0.weight": {
+      "numel": 589824,
+      "requires_grad": false
+    },
+    "image_encoder.trunk.blocks.4.mlp.layers.1.bias": {
+      "numel": 384,
+      "requires_grad": false
+    },
+    "image_encoder.trunk.blocks.4.mlp.layers.1.weight": {
+      "numel": 589824,
+      "requires_grad": false
+    },
+    "image_encoder.trunk.blocks.4.norm1.bias": {
+      "numel": 384,
+      "requires_grad": false
+    },
+    "image_encoder.trunk.blocks.4.norm1.weight": {
+      "numel": 384,
+      "requires_grad": false
+    },
+    "image_encoder.trunk.blocks.4.norm2.bias": {
+      "numel": 384,
+      "requires_grad": false
+    },
+    "image_encoder.trunk.blocks.4.norm2.weight": {
+      "numel": 384,
+      "requires_grad": false
+    },
+    "image_encoder.trunk.blocks.5.attn.proj.bias": {
+      "numel": 384,
+      "requires_grad": false
+    },
+    "image_encoder.trunk.blocks.5.attn.proj.weight": {
+      "numel": 147456,
+      "requires_grad": false
+    },
+    "image_encoder.trunk.blocks.5.attn.qkv.bias": {
+      "numel": 1152,
+      "requires_grad": false
+    },
+    "image_encoder.trunk.blocks.5.attn.qkv.weight": {
+      "numel": 442368,
+      "requires_grad": false
+    },
+    "image_encoder.trunk.blocks.5.mlp.layers.0.bias": {
+      "numel": 1536,
+      "requires_grad": false
+    },
+    "image_encoder.trunk.blocks.5.mlp.layers.0.weight": {
+      "numel": 589824,
+      "requires_grad": false
+    },
+    "image_encoder.trunk.blocks.5.mlp.layers.1.bias": {
+      "numel": 384,
+      "requires_grad": false
+    },
+    "image_encoder.trunk.blocks.5.mlp.layers.1.weight": {
+      "numel": 589824,
+      "requires_grad": false
+    },
+    "image_encoder.trunk.blocks.5.norm1.bias": {
+      "numel": 384,
+      "requires_grad": false
+    },
+    "image_encoder.trunk.blocks.5.norm1.weight": {
+      "numel": 384,
+      "requires_grad": false
+    },
+    "image_encoder.trunk.blocks.5.norm2.bias": {
+      "numel": 384,
+      "requires_grad": false
+    },
+    "image_encoder.trunk.blocks.5.norm2.weight": {
+      "numel": 384,
+      "requires_grad": false
+    },
+    "image_encoder.trunk.blocks.6.attn.proj.bias": {
+      "numel": 384,
+      "requires_grad": false
+    },
+    "image_encoder.trunk.blocks.6.attn.proj.weight": {
+      "numel": 147456,
+      "requires_grad": false
+    },
+    "image_encoder.trunk.blocks.6.attn.qkv.bias": {
+      "numel": 1152,
+      "requires_grad": false
+    },
+    "image_encoder.trunk.blocks.6.attn.qkv.weight": {
+      "numel": 442368,
+      "requires_grad": false
+    },
+    "image_encoder.trunk.blocks.6.mlp.layers.0.bias": {
+      "numel": 1536,
+      "requires_grad": false
+    },
+    "image_encoder.trunk.blocks.6.mlp.layers.0.weight": {
+      "numel": 589824,
+      "requires_grad": false
+    },
+    "image_encoder.trunk.blocks.6.mlp.layers.1.bias": {
+      "numel": 384,
+      "requires_grad": false
+    },
+    "image_encoder.trunk.blocks.6.mlp.layers.1.weight": {
+      "numel": 589824,
+      "requires_grad": false
+    },
+    "image_encoder.trunk.blocks.6.norm1.bias": {
+      "numel": 384,
+      "requires_grad": false
+    },
+    "image_encoder.trunk.blocks.6.norm1.weight": {
+      "numel": 384,
+      "requires_grad": false
+    },
+    "image_encoder.trunk.blocks.6.norm2.bias": {
+      "numel": 384,
+      "requires_grad": false
+    },
+    "image_encoder.trunk.blocks.6.norm2.weight": {
+      "numel": 384,
+      "requires_grad": false
+    },
+    "image_encoder.trunk.blocks.7.attn.proj.bias": {
+      "numel": 384,
+      "requires_grad": false
+    },
+    "image_encoder.trunk.blocks.7.attn.proj.weight": {
+      "numel": 147456,
+      "requires_grad": false
+    },
+    "image_encoder.trunk.blocks.7.attn.qkv.bias": {
+      "numel": 1152,
+      "requires_grad": false
+    },
+    "image_encoder.trunk.blocks.7.attn.qkv.weight": {
+      "numel": 442368,
+      "requires_grad": false
+    },
+    "image_encoder.trunk.blocks.7.mlp.layers.0.bias": {
+      "numel": 1536,
+      "requires_grad": false
+    },
+    "image_encoder.trunk.blocks.7.mlp.layers.0.weight": {
+      "numel": 589824,
+      "requires_grad": false
+    },
+    "image_encoder.trunk.blocks.7.mlp.layers.1.bias": {
+      "numel": 384,
+      "requires_grad": false
+    },
+    "image_encoder.trunk.blocks.7.mlp.layers.1.weight": {
+      "numel": 589824,
+      "requires_grad": false
+    },
+    "image_encoder.trunk.blocks.7.norm1.bias": {
+      "numel": 384,
+      "requires_grad": false
+    },
+    "image_encoder.trunk.blocks.7.norm1.weight": {
+      "numel": 384,
+      "requires_grad": false
+    },
+    "image_encoder.trunk.blocks.7.norm2.bias": {
+      "numel": 384,
+      "requires_grad": false
+    },
+    "image_encoder.trunk.blocks.7.norm2.weight": {
+      "numel": 384,
+      "requires_grad": false
+    },
+    "image_encoder.trunk.blocks.8.attn.proj.bias": {
+      "numel": 384,
+      "requires_grad": false
+    },
+    "image_encoder.trunk.blocks.8.attn.proj.weight": {
+      "numel": 147456,
+      "requires_grad": false
+    },
+    "image_encoder.trunk.blocks.8.attn.qkv.bias": {
+      "numel": 1152,
+      "requires_grad": false
+    },
+    "image_encoder.trunk.blocks.8.attn.qkv.weight": {
+      "numel": 442368,
+      "requires_grad": false
+    },
+    "image_encoder.trunk.blocks.8.mlp.layers.0.bias": {
+      "numel": 1536,
+      "requires_grad": false
+    },
+    "image_encoder.trunk.blocks.8.mlp.layers.0.weight": {
+      "numel": 589824,
+      "requires_grad": false
+    },
+    "image_encoder.trunk.blocks.8.mlp.layers.1.bias": {
+      "numel": 384,
+      "requires_grad": false
+    },
+    "image_encoder.trunk.blocks.8.mlp.layers.1.weight": {
+      "numel": 589824,
+      "requires_grad": false
+    },
+    "image_encoder.trunk.blocks.8.norm1.bias": {
+      "numel": 384,
+      "requires_grad": false
+    },
+    "image_encoder.trunk.blocks.8.norm1.weight": {
+      "numel": 384,
+      "requires_grad": false
+    },
+    "image_encoder.trunk.blocks.8.norm2.bias": {
+      "numel": 384,
+      "requires_grad": false
+    },
+    "image_encoder.trunk.blocks.8.norm2.weight": {
+      "numel": 384,
+      "requires_grad": false
+    },
+    "image_encoder.trunk.blocks.9.attn.proj.bias": {
+      "numel": 384,
+      "requires_grad": false
+    },
+    "image_encoder.trunk.blocks.9.attn.proj.weight": {
+      "numel": 147456,
+      "requires_grad": false
+    },
+    "image_encoder.trunk.blocks.9.attn.qkv.bias": {
+      "numel": 1152,
+      "requires_grad": false
+    },
+    "image_encoder.trunk.blocks.9.attn.qkv.weight": {
+      "numel": 442368,
+      "requires_grad": false
+    },
+    "image_encoder.trunk.blocks.9.mlp.layers.0.bias": {
+      "numel": 1536,
+      "requires_grad": false
+    },
+    "image_encoder.trunk.blocks.9.mlp.layers.0.weight": {
+      "numel": 589824,
+      "requires_grad": false
+    },
+    "image_encoder.trunk.blocks.9.mlp.layers.1.bias": {
+      "numel": 384,
+      "requires_grad": false
+    },
+    "image_encoder.trunk.blocks.9.mlp.layers.1.weight": {
+      "numel": 589824,
+      "requires_grad": false
+    },
+    "image_encoder.trunk.blocks.9.norm1.bias": {
+      "numel": 384,
+      "requires_grad": false
+    },
+    "image_encoder.trunk.blocks.9.norm1.weight": {
+      "numel": 384,
+      "requires_grad": false
+    },
+    "image_encoder.trunk.blocks.9.norm2.bias": {
+      "numel": 384,
+      "requires_grad": false
+    },
+    "image_encoder.trunk.blocks.9.norm2.weight": {
+      "numel": 384,
+      "requires_grad": false
+    },
+    "image_encoder.trunk.patch_embed.proj.bias": {
+      "numel": 96,
+      "requires_grad": false
+    },
+    "image_encoder.trunk.patch_embed.proj.weight": {
+      "numel": 14112,
+      "requires_grad": false
+    },
+    "image_encoder.trunk.pos_embed": {
+      "numel": 4704,
+      "requires_grad": false
+    },
+    "image_encoder.trunk.pos_embed_window": {
+      "numel": 6144,
+      "requires_grad": false
+    },
+    "mask_downsample.bias": {
+      "numel": 1,
+      "requires_grad": false
+    },
+    "mask_downsample.weight": {
+      "numel": 16,
+      "requires_grad": false
+    },
+    "maskmem_tpos_enc": {
+      "numel": 448,
+      "requires_grad": false
+    },
+    "memory_attention.layers.0.cross_attn_image.k_proj.bias": {
+      "numel": 256,
+      "requires_grad": false
+    },
+    "memory_attention.layers.0.cross_attn_image.k_proj.weight": {
+      "numel": 16384,
+      "requires_grad": false
+    },
+    "memory_attention.layers.0.cross_attn_image.out_proj.bias": {
+      "numel": 256,
+      "requires_grad": false
+    },
+    "memory_attention.layers.0.cross_attn_image.out_proj.weight": {
+      "numel": 65536,
+      "requires_grad": false
+    },
+    "memory_attention.layers.0.cross_attn_image.q_proj.bias": {
+      "numel": 256,
+      "requires_grad": false
+    },
+    "memory_attention.layers.0.cross_attn_image.q_proj.weight": {
+      "numel": 65536,
+      "requires_grad": false
+    },
+    "memory_attention.layers.0.cross_attn_image.v_proj.bias": {
+      "numel": 256,
+      "requires_grad": false
+    },
+    "memory_attention.layers.0.cross_attn_image.v_proj.weight": {
+      "numel": 16384,
+      "requires_grad": false
+    },
+    "memory_attention.layers.0.linear1.bias": {
+      "numel": 2048,
+      "requires_grad": false
+    },
+    "memory_attention.layers.0.linear1.weight": {
+      "numel": 524288,
+      "requires_grad": false
+    },
+    "memory_attention.layers.0.linear2.bias": {
+      "numel": 256,
+      "requires_grad": false
+    },
+    "memory_attention.layers.0.linear2.weight": {
+      "numel": 524288,
+      "requires_grad": false
+    },
+    "memory_attention.layers.0.norm1.bias": {
+      "numel": 256,
+      "requires_grad": false
+    },
+    "memory_attention.layers.0.norm1.weight": {
+      "numel": 256,
+      "requires_grad": false
+    },
+    "memory_attention.layers.0.norm2.bias": {
+      "numel": 256,
+      "requires_grad": false
+    },
+    "memory_attention.layers.0.norm2.weight": {
+      "numel": 256,
+      "requires_grad": false
+    },
+    "memory_attention.layers.0.norm3.bias": {
+      "numel": 256,
+      "requires_grad": false
+    },
+    "memory_attention.layers.0.norm3.weight": {
+      "numel": 256,
+      "requires_grad": false
+    },
+    "memory_attention.layers.0.self_attn.k_proj.bias": {
+      "numel": 256,
+      "requires_grad": false
+    },
+    "memory_attention.layers.0.self_attn.k_proj.weight": {
+      "numel": 65536,
+      "requires_grad": false
+    },
+    "memory_attention.layers.0.self_attn.out_proj.bias": {
+      "numel": 256,
+      "requires_grad": false
+    },
+    "memory_attention.layers.0.self_attn.out_proj.weight": {
+      "numel": 65536,
+      "requires_grad": false
+    },
+    "memory_attention.layers.0.self_attn.q_proj.bias": {
+      "numel": 256,
+      "requires_grad": false
+    },
+    "memory_attention.layers.0.self_attn.q_proj.weight": {
+      "numel": 65536,
+      "requires_grad": false
+    },
+    "memory_attention.layers.0.self_attn.v_proj.bias": {
+      "numel": 256,
+      "requires_grad": false
+    },
+    "memory_attention.layers.0.self_attn.v_proj.weight": {
+      "numel": 65536,
+      "requires_grad": false
+    },
+    "memory_attention.layers.1.cross_attn_image.k_proj.bias": {
+      "numel": 256,
+      "requires_grad": false
+    },
+    "memory_attention.layers.1.cross_attn_image.k_proj.weight": {
+      "numel": 16384,
+      "requires_grad": false
+    },
+    "memory_attention.layers.1.cross_attn_image.out_proj.bias": {
+      "numel": 256,
+      "requires_grad": false
+    },
+    "memory_attention.layers.1.cross_attn_image.out_proj.weight": {
+      "numel": 65536,
+      "requires_grad": false
+    },
+    "memory_attention.layers.1.cross_attn_image.q_proj.bias": {
+      "numel": 256,
+      "requires_grad": false
+    },
+    "memory_attention.layers.1.cross_attn_image.q_proj.weight": {
+      "numel": 65536,
+      "requires_grad": false
+    },
+    "memory_attention.layers.1.cross_attn_image.v_proj.bias": {
+      "numel": 256,
+      "requires_grad": false
+    },
+    "memory_attention.layers.1.cross_attn_image.v_proj.weight": {
+      "numel": 16384,
+      "requires_grad": false
+    },
+    "memory_attention.layers.1.linear1.bias": {
+      "numel": 2048,
+      "requires_grad": false
+    },
+    "memory_attention.layers.1.linear1.weight": {
+      "numel": 524288,
+      "requires_grad": false
+    },
+    "memory_attention.layers.1.linear2.bias": {
+      "numel": 256,
+      "requires_grad": false
+    },
+    "memory_attention.layers.1.linear2.weight": {
+      "numel": 524288,
+      "requires_grad": false
+    },
+    "memory_attention.layers.1.norm1.bias": {
+      "numel": 256,
+      "requires_grad": false
+    },
+    "memory_attention.layers.1.norm1.weight": {
+      "numel": 256,
+      "requires_grad": false
+    },
+    "memory_attention.layers.1.norm2.bias": {
+      "numel": 256,
+      "requires_grad": false
+    },
+    "memory_attention.layers.1.norm2.weight": {
+      "numel": 256,
+      "requires_grad": false
+    },
+    "memory_attention.layers.1.norm3.bias": {
+      "numel": 256,
+      "requires_grad": false
+    },
+    "memory_attention.layers.1.norm3.weight": {
+      "numel": 256,
+      "requires_grad": false
+    },
+    "memory_attention.layers.1.self_attn.k_proj.bias": {
+      "numel": 256,
+      "requires_grad": false
+    },
+    "memory_attention.layers.1.self_attn.k_proj.weight": {
+      "numel": 65536,
+      "requires_grad": false
+    },
+    "memory_attention.layers.1.self_attn.out_proj.bias": {
+      "numel": 256,
+      "requires_grad": false
+    },
+    "memory_attention.layers.1.self_attn.out_proj.weight": {
+      "numel": 65536,
+      "requires_grad": false
+    },
+    "memory_attention.layers.1.self_attn.q_proj.bias": {
+      "numel": 256,
+      "requires_grad": false
+    },
+    "memory_attention.layers.1.self_attn.q_proj.weight": {
+      "numel": 65536,
+      "requires_grad": false
+    },
+    "memory_attention.layers.1.self_attn.v_proj.bias": {
+      "numel": 256,
+      "requires_grad": false
+    },
+    "memory_attention.layers.1.self_attn.v_proj.weight": {
+      "numel": 65536,
+      "requires_grad": false
+    },
+    "memory_attention.layers.2.cross_attn_image.k_proj.bias": {
+      "numel": 256,
+      "requires_grad": false
+    },
+    "memory_attention.layers.2.cross_attn_image.k_proj.weight": {
+      "numel": 16384,
+      "requires_grad": false
+    },
+    "memory_attention.layers.2.cross_attn_image.out_proj.bias": {
+      "numel": 256,
+      "requires_grad": false
+    },
+    "memory_attention.layers.2.cross_attn_image.out_proj.weight": {
+      "numel": 65536,
+      "requires_grad": false
+    },
+    "memory_attention.layers.2.cross_attn_image.q_proj.bias": {
+      "numel": 256,
+      "requires_grad": false
+    },
+    "memory_attention.layers.2.cross_attn_image.q_proj.weight": {
+      "numel": 65536,
+      "requires_grad": false
+    },
+    "memory_attention.layers.2.cross_attn_image.v_proj.bias": {
+      "numel": 256,
+      "requires_grad": false
+    },
+    "memory_attention.layers.2.cross_attn_image.v_proj.weight": {
+      "numel": 16384,
+      "requires_grad": false
+    },
+    "memory_attention.layers.2.linear1.bias": {
+      "numel": 2048,
+      "requires_grad": false
+    },
+    "memory_attention.layers.2.linear1.weight": {
+      "numel": 524288,
+      "requires_grad": false
+    },
+    "memory_attention.layers.2.linear2.bias": {
+      "numel": 256,
+      "requires_grad": false
+    },
+    "memory_attention.layers.2.linear2.weight": {
+      "numel": 524288,
+      "requires_grad": false
+    },
+    "memory_attention.layers.2.norm1.bias": {
+      "numel": 256,
+      "requires_grad": false
+    },
+    "memory_attention.layers.2.norm1.weight": {
+      "numel": 256,
+      "requires_grad": false
+    },
+    "memory_attention.layers.2.norm2.bias": {
+      "numel": 256,
+      "requires_grad": false
+    },
+    "memory_attention.layers.2.norm2.weight": {
+      "numel": 256,
+      "requires_grad": false
+    },
+    "memory_attention.layers.2.norm3.bias": {
+      "numel": 256,
+      "requires_grad": false
+    },
+    "memory_attention.layers.2.norm3.weight": {
+      "numel": 256,
+      "requires_grad": false
+    },
+    "memory_attention.layers.2.self_attn.k_proj.bias": {
+      "numel": 256,
+      "requires_grad": false
+    },
+    "memory_attention.layers.2.self_attn.k_proj.weight": {
+      "numel": 65536,
+      "requires_grad": false
+    },
+    "memory_attention.layers.2.self_attn.out_proj.bias": {
+      "numel": 256,
+      "requires_grad": false
+    },
+    "memory_attention.layers.2.self_attn.out_proj.weight": {
+      "numel": 65536,
+      "requires_grad": false
+    },
+    "memory_attention.layers.2.self_attn.q_proj.bias": {
+      "numel": 256,
+      "requires_grad": false
+    },
+    "memory_attention.layers.2.self_attn.q_proj.weight": {
+      "numel": 65536,
+      "requires_grad": false
+    },
+    "memory_attention.layers.2.self_attn.v_proj.bias": {
+      "numel": 256,
+      "requires_grad": false
+    },
+    "memory_attention.layers.2.self_attn.v_proj.weight": {
+      "numel": 65536,
+      "requires_grad": false
+    },
+    "memory_attention.layers.3.cross_attn_image.k_proj.bias": {
+      "numel": 256,
+      "requires_grad": false
+    },
+    "memory_attention.layers.3.cross_attn_image.k_proj.weight": {
+      "numel": 16384,
+      "requires_grad": false
+    },
+    "memory_attention.layers.3.cross_attn_image.out_proj.bias": {
+      "numel": 256,
+      "requires_grad": false
+    },
+    "memory_attention.layers.3.cross_attn_image.out_proj.weight": {
+      "numel": 65536,
+      "requires_grad": false
+    },
+    "memory_attention.layers.3.cross_attn_image.q_proj.bias": {
+      "numel": 256,
+      "requires_grad": false
+    },
+    "memory_attention.layers.3.cross_attn_image.q_proj.weight": {
+      "numel": 65536,
+      "requires_grad": false
+    },
+    "memory_attention.layers.3.cross_attn_image.v_proj.bias": {
+      "numel": 256,
+      "requires_grad": false
+    },
+    "memory_attention.layers.3.cross_attn_image.v_proj.weight": {
+      "numel": 16384,
+      "requires_grad": false
+    },
+    "memory_attention.layers.3.linear1.bias": {
+      "numel": 2048,
+      "requires_grad": false
+    },
+    "memory_attention.layers.3.linear1.weight": {
+      "numel": 524288,
+      "requires_grad": false
+    },
+    "memory_attention.layers.3.linear2.bias": {
+      "numel": 256,
+      "requires_grad": false
+    },
+    "memory_attention.layers.3.linear2.weight": {
+      "numel": 524288,
+      "requires_grad": false
+    },
+    "memory_attention.layers.3.norm1.bias": {
+      "numel": 256,
+      "requires_grad": false
+    },
+    "memory_attention.layers.3.norm1.weight": {
+      "numel": 256,
+      "requires_grad": false
+    },
+    "memory_attention.layers.3.norm2.bias": {
+      "numel": 256,
+      "requires_grad": false
+    },
+    "memory_attention.layers.3.norm2.weight": {
+      "numel": 256,
+      "requires_grad": false
+    },
+    "memory_attention.layers.3.norm3.bias": {
+      "numel": 256,
+      "requires_grad": false
+    },
+    "memory_attention.layers.3.norm3.weight": {
+      "numel": 256,
+      "requires_grad": false
+    },
+    "memory_attention.layers.3.self_attn.k_proj.bias": {
+      "numel": 256,
+      "requires_grad": false
+    },
+    "memory_attention.layers.3.self_attn.k_proj.weight": {
+      "numel": 65536,
+      "requires_grad": false
+    },
+    "memory_attention.layers.3.self_attn.out_proj.bias": {
+      "numel": 256,
+      "requires_grad": false
+    },
+    "memory_attention.layers.3.self_attn.out_proj.weight": {
+      "numel": 65536,
+      "requires_grad": false
+    },
+    "memory_attention.layers.3.self_attn.q_proj.bias": {
+      "numel": 256,
+      "requires_grad": false
+    },
+    "memory_attention.layers.3.self_attn.q_proj.weight": {
+      "numel": 65536,
+      "requires_grad": false
+    },
+    "memory_attention.layers.3.self_attn.v_proj.bias": {
+      "numel": 256,
+      "requires_grad": false
+    },
+    "memory_attention.layers.3.self_attn.v_proj.weight": {
+      "numel": 65536,
+      "requires_grad": false
+    },
+    "memory_attention.norm.bias": {
+      "numel": 256,
+      "requires_grad": false
+    },
+    "memory_attention.norm.weight": {
+      "numel": 256,
+      "requires_grad": false
+    },
+    "memory_encoder.fuser.layers.0.dwconv.bias": {
+      "numel": 256,
+      "requires_grad": false
+    },
+    "memory_encoder.fuser.layers.0.dwconv.weight": {
+      "numel": 12544,
+      "requires_grad": false
+    },
+    "memory_encoder.fuser.layers.0.gamma": {
+      "numel": 256,
+      "requires_grad": false
+    },
+    "memory_encoder.fuser.layers.0.norm.bias": {
+      "numel": 256,
+      "requires_grad": false
+    },
+    "memory_encoder.fuser.layers.0.norm.weight": {
+      "numel": 256,
+      "requires_grad": false
+    },
+    "memory_encoder.fuser.layers.0.pwconv1.bias": {
+      "numel": 1024,
+      "requires_grad": false
+    },
+    "memory_encoder.fuser.layers.0.pwconv1.weight": {
+      "numel": 262144,
+      "requires_grad": false
+    },
+    "memory_encoder.fuser.layers.0.pwconv2.bias": {
+      "numel": 256,
+      "requires_grad": false
+    },
+    "memory_encoder.fuser.layers.0.pwconv2.weight": {
+      "numel": 262144,
+      "requires_grad": false
+    },
+    "memory_encoder.fuser.layers.1.dwconv.bias": {
+      "numel": 256,
+      "requires_grad": false
+    },
+    "memory_encoder.fuser.layers.1.dwconv.weight": {
+      "numel": 12544,
+      "requires_grad": false
+    },
+    "memory_encoder.fuser.layers.1.gamma": {
+      "numel": 256,
+      "requires_grad": false
+    },
+    "memory_encoder.fuser.layers.1.norm.bias": {
+      "numel": 256,
+      "requires_grad": false
+    },
+    "memory_encoder.fuser.layers.1.norm.weight": {
+      "numel": 256,
+      "requires_grad": false
+    },
+    "memory_encoder.fuser.layers.1.pwconv1.bias": {
+      "numel": 1024,
+      "requires_grad": false
+    },
+    "memory_encoder.fuser.layers.1.pwconv1.weight": {
+      "numel": 262144,
+      "requires_grad": false
+    },
+    "memory_encoder.fuser.layers.1.pwconv2.bias": {
+      "numel": 256,
+      "requires_grad": false
+    },
+    "memory_encoder.fuser.layers.1.pwconv2.weight": {
+      "numel": 262144,
+      "requires_grad": false
+    },
+    "memory_encoder.mask_downsampler.encoder.0.bias": {
+      "numel": 4,
+      "requires_grad": false
+    },
+    "memory_encoder.mask_downsampler.encoder.0.weight": {
+      "numel": 36,
+      "requires_grad": false
+    },
+    "memory_encoder.mask_downsampler.encoder.1.bias": {
+      "numel": 4,
+      "requires_grad": false
+    },
+    "memory_encoder.mask_downsampler.encoder.1.weight": {
+      "numel": 4,
+      "requires_grad": false
+    },
+    "memory_encoder.mask_downsampler.encoder.10.bias": {
+      "numel": 256,
+      "requires_grad": false
+    },
+    "memory_encoder.mask_downsampler.encoder.10.weight": {
+      "numel": 256,
+      "requires_grad": false
+    },
+    "memory_encoder.mask_downsampler.encoder.12.bias": {
+      "numel": 256,
+      "requires_grad": false
+    },
+    "memory_encoder.mask_downsampler.encoder.12.weight": {
+      "numel": 65536,
+      "requires_grad": false
+    },
+    "memory_encoder.mask_downsampler.encoder.3.bias": {
+      "numel": 16,
+      "requires_grad": false
+    },
+    "memory_encoder.mask_downsampler.encoder.3.weight": {
+      "numel": 576,
+      "requires_grad": false
+    },
+    "memory_encoder.mask_downsampler.encoder.4.bias": {
+      "numel": 16,
+      "requires_grad": false
+    },
+    "memory_encoder.mask_downsampler.encoder.4.weight": {
+      "numel": 16,
+      "requires_grad": false
+    },
+    "memory_encoder.mask_downsampler.encoder.6.bias": {
+      "numel": 64,
+      "requires_grad": false
+    },
+    "memory_encoder.mask_downsampler.encoder.6.weight": {
+      "numel": 9216,
+      "requires_grad": false
+    },
+    "memory_encoder.mask_downsampler.encoder.7.bias": {
+      "numel": 64,
+      "requires_grad": false
+    },
+    "memory_encoder.mask_downsampler.encoder.7.weight": {
+      "numel": 64,
+      "requires_grad": false
+    },
+    "memory_encoder.mask_downsampler.encoder.9.bias": {
+      "numel": 256,
+      "requires_grad": false
+    },
+    "memory_encoder.mask_downsampler.encoder.9.weight": {
+      "numel": 147456,
+      "requires_grad": false
+    },
+    "memory_encoder.out_proj.bias": {
+      "numel": 64,
+      "requires_grad": false
+    },
+    "memory_encoder.out_proj.weight": {
+      "numel": 16384,
+      "requires_grad": false
+    },
+    "memory_encoder.pix_feat_proj.bias": {
+      "numel": 256,
+      "requires_grad": false
+    },
+    "memory_encoder.pix_feat_proj.weight": {
+      "numel": 65536,
+      "requires_grad": false
+    },
+    "no_mem_embed": {
+      "numel": 256,
+      "requires_grad": false
+    },
+    "no_mem_pos_enc": {
+      "numel": 256,
+      "requires_grad": false
+    },
+    "no_obj_embed_spatial": {
+      "numel": 64,
+      "requires_grad": false
+    },
+    "no_obj_ptr": {
+      "numel": 256,
+      "requires_grad": false
+    },
+    "obj_ptr_proj.layers.0.bias": {
+      "numel": 256,
+      "requires_grad": false
+    },
+    "obj_ptr_proj.layers.0.weight": {
+      "numel": 65536,
+      "requires_grad": false
+    },
+    "obj_ptr_proj.layers.1.bias": {
+      "numel": 256,
+      "requires_grad": false
+    },
+    "obj_ptr_proj.layers.1.weight": {
+      "numel": 65536,
+      "requires_grad": false
+    },
+    "obj_ptr_proj.layers.2.bias": {
+      "numel": 256,
+      "requires_grad": false
+    },
+    "obj_ptr_proj.layers.2.weight": {
+      "numel": 65536,
+      "requires_grad": false
+    },
+    "obj_ptr_tpos_proj.bias": {
+      "numel": 64,
+      "requires_grad": false
+    },
+    "obj_ptr_tpos_proj.weight": {
+      "numel": 16384,
+      "requires_grad": false
+    },
+    "sam_mask_decoder.conv_s0.bias": {
+      "numel": 32,
+      "requires_grad": true
+    },
+    "sam_mask_decoder.conv_s0.weight": {
+      "numel": 8192,
+      "requires_grad": true
+    },
+    "sam_mask_decoder.conv_s1.bias": {
+      "numel": 64,
+      "requires_grad": true
+    },
+    "sam_mask_decoder.conv_s1.weight": {
+      "numel": 16384,
+      "requires_grad": true
+    },
+    "sam_mask_decoder.iou_prediction_head.layers.0.bias": {
+      "numel": 256,
+      "requires_grad": false
+    },
+    "sam_mask_decoder.iou_prediction_head.layers.0.weight": {
+      "numel": 65536,
+      "requires_grad": false
+    },
+    "sam_mask_decoder.iou_prediction_head.layers.1.bias": {
+      "numel": 256,
+      "requires_grad": false
+    },
+    "sam_mask_decoder.iou_prediction_head.layers.1.weight": {
+      "numel": 65536,
+      "requires_grad": false
+    },
+    "sam_mask_decoder.iou_prediction_head.layers.2.bias": {
+      "numel": 4,
+      "requires_grad": false
+    },
+    "sam_mask_decoder.iou_prediction_head.layers.2.weight": {
+      "numel": 1024,
+      "requires_grad": false
+    },
+    "sam_mask_decoder.iou_token.weight": {
+      "numel": 256,
+      "requires_grad": true
+    },
+    "sam_mask_decoder.mask_tokens.weight": {
+      "numel": 1024,
+      "requires_grad": true
+    },
+    "sam_mask_decoder.obj_score_token.weight": {
+      "numel": 256,
+      "requires_grad": true
+    },
+    "sam_mask_decoder.output_hypernetworks_mlps.0.layers.0.bias": {
+      "numel": 256,
+      "requires_grad": true
+    },
+    "sam_mask_decoder.output_hypernetworks_mlps.0.layers.0.weight": {
+      "numel": 65536,
+      "requires_grad": true
+    },
+    "sam_mask_decoder.output_hypernetworks_mlps.0.layers.1.bias": {
+      "numel": 256,
+      "requires_grad": true
+    },
+    "sam_mask_decoder.output_hypernetworks_mlps.0.layers.1.weight": {
+      "numel": 65536,
+      "requires_grad": true
+    },
+    "sam_mask_decoder.output_hypernetworks_mlps.0.layers.2.bias": {
+      "numel": 32,
+      "requires_grad": true
+    },
+    "sam_mask_decoder.output_hypernetworks_mlps.0.layers.2.weight": {
+      "numel": 8192,
+      "requires_grad": true
+    },
+    "sam_mask_decoder.output_hypernetworks_mlps.1.layers.0.bias": {
+      "numel": 256,
+      "requires_grad": false
+    },
+    "sam_mask_decoder.output_hypernetworks_mlps.1.layers.0.weight": {
+      "numel": 65536,
+      "requires_grad": false
+    },
+    "sam_mask_decoder.output_hypernetworks_mlps.1.layers.1.bias": {
+      "numel": 256,
+      "requires_grad": false
+    },
+    "sam_mask_decoder.output_hypernetworks_mlps.1.layers.1.weight": {
+      "numel": 65536,
+      "requires_grad": false
+    },
+    "sam_mask_decoder.output_hypernetworks_mlps.1.layers.2.bias": {
+      "numel": 32,
+      "requires_grad": false
+    },
+    "sam_mask_decoder.output_hypernetworks_mlps.1.layers.2.weight": {
+      "numel": 8192,
+      "requires_grad": false
+    },
+    "sam_mask_decoder.output_hypernetworks_mlps.2.layers.0.bias": {
+      "numel": 256,
+      "requires_grad": false
+    },
+    "sam_mask_decoder.output_hypernetworks_mlps.2.layers.0.weight": {
+      "numel": 65536,
+      "requires_grad": false
+    },
+    "sam_mask_decoder.output_hypernetworks_mlps.2.layers.1.bias": {
+      "numel": 256,
+      "requires_grad": false
+    },
+    "sam_mask_decoder.output_hypernetworks_mlps.2.layers.1.weight": {
+      "numel": 65536,
+      "requires_grad": false
+    },
+    "sam_mask_decoder.output_hypernetworks_mlps.2.layers.2.bias": {
+      "numel": 32,
+      "requires_grad": false
+    },
+    "sam_mask_decoder.output_hypernetworks_mlps.2.layers.2.weight": {
+      "numel": 8192,
+      "requires_grad": false
+    },
+    "sam_mask_decoder.output_hypernetworks_mlps.3.layers.0.bias": {
+      "numel": 256,
+      "requires_grad": false
+    },
+    "sam_mask_decoder.output_hypernetworks_mlps.3.layers.0.weight": {
+      "numel": 65536,
+      "requires_grad": false
+    },
+    "sam_mask_decoder.output_hypernetworks_mlps.3.layers.1.bias": {
+      "numel": 256,
+      "requires_grad": false
+    },
+    "sam_mask_decoder.output_hypernetworks_mlps.3.layers.1.weight": {
+      "numel": 65536,
+      "requires_grad": false
+    },
+    "sam_mask_decoder.output_hypernetworks_mlps.3.layers.2.bias": {
+      "numel": 32,
+      "requires_grad": false
+    },
+    "sam_mask_decoder.output_hypernetworks_mlps.3.layers.2.weight": {
+      "numel": 8192,
+      "requires_grad": false
+    },
+    "sam_mask_decoder.output_upscaling.0.bias": {
+      "numel": 64,
+      "requires_grad": true
+    },
+    "sam_mask_decoder.output_upscaling.0.weight": {
+      "numel": 65536,
+      "requires_grad": true
+    },
+    "sam_mask_decoder.output_upscaling.1.bias": {
+      "numel": 64,
+      "requires_grad": true
+    },
+    "sam_mask_decoder.output_upscaling.1.weight": {
+      "numel": 64,
+      "requires_grad": true
+    },
+    "sam_mask_decoder.output_upscaling.3.bias": {
+      "numel": 32,
+      "requires_grad": true
+    },
+    "sam_mask_decoder.output_upscaling.3.weight": {
+      "numel": 8192,
+      "requires_grad": true
+    },
+    "sam_mask_decoder.pred_obj_score_head.layers.0.bias": {
+      "numel": 256,
+      "requires_grad": false
+    },
+    "sam_mask_decoder.pred_obj_score_head.layers.0.weight": {
+      "numel": 65536,
+      "requires_grad": false
+    },
+    "sam_mask_decoder.pred_obj_score_head.layers.1.bias": {
+      "numel": 256,
+      "requires_grad": false
+    },
+    "sam_mask_decoder.pred_obj_score_head.layers.1.weight": {
+      "numel": 65536,
+      "requires_grad": false
+    },
+    "sam_mask_decoder.pred_obj_score_head.layers.2.bias": {
+      "numel": 1,
+      "requires_grad": false
+    },
+    "sam_mask_decoder.pred_obj_score_head.layers.2.weight": {
+      "numel": 256,
+      "requires_grad": false
+    },
+    "sam_mask_decoder.transformer.final_attn_token_to_image.k_proj.bias": {
+      "numel": 128,
+      "requires_grad": true
+    },
+    "sam_mask_decoder.transformer.final_attn_token_to_image.k_proj.weight": {
+      "numel": 32768,
+      "requires_grad": true
+    },
+    "sam_mask_decoder.transformer.final_attn_token_to_image.out_proj.bias": {
+      "numel": 256,
+      "requires_grad": true
+    },
+    "sam_mask_decoder.transformer.final_attn_token_to_image.out_proj.weight": {
+      "numel": 32768,
+      "requires_grad": true
+    },
+    "sam_mask_decoder.transformer.final_attn_token_to_image.q_proj.bias": {
+      "numel": 128,
+      "requires_grad": true
+    },
+    "sam_mask_decoder.transformer.final_attn_token_to_image.q_proj.weight": {
+      "numel": 32768,
+      "requires_grad": true
+    },
+    "sam_mask_decoder.transformer.final_attn_token_to_image.v_proj.bias": {
+      "numel": 128,
+      "requires_grad": true
+    },
+    "sam_mask_decoder.transformer.final_attn_token_to_image.v_proj.weight": {
+      "numel": 32768,
+      "requires_grad": true
+    },
+    "sam_mask_decoder.transformer.layers.0.cross_attn_image_to_token.k_proj.bias": {
+      "numel": 128,
+      "requires_grad": true
+    },
+    "sam_mask_decoder.transformer.layers.0.cross_attn_image_to_token.k_proj.weight": {
+      "numel": 32768,
+      "requires_grad": true
+    },
+    "sam_mask_decoder.transformer.layers.0.cross_attn_image_to_token.out_proj.bias": {
+      "numel": 256,
+      "requires_grad": true
+    },
+    "sam_mask_decoder.transformer.layers.0.cross_attn_image_to_token.out_proj.weight": {
+      "numel": 32768,
+      "requires_grad": true
+    },
+    "sam_mask_decoder.transformer.layers.0.cross_attn_image_to_token.q_proj.bias": {
+      "numel": 128,
+      "requires_grad": true
+    },
+    "sam_mask_decoder.transformer.layers.0.cross_attn_image_to_token.q_proj.weight": {
+      "numel": 32768,
+      "requires_grad": true
+    },
+    "sam_mask_decoder.transformer.layers.0.cross_attn_image_to_token.v_proj.bias": {
+      "numel": 128,
+      "requires_grad": true
+    },
+    "sam_mask_decoder.transformer.layers.0.cross_attn_image_to_token.v_proj.weight": {
+      "numel": 32768,
+      "requires_grad": true
+    },
+    "sam_mask_decoder.transformer.layers.0.cross_attn_token_to_image.k_proj.bias": {
+      "numel": 128,
+      "requires_grad": true
+    },
+    "sam_mask_decoder.transformer.layers.0.cross_attn_token_to_image.k_proj.weight": {
+      "numel": 32768,
+      "requires_grad": true
+    },
+    "sam_mask_decoder.transformer.layers.0.cross_attn_token_to_image.out_proj.bias": {
+      "numel": 256,
+      "requires_grad": true
+    },
+    "sam_mask_decoder.transformer.layers.0.cross_attn_token_to_image.out_proj.weight": {
+      "numel": 32768,
+      "requires_grad": true
+    },
+    "sam_mask_decoder.transformer.layers.0.cross_attn_token_to_image.q_proj.bias": {
+      "numel": 128,
+      "requires_grad": true
+    },
+    "sam_mask_decoder.transformer.layers.0.cross_attn_token_to_image.q_proj.weight": {
+      "numel": 32768,
+      "requires_grad": true
+    },
+    "sam_mask_decoder.transformer.layers.0.cross_attn_token_to_image.v_proj.bias": {
+      "numel": 128,
+      "requires_grad": true
+    },
+    "sam_mask_decoder.transformer.layers.0.cross_attn_token_to_image.v_proj.weight": {
+      "numel": 32768,
+      "requires_grad": true
+    },
+    "sam_mask_decoder.transformer.layers.0.mlp.layers.0.bias": {
+      "numel": 2048,
+      "requires_grad": true
+    },
+    "sam_mask_decoder.transformer.layers.0.mlp.layers.0.weight": {
+      "numel": 524288,
+      "requires_grad": true
+    },
+    "sam_mask_decoder.transformer.layers.0.mlp.layers.1.bias": {
+      "numel": 256,
+      "requires_grad": true
+    },
+    "sam_mask_decoder.transformer.layers.0.mlp.layers.1.weight": {
+      "numel": 524288,
+      "requires_grad": true
+    },
+    "sam_mask_decoder.transformer.layers.0.norm1.bias": {
+      "numel": 256,
+      "requires_grad": true
+    },
+    "sam_mask_decoder.transformer.layers.0.norm1.weight": {
+      "numel": 256,
+      "requires_grad": true
+    },
+    "sam_mask_decoder.transformer.layers.0.norm2.bias": {
+      "numel": 256,
+      "requires_grad": true
+    },
+    "sam_mask_decoder.transformer.layers.0.norm2.weight": {
+      "numel": 256,
+      "requires_grad": true
+    },
+    "sam_mask_decoder.transformer.layers.0.norm3.bias": {
+      "numel": 256,
+      "requires_grad": true
+    },
+    "sam_mask_decoder.transformer.layers.0.norm3.weight": {
+      "numel": 256,
+      "requires_grad": true
+    },
+    "sam_mask_decoder.transformer.layers.0.norm4.bias": {
+      "numel": 256,
+      "requires_grad": true
+    },
+    "sam_mask_decoder.transformer.layers.0.norm4.weight": {
+      "numel": 256,
+      "requires_grad": true
+    },
+    "sam_mask_decoder.transformer.layers.0.self_attn.k_proj.bias": {
+      "numel": 256,
+      "requires_grad": true
+    },
+    "sam_mask_decoder.transformer.layers.0.self_attn.k_proj.weight": {
+      "numel": 65536,
+      "requires_grad": true
+    },
+    "sam_mask_decoder.transformer.layers.0.self_attn.out_proj.bias": {
+      "numel": 256,
+      "requires_grad": true
+    },
+    "sam_mask_decoder.transformer.layers.0.self_attn.out_proj.weight": {
+      "numel": 65536,
+      "requires_grad": true
+    },
+    "sam_mask_decoder.transformer.layers.0.self_attn.q_proj.bias": {
+      "numel": 256,
+      "requires_grad": true
+    },
+    "sam_mask_decoder.transformer.layers.0.self_attn.q_proj.weight": {
+      "numel": 65536,
+      "requires_grad": true
+    },
+    "sam_mask_decoder.transformer.layers.0.self_attn.v_proj.bias": {
+      "numel": 256,
+      "requires_grad": true
+    },
+    "sam_mask_decoder.transformer.layers.0.self_attn.v_proj.weight": {
+      "numel": 65536,
+      "requires_grad": true
+    },
+    "sam_mask_decoder.transformer.layers.1.cross_attn_image_to_token.k_proj.bias": {
+      "numel": 128,
+      "requires_grad": true
+    },
+    "sam_mask_decoder.transformer.layers.1.cross_attn_image_to_token.k_proj.weight": {
+      "numel": 32768,
+      "requires_grad": true
+    },
+    "sam_mask_decoder.transformer.layers.1.cross_attn_image_to_token.out_proj.bias": {
+      "numel": 256,
+      "requires_grad": true
+    },
+    "sam_mask_decoder.transformer.layers.1.cross_attn_image_to_token.out_proj.weight": {
+      "numel": 32768,
+      "requires_grad": true
+    },
+    "sam_mask_decoder.transformer.layers.1.cross_attn_image_to_token.q_proj.bias": {
+      "numel": 128,
+      "requires_grad": true
+    },
+    "sam_mask_decoder.transformer.layers.1.cross_attn_image_to_token.q_proj.weight": {
+      "numel": 32768,
+      "requires_grad": true
+    },
+    "sam_mask_decoder.transformer.layers.1.cross_attn_image_to_token.v_proj.bias": {
+      "numel": 128,
+      "requires_grad": true
+    },
+    "sam_mask_decoder.transformer.layers.1.cross_attn_image_to_token.v_proj.weight": {
+      "numel": 32768,
+      "requires_grad": true
+    },
+    "sam_mask_decoder.transformer.layers.1.cross_attn_token_to_image.k_proj.bias": {
+      "numel": 128,
+      "requires_grad": true
+    },
+    "sam_mask_decoder.transformer.layers.1.cross_attn_token_to_image.k_proj.weight": {
+      "numel": 32768,
+      "requires_grad": true
+    },
+    "sam_mask_decoder.transformer.layers.1.cross_attn_token_to_image.out_proj.bias": {
+      "numel": 256,
+      "requires_grad": true
+    },
+    "sam_mask_decoder.transformer.layers.1.cross_attn_token_to_image.out_proj.weight": {
+      "numel": 32768,
+      "requires_grad": true
+    },
+    "sam_mask_decoder.transformer.layers.1.cross_attn_token_to_image.q_proj.bias": {
+      "numel": 128,
+      "requires_grad": true
+    },
+    "sam_mask_decoder.transformer.layers.1.cross_attn_token_to_image.q_proj.weight": {
+      "numel": 32768,
+      "requires_grad": true
+    },
+    "sam_mask_decoder.transformer.layers.1.cross_attn_token_to_image.v_proj.bias": {
+      "numel": 128,
+      "requires_grad": true
+    },
+    "sam_mask_decoder.transformer.layers.1.cross_attn_token_to_image.v_proj.weight": {
+      "numel": 32768,
+      "requires_grad": true
+    },
+    "sam_mask_decoder.transformer.layers.1.mlp.layers.0.bias": {
+      "numel": 2048,
+      "requires_grad": true
+    },
+    "sam_mask_decoder.transformer.layers.1.mlp.layers.0.weight": {
+      "numel": 524288,
+      "requires_grad": true
+    },
+    "sam_mask_decoder.transformer.layers.1.mlp.layers.1.bias": {
+      "numel": 256,
+      "requires_grad": true
+    },
+    "sam_mask_decoder.transformer.layers.1.mlp.layers.1.weight": {
+      "numel": 524288,
+      "requires_grad": true
+    },
+    "sam_mask_decoder.transformer.layers.1.norm1.bias": {
+      "numel": 256,
+      "requires_grad": true
+    },
+    "sam_mask_decoder.transformer.layers.1.norm1.weight": {
+      "numel": 256,
+      "requires_grad": true
+    },
+    "sam_mask_decoder.transformer.layers.1.norm2.bias": {
+      "numel": 256,
+      "requires_grad": true
+    },
+    "sam_mask_decoder.transformer.layers.1.norm2.weight": {
+      "numel": 256,
+      "requires_grad": true
+    },
+    "sam_mask_decoder.transformer.layers.1.norm3.bias": {
+      "numel": 256,
+      "requires_grad": true
+    },
+    "sam_mask_decoder.transformer.layers.1.norm3.weight": {
+      "numel": 256,
+      "requires_grad": true
+    },
+    "sam_mask_decoder.transformer.layers.1.norm4.bias": {
+      "numel": 256,
+      "requires_grad": true
+    },
+    "sam_mask_decoder.transformer.layers.1.norm4.weight": {
+      "numel": 256,
+      "requires_grad": true
+    },
+    "sam_mask_decoder.transformer.layers.1.self_attn.k_proj.bias": {
+      "numel": 256,
+      "requires_grad": true
+    },
+    "sam_mask_decoder.transformer.layers.1.self_attn.k_proj.weight": {
+      "numel": 65536,
+      "requires_grad": true
+    },
+    "sam_mask_decoder.transformer.layers.1.self_attn.out_proj.bias": {
+      "numel": 256,
+      "requires_grad": true
+    },
+    "sam_mask_decoder.transformer.layers.1.self_attn.out_proj.weight": {
+      "numel": 65536,
+      "requires_grad": true
+    },
+    "sam_mask_decoder.transformer.layers.1.self_attn.q_proj.bias": {
+      "numel": 256,
+      "requires_grad": true
+    },
+    "sam_mask_decoder.transformer.layers.1.self_attn.q_proj.weight": {
+      "numel": 65536,
+      "requires_grad": true
+    },
+    "sam_mask_decoder.transformer.layers.1.self_attn.v_proj.bias": {
+      "numel": 256,
+      "requires_grad": true
+    },
+    "sam_mask_decoder.transformer.layers.1.self_attn.v_proj.weight": {
+      "numel": 65536,
+      "requires_grad": true
+    },
+    "sam_mask_decoder.transformer.norm_final_attn.bias": {
+      "numel": 256,
+      "requires_grad": true
+    },
+    "sam_mask_decoder.transformer.norm_final_attn.weight": {
+      "numel": 256,
+      "requires_grad": true
+    },
+    "sam_prompt_encoder.mask_downscaling.0.bias": {
+      "numel": 4,
+      "requires_grad": false
+    },
+    "sam_prompt_encoder.mask_downscaling.0.weight": {
+      "numel": 16,
+      "requires_grad": false
+    },
+    "sam_prompt_encoder.mask_downscaling.1.bias": {
+      "numel": 4,
+      "requires_grad": false
+    },
+    "sam_prompt_encoder.mask_downscaling.1.weight": {
+      "numel": 4,
+      "requires_grad": false
+    },
+    "sam_prompt_encoder.mask_downscaling.3.bias": {
+      "numel": 16,
+      "requires_grad": false
+    },
+    "sam_prompt_encoder.mask_downscaling.3.weight": {
+      "numel": 256,
+      "requires_grad": false
+    },
+    "sam_prompt_encoder.mask_downscaling.4.bias": {
+      "numel": 16,
+      "requires_grad": false
+    },
+    "sam_prompt_encoder.mask_downscaling.4.weight": {
+      "numel": 16,
+      "requires_grad": false
+    },
+    "sam_prompt_encoder.mask_downscaling.6.bias": {
+      "numel": 256,
+      "requires_grad": false
+    },
+    "sam_prompt_encoder.mask_downscaling.6.weight": {
+      "numel": 4096,
+      "requires_grad": false
+    },
+    "sam_prompt_encoder.no_mask_embed.weight": {
+      "numel": 256,
+      "requires_grad": false
+    },
+    "sam_prompt_encoder.not_a_point_embed.weight": {
+      "numel": 256,
+      "requires_grad": false
+    },
+    "sam_prompt_encoder.point_embeddings.0.weight": {
+      "numel": 256,
+      "requires_grad": false
+    },
+    "sam_prompt_encoder.point_embeddings.1.weight": {
+      "numel": 256,
+      "requires_grad": false
+    },
+    "sam_prompt_encoder.point_embeddings.2.weight": {
+      "numel": 256,
+      "requires_grad": false
+    },
+    "sam_prompt_encoder.point_embeddings.3.weight": {
+      "numel": 256,
+      "requires_grad": false
+    }
+  },
+  "resume_checkpoint_sha256": "8ce438cf9812787cac91e00e1b06a68672d32a68a6f9a900b2d1ed4f098a2dd1",
+  "run_id": "dev_trainmax_v1",
+  "sampled_case_counts": {
+    "100|z072|1000000|0": 4,
+    "100|z072|1000000|1": 4,
+    "100|z072|1000000|2": 3,
+    "100|z072|100000|0": 4,
+    "100|z072|100000|1": 4,
+    "100|z072|100000|2": 4,
+    "100|z072|200000|0": 4,
+    "100|z072|200000|1": 4,
+    "100|z072|200000|2": 3,
+    "100|z072|500000|0": 4,
+    "100|z072|500000|1": 4,
+    "100|z072|500000|2": 3,
+    "101|z072|1000000|0": 3,
+    "101|z072|1000000|1": 4,
+    "101|z072|1000000|2": 4,
+    "101|z072|100000|0": 4,
+    "101|z072|100000|1": 3,
+    "101|z072|100000|2": 4,
+    "101|z072|200000|0": 4,
+    "101|z072|200000|1": 3,
+    "101|z072|200000|2": 4,
+    "101|z072|500000|0": 4,
+    "101|z072|500000|1": 4,
+    "101|z072|500000|2": 3,
+    "102|z072|1000000|0": 4,
+    "102|z072|1000000|1": 4,
+    "102|z072|1000000|2": 3,
+    "102|z072|100000|0": 3,
+    "102|z072|100000|1": 4,
+    "102|z072|100000|2": 4,
+    "102|z072|200000|0": 4,
+    "102|z072|200000|1": 4,
+    "102|z072|200000|2": 4,
+    "102|z072|500000|0": 4,
+    "102|z072|500000|1": 4,
+    "102|z072|500000|2": 3,
+    "103|z072|1000000|0": 4,
+    "103|z072|1000000|1": 3,
+    "103|z072|1000000|2": 4,
+    "103|z072|100000|0": 4,
+    "103|z072|100000|1": 4,
+    "103|z072|100000|2": 4,
+    "103|z072|200000|0": 4,
+    "103|z072|200000|1": 4,
+    "103|z072|200000|2": 3,
+    "103|z072|500000|0": 4,
+    "103|z072|500000|1": 4,
+    "103|z072|500000|2": 4,
+    "104|z072|1000000|0": 4,
+    "104|z072|1000000|1": 4,
+    "104|z072|1000000|2": 3,
+    "104|z072|100000|0": 4,
+    "104|z072|100000|1": 4,
+    "104|z072|100000|2": 3,
+    "104|z072|200000|0": 4,
+    "104|z072|200000|1": 4,
+    "104|z072|200000|2": 3,
+    "104|z072|500000|0": 3,
+    "104|z072|500000|1": 4,
+    "104|z072|500000|2": 4,
+    "105|z072|1000000|0": 4,
+    "105|z072|1000000|1": 4,
+    "105|z072|1000000|2": 4,
+    "105|z072|100000|0": 4,
+    "105|z072|100000|1": 3,
+    "105|z072|100000|2": 4,
+    "105|z072|200000|0": 4,
+    "105|z072|200000|1": 4,
+    "105|z072|200000|2": 3,
+    "105|z072|500000|0": 4,
+    "105|z072|500000|1": 3,
+    "105|z072|500000|2": 4,
+    "107|z072|1000000|0": 4,
+    "107|z072|1000000|1": 3,
+    "107|z072|1000000|2": 4,
+    "107|z072|100000|0": 4,
+    "107|z072|100000|1": 3,
+    "107|z072|100000|2": 4,
+    "107|z072|200000|0": 4,
+    "107|z072|200000|1": 3,
+    "107|z072|200000|2": 4,
+    "107|z072|500000|0": 4,
+    "107|z072|500000|1": 4,
+    "107|z072|500000|2": 3,
+    "108|z072|1000000|0": 4,
+    "108|z072|1000000|1": 3,
+    "108|z072|1000000|2": 4,
+    "108|z072|100000|0": 3,
+    "108|z072|100000|1": 4,
+    "108|z072|100000|2": 4,
+    "108|z072|200000|0": 4,
+    "108|z072|200000|1": 3,
+    "108|z072|200000|2": 4,
+    "108|z072|500000|0": 4,
+    "108|z072|500000|1": 4,
+    "108|z072|500000|2": 4,
+    "110|z072|1000000|0": 4,
+    "110|z072|1000000|1": 3,
+    "110|z072|1000000|2": 4,
+    "110|z072|100000|0": 4,
+    "110|z072|100000|1": 4,
+    "110|z072|100000|2": 3,
+    "110|z072|200000|0": 4,
+    "110|z072|200000|1": 3,
+    "110|z072|200000|2": 4,
+    "110|z072|500000|0": 4,
+    "110|z072|500000|1": 4,
+    "110|z072|500000|2": 4,
+    "111|z072|1000000|0": 4,
+    "111|z072|1000000|1": 3,
+    "111|z072|1000000|2": 4,
+    "111|z072|100000|0": 4,
+    "111|z072|100000|1": 3,
+    "111|z072|100000|2": 4,
+    "111|z072|200000|0": 4,
+    "111|z072|200000|1": 4,
+    "111|z072|200000|2": 3,
+    "111|z072|500000|0": 4,
+    "111|z072|500000|1": 4,
+    "111|z072|500000|2": 3,
+    "112|z072|1000000|0": 4,
+    "112|z072|1000000|1": 4,
+    "112|z072|1000000|2": 3,
+    "112|z072|100000|0": 4,
+    "112|z072|100000|1": 4,
+    "112|z072|100000|2": 4,
+    "112|z072|200000|0": 3,
+    "112|z072|200000|1": 4,
+    "112|z072|200000|2": 4,
+    "112|z072|500000|0": 4,
+    "112|z072|500000|1": 3,
+    "112|z072|500000|2": 4,
+    "113|z072|1000000|0": 4,
+    "113|z072|1000000|1": 4,
+    "113|z072|1000000|2": 4,
+    "113|z072|100000|0": 3,
+    "113|z072|100000|1": 4,
+    "113|z072|100000|2": 4,
+    "113|z072|200000|0": 3,
+    "113|z072|200000|1": 4,
+    "113|z072|200000|2": 4,
+    "113|z072|500000|0": 4,
+    "113|z072|500000|1": 4,
+    "113|z072|500000|2": 4,
+    "114|z072|1000000|0": 4,
+    "114|z072|1000000|1": 4,
+    "114|z072|1000000|2": 3,
+    "114|z072|100000|0": 3,
+    "114|z072|100000|1": 4,
+    "114|z072|100000|2": 4,
+    "114|z072|200000|0": 4,
+    "114|z072|200000|1": 4,
+    "114|z072|200000|2": 4,
+    "114|z072|500000|0": 4,
+    "114|z072|500000|1": 4,
+    "114|z072|500000|2": 4,
+    "115|z072|1000000|0": 4,
+    "115|z072|1000000|1": 3,
+    "115|z072|1000000|2": 4,
+    "115|z072|100000|0": 4,
+    "115|z072|100000|1": 3,
+    "115|z072|100000|2": 4,
+    "115|z072|200000|0": 4,
+    "115|z072|200000|1": 3,
+    "115|z072|200000|2": 4,
+    "115|z072|500000|0": 3,
+    "115|z072|500000|1": 4,
+    "115|z072|500000|2": 4,
+    "116|z072|1000000|0": 4,
+    "116|z072|1000000|1": 3,
+    "116|z072|1000000|2": 4,
+    "116|z072|100000|0": 3,
+    "116|z072|100000|1": 4,
+    "116|z072|100000|2": 4,
+    "116|z072|200000|0": 4,
+    "116|z072|200000|1": 4,
+    "116|z072|200000|2": 3,
+    "116|z072|500000|0": 4,
+    "116|z072|500000|1": 4,
+    "116|z072|500000|2": 3,
+    "118|z072|1000000|0": 3,
+    "118|z072|1000000|1": 4,
+    "118|z072|1000000|2": 4,
+    "118|z072|100000|0": 3,
+    "118|z072|100000|1": 4,
+    "118|z072|100000|2": 4,
+    "118|z072|200000|0": 3,
+    "118|z072|200000|1": 4,
+    "118|z072|200000|2": 4,
+    "118|z072|500000|0": 4,
+    "118|z072|500000|1": 4,
+    "118|z072|500000|2": 4,
+    "119|z072|1000000|0": 4,
+    "119|z072|1000000|1": 4,
+    "119|z072|1000000|2": 3,
+    "119|z072|100000|0": 4,
+    "119|z072|100000|1": 3,
+    "119|z072|100000|2": 4,
+    "119|z072|200000|0": 4,
+    "119|z072|200000|1": 4,
+    "119|z072|200000|2": 3,
+    "119|z072|500000|0": 4,
+    "119|z072|500000|1": 4,
+    "119|z072|500000|2": 4,
+    "11|z072|1000000|0": 4,
+    "11|z072|1000000|1": 4,
+    "11|z072|1000000|2": 3,
+    "11|z072|100000|0": 3,
+    "11|z072|100000|1": 4,
+    "11|z072|100000|2": 4,
+    "11|z072|200000|0": 4,
+    "11|z072|200000|1": 4,
+    "11|z072|200000|2": 3,
+    "11|z072|500000|0": 4,
+    "11|z072|500000|1": 4,
+    "11|z072|500000|2": 3,
+    "120|z072|1000000|0": 3,
+    "120|z072|1000000|1": 4,
+    "120|z072|1000000|2": 4,
+    "120|z072|100000|0": 4,
+    "120|z072|100000|1": 3,
+    "120|z072|100000|2": 4,
+    "120|z072|200000|0": 4,
+    "120|z072|200000|1": 3,
+    "120|z072|200000|2": 4,
+    "120|z072|500000|0": 4,
+    "120|z072|500000|1": 4,
+    "120|z072|500000|2": 3,
+    "121|z072|1000000|0": 4,
+    "121|z072|1000000|1": 4,
+    "121|z072|1000000|2": 4,
+    "121|z072|100000|0": 4,
+    "121|z072|100000|1": 3,
+    "121|z072|100000|2": 4,
+    "121|z072|200000|0": 4,
+    "121|z072|200000|1": 4,
+    "121|z072|200000|2": 3,
+    "121|z072|500000|0": 4,
+    "121|z072|500000|1": 3,
+    "121|z072|500000|2": 4,
+    "122|z072|1000000|0": 4,
+    "122|z072|1000000|1": 4,
+    "122|z072|1000000|2": 4,
+    "122|z072|100000|0": 4,
+    "122|z072|100000|1": 3,
+    "122|z072|100000|2": 4,
+    "122|z072|200000|0": 3,
+    "122|z072|200000|1": 4,
+    "122|z072|200000|2": 4,
+    "122|z072|500000|0": 4,
+    "122|z072|500000|1": 4,
+    "122|z072|500000|2": 4,
+    "123|z072|1000000|0": 4,
+    "123|z072|1000000|1": 4,
+    "123|z072|1000000|2": 4,
+    "123|z072|100000|0": 4,
+    "123|z072|100000|1": 4,
+    "123|z072|100000|2": 4,
+    "123|z072|200000|0": 4,
+    "123|z072|200000|1": 3,
+    "123|z072|200000|2": 4,
+    "123|z072|500000|0": 3,
+    "123|z072|500000|1": 4,
+    "123|z072|500000|2": 4,
+    "124|z072|1000000|0": 4,
+    "124|z072|1000000|1": 4,
+    "124|z072|1000000|2": 3,
+    "124|z072|100000|0": 3,
+    "124|z072|100000|1": 4,
+    "124|z072|100000|2": 4,
+    "124|z072|200000|0": 4,
+    "124|z072|200000|1": 4,
+    "124|z072|200000|2": 3,
+    "124|z072|500000|0": 3,
+    "124|z072|500000|1": 4,
+    "124|z072|500000|2": 4,
+    "125|z072|1000000|0": 4,
+    "125|z072|1000000|1": 4,
+    "125|z072|1000000|2": 3,
+    "125|z072|100000|0": 4,
+    "125|z072|100000|1": 4,
+    "125|z072|100000|2": 3,
+    "125|z072|200000|0": 4,
+    "125|z072|200000|1": 4,
+    "125|z072|200000|2": 3,
+    "125|z072|500000|0": 3,
+    "125|z072|500000|1": 4,
+    "125|z072|500000|2": 4,
+    "126|z072|1000000|0": 3,
+    "126|z072|1000000|1": 4,
+    "126|z072|1000000|2": 4,
+    "126|z072|100000|0": 4,
+    "126|z072|100000|1": 4,
+    "126|z072|100000|2": 4,
+    "126|z072|200000|0": 4,
+    "126|z072|200000|1": 4,
+    "126|z072|200000|2": 3,
+    "126|z072|500000|0": 4,
+    "126|z072|500000|1": 3,
+    "126|z072|500000|2": 4,
+    "127|z072|1000000|0": 3,
+    "127|z072|1000000|1": 4,
+    "127|z072|1000000|2": 4,
+    "127|z072|100000|0": 4,
+    "127|z072|100000|1": 4,
+    "127|z072|100000|2": 3,
+    "127|z072|200000|0": 3,
+    "127|z072|200000|1": 4,
+    "127|z072|200000|2": 4,
+    "127|z072|500000|0": 3,
+    "127|z072|500000|1": 4,
+    "127|z072|500000|2": 4,
+    "129|z072|1000000|0": 4,
+    "129|z072|1000000|1": 3,
+    "129|z072|1000000|2": 4,
+    "129|z072|100000|0": 4,
+    "129|z072|100000|1": 4,
+    "129|z072|100000|2": 3,
+    "129|z072|200000|0": 3,
+    "129|z072|200000|1": 4,
+    "129|z072|200000|2": 4,
+    "129|z072|500000|0": 4,
+    "129|z072|500000|1": 3,
+    "129|z072|500000|2": 4,
+    "12|z072|1000000|0": 4,
+    "12|z072|1000000|1": 4,
+    "12|z072|1000000|2": 3,
+    "12|z072|100000|0": 4,
+    "12|z072|100000|1": 3,
+    "12|z072|100000|2": 4,
+    "12|z072|200000|0": 4,
+    "12|z072|200000|1": 3,
+    "12|z072|200000|2": 4,
+    "12|z072|500000|0": 4,
+    "12|z072|500000|1": 4,
+    "12|z072|500000|2": 4,
+    "130|z072|1000000|0": 4,
+    "130|z072|1000000|1": 4,
+    "130|z072|1000000|2": 4,
+    "130|z072|100000|0": 4,
+    "130|z072|100000|1": 4,
+    "130|z072|100000|2": 3,
+    "130|z072|200000|0": 3,
+    "130|z072|200000|1": 4,
+    "130|z072|200000|2": 4,
+    "130|z072|500000|0": 3,
+    "130|z072|500000|1": 4,
+    "130|z072|500000|2": 4,
+    "131|z072|1000000|0": 4,
+    "131|z072|1000000|1": 3,
+    "131|z072|1000000|2": 4,
+    "131|z072|100000|0": 4,
+    "131|z072|100000|1": 3,
+    "131|z072|100000|2": 4,
+    "131|z072|200000|0": 3,
+    "131|z072|200000|1": 4,
+    "131|z072|200000|2": 4,
+    "131|z072|500000|0": 4,
+    "131|z072|500000|1": 3,
+    "131|z072|500000|2": 4,
+    "132|z072|1000000|0": 4,
+    "132|z072|1000000|1": 3,
+    "132|z072|1000000|2": 4,
+    "132|z072|100000|0": 4,
+    "132|z072|100000|1": 3,
+    "132|z072|100000|2": 4,
+    "132|z072|200000|0": 4,
+    "132|z072|200000|1": 4,
+    "132|z072|200000|2": 3,
+    "132|z072|500000|0": 4,
+    "132|z072|500000|1": 4,
+    "132|z072|500000|2": 4,
+    "133|z072|1000000|0": 3,
+    "133|z072|1000000|1": 4,
+    "133|z072|1000000|2": 4,
+    "133|z072|100000|0": 4,
+    "133|z072|100000|1": 4,
+    "133|z072|100000|2": 4,
+    "133|z072|200000|0": 4,
+    "133|z072|200000|1": 4,
+    "133|z072|200000|2": 3,
+    "133|z072|500000|0": 4,
+    "133|z072|500000|1": 3,
+    "133|z072|500000|2": 4,
+    "134|z072|1000000|0": 4,
+    "134|z072|1000000|1": 4,
+    "134|z072|1000000|2": 4,
+    "134|z072|100000|0": 4,
+    "134|z072|100000|1": 4,
+    "134|z072|100000|2": 3,
+    "134|z072|200000|0": 4,
+    "134|z072|200000|1": 4,
+    "134|z072|200000|2": 3,
+    "134|z072|500000|0": 4,
+    "134|z072|500000|1": 4,
+    "134|z072|500000|2": 4,
+    "136|z072|1000000|0": 3,
+    "136|z072|1000000|1": 4,
+    "136|z072|1000000|2": 4,
+    "136|z072|100000|0": 4,
+    "136|z072|100000|1": 4,
+    "136|z072|100000|2": 3,
+    "136|z072|200000|0": 4,
+    "136|z072|200000|1": 3,
+    "136|z072|200000|2": 4,
+    "136|z072|500000|0": 3,
+    "136|z072|500000|1": 4,
+    "136|z072|500000|2": 4,
+    "137|z072|1000000|0": 3,
+    "137|z072|1000000|1": 4,
+    "137|z072|1000000|2": 4,
+    "137|z072|100000|0": 3,
+    "137|z072|100000|1": 4,
+    "137|z072|100000|2": 4,
+    "137|z072|200000|0": 4,
+    "137|z072|200000|1": 4,
+    "137|z072|200000|2": 3,
+    "137|z072|500000|0": 4,
+    "137|z072|500000|1": 4,
+    "137|z072|500000|2": 4,
+    "138|z072|1000000|0": 4,
+    "138|z072|1000000|1": 3,
+    "138|z072|1000000|2": 4,
+    "138|z072|100000|0": 4,
+    "138|z072|100000|1": 4,
+    "138|z072|100000|2": 3,
+    "138|z072|200000|0": 4,
+    "138|z072|200000|1": 4,
+    "138|z072|200000|2": 3,
+    "138|z072|500000|0": 3,
+    "138|z072|500000|1": 4,
+    "138|z072|500000|2": 4,
+    "139|z072|1000000|0": 4,
+    "139|z072|1000000|1": 3,
+    "139|z072|1000000|2": 4,
+    "139|z072|100000|0": 4,
+    "139|z072|100000|1": 4,
+    "139|z072|100000|2": 3,
+    "139|z072|200000|0": 4,
+    "139|z072|200000|1": 3,
+    "139|z072|200000|2": 4,
+    "139|z072|500000|0": 4,
+    "139|z072|500000|1": 4,
+    "139|z072|500000|2": 4,
+    "140|z072|1000000|0": 4,
+    "140|z072|1000000|1": 4,
+    "140|z072|1000000|2": 4,
+    "140|z072|100000|0": 4,
+    "140|z072|100000|1": 4,
+    "140|z072|100000|2": 3,
+    "140|z072|200000|0": 3,
+    "140|z072|200000|1": 4,
+    "140|z072|200000|2": 4,
+    "140|z072|500000|0": 3,
+    "140|z072|500000|1": 4,
+    "140|z072|500000|2": 4,
+    "141|z072|1000000|0": 4,
+    "141|z072|1000000|1": 3,
+    "141|z072|1000000|2": 4,
+    "141|z072|100000|0": 4,
+    "141|z072|100000|1": 4,
+    "141|z072|100000|2": 3,
+    "141|z072|200000|0": 4,
+    "141|z072|200000|1": 4,
+    "141|z072|200000|2": 3,
+    "141|z072|500000|0": 4,
+    "141|z072|500000|1": 3,
+    "141|z072|500000|2": 4,
+    "142|z072|1000000|0": 4,
+    "142|z072|1000000|1": 3,
+    "142|z072|1000000|2": 4,
+    "142|z072|100000|0": 4,
+    "142|z072|100000|1": 4,
+    "142|z072|100000|2": 3,
+    "142|z072|200000|0": 4,
+    "142|z072|200000|1": 4,
+    "142|z072|200000|2": 3,
+    "142|z072|500000|0": 3,
+    "142|z072|500000|1": 4,
+    "142|z072|500000|2": 4,
+    "143|z072|1000000|0": 4,
+    "143|z072|1000000|1": 4,
+    "143|z072|1000000|2": 3,
+    "143|z072|100000|0": 3,
+    "143|z072|100000|1": 4,
+    "143|z072|100000|2": 4,
+    "143|z072|200000|0": 4,
+    "143|z072|200000|1": 3,
+    "143|z072|200000|2": 4,
+    "143|z072|500000|0": 4,
+    "143|z072|500000|1": 3,
+    "143|z072|500000|2": 4,
+    "144|z072|1000000|0": 4,
+    "144|z072|1000000|1": 4,
+    "144|z072|1000000|2": 3,
+    "144|z072|100000|0": 4,
+    "144|z072|100000|1": 3,
+    "144|z072|100000|2": 4,
+    "144|z072|200000|0": 3,
+    "144|z072|200000|1": 4,
+    "144|z072|200000|2": 4,
+    "144|z072|500000|0": 4,
+    "144|z072|500000|1": 3,
+    "144|z072|500000|2": 4,
+    "145|z072|1000000|0": 4,
+    "145|z072|1000000|1": 4,
+    "145|z072|1000000|2": 4,
+    "145|z072|100000|0": 4,
+    "145|z072|100000|1": 4,
+    "145|z072|100000|2": 3,
+    "145|z072|200000|0": 4,
+    "145|z072|200000|1": 3,
+    "145|z072|200000|2": 4,
+    "145|z072|500000|0": 4,
+    "145|z072|500000|1": 4,
+    "145|z072|500000|2": 3,
+    "147|z072|1000000|0": 4,
+    "147|z072|1000000|1": 4,
+    "147|z072|1000000|2": 3,
+    "147|z072|100000|0": 4,
+    "147|z072|100000|1": 4,
+    "147|z072|100000|2": 4,
+    "147|z072|200000|0": 4,
+    "147|z072|200000|1": 3,
+    "147|z072|200000|2": 4,
+    "147|z072|500000|0": 4,
+    "147|z072|500000|1": 3,
+    "147|z072|500000|2": 4,
+    "148|z072|1000000|0": 4,
+    "148|z072|1000000|1": 4,
+    "148|z072|1000000|2": 3,
+    "148|z072|100000|0": 3,
+    "148|z072|100000|1": 4,
+    "148|z072|100000|2": 4,
+    "148|z072|200000|0": 4,
+    "148|z072|200000|1": 4,
+    "148|z072|200000|2": 3,
+    "148|z072|500000|0": 3,
+    "148|z072|500000|1": 4,
+    "148|z072|500000|2": 4,
+    "149|z072|1000000|0": 3,
+    "149|z072|1000000|1": 4,
+    "149|z072|1000000|2": 4,
+    "149|z072|100000|0": 3,
+    "149|z072|100000|1": 4,
+    "149|z072|100000|2": 4,
+    "149|z072|200000|0": 4,
+    "149|z072|200000|1": 4,
+    "149|z072|200000|2": 3,
+    "149|z072|500000|0": 3,
+    "149|z072|500000|1": 4,
+    "149|z072|500000|2": 4,
+    "14|z072|1000000|0": 4,
+    "14|z072|1000000|1": 4,
+    "14|z072|1000000|2": 3,
+    "14|z072|100000|0": 4,
+    "14|z072|100000|1": 4,
+    "14|z072|100000|2": 4,
+    "14|z072|200000|0": 4,
+    "14|z072|200000|1": 4,
+    "14|z072|200000|2": 3,
+    "14|z072|500000|0": 4,
+    "14|z072|500000|1": 4,
+    "14|z072|500000|2": 3,
+    "150|z072|1000000|0": 4,
+    "150|z072|1000000|1": 3,
+    "150|z072|1000000|2": 4,
+    "150|z072|100000|0": 4,
+    "150|z072|100000|1": 4,
+    "150|z072|100000|2": 4,
+    "150|z072|200000|0": 4,
+    "150|z072|200000|1": 4,
+    "150|z072|200000|2": 3,
+    "150|z072|500000|0": 4,
+    "150|z072|500000|1": 3,
+    "150|z072|500000|2": 4,
+    "151|z072|1000000|0": 4,
+    "151|z072|1000000|1": 4,
+    "151|z072|1000000|2": 3,
+    "151|z072|100000|0": 3,
+    "151|z072|100000|1": 4,
+    "151|z072|100000|2": 4,
+    "151|z072|200000|0": 4,
+    "151|z072|200000|1": 4,
+    "151|z072|200000|2": 4,
+    "151|z072|500000|0": 4,
+    "151|z072|500000|1": 3,
+    "151|z072|500000|2": 4,
+    "152|z072|1000000|0": 4,
+    "152|z072|1000000|1": 4,
+    "152|z072|1000000|2": 4,
+    "152|z072|100000|0": 4,
+    "152|z072|100000|1": 3,
+    "152|z072|100000|2": 4,
+    "152|z072|200000|0": 4,
+    "152|z072|200000|1": 4,
+    "152|z072|200000|2": 4,
+    "152|z072|500000|0": 3,
+    "152|z072|500000|1": 4,
+    "152|z072|500000|2": 4,
+    "153|z072|1000000|0": 4,
+    "153|z072|1000000|1": 4,
+    "153|z072|1000000|2": 3,
+    "153|z072|100000|0": 4,
+    "153|z072|100000|1": 4,
+    "153|z072|100000|2": 3,
+    "153|z072|200000|0": 3,
+    "153|z072|200000|1": 4,
+    "153|z072|200000|2": 4,
+    "153|z072|500000|0": 3,
+    "153|z072|500000|1": 4,
+    "153|z072|500000|2": 4,
+    "154|z072|1000000|0": 3,
+    "154|z072|1000000|1": 4,
+    "154|z072|1000000|2": 4,
+    "154|z072|100000|0": 4,
+    "154|z072|100000|1": 3,
+    "154|z072|100000|2": 4,
+    "154|z072|200000|0": 3,
+    "154|z072|200000|1": 4,
+    "154|z072|200000|2": 4,
+    "154|z072|500000|0": 4,
+    "154|z072|500000|1": 4,
+    "154|z072|500000|2": 3,
+    "155|z072|1000000|0": 3,
+    "155|z072|1000000|1": 4,
+    "155|z072|1000000|2": 4,
+    "155|z072|100000|0": 4,
+    "155|z072|100000|1": 4,
+    "155|z072|100000|2": 3,
+    "155|z072|200000|0": 4,
+    "155|z072|200000|1": 4,
+    "155|z072|200000|2": 4,
+    "155|z072|500000|0": 4,
+    "155|z072|500000|1": 3,
+    "155|z072|500000|2": 4,
+    "156|z072|1000000|0": 4,
+    "156|z072|1000000|1": 4,
+    "156|z072|1000000|2": 4,
+    "156|z072|100000|0": 3,
+    "156|z072|100000|1": 4,
+    "156|z072|100000|2": 4,
+    "156|z072|200000|0": 4,
+    "156|z072|200000|1": 4,
+    "156|z072|200000|2": 4,
+    "156|z072|500000|0": 4,
+    "156|z072|500000|1": 4,
+    "156|z072|500000|2": 4,
+    "157|z072|1000000|0": 4,
+    "157|z072|1000000|1": 3,
+    "157|z072|1000000|2": 4,
+    "157|z072|100000|0": 3,
+    "157|z072|100000|1": 4,
+    "157|z072|100000|2": 4,
+    "157|z072|200000|0": 4,
+    "157|z072|200000|1": 4,
+    "157|z072|200000|2": 3,
+    "157|z072|500000|0": 3,
+    "157|z072|500000|1": 4,
+    "157|z072|500000|2": 4,
+    "158|z072|1000000|0": 4,
+    "158|z072|1000000|1": 4,
+    "158|z072|1000000|2": 3,
+    "158|z072|100000|0": 4,
+    "158|z072|100000|1": 4,
+    "158|z072|100000|2": 4,
+    "158|z072|200000|0": 4,
+    "158|z072|200000|1": 3,
+    "158|z072|200000|2": 4,
+    "158|z072|500000|0": 4,
+    "158|z072|500000|1": 4,
+    "158|z072|500000|2": 3,
+    "15|z072|1000000|0": 4,
+    "15|z072|1000000|1": 4,
+    "15|z072|1000000|2": 4,
+    "15|z072|100000|0": 3,
+    "15|z072|100000|1": 4,
+    "15|z072|100000|2": 4,
+    "15|z072|200000|0": 4,
+    "15|z072|200000|1": 3,
+    "15|z072|200000|2": 4,
+    "15|z072|500000|0": 4,
+    "15|z072|500000|1": 4,
+    "15|z072|500000|2": 4,
+    "160|z072|1000000|0": 3,
+    "160|z072|1000000|1": 4,
+    "160|z072|1000000|2": 4,
+    "160|z072|100000|0": 4,
+    "160|z072|100000|1": 4,
+    "160|z072|100000|2": 3,
+    "160|z072|200000|0": 4,
+    "160|z072|200000|1": 4,
+    "160|z072|200000|2": 4,
+    "160|z072|500000|0": 4,
+    "160|z072|500000|1": 4,
+    "160|z072|500000|2": 3,
+    "161|z072|1000000|0": 3,
+    "161|z072|1000000|1": 4,
+    "161|z072|1000000|2": 4,
+    "161|z072|100000|0": 4,
+    "161|z072|100000|1": 4,
+    "161|z072|100000|2": 4,
+    "161|z072|200000|0": 3,
+    "161|z072|200000|1": 4,
+    "161|z072|200000|2": 4,
+    "161|z072|500000|0": 4,
+    "161|z072|500000|1": 4,
+    "161|z072|500000|2": 3,
+    "163|z072|1000000|0": 4,
+    "163|z072|1000000|1": 3,
+    "163|z072|1000000|2": 4,
+    "163|z072|100000|0": 4,
+    "163|z072|100000|1": 4,
+    "163|z072|100000|2": 4,
+    "163|z072|200000|0": 4,
+    "163|z072|200000|1": 4,
+    "163|z072|200000|2": 3,
+    "163|z072|500000|0": 3,
+    "163|z072|500000|1": 4,
+    "163|z072|500000|2": 4,
+    "164|z072|1000000|0": 4,
+    "164|z072|1000000|1": 4,
+    "164|z072|1000000|2": 3,
+    "164|z072|100000|0": 4,
+    "164|z072|100000|1": 3,
+    "164|z072|100000|2": 4,
+    "164|z072|200000|0": 4,
+    "164|z072|200000|1": 3,
+    "164|z072|200000|2": 4,
+    "164|z072|500000|0": 4,
+    "164|z072|500000|1": 3,
+    "164|z072|500000|2": 4,
+    "165|z072|1000000|0": 3,
+    "165|z072|1000000|1": 4,
+    "165|z072|1000000|2": 4,
+    "165|z072|100000|0": 3,
+    "165|z072|100000|1": 4,
+    "165|z072|100000|2": 4,
+    "165|z072|200000|0": 4,
+    "165|z072|200000|1": 3,
+    "165|z072|200000|2": 4,
+    "165|z072|500000|0": 4,
+    "165|z072|500000|1": 4,
+    "165|z072|500000|2": 4,
+    "166|z072|1000000|0": 4,
+    "166|z072|1000000|1": 3,
+    "166|z072|1000000|2": 4,
+    "166|z072|100000|0": 3,
+    "166|z072|100000|1": 4,
+    "166|z072|100000|2": 4,
+    "166|z072|200000|0": 3,
+    "166|z072|200000|1": 4,
+    "166|z072|200000|2": 4,
+    "166|z072|500000|0": 4,
+    "166|z072|500000|1": 3,
+    "166|z072|500000|2": 4,
+    "167|z072|1000000|0": 4,
+    "167|z072|1000000|1": 3,
+    "167|z072|1000000|2": 4,
+    "167|z072|100000|0": 3,
+    "167|z072|100000|1": 4,
+    "167|z072|100000|2": 4,
+    "167|z072|200000|0": 4,
+    "167|z072|200000|1": 4,
+    "167|z072|200000|2": 4,
+    "167|z072|500000|0": 4,
+    "167|z072|500000|1": 4,
+    "167|z072|500000|2": 4,
+    "168|z072|1000000|0": 3,
+    "168|z072|1000000|1": 4,
+    "168|z072|1000000|2": 4,
+    "168|z072|100000|0": 4,
+    "168|z072|100000|1": 3,
+    "168|z072|100000|2": 4,
+    "168|z072|200000|0": 3,
+    "168|z072|200000|1": 4,
+    "168|z072|200000|2": 4,
+    "168|z072|500000|0": 4,
+    "168|z072|500000|1": 4,
+    "168|z072|500000|2": 3,
+    "169|z072|1000000|0": 4,
+    "169|z072|1000000|1": 3,
+    "169|z072|1000000|2": 4,
+    "169|z072|100000|0": 4,
+    "169|z072|100000|1": 4,
+    "169|z072|100000|2": 4,
+    "169|z072|200000|0": 4,
+    "169|z072|200000|1": 4,
+    "169|z072|200000|2": 3,
+    "169|z072|500000|0": 4,
+    "169|z072|500000|1": 3,
+    "169|z072|500000|2": 4,
+    "16|z072|1000000|0": 4,
+    "16|z072|1000000|1": 3,
+    "16|z072|1000000|2": 4,
+    "16|z072|100000|0": 3,
+    "16|z072|100000|1": 4,
+    "16|z072|100000|2": 4,
+    "16|z072|200000|0": 4,
+    "16|z072|200000|1": 4,
+    "16|z072|200000|2": 4,
+    "16|z072|500000|0": 3,
+    "16|z072|500000|1": 4,
+    "16|z072|500000|2": 4,
+    "170|z072|1000000|0": 3,
+    "170|z072|1000000|1": 4,
+    "170|z072|1000000|2": 4,
+    "170|z072|100000|0": 4,
+    "170|z072|100000|1": 4,
+    "170|z072|100000|2": 3,
+    "170|z072|200000|0": 4,
+    "170|z072|200000|1": 4,
+    "170|z072|200000|2": 3,
+    "170|z072|500000|0": 4,
+    "170|z072|500000|1": 4,
+    "170|z072|500000|2": 3,
+    "174|z072|1000000|0": 4,
+    "174|z072|1000000|1": 3,
+    "174|z072|1000000|2": 4,
+    "174|z072|100000|0": 3,
+    "174|z072|100000|1": 4,
+    "174|z072|100000|2": 4,
+    "174|z072|200000|0": 4,
+    "174|z072|200000|1": 4,
+    "174|z072|200000|2": 3,
+    "174|z072|500000|0": 4,
+    "174|z072|500000|1": 4,
+    "174|z072|500000|2": 3,
+    "176|z072|1000000|0": 4,
+    "176|z072|1000000|1": 4,
+    "176|z072|1000000|2": 3,
+    "176|z072|100000|0": 4,
+    "176|z072|100000|1": 3,
+    "176|z072|100000|2": 4,
+    "176|z072|200000|0": 4,
+    "176|z072|200000|1": 4,
+    "176|z072|200000|2": 4,
+    "176|z072|500000|0": 4,
+    "176|z072|500000|1": 4,
+    "176|z072|500000|2": 3,
+    "177|z072|1000000|0": 4,
+    "177|z072|1000000|1": 3,
+    "177|z072|1000000|2": 4,
+    "177|z072|100000|0": 4,
+    "177|z072|100000|1": 4,
+    "177|z072|100000|2": 4,
+    "177|z072|200000|0": 4,
+    "177|z072|200000|1": 4,
+    "177|z072|200000|2": 3,
+    "177|z072|500000|0": 4,
+    "177|z072|500000|1": 3,
+    "177|z072|500000|2": 4,
+    "17|z072|1000000|0": 4,
+    "17|z072|1000000|1": 4,
+    "17|z072|1000000|2": 4,
+    "17|z072|100000|0": 4,
+    "17|z072|100000|1": 4,
+    "17|z072|100000|2": 4,
+    "17|z072|200000|0": 4,
+    "17|z072|200000|1": 4,
+    "17|z072|200000|2": 4,
+    "17|z072|500000|0": 4,
+    "17|z072|500000|1": 4,
+    "17|z072|500000|2": 3,
+    "181|z072|1000000|0": 4,
+    "181|z072|1000000|1": 4,
+    "181|z072|1000000|2": 4,
+    "181|z072|100000|0": 4,
+    "181|z072|100000|1": 4,
+    "181|z072|100000|2": 3,
+    "181|z072|200000|0": 3,
+    "181|z072|200000|1": 4,
+    "181|z072|200000|2": 4,
+    "181|z072|500000|0": 4,
+    "181|z072|500000|1": 4,
+    "181|z072|500000|2": 3,
+    "182|z072|1000000|0": 3,
+    "182|z072|1000000|1": 4,
+    "182|z072|1000000|2": 4,
+    "182|z072|100000|0": 3,
+    "182|z072|100000|1": 4,
+    "182|z072|100000|2": 4,
+    "182|z072|200000|0": 4,
+    "182|z072|200000|1": 3,
+    "182|z072|200000|2": 4,
+    "182|z072|500000|0": 4,
+    "182|z072|500000|1": 4,
+    "182|z072|500000|2": 4,
+    "183|z072|1000000|0": 4,
+    "183|z072|1000000|1": 4,
+    "183|z072|1000000|2": 4,
+    "183|z072|100000|0": 4,
+    "183|z072|100000|1": 3,
+    "183|z072|100000|2": 4,
+    "183|z072|200000|0": 4,
+    "183|z072|200000|1": 4,
+    "183|z072|200000|2": 4,
+    "183|z072|500000|0": 4,
+    "183|z072|500000|1": 4,
+    "183|z072|500000|2": 4,
+    "184|z072|1000000|0": 4,
+    "184|z072|1000000|1": 3,
+    "184|z072|1000000|2": 4,
+    "184|z072|100000|0": 4,
+    "184|z072|100000|1": 3,
+    "184|z072|100000|2": 4,
+    "184|z072|200000|0": 3,
+    "184|z072|200000|1": 4,
+    "184|z072|200000|2": 4,
+    "184|z072|500000|0": 4,
+    "184|z072|500000|1": 4,
+    "184|z072|500000|2": 3,
+    "185|z072|1000000|0": 4,
+    "185|z072|1000000|1": 4,
+    "185|z072|1000000|2": 3,
+    "185|z072|100000|0": 4,
+    "185|z072|100000|1": 4,
+    "185|z072|100000|2": 4,
+    "185|z072|200000|0": 4,
+    "185|z072|200000|1": 4,
+    "185|z072|200000|2": 3,
+    "185|z072|500000|0": 4,
+    "185|z072|500000|1": 4,
+    "185|z072|500000|2": 3,
+    "186|z072|1000000|0": 4,
+    "186|z072|1000000|1": 4,
+    "186|z072|1000000|2": 3,
+    "186|z072|100000|0": 4,
+    "186|z072|100000|1": 3,
+    "186|z072|100000|2": 4,
+    "186|z072|200000|0": 4,
+    "186|z072|200000|1": 4,
+    "186|z072|200000|2": 3,
+    "186|z072|500000|0": 4,
+    "186|z072|500000|1": 3,
+    "186|z072|500000|2": 4,
+    "187|z072|1000000|0": 3,
+    "187|z072|1000000|1": 4,
+    "187|z072|1000000|2": 4,
+    "187|z072|100000|0": 4,
+    "187|z072|100000|1": 3,
+    "187|z072|100000|2": 4,
+    "187|z072|200000|0": 4,
+    "187|z072|200000|1": 4,
+    "187|z072|200000|2": 3,
+    "187|z072|500000|0": 4,
+    "187|z072|500000|1": 4,
+    "187|z072|500000|2": 3,
+    "188|z072|1000000|0": 4,
+    "188|z072|1000000|1": 4,
+    "188|z072|1000000|2": 3,
+    "188|z072|100000|0": 4,
+    "188|z072|100000|1": 4,
+    "188|z072|100000|2": 3,
+    "188|z072|200000|0": 4,
+    "188|z072|200000|1": 4,
+    "188|z072|200000|2": 3,
+    "188|z072|500000|0": 4,
+    "188|z072|500000|1": 4,
+    "188|z072|500000|2": 3,
+    "189|z072|1000000|0": 3,
+    "189|z072|1000000|1": 4,
+    "189|z072|1000000|2": 4,
+    "189|z072|100000|0": 4,
+    "189|z072|100000|1": 4,
+    "189|z072|100000|2": 3,
+    "189|z072|200000|0": 4,
+    "189|z072|200000|1": 3,
+    "189|z072|200000|2": 4,
+    "189|z072|500000|0": 3,
+    "189|z072|500000|1": 4,
+    "189|z072|500000|2": 4,
+    "18|z072|1000000|0": 4,
+    "18|z072|1000000|1": 4,
+    "18|z072|1000000|2": 3,
+    "18|z072|100000|0": 4,
+    "18|z072|100000|1": 3,
+    "18|z072|100000|2": 4,
+    "18|z072|200000|0": 3,
+    "18|z072|200000|1": 4,
+    "18|z072|200000|2": 4,
+    "18|z072|500000|0": 4,
+    "18|z072|500000|1": 4,
+    "18|z072|500000|2": 3,
+    "190|z072|1000000|0": 4,
+    "190|z072|1000000|1": 4,
+    "190|z072|1000000|2": 4,
+    "190|z072|100000|0": 4,
+    "190|z072|100000|1": 3,
+    "190|z072|100000|2": 4,
+    "190|z072|200000|0": 4,
+    "190|z072|200000|1": 4,
+    "190|z072|200000|2": 4,
+    "190|z072|500000|0": 3,
+    "190|z072|500000|1": 4,
+    "190|z072|500000|2": 4,
+    "192|z072|1000000|0": 4,
+    "192|z072|1000000|1": 4,
+    "192|z072|1000000|2": 3,
+    "192|z072|100000|0": 3,
+    "192|z072|100000|1": 4,
+    "192|z072|100000|2": 4,
+    "192|z072|200000|0": 4,
+    "192|z072|200000|1": 4,
+    "192|z072|200000|2": 4,
+    "192|z072|500000|0": 4,
+    "192|z072|500000|1": 4,
+    "192|z072|500000|2": 3,
+    "193|z072|1000000|0": 4,
+    "193|z072|1000000|1": 4,
+    "193|z072|1000000|2": 3,
+    "193|z072|100000|0": 3,
+    "193|z072|100000|1": 4,
+    "193|z072|100000|2": 4,
+    "193|z072|200000|0": 4,
+    "193|z072|200000|1": 4,
+    "193|z072|200000|2": 3,
+    "193|z072|500000|0": 4,
+    "193|z072|500000|1": 3,
+    "193|z072|500000|2": 4,
+    "194|z072|1000000|0": 4,
+    "194|z072|1000000|1": 4,
+    "194|z072|1000000|2": 3,
+    "194|z072|100000|0": 4,
+    "194|z072|100000|1": 4,
+    "194|z072|100000|2": 3,
+    "194|z072|200000|0": 3,
+    "194|z072|200000|1": 4,
+    "194|z072|200000|2": 4,
+    "194|z072|500000|0": 3,
+    "194|z072|500000|1": 4,
+    "194|z072|500000|2": 4,
+    "195|z072|1000000|0": 4,
+    "195|z072|1000000|1": 4,
+    "195|z072|1000000|2": 4,
+    "195|z072|100000|0": 4,
+    "195|z072|100000|1": 3,
+    "195|z072|100000|2": 4,
+    "195|z072|200000|0": 3,
+    "195|z072|200000|1": 4,
+    "195|z072|200000|2": 4,
+    "195|z072|500000|0": 4,
+    "195|z072|500000|1": 4,
+    "195|z072|500000|2": 4,
+    "196|z072|1000000|0": 3,
+    "196|z072|1000000|1": 4,
+    "196|z072|1000000|2": 4,
+    "196|z072|100000|0": 3,
+    "196|z072|100000|1": 4,
+    "196|z072|100000|2": 4,
+    "196|z072|200000|0": 4,
+    "196|z072|200000|1": 4,
+    "196|z072|200000|2": 3,
+    "196|z072|500000|0": 3,
+    "196|z072|500000|1": 4,
+    "196|z072|500000|2": 4,
+    "198|z072|1000000|0": 4,
+    "198|z072|1000000|1": 4,
+    "198|z072|1000000|2": 3,
+    "198|z072|100000|0": 4,
+    "198|z072|100000|1": 4,
+    "198|z072|100000|2": 4,
+    "198|z072|200000|0": 4,
+    "198|z072|200000|1": 4,
+    "198|z072|200000|2": 3,
+    "198|z072|500000|0": 4,
+    "198|z072|500000|1": 3,
+    "198|z072|500000|2": 4,
+    "199|z072|1000000|0": 4,
+    "199|z072|1000000|1": 4,
+    "199|z072|1000000|2": 3,
+    "199|z072|100000|0": 4,
+    "199|z072|100000|1": 3,
+    "199|z072|100000|2": 4,
+    "199|z072|200000|0": 4,
+    "199|z072|200000|1": 4,
+    "199|z072|200000|2": 3,
+    "199|z072|500000|0": 4,
+    "199|z072|500000|1": 4,
+    "199|z072|500000|2": 3,
+    "19|z072|1000000|0": 4,
+    "19|z072|1000000|1": 3,
+    "19|z072|1000000|2": 4,
+    "19|z072|100000|0": 4,
+    "19|z072|100000|1": 4,
+    "19|z072|100000|2": 3,
+    "19|z072|200000|0": 4,
+    "19|z072|200000|1": 4,
+    "19|z072|200000|2": 3,
+    "19|z072|500000|0": 4,
+    "19|z072|500000|1": 3,
+    "19|z072|500000|2": 4,
+    "1|z072|1000000|0": 4,
+    "1|z072|1000000|1": 4,
+    "1|z072|1000000|2": 4,
+    "1|z072|100000|0": 4,
+    "1|z072|100000|1": 4,
+    "1|z072|100000|2": 4,
+    "1|z072|200000|0": 4,
+    "1|z072|200000|1": 4,
+    "1|z072|200000|2": 3,
+    "1|z072|500000|0": 3,
+    "1|z072|500000|1": 4,
+    "1|z072|500000|2": 4,
+    "200|z072|1000000|0": 3,
+    "200|z072|1000000|1": 4,
+    "200|z072|1000000|2": 4,
+    "200|z072|100000|0": 4,
+    "200|z072|100000|1": 3,
+    "200|z072|100000|2": 4,
+    "200|z072|200000|0": 4,
+    "200|z072|200000|1": 4,
+    "200|z072|200000|2": 4,
+    "200|z072|500000|0": 4,
+    "200|z072|500000|1": 3,
+    "200|z072|500000|2": 4,
+    "201|z072|1000000|0": 4,
+    "201|z072|1000000|1": 4,
+    "201|z072|1000000|2": 3,
+    "201|z072|100000|0": 4,
+    "201|z072|100000|1": 3,
+    "201|z072|100000|2": 4,
+    "201|z072|200000|0": 4,
+    "201|z072|200000|1": 4,
+    "201|z072|200000|2": 3,
+    "201|z072|500000|0": 4,
+    "201|z072|500000|1": 4,
+    "201|z072|500000|2": 4,
+    "202|z072|1000000|0": 4,
+    "202|z072|1000000|1": 4,
+    "202|z072|1000000|2": 3,
+    "202|z072|100000|0": 4,
+    "202|z072|100000|1": 4,
+    "202|z072|100000|2": 3,
+    "202|z072|200000|0": 4,
+    "202|z072|200000|1": 4,
+    "202|z072|200000|2": 3,
+    "202|z072|500000|0": 4,
+    "202|z072|500000|1": 4,
+    "202|z072|500000|2": 3,
+    "203|z072|1000000|0": 3,
+    "203|z072|1000000|1": 4,
+    "203|z072|1000000|2": 4,
+    "203|z072|100000|0": 3,
+    "203|z072|100000|1": 4,
+    "203|z072|100000|2": 4,
+    "203|z072|200000|0": 4,
+    "203|z072|200000|1": 3,
+    "203|z072|200000|2": 4,
+    "203|z072|500000|0": 3,
+    "203|z072|500000|1": 4,
+    "203|z072|500000|2": 4,
+    "204|z072|1000000|0": 4,
+    "204|z072|1000000|1": 4,
+    "204|z072|1000000|2": 3,
+    "204|z072|100000|0": 4,
+    "204|z072|100000|1": 4,
+    "204|z072|100000|2": 3,
+    "204|z072|200000|0": 4,
+    "204|z072|200000|1": 4,
+    "204|z072|200000|2": 3,
+    "204|z072|500000|0": 4,
+    "204|z072|500000|1": 4,
+    "204|z072|500000|2": 4,
+    "205|z072|1000000|0": 4,
+    "205|z072|1000000|1": 3,
+    "205|z072|1000000|2": 4,
+    "205|z072|100000|0": 4,
+    "205|z072|100000|1": 4,
+    "205|z072|100000|2": 4,
+    "205|z072|200000|0": 4,
+    "205|z072|200000|1": 3,
+    "205|z072|200000|2": 4,
+    "205|z072|500000|0": 3,
+    "205|z072|500000|1": 4,
+    "205|z072|500000|2": 4,
+    "206|z072|1000000|0": 4,
+    "206|z072|1000000|1": 4,
+    "206|z072|1000000|2": 3,
+    "206|z072|100000|0": 4,
+    "206|z072|100000|1": 3,
+    "206|z072|100000|2": 4,
+    "206|z072|200000|0": 3,
+    "206|z072|200000|1": 4,
+    "206|z072|200000|2": 4,
+    "206|z072|500000|0": 3,
+    "206|z072|500000|1": 4,
+    "206|z072|500000|2": 4,
+    "207|z072|1000000|0": 4,
+    "207|z072|1000000|1": 3,
+    "207|z072|1000000|2": 4,
+    "207|z072|100000|0": 4,
+    "207|z072|100000|1": 4,
+    "207|z072|100000|2": 4,
+    "207|z072|200000|0": 4,
+    "207|z072|200000|1": 4,
+    "207|z072|200000|2": 4,
+    "207|z072|500000|0": 4,
+    "207|z072|500000|1": 4,
+    "207|z072|500000|2": 4,
+    "208|z072|1000000|0": 4,
+    "208|z072|1000000|1": 3,
+    "208|z072|1000000|2": 4,
+    "208|z072|100000|0": 4,
+    "208|z072|100000|1": 4,
+    "208|z072|100000|2": 3,
+    "208|z072|200000|0": 3,
+    "208|z072|200000|1": 4,
+    "208|z072|200000|2": 4,
+    "208|z072|500000|0": 4,
+    "208|z072|500000|1": 4,
+    "208|z072|500000|2": 3,
+    "209|z072|1000000|0": 4,
+    "209|z072|1000000|1": 4,
+    "209|z072|1000000|2": 3,
+    "209|z072|100000|0": 3,
+    "209|z072|100000|1": 4,
+    "209|z072|100000|2": 4,
+    "209|z072|200000|0": 3,
+    "209|z072|200000|1": 4,
+    "209|z072|200000|2": 4,
+    "209|z072|500000|0": 3,
+    "209|z072|500000|1": 4,
+    "209|z072|500000|2": 4,
+    "210|z072|1000000|0": 4,
+    "210|z072|1000000|1": 3,
+    "210|z072|1000000|2": 4,
+    "210|z072|100000|0": 4,
+    "210|z072|100000|1": 3,
+    "210|z072|100000|2": 4,
+    "210|z072|200000|0": 3,
+    "210|z072|200000|1": 4,
+    "210|z072|200000|2": 4,
+    "210|z072|500000|0": 3,
+    "210|z072|500000|1": 4,
+    "210|z072|500000|2": 4,
+    "211|z072|1000000|0": 3,
+    "211|z072|1000000|1": 4,
+    "211|z072|1000000|2": 4,
+    "211|z072|100000|0": 3,
+    "211|z072|100000|1": 4,
+    "211|z072|100000|2": 4,
+    "211|z072|200000|0": 4,
+    "211|z072|200000|1": 4,
+    "211|z072|200000|2": 4,
+    "211|z072|500000|0": 4,
+    "211|z072|500000|1": 3,
+    "211|z072|500000|2": 4,
+    "212|z072|1000000|0": 4,
+    "212|z072|1000000|1": 3,
+    "212|z072|1000000|2": 4,
+    "212|z072|100000|0": 4,
+    "212|z072|100000|1": 3,
+    "212|z072|100000|2": 4,
+    "212|z072|200000|0": 3,
+    "212|z072|200000|1": 4,
+    "212|z072|200000|2": 4,
+    "212|z072|500000|0": 3,
+    "212|z072|500000|1": 4,
+    "212|z072|500000|2": 4,
+    "213|z072|1000000|0": 4,
+    "213|z072|1000000|1": 3,
+    "213|z072|1000000|2": 4,
+    "213|z072|100000|0": 4,
+    "213|z072|100000|1": 4,
+    "213|z072|100000|2": 4,
+    "213|z072|200000|0": 3,
+    "213|z072|200000|1": 4,
+    "213|z072|200000|2": 4,
+    "213|z072|500000|0": 4,
+    "213|z072|500000|1": 3,
+    "213|z072|500000|2": 4,
+    "215|z072|1000000|0": 4,
+    "215|z072|1000000|1": 4,
+    "215|z072|1000000|2": 3,
+    "215|z072|100000|0": 4,
+    "215|z072|100000|1": 4,
+    "215|z072|100000|2": 4,
+    "215|z072|200000|0": 4,
+    "215|z072|200000|1": 4,
+    "215|z072|200000|2": 4,
+    "215|z072|500000|0": 4,
+    "215|z072|500000|1": 4,
+    "215|z072|500000|2": 4,
+    "216|z072|1000000|0": 4,
+    "216|z072|1000000|1": 4,
+    "216|z072|1000000|2": 3,
+    "216|z072|100000|0": 4,
+    "216|z072|100000|1": 3,
+    "216|z072|100000|2": 4,
+    "216|z072|200000|0": 4,
+    "216|z072|200000|1": 3,
+    "216|z072|200000|2": 4,
+    "216|z072|500000|0": 4,
+    "216|z072|500000|1": 3,
+    "216|z072|500000|2": 4,
+    "217|z072|1000000|0": 4,
+    "217|z072|1000000|1": 4,
+    "217|z072|1000000|2": 3,
+    "217|z072|100000|0": 4,
+    "217|z072|100000|1": 4,
+    "217|z072|100000|2": 4,
+    "217|z072|200000|0": 4,
+    "217|z072|200000|1": 3,
+    "217|z072|200000|2": 4,
+    "217|z072|500000|0": 4,
+    "217|z072|500000|1": 4,
+    "217|z072|500000|2": 3,
+    "218|z072|1000000|0": 4,
+    "218|z072|1000000|1": 4,
+    "218|z072|1000000|2": 3,
+    "218|z072|100000|0": 4,
+    "218|z072|100000|1": 3,
+    "218|z072|100000|2": 4,
+    "218|z072|200000|0": 4,
+    "218|z072|200000|1": 3,
+    "218|z072|200000|2": 4,
+    "218|z072|500000|0": 4,
+    "218|z072|500000|1": 4,
+    "218|z072|500000|2": 4,
+    "221|z072|1000000|0": 4,
+    "221|z072|1000000|1": 4,
+    "221|z072|1000000|2": 3,
+    "221|z072|100000|0": 4,
+    "221|z072|100000|1": 4,
+    "221|z072|100000|2": 4,
+    "221|z072|200000|0": 4,
+    "221|z072|200000|1": 4,
+    "221|z072|200000|2": 3,
+    "221|z072|500000|0": 4,
+    "221|z072|500000|1": 4,
+    "221|z072|500000|2": 3,
+    "222|z072|1000000|0": 4,
+    "222|z072|1000000|1": 4,
+    "222|z072|1000000|2": 4,
+    "222|z072|100000|0": 4,
+    "222|z072|100000|1": 4,
+    "222|z072|100000|2": 4,
+    "222|z072|200000|0": 4,
+    "222|z072|200000|1": 3,
+    "222|z072|200000|2": 4,
+    "222|z072|500000|0": 4,
+    "222|z072|500000|1": 4,
+    "222|z072|500000|2": 3,
+    "223|z072|1000000|0": 4,
+    "223|z072|1000000|1": 3,
+    "223|z072|1000000|2": 4,
+    "223|z072|100000|0": 4,
+    "223|z072|100000|1": 3,
+    "223|z072|100000|2": 4,
+    "223|z072|200000|0": 4,
+    "223|z072|200000|1": 4,
+    "223|z072|200000|2": 3,
+    "223|z072|500000|0": 3,
+    "223|z072|500000|1": 4,
+    "223|z072|500000|2": 4,
+    "224|z072|1000000|0": 4,
+    "224|z072|1000000|1": 3,
+    "224|z072|1000000|2": 4,
+    "224|z072|100000|0": 4,
+    "224|z072|100000|1": 3,
+    "224|z072|100000|2": 4,
+    "224|z072|200000|0": 4,
+    "224|z072|200000|1": 4,
+    "224|z072|200000|2": 4,
+    "224|z072|500000|0": 4,
+    "224|z072|500000|1": 3,
+    "224|z072|500000|2": 4,
+    "22|z072|1000000|0": 4,
+    "22|z072|1000000|1": 4,
+    "22|z072|1000000|2": 4,
+    "22|z072|100000|0": 4,
+    "22|z072|100000|1": 3,
+    "22|z072|100000|2": 4,
+    "22|z072|200000|0": 4,
+    "22|z072|200000|1": 4,
+    "22|z072|200000|2": 3,
+    "22|z072|500000|0": 4,
+    "22|z072|500000|1": 3,
+    "22|z072|500000|2": 4,
+    "23|z072|1000000|0": 4,
+    "23|z072|1000000|1": 3,
+    "23|z072|1000000|2": 4,
+    "23|z072|100000|0": 4,
+    "23|z072|100000|1": 3,
+    "23|z072|100000|2": 4,
+    "23|z072|200000|0": 4,
+    "23|z072|200000|1": 3,
+    "23|z072|200000|2": 4,
+    "23|z072|500000|0": 4,
+    "23|z072|500000|1": 3,
+    "23|z072|500000|2": 4,
+    "24|z072|1000000|0": 4,
+    "24|z072|1000000|1": 3,
+    "24|z072|1000000|2": 4,
+    "24|z072|100000|0": 4,
+    "24|z072|100000|1": 4,
+    "24|z072|100000|2": 3,
+    "24|z072|200000|0": 4,
+    "24|z072|200000|1": 3,
+    "24|z072|200000|2": 4,
+    "24|z072|500000|0": 3,
+    "24|z072|500000|1": 4,
+    "24|z072|500000|2": 4,
+    "25|z072|1000000|0": 3,
+    "25|z072|1000000|1": 4,
+    "25|z072|1000000|2": 4,
+    "25|z072|100000|0": 4,
+    "25|z072|100000|1": 4,
+    "25|z072|100000|2": 3,
+    "25|z072|200000|0": 4,
+    "25|z072|200000|1": 4,
+    "25|z072|200000|2": 3,
+    "25|z072|500000|0": 4,
+    "25|z072|500000|1": 3,
+    "25|z072|500000|2": 4,
+    "26|z072|1000000|0": 3,
+    "26|z072|1000000|1": 4,
+    "26|z072|1000000|2": 4,
+    "26|z072|100000|0": 3,
+    "26|z072|100000|1": 4,
+    "26|z072|100000|2": 4,
+    "26|z072|200000|0": 3,
+    "26|z072|200000|1": 4,
+    "26|z072|200000|2": 4,
+    "26|z072|500000|0": 3,
+    "26|z072|500000|1": 4,
+    "26|z072|500000|2": 4,
+    "28|z072|1000000|0": 4,
+    "28|z072|1000000|1": 4,
+    "28|z072|1000000|2": 3,
+    "28|z072|100000|0": 4,
+    "28|z072|100000|1": 4,
+    "28|z072|100000|2": 3,
+    "28|z072|200000|0": 4,
+    "28|z072|200000|1": 4,
+    "28|z072|200000|2": 3,
+    "28|z072|500000|0": 4,
+    "28|z072|500000|1": 4,
+    "28|z072|500000|2": 3,
+    "29|z072|1000000|0": 4,
+    "29|z072|1000000|1": 3,
+    "29|z072|1000000|2": 4,
+    "29|z072|100000|0": 4,
+    "29|z072|100000|1": 3,
+    "29|z072|100000|2": 4,
+    "29|z072|200000|0": 4,
+    "29|z072|200000|1": 3,
+    "29|z072|200000|2": 4,
+    "29|z072|500000|0": 4,
+    "29|z072|500000|1": 4,
+    "29|z072|500000|2": 3,
+    "2|z072|1000000|0": 4,
+    "2|z072|1000000|1": 4,
+    "2|z072|1000000|2": 3,
+    "2|z072|100000|0": 4,
+    "2|z072|100000|1": 4,
+    "2|z072|100000|2": 3,
+    "2|z072|200000|0": 3,
+    "2|z072|200000|1": 4,
+    "2|z072|200000|2": 4,
+    "2|z072|500000|0": 4,
+    "2|z072|500000|1": 4,
+    "2|z072|500000|2": 3,
+    "31|z072|1000000|0": 4,
+    "31|z072|1000000|1": 4,
+    "31|z072|1000000|2": 3,
+    "31|z072|100000|0": 4,
+    "31|z072|100000|1": 4,
+    "31|z072|100000|2": 3,
+    "31|z072|200000|0": 4,
+    "31|z072|200000|1": 3,
+    "31|z072|200000|2": 4,
+    "31|z072|500000|0": 4,
+    "31|z072|500000|1": 4,
+    "31|z072|500000|2": 3,
+    "32|z072|1000000|0": 3,
+    "32|z072|1000000|1": 4,
+    "32|z072|1000000|2": 4,
+    "32|z072|100000|0": 3,
+    "32|z072|100000|1": 4,
+    "32|z072|100000|2": 4,
+    "32|z072|200000|0": 4,
+    "32|z072|200000|1": 4,
+    "32|z072|200000|2": 3,
+    "32|z072|500000|0": 4,
+    "32|z072|500000|1": 3,
+    "32|z072|500000|2": 4,
+    "33|z072|1000000|0": 4,
+    "33|z072|1000000|1": 4,
+    "33|z072|1000000|2": 4,
+    "33|z072|100000|0": 4,
+    "33|z072|100000|1": 4,
+    "33|z072|100000|2": 3,
+    "33|z072|200000|0": 3,
+    "33|z072|200000|1": 4,
+    "33|z072|200000|2": 4,
+    "33|z072|500000|0": 4,
+    "33|z072|500000|1": 4,
+    "33|z072|500000|2": 4,
+    "35|z072|1000000|0": 4,
+    "35|z072|1000000|1": 4,
+    "35|z072|1000000|2": 3,
+    "35|z072|100000|0": 3,
+    "35|z072|100000|1": 4,
+    "35|z072|100000|2": 4,
+    "35|z072|200000|0": 4,
+    "35|z072|200000|1": 4,
+    "35|z072|200000|2": 3,
+    "35|z072|500000|0": 4,
+    "35|z072|500000|1": 4,
+    "35|z072|500000|2": 3,
+    "36|z072|1000000|0": 4,
+    "36|z072|1000000|1": 3,
+    "36|z072|1000000|2": 4,
+    "36|z072|100000|0": 4,
+    "36|z072|100000|1": 4,
+    "36|z072|100000|2": 3,
+    "36|z072|200000|0": 4,
+    "36|z072|200000|1": 3,
+    "36|z072|200000|2": 4,
+    "36|z072|500000|0": 4,
+    "36|z072|500000|1": 3,
+    "36|z072|500000|2": 4,
+    "37|z072|1000000|0": 4,
+    "37|z072|1000000|1": 4,
+    "37|z072|1000000|2": 4,
+    "37|z072|100000|0": 4,
+    "37|z072|100000|1": 4,
+    "37|z072|100000|2": 3,
+    "37|z072|200000|0": 4,
+    "37|z072|200000|1": 4,
+    "37|z072|200000|2": 4,
+    "37|z072|500000|0": 3,
+    "37|z072|500000|1": 4,
+    "37|z072|500000|2": 4,
+    "39|z072|1000000|0": 4,
+    "39|z072|1000000|1": 3,
+    "39|z072|1000000|2": 4,
+    "39|z072|100000|0": 3,
+    "39|z072|100000|1": 4,
+    "39|z072|100000|2": 4,
+    "39|z072|200000|0": 4,
+    "39|z072|200000|1": 4,
+    "39|z072|200000|2": 3,
+    "39|z072|500000|0": 4,
+    "39|z072|500000|1": 4,
+    "39|z072|500000|2": 3,
+    "3|z072|1000000|0": 4,
+    "3|z072|1000000|1": 4,
+    "3|z072|1000000|2": 4,
+    "3|z072|100000|0": 3,
+    "3|z072|100000|1": 4,
+    "3|z072|100000|2": 4,
+    "3|z072|200000|0": 4,
+    "3|z072|200000|1": 3,
+    "3|z072|200000|2": 4,
+    "3|z072|500000|0": 4,
+    "3|z072|500000|1": 4,
+    "3|z072|500000|2": 3,
+    "40|z072|1000000|0": 4,
+    "40|z072|1000000|1": 4,
+    "40|z072|1000000|2": 3,
+    "40|z072|100000|0": 4,
+    "40|z072|100000|1": 4,
+    "40|z072|100000|2": 3,
+    "40|z072|200000|0": 4,
+    "40|z072|200000|1": 4,
+    "40|z072|200000|2": 3,
+    "40|z072|500000|0": 3,
+    "40|z072|500000|1": 4,
+    "40|z072|500000|2": 4,
+    "41|z072|1000000|0": 3,
+    "41|z072|1000000|1": 4,
+    "41|z072|1000000|2": 4,
+    "41|z072|100000|0": 4,
+    "41|z072|100000|1": 3,
+    "41|z072|100000|2": 4,
+    "41|z072|200000|0": 4,
+    "41|z072|200000|1": 3,
+    "41|z072|200000|2": 4,
+    "41|z072|500000|0": 3,
+    "41|z072|500000|1": 4,
+    "41|z072|500000|2": 4,
+    "42|z072|1000000|0": 4,
+    "42|z072|1000000|1": 3,
+    "42|z072|1000000|2": 4,
+    "42|z072|100000|0": 3,
+    "42|z072|100000|1": 4,
+    "42|z072|100000|2": 4,
+    "42|z072|200000|0": 4,
+    "42|z072|200000|1": 4,
+    "42|z072|200000|2": 3,
+    "42|z072|500000|0": 4,
+    "42|z072|500000|1": 3,
+    "42|z072|500000|2": 4,
+    "43|z072|1000000|0": 4,
+    "43|z072|1000000|1": 4,
+    "43|z072|1000000|2": 4,
+    "43|z072|100000|0": 4,
+    "43|z072|100000|1": 4,
+    "43|z072|100000|2": 4,
+    "43|z072|200000|0": 4,
+    "43|z072|200000|1": 4,
+    "43|z072|200000|2": 4,
+    "43|z072|500000|0": 4,
+    "43|z072|500000|1": 4,
+    "43|z072|500000|2": 3,
+    "44|z072|1000000|0": 4,
+    "44|z072|1000000|1": 3,
+    "44|z072|1000000|2": 4,
+    "44|z072|100000|0": 3,
+    "44|z072|100000|1": 4,
+    "44|z072|100000|2": 4,
+    "44|z072|200000|0": 3,
+    "44|z072|200000|1": 4,
+    "44|z072|200000|2": 4,
+    "44|z072|500000|0": 4,
+    "44|z072|500000|1": 4,
+    "44|z072|500000|2": 3,
+    "45|z072|1000000|0": 4,
+    "45|z072|1000000|1": 4,
+    "45|z072|1000000|2": 3,
+    "45|z072|100000|0": 4,
+    "45|z072|100000|1": 3,
+    "45|z072|100000|2": 4,
+    "45|z072|200000|0": 4,
+    "45|z072|200000|1": 4,
+    "45|z072|200000|2": 3,
+    "45|z072|500000|0": 3,
+    "45|z072|500000|1": 4,
+    "45|z072|500000|2": 4,
+    "47|z072|1000000|0": 4,
+    "47|z072|1000000|1": 3,
+    "47|z072|1000000|2": 4,
+    "47|z072|100000|0": 4,
+    "47|z072|100000|1": 4,
+    "47|z072|100000|2": 4,
+    "47|z072|200000|0": 3,
+    "47|z072|200000|1": 4,
+    "47|z072|200000|2": 4,
+    "47|z072|500000|0": 4,
+    "47|z072|500000|1": 4,
+    "47|z072|500000|2": 4,
+    "48|z072|1000000|0": 4,
+    "48|z072|1000000|1": 3,
+    "48|z072|1000000|2": 4,
+    "48|z072|100000|0": 4,
+    "48|z072|100000|1": 3,
+    "48|z072|100000|2": 4,
+    "48|z072|200000|0": 3,
+    "48|z072|200000|1": 4,
+    "48|z072|200000|2": 4,
+    "48|z072|500000|0": 4,
+    "48|z072|500000|1": 4,
+    "48|z072|500000|2": 3,
+    "4|z072|1000000|0": 4,
+    "4|z072|1000000|1": 3,
+    "4|z072|1000000|2": 4,
+    "4|z072|100000|0": 4,
+    "4|z072|100000|1": 4,
+    "4|z072|100000|2": 4,
+    "4|z072|200000|0": 4,
+    "4|z072|200000|1": 4,
+    "4|z072|200000|2": 4,
+    "4|z072|500000|0": 3,
+    "4|z072|500000|1": 4,
+    "4|z072|500000|2": 4,
+    "50|z072|1000000|0": 4,
+    "50|z072|1000000|1": 3,
+    "50|z072|1000000|2": 4,
+    "50|z072|100000|0": 3,
+    "50|z072|100000|1": 4,
+    "50|z072|100000|2": 4,
+    "50|z072|200000|0": 3,
+    "50|z072|200000|1": 4,
+    "50|z072|200000|2": 4,
+    "50|z072|500000|0": 4,
+    "50|z072|500000|1": 3,
+    "50|z072|500000|2": 4,
+    "51|z072|1000000|0": 4,
+    "51|z072|1000000|1": 4,
+    "51|z072|1000000|2": 3,
+    "51|z072|100000|0": 4,
+    "51|z072|100000|1": 3,
+    "51|z072|100000|2": 4,
+    "51|z072|200000|0": 4,
+    "51|z072|200000|1": 4,
+    "51|z072|200000|2": 4,
+    "51|z072|500000|0": 4,
+    "51|z072|500000|1": 3,
+    "51|z072|500000|2": 4,
+    "54|z072|1000000|0": 3,
+    "54|z072|1000000|1": 4,
+    "54|z072|1000000|2": 4,
+    "54|z072|100000|0": 4,
+    "54|z072|100000|1": 4,
+    "54|z072|100000|2": 3,
+    "54|z072|200000|0": 4,
+    "54|z072|200000|1": 3,
+    "54|z072|200000|2": 4,
+    "54|z072|500000|0": 4,
+    "54|z072|500000|1": 3,
+    "54|z072|500000|2": 4,
+    "55|z072|1000000|0": 4,
+    "55|z072|1000000|1": 3,
+    "55|z072|1000000|2": 4,
+    "55|z072|100000|0": 4,
+    "55|z072|100000|1": 4,
+    "55|z072|100000|2": 3,
+    "55|z072|200000|0": 3,
+    "55|z072|200000|1": 4,
+    "55|z072|200000|2": 4,
+    "55|z072|500000|0": 4,
+    "55|z072|500000|1": 3,
+    "55|z072|500000|2": 4,
+    "57|z072|1000000|0": 4,
+    "57|z072|1000000|1": 4,
+    "57|z072|1000000|2": 3,
+    "57|z072|100000|0": 3,
+    "57|z072|100000|1": 4,
+    "57|z072|100000|2": 4,
+    "57|z072|200000|0": 4,
+    "57|z072|200000|1": 4,
+    "57|z072|200000|2": 4,
+    "57|z072|500000|0": 4,
+    "57|z072|500000|1": 3,
+    "57|z072|500000|2": 4,
+    "58|z072|1000000|0": 3,
+    "58|z072|1000000|1": 4,
+    "58|z072|1000000|2": 4,
+    "58|z072|100000|0": 4,
+    "58|z072|100000|1": 3,
+    "58|z072|100000|2": 4,
+    "58|z072|200000|0": 4,
+    "58|z072|200000|1": 4,
+    "58|z072|200000|2": 3,
+    "58|z072|500000|0": 4,
+    "58|z072|500000|1": 3,
+    "58|z072|500000|2": 4,
+    "5|z072|1000000|0": 4,
+    "5|z072|1000000|1": 4,
+    "5|z072|1000000|2": 3,
+    "5|z072|100000|0": 4,
+    "5|z072|100000|1": 3,
+    "5|z072|100000|2": 4,
+    "5|z072|200000|0": 4,
+    "5|z072|200000|1": 4,
+    "5|z072|200000|2": 4,
+    "5|z072|500000|0": 4,
+    "5|z072|500000|1": 3,
+    "5|z072|500000|2": 4,
+    "60|z072|1000000|0": 3,
+    "60|z072|1000000|1": 4,
+    "60|z072|1000000|2": 4,
+    "60|z072|100000|0": 3,
+    "60|z072|100000|1": 4,
+    "60|z072|100000|2": 4,
+    "60|z072|200000|0": 4,
+    "60|z072|200000|1": 3,
+    "60|z072|200000|2": 4,
+    "60|z072|500000|0": 4,
+    "60|z072|500000|1": 3,
+    "60|z072|500000|2": 4,
+    "61|z072|1000000|0": 4,
+    "61|z072|1000000|1": 4,
+    "61|z072|1000000|2": 3,
+    "61|z072|100000|0": 4,
+    "61|z072|100000|1": 3,
+    "61|z072|100000|2": 4,
+    "61|z072|200000|0": 4,
+    "61|z072|200000|1": 3,
+    "61|z072|200000|2": 4,
+    "61|z072|500000|0": 3,
+    "61|z072|500000|1": 4,
+    "61|z072|500000|2": 4,
+    "62|z072|1000000|0": 4,
+    "62|z072|1000000|1": 4,
+    "62|z072|1000000|2": 3,
+    "62|z072|100000|0": 4,
+    "62|z072|100000|1": 3,
+    "62|z072|100000|2": 4,
+    "62|z072|200000|0": 3,
+    "62|z072|200000|1": 4,
+    "62|z072|200000|2": 4,
+    "62|z072|500000|0": 4,
+    "62|z072|500000|1": 4,
+    "62|z072|500000|2": 3,
+    "63|z072|1000000|0": 4,
+    "63|z072|1000000|1": 3,
+    "63|z072|1000000|2": 4,
+    "63|z072|100000|0": 4,
+    "63|z072|100000|1": 3,
+    "63|z072|100000|2": 4,
+    "63|z072|200000|0": 4,
+    "63|z072|200000|1": 4,
+    "63|z072|200000|2": 3,
+    "63|z072|500000|0": 4,
+    "63|z072|500000|1": 3,
+    "63|z072|500000|2": 4,
+    "64|z072|1000000|0": 4,
+    "64|z072|1000000|1": 4,
+    "64|z072|1000000|2": 4,
+    "64|z072|100000|0": 4,
+    "64|z072|100000|1": 3,
+    "64|z072|100000|2": 4,
+    "64|z072|200000|0": 4,
+    "64|z072|200000|1": 4,
+    "64|z072|200000|2": 4,
+    "64|z072|500000|0": 3,
+    "64|z072|500000|1": 4,
+    "64|z072|500000|2": 4,
+    "65|z072|1000000|0": 3,
+    "65|z072|1000000|1": 4,
+    "65|z072|1000000|2": 4,
+    "65|z072|100000|0": 4,
+    "65|z072|100000|1": 4,
+    "65|z072|100000|2": 3,
+    "65|z072|200000|0": 4,
+    "65|z072|200000|1": 3,
+    "65|z072|200000|2": 4,
+    "65|z072|500000|0": 4,
+    "65|z072|500000|1": 4,
+    "65|z072|500000|2": 3,
+    "67|z072|1000000|0": 3,
+    "67|z072|1000000|1": 4,
+    "67|z072|1000000|2": 4,
+    "67|z072|100000|0": 4,
+    "67|z072|100000|1": 4,
+    "67|z072|100000|2": 3,
+    "67|z072|200000|0": 4,
+    "67|z072|200000|1": 4,
+    "67|z072|200000|2": 3,
+    "67|z072|500000|0": 4,
+    "67|z072|500000|1": 4,
+    "67|z072|500000|2": 3,
+    "68|z072|1000000|0": 4,
+    "68|z072|1000000|1": 3,
+    "68|z072|1000000|2": 4,
+    "68|z072|100000|0": 3,
+    "68|z072|100000|1": 4,
+    "68|z072|100000|2": 4,
+    "68|z072|200000|0": 3,
+    "68|z072|200000|1": 4,
+    "68|z072|200000|2": 4,
+    "68|z072|500000|0": 4,
+    "68|z072|500000|1": 4,
+    "68|z072|500000|2": 3,
+    "69|z072|1000000|0": 4,
+    "69|z072|1000000|1": 3,
+    "69|z072|1000000|2": 4,
+    "69|z072|100000|0": 3,
+    "69|z072|100000|1": 4,
+    "69|z072|100000|2": 4,
+    "69|z072|200000|0": 4,
+    "69|z072|200000|1": 4,
+    "69|z072|200000|2": 3,
+    "69|z072|500000|0": 4,
+    "69|z072|500000|1": 4,
+    "69|z072|500000|2": 4,
+    "6|z072|1000000|0": 3,
+    "6|z072|1000000|1": 4,
+    "6|z072|1000000|2": 4,
+    "6|z072|100000|0": 4,
+    "6|z072|100000|1": 4,
+    "6|z072|100000|2": 3,
+    "6|z072|200000|0": 4,
+    "6|z072|200000|1": 3,
+    "6|z072|200000|2": 4,
+    "6|z072|500000|0": 4,
+    "6|z072|500000|1": 3,
+    "6|z072|500000|2": 4,
+    "71|z072|1000000|0": 3,
+    "71|z072|1000000|1": 4,
+    "71|z072|1000000|2": 4,
+    "71|z072|100000|0": 4,
+    "71|z072|100000|1": 4,
+    "71|z072|100000|2": 4,
+    "71|z072|200000|0": 4,
+    "71|z072|200000|1": 4,
+    "71|z072|200000|2": 3,
+    "71|z072|500000|0": 4,
+    "71|z072|500000|1": 4,
+    "71|z072|500000|2": 3,
+    "72|z072|1000000|0": 4,
+    "72|z072|1000000|1": 3,
+    "72|z072|1000000|2": 4,
+    "72|z072|100000|0": 4,
+    "72|z072|100000|1": 3,
+    "72|z072|100000|2": 4,
+    "72|z072|200000|0": 4,
+    "72|z072|200000|1": 4,
+    "72|z072|200000|2": 4,
+    "72|z072|500000|0": 4,
+    "72|z072|500000|1": 3,
+    "72|z072|500000|2": 4,
+    "74|z072|1000000|0": 4,
+    "74|z072|1000000|1": 4,
+    "74|z072|1000000|2": 4,
+    "74|z072|100000|0": 4,
+    "74|z072|100000|1": 3,
+    "74|z072|100000|2": 4,
+    "74|z072|200000|0": 3,
+    "74|z072|200000|1": 4,
+    "74|z072|200000|2": 4,
+    "74|z072|500000|0": 4,
+    "74|z072|500000|1": 3,
+    "74|z072|500000|2": 4,
+    "75|z072|1000000|0": 4,
+    "75|z072|1000000|1": 3,
+    "75|z072|1000000|2": 4,
+    "75|z072|100000|0": 3,
+    "75|z072|100000|1": 4,
+    "75|z072|100000|2": 4,
+    "75|z072|200000|0": 3,
+    "75|z072|200000|1": 4,
+    "75|z072|200000|2": 4,
+    "75|z072|500000|0": 3,
+    "75|z072|500000|1": 4,
+    "75|z072|500000|2": 4,
+    "76|z072|1000000|0": 4,
+    "76|z072|1000000|1": 3,
+    "76|z072|1000000|2": 4,
+    "76|z072|100000|0": 3,
+    "76|z072|100000|1": 4,
+    "76|z072|100000|2": 4,
+    "76|z072|200000|0": 3,
+    "76|z072|200000|1": 4,
+    "76|z072|200000|2": 4,
+    "76|z072|500000|0": 4,
+    "76|z072|500000|1": 4,
+    "76|z072|500000|2": 3,
+    "77|z072|1000000|0": 4,
+    "77|z072|1000000|1": 3,
+    "77|z072|1000000|2": 4,
+    "77|z072|100000|0": 4,
+    "77|z072|100000|1": 4,
+    "77|z072|100000|2": 3,
+    "77|z072|200000|0": 4,
+    "77|z072|200000|1": 4,
+    "77|z072|200000|2": 4,
+    "77|z072|500000|0": 4,
+    "77|z072|500000|1": 4,
+    "77|z072|500000|2": 3,
+    "78|z072|1000000|0": 4,
+    "78|z072|1000000|1": 3,
+    "78|z072|1000000|2": 4,
+    "78|z072|100000|0": 4,
+    "78|z072|100000|1": 3,
+    "78|z072|100000|2": 4,
+    "78|z072|200000|0": 4,
+    "78|z072|200000|1": 3,
+    "78|z072|200000|2": 4,
+    "78|z072|500000|0": 4,
+    "78|z072|500000|1": 4,
+    "78|z072|500000|2": 3,
+    "79|z072|1000000|0": 4,
+    "79|z072|1000000|1": 3,
+    "79|z072|1000000|2": 4,
+    "79|z072|100000|0": 4,
+    "79|z072|100000|1": 3,
+    "79|z072|100000|2": 4,
+    "79|z072|200000|0": 4,
+    "79|z072|200000|1": 4,
+    "79|z072|200000|2": 4,
+    "79|z072|500000|0": 4,
+    "79|z072|500000|1": 3,
+    "79|z072|500000|2": 4,
+    "7|z072|1000000|0": 3,
+    "7|z072|1000000|1": 4,
+    "7|z072|1000000|2": 4,
+    "7|z072|100000|0": 4,
+    "7|z072|100000|1": 3,
+    "7|z072|100000|2": 4,
+    "7|z072|200000|0": 3,
+    "7|z072|200000|1": 4,
+    "7|z072|200000|2": 4,
+    "7|z072|500000|0": 4,
+    "7|z072|500000|1": 4,
+    "7|z072|500000|2": 4,
+    "80|z072|1000000|0": 3,
+    "80|z072|1000000|1": 4,
+    "80|z072|1000000|2": 4,
+    "80|z072|100000|0": 4,
+    "80|z072|100000|1": 4,
+    "80|z072|100000|2": 4,
+    "80|z072|200000|0": 4,
+    "80|z072|200000|1": 4,
+    "80|z072|200000|2": 4,
+    "80|z072|500000|0": 4,
+    "80|z072|500000|1": 4,
+    "80|z072|500000|2": 3,
+    "81|z072|1000000|0": 4,
+    "81|z072|1000000|1": 3,
+    "81|z072|1000000|2": 4,
+    "81|z072|100000|0": 4,
+    "81|z072|100000|1": 4,
+    "81|z072|100000|2": 3,
+    "81|z072|200000|0": 4,
+    "81|z072|200000|1": 4,
+    "81|z072|200000|2": 3,
+    "81|z072|500000|0": 4,
+    "81|z072|500000|1": 3,
+    "81|z072|500000|2": 4,
+    "82|z072|1000000|0": 4,
+    "82|z072|1000000|1": 4,
+    "82|z072|1000000|2": 3,
+    "82|z072|100000|0": 3,
+    "82|z072|100000|1": 4,
+    "82|z072|100000|2": 4,
+    "82|z072|200000|0": 4,
+    "82|z072|200000|1": 4,
+    "82|z072|200000|2": 3,
+    "82|z072|500000|0": 4,
+    "82|z072|500000|1": 4,
+    "82|z072|500000|2": 3,
+    "84|z072|1000000|0": 4,
+    "84|z072|1000000|1": 3,
+    "84|z072|1000000|2": 4,
+    "84|z072|100000|0": 4,
+    "84|z072|100000|1": 4,
+    "84|z072|100000|2": 3,
+    "84|z072|200000|0": 4,
+    "84|z072|200000|1": 3,
+    "84|z072|200000|2": 4,
+    "84|z072|500000|0": 4,
+    "84|z072|500000|1": 3,
+    "84|z072|500000|2": 4,
+    "85|z072|1000000|0": 3,
+    "85|z072|1000000|1": 4,
+    "85|z072|1000000|2": 4,
+    "85|z072|100000|0": 4,
+    "85|z072|100000|1": 4,
+    "85|z072|100000|2": 3,
+    "85|z072|200000|0": 3,
+    "85|z072|200000|1": 4,
+    "85|z072|200000|2": 4,
+    "85|z072|500000|0": 4,
+    "85|z072|500000|1": 4,
+    "85|z072|500000|2": 3,
+    "87|z072|1000000|0": 4,
+    "87|z072|1000000|1": 4,
+    "87|z072|1000000|2": 4,
+    "87|z072|100000|0": 4,
+    "87|z072|100000|1": 4,
+    "87|z072|100000|2": 4,
+    "87|z072|200000|0": 4,
+    "87|z072|200000|1": 3,
+    "87|z072|200000|2": 4,
+    "87|z072|500000|0": 4,
+    "87|z072|500000|1": 4,
+    "87|z072|500000|2": 4,
+    "8|z072|1000000|0": 4,
+    "8|z072|1000000|1": 4,
+    "8|z072|1000000|2": 3,
+    "8|z072|100000|0": 4,
+    "8|z072|100000|1": 4,
+    "8|z072|100000|2": 3,
+    "8|z072|200000|0": 4,
+    "8|z072|200000|1": 3,
+    "8|z072|200000|2": 4,
+    "8|z072|500000|0": 4,
+    "8|z072|500000|1": 4,
+    "8|z072|500000|2": 4,
+    "90|z072|1000000|0": 4,
+    "90|z072|1000000|1": 4,
+    "90|z072|1000000|2": 4,
+    "90|z072|100000|0": 4,
+    "90|z072|100000|1": 4,
+    "90|z072|100000|2": 3,
+    "90|z072|200000|0": 4,
+    "90|z072|200000|1": 3,
+    "90|z072|200000|2": 4,
+    "90|z072|500000|0": 4,
+    "90|z072|500000|1": 4,
+    "90|z072|500000|2": 3,
+    "91|z072|1000000|0": 3,
+    "91|z072|1000000|1": 4,
+    "91|z072|1000000|2": 4,
+    "91|z072|100000|0": 3,
+    "91|z072|100000|1": 4,
+    "91|z072|100000|2": 4,
+    "91|z072|200000|0": 3,
+    "91|z072|200000|1": 4,
+    "91|z072|200000|2": 4,
+    "91|z072|500000|0": 4,
+    "91|z072|500000|1": 3,
+    "91|z072|500000|2": 4,
+    "94|z072|1000000|0": 4,
+    "94|z072|1000000|1": 4,
+    "94|z072|1000000|2": 4,
+    "94|z072|100000|0": 4,
+    "94|z072|100000|1": 4,
+    "94|z072|100000|2": 3,
+    "94|z072|200000|0": 3,
+    "94|z072|200000|1": 4,
+    "94|z072|200000|2": 4,
+    "94|z072|500000|0": 4,
+    "94|z072|500000|1": 3,
+    "94|z072|500000|2": 4,
+    "95|z072|1000000|0": 4,
+    "95|z072|1000000|1": 4,
+    "95|z072|1000000|2": 4,
+    "95|z072|100000|0": 4,
+    "95|z072|100000|1": 4,
+    "95|z072|100000|2": 3,
+    "95|z072|200000|0": 4,
+    "95|z072|200000|1": 3,
+    "95|z072|200000|2": 4,
+    "95|z072|500000|0": 4,
+    "95|z072|500000|1": 3,
+    "95|z072|500000|2": 4,
+    "96|z072|1000000|0": 4,
+    "96|z072|1000000|1": 3,
+    "96|z072|1000000|2": 4,
+    "96|z072|100000|0": 4,
+    "96|z072|100000|1": 3,
+    "96|z072|100000|2": 4,
+    "96|z072|200000|0": 4,
+    "96|z072|200000|1": 4,
+    "96|z072|200000|2": 3,
+    "96|z072|500000|0": 4,
+    "96|z072|500000|1": 4,
+    "96|z072|500000|2": 3,
+    "97|z072|1000000|0": 4,
+    "97|z072|1000000|1": 3,
+    "97|z072|1000000|2": 4,
+    "97|z072|100000|0": 4,
+    "97|z072|100000|1": 3,
+    "97|z072|100000|2": 4,
+    "97|z072|200000|0": 4,
+    "97|z072|200000|1": 4,
+    "97|z072|200000|2": 4,
+    "97|z072|500000|0": 3,
+    "97|z072|500000|1": 4,
+    "97|z072|500000|2": 4,
+    "99|z072|1000000|0": 4,
+    "99|z072|1000000|1": 4,
+    "99|z072|1000000|2": 4,
+    "99|z072|100000|0": 4,
+    "99|z072|100000|1": 4,
+    "99|z072|100000|2": 3,
+    "99|z072|200000|0": 4,
+    "99|z072|200000|1": 3,
+    "99|z072|200000|2": 4,
+    "99|z072|500000|0": 4,
+    "99|z072|500000|1": 4,
+    "99|z072|500000|2": 3
+  },
+  "sampling_unit": "count_then_subject_then_slice_realization",
+  "schema_version": 1,
+  "selection_policy": "fixed_budget_final_checkpoint_no_best_claim",
+  "single_mask_l1_trainable_rule_verified": true,
+  "steps_per_epoch": 400,
+  "train_subject_ids": [
+    "1",
+    "100",
+    "101",
+    "102",
+    "103",
+    "104",
+    "105",
+    "107",
+    "108",
+    "11",
+    "110",
+    "111",
+    "112",
+    "113",
+    "114",
+    "115",
+    "116",
+    "118",
+    "119",
+    "12",
+    "120",
+    "121",
+    "122",
+    "123",
+    "124",
+    "125",
+    "126",
+    "127",
+    "129",
+    "130",
+    "131",
+    "132",
+    "133",
+    "134",
+    "136",
+    "137",
+    "138",
+    "139",
+    "14",
+    "140",
+    "141",
+    "142",
+    "143",
+    "144",
+    "145",
+    "147",
+    "148",
+    "149",
+    "15",
+    "150",
+    "151",
+    "152",
+    "153",
+    "154",
+    "155",
+    "156",
+    "157",
+    "158",
+    "16",
+    "160",
+    "161",
+    "163",
+    "164",
+    "165",
+    "166",
+    "167",
+    "168",
+    "169",
+    "17",
+    "170",
+    "174",
+    "176",
+    "177",
+    "18",
+    "181",
+    "182",
+    "183",
+    "184",
+    "185",
+    "186",
+    "187",
+    "188",
+    "189",
+    "19",
+    "190",
+    "192",
+    "193",
+    "194",
+    "195",
+    "196",
+    "198",
+    "199",
+    "2",
+    "200",
+    "201",
+    "202",
+    "203",
+    "204",
+    "205",
+    "206",
+    "207",
+    "208",
+    "209",
+    "210",
+    "211",
+    "212",
+    "213",
+    "215",
+    "216",
+    "217",
+    "218",
+    "22",
+    "221",
+    "222",
+    "223",
+    "224",
+    "23",
+    "24",
+    "25",
+    "26",
+    "28",
+    "29",
+    "3",
+    "31",
+    "32",
+    "33",
+    "35",
+    "36",
+    "37",
+    "39",
+    "4",
+    "40",
+    "41",
+    "42",
+    "43",
+    "44",
+    "45",
+    "47",
+    "48",
+    "5",
+    "50",
+    "51",
+    "54",
+    "55",
+    "57",
+    "58",
+    "6",
+    "60",
+    "61",
+    "62",
+    "63",
+    "64",
+    "65",
+    "67",
+    "68",
+    "69",
+    "7",
+    "71",
+    "72",
+    "74",
+    "75",
+    "76",
+    "77",
+    "78",
+    "79",
+    "8",
+    "80",
+    "81",
+    "82",
+    "84",
+    "85",
+    "87",
+    "90",
+    "91",
+    "94",
+    "95",
+    "96",
+    "97",
+    "99"
+  ],
+  "trainable_parameter_names": [
+    "sam_mask_decoder.conv_s0.bias",
+    "sam_mask_decoder.conv_s0.weight",
+    "sam_mask_decoder.conv_s1.bias",
+    "sam_mask_decoder.conv_s1.weight",
+    "sam_mask_decoder.iou_token.weight",
+    "sam_mask_decoder.mask_tokens.weight",
+    "sam_mask_decoder.obj_score_token.weight",
+    "sam_mask_decoder.output_hypernetworks_mlps.0.layers.0.bias",
+    "sam_mask_decoder.output_hypernetworks_mlps.0.layers.0.weight",
+    "sam_mask_decoder.output_hypernetworks_mlps.0.layers.1.bias",
+    "sam_mask_decoder.output_hypernetworks_mlps.0.layers.1.weight",
+    "sam_mask_decoder.output_hypernetworks_mlps.0.layers.2.bias",
+    "sam_mask_decoder.output_hypernetworks_mlps.0.layers.2.weight",
+    "sam_mask_decoder.output_upscaling.0.bias",
+    "sam_mask_decoder.output_upscaling.0.weight",
+    "sam_mask_decoder.output_upscaling.1.bias",
+    "sam_mask_decoder.output_upscaling.1.weight",
+    "sam_mask_decoder.output_upscaling.3.bias",
+    "sam_mask_decoder.output_upscaling.3.weight",
+    "sam_mask_decoder.transformer.final_attn_token_to_image.k_proj.bias",
+    "sam_mask_decoder.transformer.final_attn_token_to_image.k_proj.weight",
+    "sam_mask_decoder.transformer.final_attn_token_to_image.out_proj.bias",
+    "sam_mask_decoder.transformer.final_attn_token_to_image.out_proj.weight",
+    "sam_mask_decoder.transformer.final_attn_token_to_image.q_proj.bias",
+    "sam_mask_decoder.transformer.final_attn_token_to_image.q_proj.weight",
+    "sam_mask_decoder.transformer.final_attn_token_to_image.v_proj.bias",
+    "sam_mask_decoder.transformer.final_attn_token_to_image.v_proj.weight",
+    "sam_mask_decoder.transformer.layers.0.cross_attn_image_to_token.k_proj.bias",
+    "sam_mask_decoder.transformer.layers.0.cross_attn_image_to_token.k_proj.weight",
+    "sam_mask_decoder.transformer.layers.0.cross_attn_image_to_token.out_proj.bias",
+    "sam_mask_decoder.transformer.layers.0.cross_attn_image_to_token.out_proj.weight",
+    "sam_mask_decoder.transformer.layers.0.cross_attn_image_to_token.q_proj.bias",
+    "sam_mask_decoder.transformer.layers.0.cross_attn_image_to_token.q_proj.weight",
+    "sam_mask_decoder.transformer.layers.0.cross_attn_image_to_token.v_proj.bias",
+    "sam_mask_decoder.transformer.layers.0.cross_attn_image_to_token.v_proj.weight",
+    "sam_mask_decoder.transformer.layers.0.cross_attn_token_to_image.k_proj.bias",
+    "sam_mask_decoder.transformer.layers.0.cross_attn_token_to_image.k_proj.weight",
+    "sam_mask_decoder.transformer.layers.0.cross_attn_token_to_image.out_proj.bias",
+    "sam_mask_decoder.transformer.layers.0.cross_attn_token_to_image.out_proj.weight",
+    "sam_mask_decoder.transformer.layers.0.cross_attn_token_to_image.q_proj.bias",
+    "sam_mask_decoder.transformer.layers.0.cross_attn_token_to_image.q_proj.weight",
+    "sam_mask_decoder.transformer.layers.0.cross_attn_token_to_image.v_proj.bias",
+    "sam_mask_decoder.transformer.layers.0.cross_attn_token_to_image.v_proj.weight",
+    "sam_mask_decoder.transformer.layers.0.mlp.layers.0.bias",
+    "sam_mask_decoder.transformer.layers.0.mlp.layers.0.weight",
+    "sam_mask_decoder.transformer.layers.0.mlp.layers.1.bias",
+    "sam_mask_decoder.transformer.layers.0.mlp.layers.1.weight",
+    "sam_mask_decoder.transformer.layers.0.norm1.bias",
+    "sam_mask_decoder.transformer.layers.0.norm1.weight",
+    "sam_mask_decoder.transformer.layers.0.norm2.bias",
+    "sam_mask_decoder.transformer.layers.0.norm2.weight",
+    "sam_mask_decoder.transformer.layers.0.norm3.bias",
+    "sam_mask_decoder.transformer.layers.0.norm3.weight",
+    "sam_mask_decoder.transformer.layers.0.norm4.bias",
+    "sam_mask_decoder.transformer.layers.0.norm4.weight",
+    "sam_mask_decoder.transformer.layers.0.self_attn.k_proj.bias",
+    "sam_mask_decoder.transformer.layers.0.self_attn.k_proj.weight",
+    "sam_mask_decoder.transformer.layers.0.self_attn.out_proj.bias",
+    "sam_mask_decoder.transformer.layers.0.self_attn.out_proj.weight",
+    "sam_mask_decoder.transformer.layers.0.self_attn.q_proj.bias",
+    "sam_mask_decoder.transformer.layers.0.self_attn.q_proj.weight",
+    "sam_mask_decoder.transformer.layers.0.self_attn.v_proj.bias",
+    "sam_mask_decoder.transformer.layers.0.self_attn.v_proj.weight",
+    "sam_mask_decoder.transformer.layers.1.cross_attn_image_to_token.k_proj.bias",
+    "sam_mask_decoder.transformer.layers.1.cross_attn_image_to_token.k_proj.weight",
+    "sam_mask_decoder.transformer.layers.1.cross_attn_image_to_token.out_proj.bias",
+    "sam_mask_decoder.transformer.layers.1.cross_attn_image_to_token.out_proj.weight",
+    "sam_mask_decoder.transformer.layers.1.cross_attn_image_to_token.q_proj.bias",
+    "sam_mask_decoder.transformer.layers.1.cross_attn_image_to_token.q_proj.weight",
+    "sam_mask_decoder.transformer.layers.1.cross_attn_image_to_token.v_proj.bias",
+    "sam_mask_decoder.transformer.layers.1.cross_attn_image_to_token.v_proj.weight",
+    "sam_mask_decoder.transformer.layers.1.cross_attn_token_to_image.k_proj.bias",
+    "sam_mask_decoder.transformer.layers.1.cross_attn_token_to_image.k_proj.weight",
+    "sam_mask_decoder.transformer.layers.1.cross_attn_token_to_image.out_proj.bias",
+    "sam_mask_decoder.transformer.layers.1.cross_attn_token_to_image.out_proj.weight",
+    "sam_mask_decoder.transformer.layers.1.cross_attn_token_to_image.q_proj.bias",
+    "sam_mask_decoder.transformer.layers.1.cross_attn_token_to_image.q_proj.weight",
+    "sam_mask_decoder.transformer.layers.1.cross_attn_token_to_image.v_proj.bias",
+    "sam_mask_decoder.transformer.layers.1.cross_attn_token_to_image.v_proj.weight",
+    "sam_mask_decoder.transformer.layers.1.mlp.layers.0.bias",
+    "sam_mask_decoder.transformer.layers.1.mlp.layers.0.weight",
+    "sam_mask_decoder.transformer.layers.1.mlp.layers.1.bias",
+    "sam_mask_decoder.transformer.layers.1.mlp.layers.1.weight",
+    "sam_mask_decoder.transformer.layers.1.norm1.bias",
+    "sam_mask_decoder.transformer.layers.1.norm1.weight",
+    "sam_mask_decoder.transformer.layers.1.norm2.bias",
+    "sam_mask_decoder.transformer.layers.1.norm2.weight",
+    "sam_mask_decoder.transformer.layers.1.norm3.bias",
+    "sam_mask_decoder.transformer.layers.1.norm3.weight",
+    "sam_mask_decoder.transformer.layers.1.norm4.bias",
+    "sam_mask_decoder.transformer.layers.1.norm4.weight",
+    "sam_mask_decoder.transformer.layers.1.self_attn.k_proj.bias",
+    "sam_mask_decoder.transformer.layers.1.self_attn.k_proj.weight",
+    "sam_mask_decoder.transformer.layers.1.self_attn.out_proj.bias",
+    "sam_mask_decoder.transformer.layers.1.self_attn.out_proj.weight",
+    "sam_mask_decoder.transformer.layers.1.self_attn.q_proj.bias",
+    "sam_mask_decoder.transformer.layers.1.self_attn.q_proj.weight",
+    "sam_mask_decoder.transformer.layers.1.self_attn.v_proj.bias",
+    "sam_mask_decoder.transformer.layers.1.self_attn.v_proj.weight",
+    "sam_mask_decoder.transformer.norm_final_attn.bias",
+    "sam_mask_decoder.transformer.norm_final_attn.weight"
+  ],
+  "training_box_cache_manifest_sha256": "48d523a952b525ad5969a7cad1f02c5ec129d1fa671ac0c5b11a8156d915d2ec",
+  "training_box_cache_sha256": "3ae6a2b468fb704572e9309469251516b20d9476fd5d48aa182ede2fea1d0793",
+  "training_count_samples": {
+    "100000": 2000,
+    "200000": 2000,
+    "500000": 2000,
+    "1000000": 2000
+  },
+  "training_manifest_manifest_sha256": "3e6af214775a7f3820a228505a41a0c324263972a31a88cf618d73740e0db3ef",
+  "training_manifest_sha256": "a8f86c204839f065e5a309a2194f4d71a4ab5e3f02a792928957ba5a551cef64",
+  "training_metrics_manifest_sha256": "d596e0a2308ec5e6c9526f1042eae1b8cb65d48e678992967f3b376c899f8fa7",
+  "training_metrics_sha256": "b99c9dc5462b9f05c31b3413b83bd7eaed16eee90cad9ded795e8758f8f7439d",
+  "training_subject_samples": {
+    "1": 46,
+    "100": 45,
+    "101": 44,
+    "102": 45,
+    "103": 46,
+    "104": 44,
+    "105": 45,
+    "107": 44,
+    "108": 45,
+    "11": 44,
+    "110": 45,
+    "111": 44,
+    "112": 45,
+    "113": 46,
+    "114": 46,
+    "115": 44,
+    "116": 44,
+    "118": 45,
+    "119": 45,
+    "12": 45,
+    "120": 44,
+    "121": 45,
+    "122": 46,
+    "123": 46,
+    "124": 44,
+    "125": 44,
+    "126": 45,
+    "127": 44,
+    "129": 44,
+    "130": 45,
+    "131": 44,
+    "132": 45,
+    "133": 45,
+    "134": 46,
+    "136": 44,
+    "137": 45,
+    "138": 44,
+    "139": 45,
+    "14": 45,
+    "140": 45,
+    "141": 44,
+    "142": 44,
+    "143": 44,
+    "144": 44,
+    "145": 45,
+    "147": 45,
+    "148": 44,
+    "149": 44,
+    "15": 46,
+    "150": 45,
+    "151": 45,
+    "152": 46,
+    "153": 44,
+    "154": 44,
+    "155": 45,
+    "156": 47,
+    "157": 44,
+    "158": 45,
+    "16": 45,
+    "160": 45,
+    "161": 45,
+    "163": 45,
+    "164": 44,
+    "165": 45,
+    "166": 44,
+    "167": 46,
+    "168": 44,
+    "169": 45,
+    "17": 47,
+    "170": 44,
+    "174": 44,
+    "176": 45,
+    "177": 45,
+    "18": 44,
+    "181": 45,
+    "182": 45,
+    "183": 47,
+    "184": 44,
+    "185": 45,
+    "186": 44,
+    "187": 44,
+    "188": 44,
+    "189": 44,
+    "19": 44,
+    "190": 46,
+    "192": 45,
+    "193": 44,
+    "194": 44,
+    "195": 46,
+    "196": 44,
+    "198": 45,
+    "199": 44,
+    "2": 44,
+    "200": 45,
+    "201": 45,
+    "202": 44,
+    "203": 44,
+    "204": 45,
+    "205": 45,
+    "206": 44,
+    "207": 47,
+    "208": 44,
+    "209": 44,
+    "210": 44,
+    "211": 45,
+    "212": 44,
+    "213": 45,
+    "215": 47,
+    "216": 44,
+    "217": 45,
+    "218": 45,
+    "22": 45,
+    "221": 45,
+    "222": 46,
+    "223": 44,
+    "224": 45,
+    "23": 44,
+    "24": 44,
+    "25": 44,
+    "26": 44,
+    "28": 44,
+    "29": 44,
+    "3": 45,
+    "31": 44,
+    "32": 44,
+    "33": 46,
+    "35": 44,
+    "36": 44,
+    "37": 46,
+    "39": 44,
+    "4": 46,
+    "40": 44,
+    "41": 44,
+    "42": 44,
+    "43": 47,
+    "44": 44,
+    "45": 44,
+    "47": 46,
+    "48": 44,
+    "5": 45,
+    "50": 44,
+    "51": 45,
+    "54": 44,
+    "55": 44,
+    "57": 45,
+    "58": 44,
+    "6": 44,
+    "60": 44,
+    "61": 44,
+    "62": 44,
+    "63": 44,
+    "64": 46,
+    "65": 44,
+    "67": 44,
+    "68": 44,
+    "69": 45,
+    "7": 45,
+    "71": 45,
+    "72": 45,
+    "74": 45,
+    "75": 44,
+    "76": 44,
+    "77": 45,
+    "78": 44,
+    "79": 45,
+    "8": 45,
+    "80": 46,
+    "81": 44,
+    "82": 44,
+    "84": 44,
+    "85": 44,
+    "87": 47,
+    "90": 45,
+    "91": 44,
+    "94": 45,
+    "95": 45,
+    "96": 44,
+    "97": 45,
+    "99": 45
+  },
+  "weight_decay": 0.0001
+}

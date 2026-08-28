@@ -1,0 +1,22 @@
+{
+  "artifact_path": "medsam2_decoder_hecktor.training.csv",
+  "artifact_sha256": "b99c9dc5462b9f05c31b3413b83bd7eaed16eee90cad9ded795e8758f8f7439d",
+  "byte_size": 1943,
+  "columns": [
+    "epoch",
+    "global_step",
+    "mean_l1",
+    "std_l1",
+    "min_l1",
+    "max_l1",
+    "samples"
+  ],
+  "completed_utc": "2026-08-28T13:30:11.714949+00:00",
+  "primary_key": [
+    "epoch"
+  ],
+  "row_count": 20,
+  "schema_name": "medsam2_training_epoch_metrics_v1",
+  "schema_version": 1,
+  "split": "train"
+}

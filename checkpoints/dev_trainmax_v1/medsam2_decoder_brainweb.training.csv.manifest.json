@@ -1,0 +1,22 @@
+{
+  "artifact_path": "medsam2_decoder_brainweb.training.csv",
+  "artifact_sha256": "738fb9158dd15b9a1e29ce3e7e16dc35c35145cae3462e4444ec5e31104c114f",
+  "byte_size": 1930,
+  "columns": [
+    "epoch",
+    "global_step",
+    "mean_l1",
+    "std_l1",
+    "min_l1",
+    "max_l1",
+    "samples"
+  ],
+  "completed_utc": "2026-08-28T12:19:30.539772+00:00",
+  "primary_key": [
+    "epoch"
+  ],
+  "row_count": 20,
+  "schema_name": "medsam2_training_epoch_metrics_v1",
+  "schema_version": 1,
+  "split": "train"
+}
