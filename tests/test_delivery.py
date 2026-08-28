@@ -8,7 +8,10 @@ from sam_kem.artifacts import (
   file_sha256,
   finalize_csv,
 )
-from sam_kem.delivery import build_decoder_checkpoint_bundle
+from sam_kem.delivery import (
+  build_decoder_checkpoint_bundle,
+  verify_decoder_checkpoint_bundle,
+)
 
 
 def test_decoder_bundle_verifies_groups_and_refuses_overwrite(tmp_path):
@@ -93,6 +96,11 @@ def test_decoder_bundle_verifies_groups_and_refuses_overwrite(tmp_path):
     assert "checkpoints/test/brainweb.pt" in names
     assert "checkpoints/test/hecktor.resume.pt" in names
     assert len(bundle.read("MANIFEST.sha256").splitlines()) == result["manifest_member_count"]
+
+  verification = verify_decoder_checkpoint_bundle(archive)
+  assert verification["status"] == "complete"
+  assert verification["archive_sha256"] == result["archive_sha256"]
+  assert verification["verified_member_count"] == result["manifest_member_count"]
 
   with pytest.raises(FileExistsError, match="overwrite"):
     build_decoder_checkpoint_bundle(root, config, archive, record)

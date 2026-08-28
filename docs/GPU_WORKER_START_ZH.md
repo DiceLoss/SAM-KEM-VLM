@@ -289,11 +289,16 @@ python code/experiments/package_decoder_checkpoints.py \
   --config code/configs/generated/dev_trainmax_v1.yaml \
   --output delivery/dev_trainmax_v1_decoder_bundle.zip \
   --record logs/decoder_checkpoint_archive_build.json
+
+python code/experiments/verify_decoder_checkpoint_bundle.py \
+  --archive delivery/dev_trainmax_v1_decoder_bundle.zip \
+  --output logs/decoder_checkpoint_archive_verify.json
 ```
 
 打包器会重新核验 `.pt`、`.resume.pt`、训练曲线及 sidecar、provenance 和 handoff audit
 之间的 SHA 绑定；使用固定 ZIP member 元数据并在包内写入 `MANIFEST.sha256`。它拒绝
-覆盖已有 archive/record，也拒绝从脏工作树打包。对 `dev_trainmax_v1` 的两个数据集
+覆盖已有 archive/record，也拒绝从脏工作树打包。独立 verify 命令再流式计算每个成员
+SHA，拒绝重复、缺失、额外或校验不符的成员。对 `dev_trainmax_v1` 的两个数据集
 分别交回：
 
 - `medsam2_decoder_*.pt`；

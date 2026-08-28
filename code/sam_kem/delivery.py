@@ -193,3 +193,47 @@ def build_decoder_checkpoint_bundle(
   }
   atomic_write_json(record_path, result)
   return result
+
+
+def verify_decoder_checkpoint_bundle(archive_path: Path) -> dict:
+  """Independently verify every member against the embedded SHA manifest."""
+  archive_path = archive_path.resolve()
+  with zipfile.ZipFile(archive_path) as archive:
+    names = archive.namelist()
+    if len(names) != len(set(names)):
+      raise ValueError("decoder bundle contains duplicate member names")
+    if "MANIFEST.sha256" not in names:
+      raise ValueError("decoder bundle lacks MANIFEST.sha256")
+    manifest_bytes = archive.read("MANIFEST.sha256")
+    expected = {}
+    for line in manifest_bytes.decode("utf-8").splitlines():
+      checksum, separator, name = line.partition("  ")
+      if not separator or len(checksum) != 64 or not name or name in expected:
+        raise ValueError(f"invalid decoder bundle manifest line: {line!r}")
+      expected[name] = checksum
+    members = set(names) - {"MANIFEST.sha256"}
+    if members != set(expected):
+      raise ValueError(
+        "decoder bundle manifest membership mismatch: "
+        f"missing={sorted(members - set(expected))}, extra={sorted(set(expected) - members)}"
+      )
+    for name, expected_sha in expected.items():
+      digest = hashlib.sha256()
+      with archive.open(name) as handle:
+        for chunk in iter(lambda: handle.read(1024 * 1024), b""):
+          digest.update(chunk)
+      if digest.hexdigest() != expected_sha:
+        raise ValueError(f"decoder bundle member checksum mismatch: {name}")
+  return {
+    "artifact_kind": "decoder_checkpoint_archive_verification",
+    "schema_version": 1,
+    "status": "complete",
+    "archive_path": archive_path.as_posix(),
+    "archive_sha256": file_sha256(archive_path),
+    "archive_byte_size": archive_path.stat().st_size,
+    "manifest_sha256": hashlib.sha256(manifest_bytes).hexdigest(),
+    "verified_member_count": len(expected),
+    "duplicate_member_count": 0,
+    "missing_member_count": 0,
+    "checksum_mismatch_count": 0,
+  }
