@@ -365,3 +365,19 @@ PYTHONPATH=code python code/experiments/validation_prior_preflight.py \
 只有输出 `status: PASS`、两个 checkpoint SHA 与注册配置一致、两个 prior 都是有限的
 `128x128` 连续数组，才允许另行下达 validation prior 全量生成指令。smoke test 不需要
 DashScope key，不得调用 Qwen，不得读取 test。
+
+全量 validation prior 必须使用可校验恢复模式，并写独立完成记录：
+
+```bash
+PYTHONPATH=code python code/experiments/generate_priors.py \
+  --config code/configs/generated/dev_trainmax_v1_registered.yaml \
+  --manifest results/dev_trainmax_v1/case_manifest_inputs.csv \
+  --splits validation \
+  --output-dir runs/dev_trainmax_v1/validation_priors \
+  --resume-verified
+```
+
+恢复时只允许复用 `.npy` 与相邻 JSON 都存在且 run、split、输入 MLEM、box cache、
+registered config、checkpoint 和 prior array SHA 全部一致的 prior。完成后必须得到
+`prior_manifest.csv`、sidecar、`generation_record.json` 和 `_SUCCESS.json`。validation
+应为 8,892 个 case/prior；不得同时生成 train 或 test prior。
