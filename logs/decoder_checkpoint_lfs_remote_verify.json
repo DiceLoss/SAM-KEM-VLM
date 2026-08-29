@@ -1,0 +1,19 @@
+{
+  "artifact_kind": "decoder_checkpoint_lfs_remote_verification",
+  "schema_version": 1,
+  "status": "complete",
+  "verified_at": "2026-08-29T12:56:41+08:00",
+  "repository": "git@github.com:DiceLoss/SAM-KEM-VLM.git",
+  "git_commit": "04740c0a97109c40ad4b03208e51b21d01cc8ba3",
+  "lfs_path": "delivery/dev_trainmax_v1_decoder_bundle.zip",
+  "lfs_oid_sha256": "acacc789c28279b1084167659391d37a51cb6c97e319d96534dc522ca48c6347",
+  "lfs_pointer_size": 125563903,
+  "verification_method": "fresh SSH clone at the pinned commit followed by git lfs pull, cache checksum verification, git lfs fsck, and checkout",
+  "git_lfs_version": "3.4.1",
+  "downloaded_sha256": "acacc789c28279b1084167659391d37a51cb6c97e319d96534dc522ca48c6347",
+  "downloaded_byte_size": 125563903,
+  "git_lfs_fsck": "OK",
+  "pointer_matches_download": true,
+  "independent_checkout_matches_bundle": true,
+  "diagnostic_note": "A GET request to a guessed /info/lfs/objects/<oid> path is not a valid GitHub LFS existence test. Git LFS resolves authenticated download actions through the batch protocol; the fresh-clone pull is the authoritative verification used here."
+}

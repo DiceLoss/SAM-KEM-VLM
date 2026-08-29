@@ -1,0 +1,22 @@
+{
+  "archive_byte_size": 125563903,
+  "archive_sha256": "acacc789c28279b1084167659391d37a51cb6c97e319d96534dc522ca48c6347",
+  "archive_uri": "https://github.com/DiceLoss/SAM-KEM-VLM/blob/04740c0a97109c40ad4b03208e51b21d01cc8ba3/delivery/dev_trainmax_v1_decoder_bundle.zip",
+  "archive_version": "git-commit:04740c0a97109c40ad4b03208e51b21d01cc8ba3;lfs-oid:sha256:acacc789c28279b1084167659391d37a51cb6c97e319d96534dc522ca48c6347;size:125563903",
+  "artifact_kind": "decoder_checkpoint_archive_registration",
+  "checkpoint_sha256": {
+    "brainweb": "5b3fad3469079c0c3c9738dada5548077e36f8878351f2616a1cb6b368cfb605",
+    "hecktor": "c264789fd0a084d6d0b4a9423ab83575911d3b50228873f6f91dbf6f8c3df7c1"
+  },
+  "full_result_archive_uri": null,
+  "manifest_sha256": "626c705ce9fb73c4d0e77049597e75b88cb036c1d75ac77a4ad1cf60a37d6f58",
+  "registered_config_path": "code/configs/generated/dev_trainmax_v1_registered.yaml",
+  "registered_config_sha256": "1b057ad68ae95ded08fc4a007b3a827911e4070738e4750de897914a0e4b4bf7",
+  "run_id": "dev_trainmax_v1",
+  "schema_version": 1,
+  "status": "registered_for_development_validation",
+  "training_config_path": "code/configs/generated/dev_trainmax_v1.yaml",
+  "training_config_sha256": "dbbfdb5d770a8f1fa46bbb314d398a396216522e4fc97552e338e853d7cfdcdf",
+  "verified_download_path": "/tmp/tmp.M6kza0eViq/repo/delivery/dev_trainmax_v1_decoder_bundle.zip",
+  "verified_download_sha256": "acacc789c28279b1084167659391d37a51cb6c97e319d96534dc522ca48c6347"
+}
