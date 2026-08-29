@@ -11,6 +11,7 @@ belong in the configuration/protocol YAML, not in ad-hoc command edits.
 | `package_decoder_checkpoints.py` | Verify and package both decoder groups for immutable upload |
 | `verify_decoder_checkpoint_bundle.py` | Independently hash-check every packaged decoder member |
 | `register_decoder_archive.py` | Generate a downstream config after versioned archive publication |
+| `validation_prior_preflight.py` | Read-only one-case-per-dataset CUDA smoke test before validation prior generation |
 | `audit_traceability_samples.py` | Diagnostic-only summary of committed traceability archives |
 | `audit_uploaded_samples.py` | Diagnostic-only operator/scale checks on committed samples |
 | `run_normalization_calibration.py` | Train-fit/validation-diagnose normalization candidates |

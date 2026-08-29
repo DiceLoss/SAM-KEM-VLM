@@ -347,3 +347,21 @@ python code/experiments/register_decoder_archive.py \
 不要另行生成或训练 `dev_globalminmax_v1`，不要运行 test，不要修改 epochs、学习率、
 loss、box 或 checkpoint。GPU 训练完成后停止，等待主研究员注册 checkpoint SHA 并
 启动 validation sweep。
+
+### 6C. Validation prior GPU smoke gate
+
+注册完成后先执行只读 smoke test。它在 200k count、anchor realization 0 上，按
+`subject_id, slice_id` 字典序分别选择 BrainWeb 和 HECKTOR 的第一条 validation case，
+每个数据集只运行一次 decoder forward。该命令不得写正式 prior，也不得启动 sweep：
+
+```bash
+PYTHONPATH=code python code/experiments/validation_prior_preflight.py \
+  --root . \
+  --config code/configs/generated/dev_trainmax_v1_registered.yaml \
+  --manifest results/dev_trainmax_v1/case_manifest_inputs.csv \
+  --count-level 200000
+```
+
+只有输出 `status: PASS`、两个 checkpoint SHA 与注册配置一致、两个 prior 都是有限的
+`128x128` 连续数组，才允许另行下达 validation prior 全量生成指令。smoke test 不需要
+DashScope key，不得调用 Qwen，不得读取 test。
