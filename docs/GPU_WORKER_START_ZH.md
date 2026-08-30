@@ -381,3 +381,19 @@ PYTHONPATH=code python code/experiments/generate_priors.py \
 registered config、checkpoint 和 prior array SHA 全部一致的 prior。完成后必须得到
 `prior_manifest.csv`、sidecar、`generation_record.json` 和 `_SUCCESS.json`。validation
 应为 8,892 个 case/prior；不得同时生成 train 或 test prior。
+
+生成完成后不得直接进入 sweep。先逐个验证 prior、metadata、MLEM、box、checkpoint 和
+完成 manifest，并记录 raw continuous output 的越界分布：
+
+```bash
+PYTHONPATH=code python code/experiments/audit_validation_priors.py \
+  --root . \
+  --config code/configs/generated/dev_trainmax_v1_registered.yaml \
+  --case-manifest results/dev_trainmax_v1/case_manifest_inputs.csv \
+  --prior-dir runs/dev_trainmax_v1/validation_priors \
+  --diagnostics logs/validation_prior_diagnostics.csv \
+  --summary logs/validation_prior_audit.json
+```
+
+必须输出 `status: PASS` 和 8,892 条 diagnostics。审计会如实列出 validation 中实际
+使用 fallback box 的 cache key；不得根据 prior 数值或审计结果筛除样本或重生成 box。
