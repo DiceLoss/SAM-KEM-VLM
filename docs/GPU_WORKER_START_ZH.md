@@ -437,3 +437,19 @@ PYTHONPATH=code python code/experiments/register_validation_prior_archive.py \
 注册器再次流式验证下载 ZIP 的 17,799 个成员。sweep 入口只接受显式 `--config` 和
 `--protocol`，并强制检查这条 prior archive 注册链；旧的默认 experiment config 不再
 能意外启动 validation selection。
+
+### 6H. Anatomy comparison-source inventory
+
+MR/CT 只属于 MR-KEM、CT-KEM 和 Bowsher-KEM 对比方法；proposed method 禁止读取 anatomy。
+在生成 `anatomy.npy` 前先做只读清点，BrainWeb 不允许根据文件名自动猜一个 MR：
+
+```bash
+PYTHONPATH=code python code/experiments/audit_anatomy_sources.py \
+  --root . \
+  --source-manifest inputs/clean_v1/source_activity_manifest.csv \
+  --output logs/anatomy_source_inventory.json
+```
+
+输出必须列出 20 个 BrainWeb subject 各自目录中的全部 NIfTI 候选、SHA、shape 和 spacing；
+HECKTOR 必须固定为同一已验证 NPZ 的 `input[subject_id-1,72,:,:,0]` CT/HU 通道。该步骤
+不得选择 MR、不得写 anatomy array、不得重建 manifest，也不得启动 sweep。

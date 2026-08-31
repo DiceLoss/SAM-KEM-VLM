@@ -16,6 +16,7 @@ belong in the configuration/protocol YAML, not in ad-hoc command edits.
 | `package_validation_priors.py` | Package the audited validation priors and frozen evidence before selection |
 | `verify_validation_prior_bundle.py` | Stream-verify every member of the validation-prior bundle |
 | `register_validation_prior_archive.py` | Create a downstream sweep config bound to a fresh LFS download |
+| `audit_anatomy_sources.py` | Read-only inventory of BrainWeb MR candidates and HECKTOR CT channel 0 |
 | `audit_traceability_samples.py` | Diagnostic-only summary of committed traceability archives |
 | `audit_uploaded_samples.py` | Diagnostic-only operator/scale checks on committed samples |
 | `run_normalization_calibration.py` | Train-fit/validation-diagnose normalization candidates |
