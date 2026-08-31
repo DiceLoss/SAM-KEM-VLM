@@ -1,0 +1,14 @@
+{
+  "archive_byte_size": 543014048,
+  "archive_path": "D:/MIAProject/SAM_KEM_QWEN3_V3_REPO/delivery/dev_trainmax_v1_validation_priors.zip",
+  "archive_sha256": "9157b05e19dbfa16187578ca831ca8b8d84927ae9f7405f228fad3361ab8e400",
+  "artifact_kind": "validation_prior_archive_verification",
+  "checksum_mismatch_count": 0,
+  "duplicate_member_count": 0,
+  "manifest_sha256": "b21b7612ed206e528032dfd9d737474aef32f2f49ab83e5a3b53ae8534d2ca6d",
+  "missing_member_count": 0,
+  "prior_records": 8892,
+  "schema_version": 1,
+  "status": "complete",
+  "verified_member_count": 17799
+}

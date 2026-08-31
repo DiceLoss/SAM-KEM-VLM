@@ -1,0 +1,18 @@
+{
+  "archive_byte_size": 543014048,
+  "archive_path": "delivery/dev_trainmax_v1_validation_priors.zip",
+  "archive_sha256": "9157b05e19dbfa16187578ca831ca8b8d84927ae9f7405f228fad3361ab8e400",
+  "artifact_kind": "validation_prior_archive_build",
+  "audit_sha256": "91228eef7c9af5b6d21b62e0abddfcae2749325f3d2fc0bbe52e9199a594b5fe",
+  "immutable_archive_uri": null,
+  "manifest_member_count": 17799,
+  "manifest_sha256": "b21b7612ed206e528032dfd9d737474aef32f2f49ab83e5a3b53ae8534d2ca6d",
+  "packaging_git_commit": "ff84869fb24bb20d5048bf5da3d5e2a02ba42828",
+  "prior_manifest_sha256": "45dc3d099e20ba6405430721b8d7bd60dfa83271492bf65badd6a2cec02a0662",
+  "prior_records": 8892,
+  "registered_config_sha256": "1b057ad68ae95ded08fc4a007b3a827911e4070738e4750de897914a0e4b4bf7",
+  "run_id": "dev_trainmax_v1",
+  "schema_version": 1,
+  "split": "validation",
+  "status": "local_bundle_complete_pending_lfs_publication"
+}
