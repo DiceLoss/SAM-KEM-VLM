@@ -525,3 +525,25 @@ PYTHONPATH=code python code/experiments/validation_sweep_runtime_preflight.py \
 预期是 BrainWeb `subject04/z038` 与 HECKTOR `10/z072`。每项必须实际完成 580 个 metric
 evaluation，而不是缩小网格。该步骤不得创建 `runs/.../hyperparameter_sweep`、不得冻结参数、
 不得读取 test，也不得把两样本结果当作科学比较结果。
+
+### 6K. Eight-process CPU scaling gate
+
+正式 backend 固定为 reference SciPy CSR float64 的 CPU 多进程分片；不得用 PyTorch thread
+数量推断 SciPy 性能，也不得同时运行 36 个 process 和每进程 36 个 BLAS thread。CUDA
+sparse 重写在 validation selection 前不采用。先以 8 个独立 process 并发运行 8 个完整
+580-evaluation case，验证 Windows spawn、内存和实际吞吐：
+
+```bash
+PYTHONPATH=code python code/experiments/validation_sweep_parallel_preflight.py \
+  --root . \
+  --config code/configs/generated/dev_trainmax_v1_validation_registered.yaml \
+  --protocol code/configs/generated/dev_trainmax_v1_protocols/hyperparameter_sweep.yaml \
+  --runtime-preflight logs/validation_sweep_runtime_preflight.json \
+  --output logs/validation_sweep_parallel_preflight.json \
+  --workers 8
+```
+
+允许 serial runtime JSON 在运行前保持唯一 untracked evidence；其他 Git status 必须为空。
+程序固定选择 BrainWeb 与 HECKTOR 各前 4 个不同 validation slice、c=200000、r=0。不得更改
+worker 数，不得设置 OMP/MKL/OpenBLAS threads，不得生成正式 sweep 或 frozen 参数。根据
+`measured_speedup`、`parallel_efficiency`、峰值内存和投影总时长再固定正式并发数。

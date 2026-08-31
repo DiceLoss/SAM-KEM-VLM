@@ -30,3 +30,17 @@ def test_declared_validation_sweep_workload_is_exact():
   assert workload["per_dataset"]["brainweb"]["operator_updates_per_case"] == 4650
   assert workload["total_result_rows"] == 5_157_360
   assert workload["total_operator_updates"] == 41_347_800
+
+
+def test_scaling_gate_requires_exactly_eight_workers(tmp_path):
+  from sam_kem.sweep_preflight import run_parallel_sweep_scaling_preflight
+
+  try:
+    run_parallel_sweep_scaling_preflight(
+      tmp_path, tmp_path / "config", tmp_path / "protocol",
+      tmp_path / "runtime.json", tmp_path / "output.json", workers=4,
+    )
+  except ValueError as error:
+    assert "exactly 8 workers" in str(error)
+  else:
+    raise AssertionError("non-reviewed worker count was accepted")

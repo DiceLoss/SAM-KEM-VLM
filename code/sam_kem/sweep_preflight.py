@@ -3,10 +3,12 @@
 from __future__ import annotations
 
 import hashlib
+import json
 import os
 import platform
 import subprocess
 import time
+from concurrent.futures import ProcessPoolExecutor
 from collections import Counter
 from itertools import product
 from pathlib import Path
@@ -86,6 +88,27 @@ def _clean_commit(root: Path) -> str:
   ).stdout.strip()
   if status:
     raise RuntimeError(f"runtime preflight requires a clean worktree: {status.splitlines()}")
+  return subprocess.run(
+    ["git", "rev-parse", "HEAD"], cwd=root, check=True,
+    capture_output=True, text=True,
+  ).stdout.strip()
+
+
+def _commit_allowing_untracked(root: Path, allowed: set[Path]) -> str:
+  """Require a clean tree except for explicitly reviewed, untracked evidence."""
+  lines = subprocess.run(
+    ["git", "status", "--porcelain"], cwd=root, check=True,
+    capture_output=True, text=True,
+  ).stdout.splitlines()
+  allowed_names = {
+    path.resolve().relative_to(root.resolve()).as_posix() for path in allowed
+  }
+  unexpected = []
+  for line in lines:
+    if not line.startswith("?? ") or line[3:].replace("\\", "/") not in allowed_names:
+      unexpected.append(line)
+  if unexpected:
+    raise RuntimeError(f"parallel preflight found unexpected Git status: {unexpected}")
   return subprocess.run(
     ["git", "rev-parse", "HEAD"], cwd=root, check=True,
     capture_output=True, text=True,
@@ -312,6 +335,126 @@ def run_sweep_runtime_preflight(
     "projection_interpretation": (
       "first-order serial estimate only; full-run sharding/resume and backend decision required"
     ),
+    "test_locked_access": "prohibited",
+  }
+  atomic_write_json(output_path, result)
+  return result
+
+
+def _measure_case_process(payload: tuple[Path, Path, Path, Case]) -> dict:
+  """Spawn-safe worker: construct the exact operator and run one complete case grid."""
+  root, config_path, protocol_path, case = payload
+  cfg, contract = load_contract(config_path)
+  protocol = load_protocol(protocol_path)
+  operator_started = time.perf_counter()
+  operator = build_discrete_radon(
+    repo_root=root, size=int(cfg["forward_model"]["image_size"]),
+    angles=contract.angles, operator_id=contract.operator_id,
+    expected_implementation_sha256=cfg["forward_model"]["implementation_sha256"],
+  )
+  operator_build_seconds = time.perf_counter() - operator_started
+  result = _measure_case(case, operator, cfg, protocol)
+  result["operator_build_seconds"] = operator_build_seconds
+  result["process_id"] = os.getpid()
+  return result
+
+
+def run_parallel_sweep_scaling_preflight(
+  root: Path, config_path: Path, protocol_path: Path, runtime_preflight_path: Path,
+  output_path: Path, *, workers: int,
+) -> dict:
+  """Measure full-grid throughput across fixed cases using Windows-safe processes."""
+  root = root.resolve()
+  config_path = config_path.resolve()
+  protocol_path = protocol_path.resolve()
+  runtime_preflight_path = runtime_preflight_path.resolve()
+  output_path = output_path.resolve()
+  if output_path.exists():
+    raise FileExistsError(f"refusing to overwrite scaling preflight: {output_path}")
+  if workers != 8:
+    raise ValueError("the reviewed scaling gate requires exactly 8 workers")
+  commit = _commit_allowing_untracked(root, {runtime_preflight_path})
+  runtime_record = json.loads(runtime_preflight_path.read_text(encoding="utf-8"))
+  if (
+    runtime_record.get("status") != "PASS"
+    or runtime_record.get("execution_backend") != "scipy_sparse_csr_cpu_float64"
+    or runtime_record.get("gpu_used") is not False
+    or runtime_record.get("declared_workload", {}).get("total_result_rows") != 5_157_360
+    or runtime_record.get("declared_workload", {}).get("total_operator_updates") != 41_347_800
+  ):
+    raise ValueError("serial runtime preflight is not the reviewed PASS artifact")
+  cfg, contract = load_contract(config_path)
+  require_development_execution(cfg)
+  registration = validate_registered_validation_prior_configuration(root, config_path, cfg)
+  protocol = load_protocol(protocol_path)
+  expected_methods = {
+    "MLEM", "OSEM", "Bowsher-KEM", "SelfKEM", "MR-KEM", "CT-KEM",
+    "SAM-KEM-MedSAM2-Qwen3-full",
+  }
+  if set(protocol.methods) != expected_methods:
+    raise ValueError("parallel scaling gate requires the complete method set")
+  manifest_path = root / str(cfg["outputs"]["validation_manifest"])
+  cases = load_case_manifest(root, manifest_path, split="validation")
+  validate_case_contract(cases, contract)
+  eligible = [
+    case for case in cases if case.count_level == 200000 and case.realization_id == 0
+  ]
+  samples = []
+  for dataset in ("brainweb", "hecktor"):
+    dataset_cases = sorted(
+      (case for case in eligible if case.dataset == dataset),
+      key=lambda case: (case.subject_id, case.slice_id),
+    )
+    samples.extend(dataset_cases[:4])
+  if len(samples) != workers or len({
+    (case.dataset, case.subject_id, case.slice_id) for case in samples
+  }) != workers:
+    raise ValueError("parallel scaling selection did not produce 8 unique slices")
+  payloads = [(root, config_path, protocol_path, case) for case in samples]
+  started = time.perf_counter()
+  with ProcessPoolExecutor(max_workers=workers) as executor:
+    measurements = list(executor.map(_measure_case_process, payloads))
+  wall_seconds = time.perf_counter() - started
+  if any(item["result_evaluations"] != 580 for item in measurements):
+    raise ValueError("parallel worker did not complete the exact 580-evaluation grid")
+  serial_case_seconds = [
+    float(item["total_seconds"]) for item in runtime_record["measurements"]
+  ]
+  serial_reference_seconds_per_case = float(np.mean(serial_case_seconds))
+  serial_equivalent_seconds = serial_reference_seconds_per_case * len(measurements)
+  speedup = serial_equivalent_seconds / wall_seconds
+  throughput = len(measurements) / wall_seconds
+  projected_hours = len(cases) / throughput / 3600.0
+  result = {
+    "artifact_kind": "validation_sweep_parallel_scaling_preflight",
+    "schema_version": 1, "status": "PASS",
+    "write_policy": "no_formal_sweep_outputs", "git_commit": commit,
+    "config_path": config_path.relative_to(root).as_posix(),
+    "config_sha256": file_sha256(config_path),
+    "protocol_path": protocol_path.relative_to(root).as_posix(),
+    "protocol_sha256": file_sha256(protocol_path),
+    "manifest_path": manifest_path.relative_to(root).as_posix(),
+    "manifest_sha256": file_sha256(manifest_path),
+    "serial_runtime_preflight_path": runtime_preflight_path.relative_to(root).as_posix(),
+    "serial_runtime_preflight_sha256": file_sha256(runtime_preflight_path),
+    "prior_registration": registration,
+    "execution_backend": "scipy_sparse_csr_cpu_float64_multiprocess",
+    "gpu_used": False, "worker_processes": workers,
+    "sample_count": len(measurements), "result_evaluations_per_sample": 580,
+    "selection_rule": "first_four_unique_validation_slices_per_dataset_at_c200000_r0",
+    "measurements": measurements, "wall_seconds": wall_seconds,
+    "serial_reference_seconds_per_case": serial_reference_seconds_per_case,
+    "serial_equivalent_seconds": serial_equivalent_seconds,
+    "measured_speedup": speedup, "parallel_efficiency": speedup / workers,
+    "measured_cases_per_second": throughput,
+    "projected_full_sweep_hours_at_measured_throughput": projected_hours,
+    "cpu_count": os.cpu_count(), "platform": platform.platform(),
+    "thread_environment": {
+      name: os.environ.get(name) for name in (
+        "OMP_NUM_THREADS", "OPENBLAS_NUM_THREADS", "MKL_NUM_THREADS",
+      )
+    },
+    "formal_output_created": False, "frozen_hyperparameters_created": False,
     "test_locked_access": "prohibited",
   }
   atomic_write_json(output_path, result)
