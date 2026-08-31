@@ -1,0 +1,37 @@
+{
+  "allowed_methods": [
+    "MR-KEM",
+    "CT-KEM",
+    "Bowsher-KEM"
+  ],
+  "anatomy_source_manifest_path": "inputs/clean_v1/anatomy_source_manifest.csv",
+  "anatomy_source_manifest_sha256": "cf8cf7827dc865c026f16e848281f6e0d0dcb45c2009bf7708970e54afd6972c",
+  "artifact_kind": "canonical_comparison_anatomy_audit",
+  "dataset_counts": {
+    "brainweb": 3511,
+    "hecktor": 224
+  },
+  "finite_and_nonconstant": true,
+  "kernel_feature_normalization": "per_image_minmax_at_reconstruction_only",
+  "modality_counts": {
+    "CT": 224,
+    "T1_MR": 3511
+  },
+  "proposed_method_anatomy_use": "prohibited",
+  "records": 3735,
+  "records_with_negative_pixels": {
+    "CT": 224
+  },
+  "schema_version": 1,
+  "selection_rule": "brainweb_root_t1_nifti_and_hecktor_declared_ct_channel_0_v1",
+  "shape": [
+    128,
+    128
+  ],
+  "splits": [
+    "train",
+    "validation"
+  ],
+  "status": "PASS",
+  "storage_policy": "raw_modality_values_float32_no_windowing_or_per_image_normalization"
+}

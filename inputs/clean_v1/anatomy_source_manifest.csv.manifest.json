@@ -1,0 +1,53 @@
+{
+  "allowed_methods": [
+    "MR-KEM",
+    "CT-KEM",
+    "Bowsher-KEM"
+  ],
+  "artifact_path": "anatomy_source_manifest.csv",
+  "artifact_sha256": "cf8cf7827dc865c026f16e848281f6e0d0dcb45c2009bf7708970e54afd6972c",
+  "byte_size": 1336325,
+  "columns": [
+    "dataset",
+    "subject_id",
+    "slice_id",
+    "split",
+    "modality",
+    "unit",
+    "source_path",
+    "source_sha256",
+    "source_kind",
+    "source_key",
+    "source_subject_index",
+    "source_slice_axis",
+    "source_slice_index",
+    "source_channel_index",
+    "source_selector",
+    "spatial_transform",
+    "source_spacing_y_mm",
+    "source_spacing_x_mm",
+    "selection_rule",
+    "allowed_methods",
+    "proposed_method_anatomy_use"
+  ],
+  "completed_utc": "2026-08-31T14:37:25.248409+00:00",
+  "dataset_counts": {
+    "brainweb": 3511,
+    "hecktor": 224
+  },
+  "inventory_path": "logs/anatomy_source_inventory_v2.json",
+  "inventory_sha256": "feec26ef7a9c09ecb7b43809b6e50b23716ea608f1e736f476dc476e7d314142",
+  "primary_key": [
+    "dataset",
+    "subject_id",
+    "slice_id"
+  ],
+  "proposed_method_anatomy_use": "prohibited",
+  "row_count": 3735,
+  "schema_name": "anatomy_source_manifest_v1",
+  "schema_version": 1,
+  "selection_rule": "brainweb_root_t1_nifti_and_hecktor_declared_ct_channel_0_v1",
+  "source_activity_manifest_path": "inputs/clean_v1/source_activity_manifest.csv",
+  "source_activity_manifest_sha256": "2ee28303d359ed7d967c6ac35e6291602665a135fa69357b8bfd228afbc0e02a",
+  "split": null
+}
