@@ -15,6 +15,7 @@ belong in the configuration/protocol YAML, not in ad-hoc command edits.
 | `audit_validation_priors.py` | Verify every validation prior, metadata binding and raw-output distribution before sweeping |
 | `package_validation_priors.py` | Package the audited validation priors and frozen evidence before selection |
 | `verify_validation_prior_bundle.py` | Stream-verify every member of the validation-prior bundle |
+| `register_validation_prior_archive.py` | Create a downstream sweep config bound to a fresh LFS download |
 | `audit_traceability_samples.py` | Diagnostic-only summary of committed traceability archives |
 | `audit_uploaded_samples.py` | Diagnostic-only operator/scale checks on committed samples |
 | `run_normalization_calibration.py` | Train-fit/validation-diagnose normalization candidates |

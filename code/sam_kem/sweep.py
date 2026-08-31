@@ -13,6 +13,7 @@ from .experiments import load_case_manifest, validate_case_contract
 from .metrics import nrmse, ssim
 from .operator_factory import build_discrete_radon
 from .protocols import load_protocol
+from .prior_registration import validate_registered_validation_prior_configuration
 from .reconstruction import bowsher_kernel, kem, mlem, normalize_kernel_feature, operator_support_mask, osem, rbf_kernel
 from .runmeta import write_run_metadata
 from .artifacts import atomic_csv_writer, finalize_csv, write_success_marker
@@ -28,6 +29,7 @@ def _mean_by_subject(records: list[dict], field: str) -> float:
 def run_validation_sweep(root: Path, config_path: Path, protocol_path: Path) -> tuple[Path, Path]:
   cfg, contract = load_contract(config_path)
   require_development_execution(cfg)
+  validate_registered_validation_prior_configuration(root, config_path, cfg)
   protocol = load_protocol(protocol_path)
   if protocol.kind != "hyperparameter_sweep" or protocol.split != "validation":
     raise ValueError("sweep runner accepts validation hyperparameter_sweep protocol only")

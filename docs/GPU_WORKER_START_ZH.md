@@ -418,3 +418,22 @@ PYTHONPATH=code python code/experiments/verify_validation_prior_bundle.py \
 
 build/verify 的 archive SHA、manifest SHA、成员数和 8,892 prior 数必须一致。验证前后
 不得修改或重新生成 prior；归档上传并从 fresh clone 完整 LFS 下载验证前不得进入 sweep。
+
+LFS 发布并 fresh-clone 验证后生成第三份下游配置；不得修改 decoder registered config：
+
+```bash
+PYTHONPATH=code python code/experiments/register_validation_prior_archive.py \
+  --root . \
+  --source-config code/configs/generated/dev_trainmax_v1_registered.yaml \
+  --build-record logs/validation_prior_archive_build.json \
+  --verify-record logs/validation_prior_archive_verify.json \
+  --verified-download /ABSOLUTE/FRESH_CLONE/delivery/dev_trainmax_v1_validation_priors.zip \
+  --archive-uri 'PINNED_GITHUB_COMMIT_BLOB_URI' \
+  --archive-version 'GIT_COMMIT_AND_LFS_OID_AND_SIZE' \
+  --output-config code/configs/generated/dev_trainmax_v1_validation_registered.yaml \
+  --registration-record logs/validation_prior_archive_registration.json
+```
+
+注册器再次流式验证下载 ZIP 的 17,799 个成员。sweep 入口只接受显式 `--config` 和
+`--protocol`，并强制检查这条 prior archive 注册链；旧的默认 experiment config 不再
+能意外启动 validation selection。
