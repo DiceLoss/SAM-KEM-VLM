@@ -397,3 +397,24 @@ PYTHONPATH=code python code/experiments/audit_validation_priors.py \
 
 必须输出 `status: PASS` 和 8,892 条 diagnostics。审计会如实列出 validation 中实际
 使用 fallback box 的 cache key；不得根据 prior 数值或审计结果筛除样本或重生成 box。
+
+审计与 prior completion manifests 提交后，必须从干净工作树打包并独立流式校验。归档
+只允许使用精确 LFS 路径 `delivery/dev_trainmax_v1_validation_priors.zip`：
+
+```bash
+PYTHONPATH=code python code/experiments/package_validation_priors.py \
+  --root . \
+  --config code/configs/generated/dev_trainmax_v1_registered.yaml \
+  --prior-dir runs/dev_trainmax_v1/validation_priors \
+  --audit logs/validation_prior_audit.json \
+  --diagnostics logs/validation_prior_diagnostics.csv \
+  --output delivery/dev_trainmax_v1_validation_priors.zip \
+  --record logs/validation_prior_archive_build.json
+
+PYTHONPATH=code python code/experiments/verify_validation_prior_bundle.py \
+  --archive delivery/dev_trainmax_v1_validation_priors.zip \
+  --output logs/validation_prior_archive_verify.json
+```
+
+build/verify 的 archive SHA、manifest SHA、成员数和 8,892 prior 数必须一致。验证前后
+不得修改或重新生成 prior；归档上传并从 fresh clone 完整 LFS 下载验证前不得进入 sweep。

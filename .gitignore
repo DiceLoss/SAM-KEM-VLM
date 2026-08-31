@@ -65,3 +65,4 @@ v3_repo_complete.bundle
 # This one verified bundle is deliberately published through Git LFS. Other
 # ZIP/checkpoint files remain ignored and belong to external artifact storage.
 !delivery/dev_trainmax_v1_decoder_bundle.zip
+!delivery/dev_trainmax_v1_validation_priors.zip
