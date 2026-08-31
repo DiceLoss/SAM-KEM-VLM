@@ -1,0 +1,38 @@
+{
+  "artifact_path": "validation_prior_diagnostics.csv",
+  "artifact_sha256": "38fde59c97b432294d0c3dec93e588ceecab3b50963f14ead40630b9007e9621",
+  "byte_size": 4392711,
+  "columns": [
+    "run_id",
+    "dataset",
+    "subject_id",
+    "slice_id",
+    "realization_id",
+    "count_level",
+    "split",
+    "box_source",
+    "decoder_checkpoint_sha256",
+    "mlem10_array_sha256",
+    "prior_path",
+    "prior_file_sha256",
+    "prior_array_sha256",
+    "prior_min",
+    "prior_max",
+    "prior_mean",
+    "negative_pixel_fraction",
+    "above_one_pixel_fraction"
+  ],
+  "completed_utc": "2026-08-30T07:57:07.688961+00:00",
+  "primary_key": [
+    "run_id",
+    "dataset",
+    "subject_id",
+    "slice_id",
+    "realization_id",
+    "count_level"
+  ],
+  "row_count": 8892,
+  "schema_name": "validation_prior_diagnostics_v1",
+  "schema_version": 1,
+  "split": "validation"
+}

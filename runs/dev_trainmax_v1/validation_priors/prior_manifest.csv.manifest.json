@@ -1,0 +1,37 @@
+{
+  "artifact_path": "prior_manifest.csv",
+  "artifact_sha256": "45dc3d099e20ba6405430721b8d7bd60dfa83271492bf65badd6a2cec02a0662",
+  "byte_size": 4920858,
+  "columns": [
+    "run_id",
+    "dataset",
+    "subject_id",
+    "slice_id",
+    "realization_id",
+    "count_level",
+    "split",
+    "prior_variant",
+    "prior_path",
+    "prior_file_sha256",
+    "prior_array_sha256",
+    "metadata_path",
+    "metadata_file_sha256",
+    "input_mlem10_sha256",
+    "box_source",
+    "decoder_checkpoint_sha256"
+  ],
+  "completed_utc": "2026-08-29T11:11:19.859772+00:00",
+  "primary_key": [
+    "run_id",
+    "dataset",
+    "subject_id",
+    "slice_id",
+    "realization_id",
+    "count_level",
+    "prior_variant"
+  ],
+  "row_count": 8892,
+  "schema_name": "medsam2_prior_manifest_v1",
+  "schema_version": 1,
+  "split": "validation"
+}

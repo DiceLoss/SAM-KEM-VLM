@@ -1,0 +1,18 @@
+{
+  "artifact_kind": "medsam2_prior_generation_batch",
+  "box_cache_sha256": "3ae6a2b468fb704572e9309469251516b20d9476fd5d48aa182ede2fea1d0793",
+  "case_manifest_sha256": "a8f86c204839f065e5a309a2194f4d71a4ab5e3f02a792928957ba5a551cef64",
+  "eligible_case_rows": 8892,
+  "prior_artifacts": 8892,
+  "prior_manifest_path": "runs/dev_trainmax_v1/validation_priors/prior_manifest.csv",
+  "prior_manifest_sha256": "45dc3d099e20ba6405430721b8d7bd60dfa83271492bf65badd6a2cec02a0662",
+  "registered_config_sha256": "1b057ad68ae95ded08fc4a007b3a827911e4070738e4750de897914a0e4b4bf7",
+  "reused_verified": 0,
+  "run_id": "dev_trainmax_v1",
+  "schema_version": 1,
+  "splits": [
+    "validation"
+  ],
+  "status": "complete",
+  "written": 8892
+}

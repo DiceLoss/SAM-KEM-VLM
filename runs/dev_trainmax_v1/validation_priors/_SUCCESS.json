@@ -1,0 +1,22 @@
+{
+  "artifacts": [
+    {
+      "byte_size": 4920858,
+      "path": "prior_manifest.csv",
+      "sha256": "45dc3d099e20ba6405430721b8d7bd60dfa83271492bf65badd6a2cec02a0662"
+    },
+    {
+      "byte_size": 828,
+      "path": "prior_manifest.csv.manifest.json",
+      "sha256": "dd3b22965b28abcfe4c196183da8819c39fa20cf27159253bfda2bd78e817e7e"
+    },
+    {
+      "byte_size": 733,
+      "path": "generation_record.json",
+      "sha256": "541de35f335c30cd3ed7033d1e3d4a34dfa7a257c38aee78800b6a5aa56190b0"
+    }
+  ],
+  "completed_utc": "2026-08-29T11:11:19.963387+00:00",
+  "schema_version": 1,
+  "status": "complete"
+}
