@@ -1,0 +1,19 @@
+{
+  "archive_byte_size": 543014048,
+  "archive_sha256": "9157b05e19dbfa16187578ca831ca8b8d84927ae9f7405f228fad3361ab8e400",
+  "archive_uri": "https://github.com/DiceLoss/SAM-KEM-VLM/blob/fea16ee622072a94de18c011d4cb813868d733b7/delivery/dev_trainmax_v1_validation_priors.zip",
+  "archive_version": "git-commit:fea16ee622072a94de18c011d4cb813868d733b7;lfs-oid:sha256:9157b05e19dbfa16187578ca831ca8b8d84927ae9f7405f228fad3361ab8e400;size:543014048",
+  "artifact_kind": "validation_prior_archive_registration",
+  "full_result_archive_uri": null,
+  "manifest_sha256": "b21b7612ed206e528032dfd9d737474aef32f2f49ab83e5a3b53ae8534d2ca6d",
+  "prior_records": 8892,
+  "registered_config_path": "code/configs/generated/dev_trainmax_v1_validation_registered.yaml",
+  "registered_config_sha256": "a7c2aae59946f50f682de3d58c5b6999fc326132626d6c28e0ac7b8cc6d4f5a9",
+  "run_id": "dev_trainmax_v1",
+  "schema_version": 1,
+  "source_config_path": "code/configs/generated/dev_trainmax_v1_registered.yaml",
+  "source_config_sha256": "1b057ad68ae95ded08fc4a007b3a827911e4070738e4750de897914a0e4b4bf7",
+  "status": "registered_for_development_validation_sweep",
+  "verified_download_path": "D:/MIAProject/SAM-KEM-validation-prior-lfs-verify/delivery/dev_trainmax_v1_validation_priors.zip",
+  "verified_download_sha256": "9157b05e19dbfa16187578ca831ca8b8d84927ae9f7405f228fad3361ab8e400"
+}
