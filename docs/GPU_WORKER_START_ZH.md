@@ -453,3 +453,55 @@ PYTHONPATH=code python code/experiments/audit_anatomy_sources.py \
 输出必须列出 20 个 BrainWeb subject 各自目录中的全部 NIfTI 候选、SHA、shape 和 spacing；
 HECKTOR 必须固定为同一已验证 NPZ 的 `input[subject_id-1,72,:,:,0]` CT/HU 通道。该步骤
 不得选择 MR、不得写 anatomy array、不得重建 manifest，也不得启动 sweep。
+
+### 6I. Freeze and ingest anatomy comparison inputs
+
+研究员选择规则固定如下：BrainWeb 只使用每个 subject 根目录的 `t1.nii.gz`；`mu.nii.gz`
+和任何 `sim_*` PET 派生文件均不得作为 MR。T1 必须与该 subject 的 `sim_0/true_pet.nii.gz`
+具有相同 shape 和 NIfTI affine/axis codes，不能只凭 shape/spacing 判断共注册。HECKTOR 使用
+同一 NPZ 中与 PET 同 subject、同 z=72 的 `input[...,0]` CT/HU。存储保持 raw float32：T1
+不做逐图归一化，CT 不做 window/clip；仅在 MR-KEM/CT-KEM/Bowsher-KEM 构造 kernel feature
+时做既定 per-image min--max。proposed method 禁止读取这些文件。
+
+旧的 schema-v1 inventory 不含 affine，作为 forensic evidence 保留但不得用于 freeze。用新文件
+名生成 schema-v2 inventory，并把其实际 SHA 传给 freeze：
+
+```bash
+PYTHONPATH=code python code/experiments/audit_anatomy_sources.py \
+  --root . \
+  --source-manifest inputs/clean_v1/source_activity_manifest.csv \
+  --output logs/anatomy_source_inventory_v2.json
+
+PYTHONPATH=code python code/experiments/prepare_anatomy.py freeze \
+  --root . \
+  --inventory logs/anatomy_source_inventory_v2.json \
+  --inventory-sha256 ACTUAL_SHA256 \
+  --source-manifest inputs/clean_v1/source_activity_manifest.csv \
+  --output inputs/clean_v1/anatomy_source_manifest.csv
+
+PYTHONPATH=code python code/experiments/prepare_anatomy.py ingest \
+  --root . \
+  --manifest inputs/clean_v1/anatomy_source_manifest.csv \
+  --arrays arrays/dev_trainmax_v1 \
+  --splits train validation --resume-verified
+
+PYTHONPATH=code python code/experiments/prepare_anatomy.py audit \
+  --root . \
+  --manifest inputs/clean_v1/anatomy_source_manifest.csv \
+  --arrays arrays/dev_trainmax_v1 \
+  --splits train validation \
+  --output logs/anatomy_ingestion_audit.json
+```
+
+首次完整摄入必须报告 3,735 个数组（BrainWeb 3,511、HECKTOR 224）；audit 必须为 `PASS`。
+随后才可构建只含 validation 的 8,892-row case manifest：
+
+```bash
+sam-kem build-manifest --root . \
+  --config code/configs/generated/dev_trainmax_v1_validation_registered.yaml \
+  --arrays arrays/dev_trainmax_v1 \
+  --splits validation \
+  --output results/dev_trainmax_v1/validation_case_manifest.csv
+```
+
+在 anatomy audit 与 validation manifest sidecar 均提交审核前，不得启动 sweep。

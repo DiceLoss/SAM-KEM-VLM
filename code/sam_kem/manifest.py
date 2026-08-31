@@ -34,10 +34,13 @@ def _relative(path: Path, root: Path) -> str:
   return path.relative_to(root).as_posix()
 
 
-def build_case_manifest(root: Path, config_path: Path, arrays_root: Path, output: Path) -> Path:
+def build_case_manifest(
+  root: Path, config_path: Path, arrays_root: Path, output: Path, *,
+  splits: set[str] | None = None,
+) -> Path:
   cfg, contract = load_contract(config_path)
-  splits = load_configured_subject_splits(root, cfg)
-  split_index = {(row["dataset"], row["subject_id"]): row["split"] for row in splits}
+  split_rows = load_configured_subject_splits(root, cfg)
+  split_index = {(row["dataset"], row["subject_id"]): row["split"] for row in split_rows}
   records = []
   for dataset_dir in sorted(path for path in arrays_root.iterdir() if path.is_dir()):
     dataset = dataset_dir.name
@@ -45,11 +48,14 @@ def build_case_manifest(root: Path, config_path: Path, arrays_root: Path, output
       key = (dataset, subject_dir.name)
       if key not in split_index:
         raise ValueError(f"array subject has no split assignment: {key}")
+      if splits is not None and split_index[key] not in splits:
+        continue
       for slice_dir in sorted(path for path in subject_dir.iterdir() if path.is_dir()):
         target = slice_dir / "target.npy"
         projection = slice_dir / "noise_free_projection.npy"
         projection_metadata = projection.with_suffix(".json")
         anatomy = slice_dir / "anatomy.npy"
+        anatomy_metadata = anatomy.with_suffix(".json")
         mask = slice_dir / "evaluation_mask.npy"
         if mask.is_file():
           raise ValueError(
@@ -149,6 +155,24 @@ def build_case_manifest(root: Path, config_path: Path, arrays_root: Path, output
               )
             ):
               raise ValueError(f"MLEM-10 provenance mismatch: {mlem10_metadata}")
+            if anatomy.is_file():
+              if not anatomy_metadata.is_file():
+                raise FileNotFoundError(f"anatomy lacks provenance sidecar: {anatomy_metadata}")
+              anatomy_array = np.load(anatomy, allow_pickle=False)
+              anatomy_record = json.loads(anatomy_metadata.read_text(encoding="utf-8"))
+              if (
+                anatomy_array.shape != (128, 128)
+                or not np.all(np.isfinite(anatomy_array))
+                or float(np.ptp(anatomy_array)) <= 0
+                or anatomy_record.get("artifact_kind") != "canonical_comparison_anatomy"
+                or anatomy_record.get("dataset") != dataset
+                or anatomy_record.get("subject_id") != subject_dir.name
+                or anatomy_record.get("slice_id") != slice_dir.name
+                or anatomy_record.get("split") != split_index[key]
+                or anatomy_record.get("anatomy_sha256") != array_sha256(anatomy_array)
+                or anatomy_record.get("proposed_method_anatomy_use") != "prohibited"
+              ):
+                raise ValueError(f"anatomy provenance mismatch: {anatomy_metadata}")
             def optional_prior(name: str) -> tuple[str, str]:
               path = case_dir / name
               if not path.is_file():
@@ -219,6 +243,6 @@ def build_case_manifest(root: Path, config_path: Path, arrays_root: Path, output
     output, schema_name="canonical_case_manifest_v3",
     primary_key=[
       "run_id", "dataset", "subject_id", "slice_id", "realization_id", "count_level",
-    ],
+    ], split=next(iter(splits)) if splits is not None and len(splits) == 1 else None,
   )
   return output

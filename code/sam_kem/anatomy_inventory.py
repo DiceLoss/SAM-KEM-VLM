@@ -81,8 +81,11 @@ def audit_anatomy_sources(
       *subject_root.rglob("*.nii"), *subject_root.rglob("*.nii.gz"),
     ]))
     candidate_records = []
+    activity_image = nib.load(str(activity_path))
     for candidate in candidates:
       image = nib.load(str(candidate))
+      affine = np.asarray(image.affine, dtype=np.float64)
+      activity_affine = np.asarray(activity_image.affine, dtype=np.float64)
       candidate_records.append({
         "path": candidate.as_posix(),
         "relative_to_subject": candidate.relative_to(subject_root).as_posix(),
@@ -91,6 +94,12 @@ def audit_anatomy_sources(
         "shape": list(image.shape),
         "zooms": [float(value) for value in image.header.get_zooms()],
         "dtype": str(image.get_data_dtype()),
+        "affine": affine.tolist(),
+        "axis_codes": list(nib.aff2axcodes(affine)),
+        "voxel_grid_matches_activity_source": bool(
+          image.shape == activity_image.shape
+          and np.allclose(affine, activity_affine, rtol=0.0, atol=1e-8)
+        ),
         "is_activity_source": candidate.resolve() == activity_path.resolve(),
       })
     brainweb_subjects[subject_id] = {
@@ -145,7 +154,7 @@ def audit_anatomy_sources(
 
   result = {
     "artifact_kind": "anatomy_source_inventory",
-    "schema_version": 1,
+    "schema_version": 2,
     "status": "complete_pending_brainweb_mr_selection",
     "read_only": True,
     "source_manifest_path": source_manifest_path.relative_to(root).as_posix(),

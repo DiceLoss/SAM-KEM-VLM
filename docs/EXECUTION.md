@@ -305,7 +305,8 @@ python code/experiments/generate_priors.py \
   --manifest results/clean_v1/case_manifest_inputs.csv \
   --splits validation
 sam-kem build-manifest --root . --config code/configs/experiment.yaml \
-  --arrays arrays/clean_v1 --output results/clean_v1/validation_case_manifest.csv
+  --arrays arrays/clean_v1 --splits validation \
+  --output results/clean_v1/validation_case_manifest.csv
 ```
 
 Run and freeze the complete validation sweep before any locked-test ingestion.

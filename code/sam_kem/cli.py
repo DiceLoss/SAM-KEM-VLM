@@ -177,7 +177,11 @@ def _request_prompt_batch(args: argparse.Namespace) -> int:
 
 def _build_manifest(args: argparse.Namespace) -> int:
   from .manifest import build_case_manifest
-  print(f"wrote {build_case_manifest(args.root.resolve(), args.config.resolve(), args.arrays.resolve(), args.output.resolve())}")
+  output = build_case_manifest(
+    args.root.resolve(), args.config.resolve(), args.arrays.resolve(), args.output.resolve(),
+    splits=set(args.splits) if args.splits else None,
+  )
+  print(f"wrote {output}")
   return 0
 
 
@@ -448,6 +452,9 @@ def build_parser() -> argparse.ArgumentParser:
   manifest.add_argument("--config", type=Path, required=True)
   manifest.add_argument("--arrays", type=Path, required=True)
   manifest.add_argument("--output", type=Path, required=True)
+  manifest.add_argument(
+    "--splits", nargs="+", choices=("train", "validation", "test_locked"),
+  )
   manifest.set_defaults(func=_build_manifest)
 
   render = sub.add_parser("render-prompt", help="render an exact 128x128 VLM PNG")
