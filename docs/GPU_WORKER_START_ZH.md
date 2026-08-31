@@ -505,3 +505,23 @@ sam-kem build-manifest --root . \
 ```
 
 在 anatomy audit 与 validation manifest sidecar 均提交审核前，不得启动 sweep。
+
+### 6J. Validation sweep exact-grid runtime preflight
+
+完整 validation grid 对每个 case 产生 580 条结果；8,892 个 case 共 5,157,360 条，并执行
+41,347,800 次 MLEM/OSEM/KEM operator update。当前 reference backend 是 SciPy sparse CSR
+float64 CPU，RTX 3090 不参与。因此在决定分片/恢复或 CUDA 等价实现前，只允许对每个 dataset
+一个固定 case 跑完整网格：
+
+```bash
+PYTHONPATH=code python code/experiments/validation_sweep_runtime_preflight.py \
+  --root . \
+  --config code/configs/generated/dev_trainmax_v1_validation_registered.yaml \
+  --protocol code/configs/generated/dev_trainmax_v1_protocols/hyperparameter_sweep.yaml \
+  --output logs/validation_sweep_runtime_preflight.json
+```
+
+固定样本选择规则为每个 dataset 在 validation、c=200000、r=0 下按 subject/slice 字典序第一项；
+预期是 BrainWeb `subject04/z038` 与 HECKTOR `10/z072`。每项必须实际完成 580 个 metric
+evaluation，而不是缩小网格。该步骤不得创建 `runs/.../hyperparameter_sweep`、不得冻结参数、
+不得读取 test，也不得把两样本结果当作科学比较结果。
