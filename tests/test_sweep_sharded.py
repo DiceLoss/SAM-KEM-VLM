@@ -1,10 +1,15 @@
+import hashlib
 from pathlib import Path
 
 import pytest
 
 from sam_kem.artifacts import atomic_csv_writer, atomic_write_json, file_sha256, finalize_csv
 from sam_kem.sweep_evaluation import SWEEP_FIELDS
-from sam_kem.sweep_sharded import PRIMARY_KEY, verify_sweep_shard
+from sam_kem.sweep_sharded import (
+  PRIMARY_KEY,
+  line_ending_equivalent_sha256,
+  verify_sweep_shard,
+)
 
 
 def _shard() -> dict:
@@ -78,3 +83,14 @@ def test_unpublished_transaction_directory_does_not_claim_shard(tmp_path):
     output_dir, _shard(), execution_commit="commit",
     execution_record_sha256="e" * 64, plan_sha256="p" * 64, run_id="run",
   ) is None
+
+
+def test_protocol_sha_accepts_only_line_ending_equivalence(tmp_path):
+  path = tmp_path / "protocol.yaml"
+  path.write_bytes(b"name: sweep\nkind: hyperparameter_sweep\n")
+  crlf_sha = hashlib.sha256(
+    b"name: sweep\r\nkind: hyperparameter_sweep\r\n"
+  ).hexdigest()
+  assert line_ending_equivalent_sha256(path, crlf_sha)
+  path.write_bytes(b"name: changed\nkind: hyperparameter_sweep\n")
+  assert not line_ending_equivalent_sha256(path, crlf_sha)

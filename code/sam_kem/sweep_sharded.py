@@ -44,6 +44,14 @@ THREAD_VARIABLES = ("OMP_NUM_THREADS", "OPENBLAS_NUM_THREADS", "MKL_NUM_THREADS"
 _WORKER_STATE: dict = {}
 
 
+def line_ending_equivalent_sha256(path: Path, expected: str) -> bool:
+  """Accept only exact or LF/CRLF-equivalent text bytes for a frozen YAML."""
+  payload = path.read_bytes()
+  lf = payload.replace(b"\r\n", b"\n")
+  variants = (payload, lf, lf.replace(b"\n", b"\r\n"))
+  return expected in {hashlib.sha256(value).hexdigest() for value in variants}
+
+
 def _clean_commit(root: Path) -> str:
   status = subprocess.run(
     ["git", "status", "--porcelain"], cwd=root, check=True,
@@ -276,7 +284,7 @@ def run_formal_validation_sweep_shards(
   if (
     protocol.kind != "hyperparameter_sweep" or protocol.split != "validation"
     or file_sha256(config_path) != plan.get("config_sha256")
-    or file_sha256(protocol_path) != plan.get("protocol_sha256")
+    or not line_ending_equivalent_sha256(protocol_path, str(plan.get("protocol_sha256")))
     or file_sha256(manifest_path) != plan.get("manifest_sha256")
     or registration != plan.get("prior_registration")
     or output_dir.relative_to(root).as_posix() != plan.get("formal_output_namespace")
@@ -305,6 +313,8 @@ def run_formal_validation_sweep_shards(
       "plan_path": plan_path.relative_to(root).as_posix(), "plan_sha256": plan_sha256,
       "config_sha256": file_sha256(config_path),
       "protocol_sha256": file_sha256(protocol_path),
+      "protocol_plan_sha256": plan["protocol_sha256"],
+      "protocol_binding": "exact_or_lf_crlf_equivalent_bytes",
       "manifest_sha256": file_sha256(manifest_path),
       "prior_registration": registration,
       "execution_backend": "scipy_sparse_csr_cpu_float64_multiprocess",
@@ -345,6 +355,8 @@ def run_formal_validation_sweep_shards(
       "plan_path": plan_path.relative_to(root).as_posix(), "plan_sha256": plan_sha256,
       "config_sha256": file_sha256(config_path),
       "protocol_sha256": file_sha256(protocol_path),
+      "protocol_plan_sha256": plan["protocol_sha256"],
+      "protocol_binding": "exact_or_lf_crlf_equivalent_bytes",
       "manifest_sha256": file_sha256(manifest_path),
       "execution_backend": "scipy_sparse_csr_cpu_float64_multiprocess",
       "worker_processes": workers, "gpu_used": False,
