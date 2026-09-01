@@ -8,6 +8,7 @@
 *.zip
 external/
 staging/
+runs/*/hyperparameter_sweep_shards/
 logs/gpu_*.log
 # Superseded local output from the interrupted Step 4C batch. Its immutable
 # incident decision and forensic summaries are tracked separately.

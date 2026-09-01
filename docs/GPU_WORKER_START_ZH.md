@@ -590,3 +590,28 @@ PYTHONPATH=code python code/experiments/build_validation_sweep_shard_plan.py \
 计划本身不运行 reconstruction、不创建正式 sweep 输出、不合并 fragment、不冻结超参数。恢复时
 只能跳过同一 Git commit 下 CSV、manifest、SUCCESS marker、主键、行数和 SHA-256 全部验证通过的
 完整 shard；禁止覆盖 partial 或失败 shard。merge 与 hyperparameter freeze 均为独立的后续审核门。
+
+### 6L-full. Formal resumable validation sweep shards
+
+正式 runner 固定使用 8 个长驻 process 和 SciPy CSR float64 backend。研究员最终 release 前先
+运行一次零写入 `--release-check-only`，完整验证 plan/config/protocol/manifest、741-shard membership、
+thread environment 及正式 namespace 尚不存在。PASS 后才按计划运行 741 个 slice-group shard。
+每个 shard 在隐藏临时目录写齐 CSV、CSV manifest、SUCCESS marker 后原子发布整个目录；正式
+namespace 被 Git 忽略。首次运行不得使用 resume 参数：
+
+```bash
+PYTHONPATH=code python code/experiments/run_validation_sweep_shards.py \
+  --root . \
+  --config code/configs/generated/dev_trainmax_v1_validation_registered.yaml \
+  --protocol code/configs/generated/dev_trainmax_v1_protocols/hyperparameter_sweep.yaml \
+  --plan logs/validation_sweep_shard_plan.json \
+  --output-dir runs/dev_trainmax_v1/hyperparameter_sweep_shards \
+  --workers 8 \
+  --release-check-only
+```
+
+正式 release 时使用同一命令但移除 `--release-check-only`。
+
+只有进程中断后才可在完全相同的 Git commit 和输入绑定上追加 `--resume-verified`。任何 shard
+三件套不完整或 SHA、主键、行数、case membership、执行 commit 不匹配都会停止；不得删除、覆盖
+或手工补写。741 个 shard 全部验证后只写 `shard_batch_SUCCESS.json`，仍不合并结果、不冻结参数。
