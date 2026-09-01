@@ -547,3 +547,24 @@ PYTHONPATH=code python code/experiments/validation_sweep_parallel_preflight.py \
 程序固定选择 BrainWeb 与 HECKTOR 各前 4 个不同 validation slice、c=200000、r=0。不得更改
 worker 数，不得设置 OMP/MKL/OpenBLAS threads，不得生成正式 sweep 或 frozen 参数。根据
 `measured_speedup`、`parallel_efficiency`、峰值内存和投影总时长再固定正式并发数。
+
+### 6L-pre. Shared evaluator and shard-writer smoke
+
+8-process 实测固定正式 backend 为 SciPy CSR float64、8 个长驻 process。正式运行前先验证重构
+evaluator 的单一实现及 fragment 写入/sidecar/恢复：对 Step 6J 的两个原样本各写一个 580-row
+staging fragment，并要求每种方法的 `(NRMSE, SSIM)` float64 byte hash 与 Step 6J 完全一致。
+
+```bash
+PYTHONPATH=code python code/experiments/validation_sweep_shard_smoke.py \
+  --root . \
+  --config code/configs/generated/dev_trainmax_v1_validation_registered.yaml \
+  --protocol code/configs/generated/dev_trainmax_v1_protocols/hyperparameter_sweep.yaml \
+  --runtime-preflight logs/validation_sweep_runtime_preflight.json \
+  --parallel-preflight logs/validation_sweep_parallel_preflight.json \
+  --output-dir staging/dev_trainmax_v1_validation_sweep_shard_smoke \
+  --audit logs/validation_sweep_shard_smoke.json
+```
+
+输出必须是 2 个 fragment、共 1,160 行，两个 fragment 都通过内部 resume verification；
+BrainWeb 与 HECKTOR 的所有方法 `all_methods_exact: true`。staging 不是正式 sweep，不得合并、
+不得冻结参数。三个 preflight/smoke JSON 在审核前均不提交。
