@@ -568,3 +568,25 @@ PYTHONPATH=code python code/experiments/validation_sweep_shard_smoke.py \
 输出必须是 2 个 fragment、共 1,160 行，两个 fragment 都通过内部 resume verification；
 BrainWeb 与 HECKTOR 的所有方法 `all_methods_exact: true`。staging 不是正式 sweep，不得合并、
 不得冻结参数。三个 preflight/smoke JSON 在审核前均不提交。
+
+### 6L-plan. Immutable slice-group shard plan
+
+正式执行前将完整 validation manifest 固化为 741 个不可变 slice-group shard：BrainWeb 696、
+HECKTOR 45。每个 shard 唯一对应 `(dataset, subject_id, slice_id)`，包含固定 4 个 count × 3 个
+realization = 12 cases、6,960 result rows。计划必须通过 SHA 链绑定 6J/6K/6L-pre 三份递进
+证据、registered config、protocol 和 case manifest，并记录本次正式执行计划的 Git commit。
+
+```bash
+PYTHONPATH=code python code/experiments/build_validation_sweep_shard_plan.py \
+  --root . \
+  --config code/configs/generated/dev_trainmax_v1_validation_registered.yaml \
+  --protocol code/configs/generated/dev_trainmax_v1_protocols/hyperparameter_sweep.yaml \
+  --runtime-preflight logs/validation_sweep_runtime_preflight.json \
+  --parallel-preflight logs/validation_sweep_parallel_preflight.json \
+  --smoke-audit logs/validation_sweep_shard_smoke.json \
+  --output logs/validation_sweep_shard_plan.json
+```
+
+计划本身不运行 reconstruction、不创建正式 sweep 输出、不合并 fragment、不冻结超参数。恢复时
+只能跳过同一 Git commit 下 CSV、manifest、SUCCESS marker、主键、行数和 SHA-256 全部验证通过的
+完整 shard；禁止覆盖 partial 或失败 shard。merge 与 hyperparameter freeze 均为独立的后续审核门。
