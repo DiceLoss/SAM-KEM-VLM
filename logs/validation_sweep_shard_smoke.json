@@ -1,0 +1,116 @@
+{
+  "artifact_kind": "validation_sweep_shard_writer_smoke",
+  "config_sha256": "a7c2aae59946f50f682de3d58c5b6999fc326132626d6c28e0ac7b8cc6d4f5a9",
+  "execution_backend": "scipy_sparse_csr_cpu_float64_multiprocess",
+  "formal_output_created": false,
+  "fragments": [
+    {
+      "count_level": 200000,
+      "dataset": "brainweb",
+      "elapsed_seconds": 131.4259541000356,
+      "fragment_manifest_sha256": "4eb06d074e9daa072441bd0b927af619e8caa94120b5c36285a1149c33d3cd89",
+      "fragment_path": "staging/dev_trainmax_v1_validation_sweep_shard_smoke/brainweb/subject04/z038/c200000_r0.csv",
+      "fragment_sha256": "fd5b78ae1fc31a3d5ce07f1277ea630e1120c7c5d3ae5b9aa8dc93b474d22862",
+      "metric_hashes": {
+        "Bowsher-KEM": "f38aa082fdc694ee4d0689757b97dc4f1ad69f04433c843b98ba7248c0b692a0",
+        "MLEM": "845e1f7c8ecd13b73d3279b3e3189729bf7dfd92daa4f26513402d4d3f7d5cfa",
+        "MR-KEM": "93604ff5c909e9523a8e24a39ebbe74a38bd78466a834f33345511e8499be290",
+        "OSEM": "f5ae96ec0ce5c72538c0f9c7f9a5cc55e63b1f3b808a1ca9bb7360c93d275a5e",
+        "SAM-KEM-MedSAM2-Qwen3-full": "cbca9a9fd717e1889c7318928ff1747dbcc107e5efe1fa95d53822057fa541fb",
+        "SelfKEM": "883014fbbf4dc261dabae44dc0b8a7be9e615e89a6eb5ce4964183a4a95275c7"
+      },
+      "process_id": 32936,
+      "realization_id": 0,
+      "row_count": 580,
+      "slice_id": "z038",
+      "subject_id": "subject04",
+      "success_marker_sha256": "23006fe6314bbb2f6de306d48491d793fd4ffdf42363715d1040d04f863c768b"
+    },
+    {
+      "count_level": 200000,
+      "dataset": "hecktor",
+      "elapsed_seconds": 131.55973129998893,
+      "fragment_manifest_sha256": "ceeb9082be263e6ef4b2070b19441a119126de18679d4d01f4d628ac44e66166",
+      "fragment_path": "staging/dev_trainmax_v1_validation_sweep_shard_smoke/hecktor/10/z072/c200000_r0.csv",
+      "fragment_sha256": "a32e62b6093e8b7dcdc6f00d5e8bd509b1a045b14e92275ee1e5b046d3b29684",
+      "metric_hashes": {
+        "Bowsher-KEM": "132be36e1f35b4dd33e4b487f49b93b2fd20f9b6ad80959c8598860bf119ea9d",
+        "CT-KEM": "9c398b19946b0b0d505b9fb4c2fe90c26b5ebbb300b365fffd3504ffedbafa40",
+        "MLEM": "a7ddda5168e987fff92a75f7cd2fdd5bbb0fa00d089bb00bf5f8ee03b90a0fa2",
+        "OSEM": "9fd6e42437a0e3c85c6f7071064fc77725df5f299066d5fa4c00c82e688b94db",
+        "SAM-KEM-MedSAM2-Qwen3-full": "c3ba935debc6aea7fd305cd7b07912f14e16f1d6ea9e3a8a3577fb5a1fa3c8f4",
+        "SelfKEM": "fa5c34011b1d6554589fcb5f76b69255119b9778297c0bf9df838160c2730e61"
+      },
+      "process_id": 6824,
+      "realization_id": 0,
+      "row_count": 580,
+      "slice_id": "z072",
+      "subject_id": "10",
+      "success_marker_sha256": "7fb73dc490077c0bdf5b760f949f08386b886b370860950b6635f1c9a138caf6"
+    }
+  ],
+  "fragments_resume_verified": 2,
+  "fragments_written": 2,
+  "frozen_hyperparameters_created": false,
+  "git_commit": "28f6ab64a6a913f107da46200bc46a2ac74a2328",
+  "manifest_sha256": "3059c981751f3156fd2fdfe3df2c177a58460b2fd8c455004a1e4bad35ed47b8",
+  "metric_equivalence": {
+    "brainweb": {
+      "actual_metric_hashes": {
+        "Bowsher-KEM": "f38aa082fdc694ee4d0689757b97dc4f1ad69f04433c843b98ba7248c0b692a0",
+        "MLEM": "845e1f7c8ecd13b73d3279b3e3189729bf7dfd92daa4f26513402d4d3f7d5cfa",
+        "MR-KEM": "93604ff5c909e9523a8e24a39ebbe74a38bd78466a834f33345511e8499be290",
+        "OSEM": "f5ae96ec0ce5c72538c0f9c7f9a5cc55e63b1f3b808a1ca9bb7360c93d275a5e",
+        "SAM-KEM-MedSAM2-Qwen3-full": "cbca9a9fd717e1889c7318928ff1747dbcc107e5efe1fa95d53822057fa541fb",
+        "SelfKEM": "883014fbbf4dc261dabae44dc0b8a7be9e615e89a6eb5ce4964183a4a95275c7"
+      },
+      "all_methods_exact": true,
+      "expected_metric_hashes": {
+        "Bowsher-KEM": "f38aa082fdc694ee4d0689757b97dc4f1ad69f04433c843b98ba7248c0b692a0",
+        "MLEM": "845e1f7c8ecd13b73d3279b3e3189729bf7dfd92daa4f26513402d4d3f7d5cfa",
+        "MR-KEM": "93604ff5c909e9523a8e24a39ebbe74a38bd78466a834f33345511e8499be290",
+        "OSEM": "f5ae96ec0ce5c72538c0f9c7f9a5cc55e63b1f3b808a1ca9bb7360c93d275a5e",
+        "SAM-KEM-MedSAM2-Qwen3-full": "cbca9a9fd717e1889c7318928ff1747dbcc107e5efe1fa95d53822057fa541fb",
+        "SelfKEM": "883014fbbf4dc261dabae44dc0b8a7be9e615e89a6eb5ce4964183a4a95275c7"
+      }
+    },
+    "hecktor": {
+      "actual_metric_hashes": {
+        "Bowsher-KEM": "132be36e1f35b4dd33e4b487f49b93b2fd20f9b6ad80959c8598860bf119ea9d",
+        "CT-KEM": "9c398b19946b0b0d505b9fb4c2fe90c26b5ebbb300b365fffd3504ffedbafa40",
+        "MLEM": "a7ddda5168e987fff92a75f7cd2fdd5bbb0fa00d089bb00bf5f8ee03b90a0fa2",
+        "OSEM": "9fd6e42437a0e3c85c6f7071064fc77725df5f299066d5fa4c00c82e688b94db",
+        "SAM-KEM-MedSAM2-Qwen3-full": "c3ba935debc6aea7fd305cd7b07912f14e16f1d6ea9e3a8a3577fb5a1fa3c8f4",
+        "SelfKEM": "fa5c34011b1d6554589fcb5f76b69255119b9778297c0bf9df838160c2730e61"
+      },
+      "all_methods_exact": true,
+      "expected_metric_hashes": {
+        "Bowsher-KEM": "132be36e1f35b4dd33e4b487f49b93b2fd20f9b6ad80959c8598860bf119ea9d",
+        "CT-KEM": "9c398b19946b0b0d505b9fb4c2fe90c26b5ebbb300b365fffd3504ffedbafa40",
+        "MLEM": "a7ddda5168e987fff92a75f7cd2fdd5bbb0fa00d089bb00bf5f8ee03b90a0fa2",
+        "OSEM": "9fd6e42437a0e3c85c6f7071064fc77725df5f299066d5fa4c00c82e688b94db",
+        "SAM-KEM-MedSAM2-Qwen3-full": "c3ba935debc6aea7fd305cd7b07912f14e16f1d6ea9e3a8a3577fb5a1fa3c8f4",
+        "SelfKEM": "fa5c34011b1d6554589fcb5f76b69255119b9778297c0bf9df838160c2730e61"
+      }
+    }
+  },
+  "output_namespace": "staging/dev_trainmax_v1_validation_sweep_shard_smoke",
+  "output_role": "staging_smoke_not_formal_sweep",
+  "parallel_preflight_sha256": "d17218a2fa08b72826b0548c6bcf84e48400c14067e163b6b035c8056a7c609e",
+  "prior_registration": {
+    "archive_sha256": "9157b05e19dbfa16187578ca831ca8b8d84927ae9f7405f228fad3361ab8e400",
+    "manifest_sha256": "b21b7612ed206e528032dfd9d737474aef32f2f49ab83e5a3b53ae8534d2ca6d",
+    "prior_manifest_sha256": "45dc3d099e20ba6405430721b8d7bd60dfa83271492bf65badd6a2cec02a0662",
+    "prior_records": 8892,
+    "registered_config_sha256": "a7c2aae59946f50f682de3d58c5b6999fc326132626d6c28e0ac7b8cc6d4f5a9",
+    "source_config_sha256": "1b057ad68ae95ded08fc4a007b3a827911e4070738e4750de897914a0e4b4bf7",
+    "status": "complete"
+  },
+  "protocol_sha256": "f2b073f5e460e24addc7a8d6ec0cfde67f8d7d74b4f01f08e7f096f02d0c9c66",
+  "runtime_preflight_sha256": "d6a3deeb3d82a6ec3ea26580f544fab2d1752fdd4312870cf1b5be471a2eccb7",
+  "schema_version": 1,
+  "status": "PASS",
+  "test_locked_access": "prohibited",
+  "total_rows": 1160,
+  "worker_processes": 2
+}

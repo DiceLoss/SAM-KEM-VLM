@@ -1,0 +1,196 @@
+{
+  "artifact_kind": "validation_sweep_runtime_preflight",
+  "config_path": "code/configs/generated/dev_trainmax_v1_validation_registered.yaml",
+  "config_sha256": "a7c2aae59946f50f682de3d58c5b6999fc326132626d6c28e0ac7b8cc6d4f5a9",
+  "cpu_count": 36,
+  "declared_workload": {
+    "per_dataset": {
+      "brainweb": {
+        "cases": 8352,
+        "operator_updates": 38836800,
+        "operator_updates_per_case": 4650,
+        "result_rows": 4844160,
+        "result_rows_per_case": 580
+      },
+      "hecktor": {
+        "cases": 540,
+        "operator_updates": 2511000,
+        "operator_updates_per_case": 4650,
+        "result_rows": 313200,
+        "result_rows_per_case": 580
+      }
+    },
+    "total_cases": 8892,
+    "total_operator_updates": 41347800,
+    "total_result_rows": 5157360
+  },
+  "execution_backend": "scipy_sparse_csr_cpu_float64",
+  "git_commit": "eb5a1d9770f7b9860eaa51d22d8ce922f95e6133",
+  "gpu_used": false,
+  "manifest_path": "results/dev_trainmax_v1/validation_case_manifest.csv",
+  "manifest_sha256": "3059c981751f3156fd2fdfe3df2c177a58460b2fd8c455004a1e4bad35ed47b8",
+  "measurements": [
+    {
+      "count_level": 200000,
+      "dataset": "brainweb",
+      "metrics": {
+        "Bowsher-KEM": {
+          "evaluations": 63,
+          "metric_array_sha256": "f38aa082fdc694ee4d0689757b97dc4f1ad69f04433c843b98ba7248c0b692a0",
+          "nrmse_max": 0.4129803952715359,
+          "nrmse_min": 0.1866539305108016,
+          "ssim_max": 0.909867246248454,
+          "ssim_min": 0.7751923257092712
+        },
+        "MLEM": {
+          "evaluations": 8,
+          "metric_array_sha256": "845e1f7c8ecd13b73d3279b3e3189729bf7dfd92daa4f26513402d4d3f7d5cfa",
+          "nrmse_max": 0.8772078271072292,
+          "nrmse_min": 0.29326483952066984,
+          "ssim_max": 0.7927935660679168,
+          "ssim_min": 0.22321306580969577
+        },
+        "MR-KEM": {
+          "evaluations": 63,
+          "metric_array_sha256": "93604ff5c909e9523a8e24a39ebbe74a38bd78466a834f33345511e8499be290",
+          "nrmse_max": 0.5620942565276787,
+          "nrmse_min": 0.18795670145199242,
+          "ssim_max": 0.9113923442884754,
+          "ssim_min": 0.724501427300219
+        },
+        "OSEM": {
+          "evaluations": 5,
+          "metric_array_sha256": "f5ae96ec0ce5c72538c0f9c7f9a5cc55e63b1f3b808a1ca9bb7360c93d275a5e",
+          "nrmse_max": 1.0544771006736464,
+          "nrmse_min": 0.29502481865223623,
+          "ssim_max": 0.792164836397069,
+          "ssim_min": 0.6448057497107267
+        },
+        "SAM-KEM-MedSAM2-Qwen3-full": {
+          "evaluations": 378,
+          "metric_array_sha256": "cbca9a9fd717e1889c7318928ff1747dbcc107e5efe1fa95d53822057fa541fb",
+          "nrmse_max": 1.4703880453550533,
+          "nrmse_min": 0.2640101778136102,
+          "ssim_max": 0.8342900725189172,
+          "ssim_min": 0.06705677957925664
+        },
+        "SelfKEM": {
+          "evaluations": 63,
+          "metric_array_sha256": "883014fbbf4dc261dabae44dc0b8a7be9e615e89a6eb5ce4964183a4a95275c7",
+          "nrmse_max": 0.7853457117268242,
+          "nrmse_min": 0.24781470429975974,
+          "ssim_max": 0.8519253800782737,
+          "ssim_min": 0.6846395787807048
+        }
+      },
+      "realization_id": 0,
+      "result_evaluations": 580,
+      "slice_id": "z038",
+      "subject_id": "subject04",
+      "timings_seconds": {
+        "Bowsher-KEM_seconds": 21.993162199971266,
+        "MLEM_seconds": 2.2516721000429243,
+        "MR-KEM_seconds": 23.281606899981853,
+        "OSEM_seconds": 4.787928999983706,
+        "SAM-KEM-MedSAM2-Qwen3-full_seconds": 26.088290399988182,
+        "SelfKEM_seconds": 23.26237770001171,
+        "prompt_mlem10_seconds": 0.16869799996493384
+      },
+      "total_seconds": 101.83373629994458
+    },
+    {
+      "count_level": 200000,
+      "dataset": "hecktor",
+      "metrics": {
+        "Bowsher-KEM": {
+          "evaluations": 63,
+          "metric_array_sha256": "132be36e1f35b4dd33e4b487f49b93b2fd20f9b6ad80959c8598860bf119ea9d",
+          "nrmse_max": 0.5829595703989657,
+          "nrmse_min": 0.1652889517395432,
+          "ssim_max": 0.969231862178487,
+          "ssim_min": 0.6733721469250615
+        },
+        "CT-KEM": {
+          "evaluations": 63,
+          "metric_array_sha256": "9c398b19946b0b0d505b9fb4c2fe90c26b5ebbb300b365fffd3504ffedbafa40",
+          "nrmse_max": 0.6251974148937403,
+          "nrmse_min": 0.1586181013373629,
+          "ssim_max": 0.9733932686957795,
+          "ssim_min": 0.6486240299335624
+        },
+        "MLEM": {
+          "evaluations": 8,
+          "metric_array_sha256": "a7ddda5168e987fff92a75f7cd2fdd5bbb0fa00d089bb00bf5f8ee03b90a0fa2",
+          "nrmse_max": 1.2674685130831254,
+          "nrmse_min": 0.21112663708692972,
+          "ssim_max": 0.9466777324300168,
+          "ssim_min": 0.34123646164745286
+        },
+        "OSEM": {
+          "evaluations": 5,
+          "metric_array_sha256": "9fd6e42437a0e3c85c6f7071064fc77725df5f299066d5fa4c00c82e688b94db",
+          "nrmse_max": 1.5083290308773807,
+          "nrmse_min": 0.22900948582734168,
+          "ssim_max": 0.9275600328244087,
+          "ssim_min": 0.2751953005315076
+        },
+        "SAM-KEM-MedSAM2-Qwen3-full": {
+          "evaluations": 378,
+          "metric_array_sha256": "c3ba935debc6aea7fd305cd7b07912f14e16f1d6ea9e3a8a3577fb5a1fa3c8f4",
+          "nrmse_max": 4.974420879500636,
+          "nrmse_min": 0.14207968932691148,
+          "ssim_max": 0.9769760670368166,
+          "ssim_min": 0.08383845170718737
+        },
+        "SelfKEM": {
+          "evaluations": 63,
+          "metric_array_sha256": "fa5c34011b1d6554589fcb5f76b69255119b9778297c0bf9df838160c2730e61",
+          "nrmse_max": 1.1288328844745947,
+          "nrmse_min": 0.16254571574027482,
+          "ssim_max": 0.9700751821786526,
+          "ssim_min": 0.41503298692224844
+        }
+      },
+      "realization_id": 0,
+      "result_evaluations": 580,
+      "slice_id": "z072",
+      "subject_id": "10",
+      "timings_seconds": {
+        "Bowsher-KEM_seconds": 22.095069399976637,
+        "CT-KEM_seconds": 23.37854010000592,
+        "MLEM_seconds": 1.9819705000263639,
+        "OSEM_seconds": 4.775939799961634,
+        "SAM-KEM-MedSAM2-Qwen3-full_seconds": 25.93585750000784,
+        "SelfKEM_seconds": 23.323598800052423,
+        "prompt_mlem10_seconds": 0.17092220002086833
+      },
+      "total_seconds": 101.66189830005169
+    }
+  ],
+  "operator_build_seconds": 0.4388116999762133,
+  "platform": "Windows-11-10.0.26200-SP0",
+  "prior_registration": {
+    "archive_sha256": "9157b05e19dbfa16187578ca831ca8b8d84927ae9f7405f228fad3361ab8e400",
+    "manifest_sha256": "b21b7612ed206e528032dfd9d737474aef32f2f49ab83e5a3b53ae8534d2ca6d",
+    "prior_manifest_sha256": "45dc3d099e20ba6405430721b8d7bd60dfa83271492bf65badd6a2cec02a0662",
+    "prior_records": 8892,
+    "registered_config_sha256": "a7c2aae59946f50f682de3d58c5b6999fc326132626d6c28e0ac7b8cc6d4f5a9",
+    "source_config_sha256": "1b057ad68ae95ded08fc4a007b3a827911e4070738e4750de897914a0e4b4bf7",
+    "status": "complete"
+  },
+  "projected_serial_hours": 251.50355296087918,
+  "projected_serial_seconds_from_two_case_measurement": 905412.790659165,
+  "projection_interpretation": "first-order serial estimate only; full-run sharding/resume and backend decision required",
+  "protocol_path": "code/configs/generated/dev_trainmax_v1_protocols/hyperparameter_sweep.yaml",
+  "protocol_sha256": "f2b073f5e460e24addc7a8d6ec0cfde67f8d7d74b4f01f08e7f096f02d0c9c66",
+  "schema_version": 1,
+  "selection_rule": "lexicographically_first_validation_subject_slice_at_c200000_r0_per_dataset",
+  "status": "PASS",
+  "test_locked_access": "prohibited",
+  "thread_environment": {
+    "MKL_NUM_THREADS": null,
+    "OMP_NUM_THREADS": null,
+    "OPENBLAS_NUM_THREADS": null
+  },
+  "write_policy": "no_formal_sweep_outputs"
+}

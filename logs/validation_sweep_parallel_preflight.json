@@ -1,0 +1,609 @@
+{
+  "artifact_kind": "validation_sweep_parallel_scaling_preflight",
+  "config_path": "code/configs/generated/dev_trainmax_v1_validation_registered.yaml",
+  "config_sha256": "a7c2aae59946f50f682de3d58c5b6999fc326132626d6c28e0ac7b8cc6d4f5a9",
+  "cpu_count": 36,
+  "execution_backend": "scipy_sparse_csr_cpu_float64_multiprocess",
+  "formal_output_created": false,
+  "frozen_hyperparameters_created": false,
+  "git_commit": "f1cffbab4c7910fb3ae2a69162a3af91e8ff05a0",
+  "gpu_used": false,
+  "manifest_path": "results/dev_trainmax_v1/validation_case_manifest.csv",
+  "manifest_sha256": "3059c981751f3156fd2fdfe3df2c177a58460b2fd8c455004a1e4bad35ed47b8",
+  "measured_cases_per_second": 0.05152556280939882,
+  "measured_speedup": 5.24261355101029,
+  "measurements": [
+    {
+      "count_level": 200000,
+      "dataset": "brainweb",
+      "metrics": {
+        "Bowsher-KEM": {
+          "evaluations": 63,
+          "metric_array_sha256": "f38aa082fdc694ee4d0689757b97dc4f1ad69f04433c843b98ba7248c0b692a0",
+          "nrmse_max": 0.4129803952715359,
+          "nrmse_min": 0.1866539305108016,
+          "ssim_max": 0.909867246248454,
+          "ssim_min": 0.7751923257092712
+        },
+        "MLEM": {
+          "evaluations": 8,
+          "metric_array_sha256": "845e1f7c8ecd13b73d3279b3e3189729bf7dfd92daa4f26513402d4d3f7d5cfa",
+          "nrmse_max": 0.8772078271072292,
+          "nrmse_min": 0.29326483952066984,
+          "ssim_max": 0.7927935660679168,
+          "ssim_min": 0.22321306580969577
+        },
+        "MR-KEM": {
+          "evaluations": 63,
+          "metric_array_sha256": "93604ff5c909e9523a8e24a39ebbe74a38bd78466a834f33345511e8499be290",
+          "nrmse_max": 0.5620942565276787,
+          "nrmse_min": 0.18795670145199242,
+          "ssim_max": 0.9113923442884754,
+          "ssim_min": 0.724501427300219
+        },
+        "OSEM": {
+          "evaluations": 5,
+          "metric_array_sha256": "f5ae96ec0ce5c72538c0f9c7f9a5cc55e63b1f3b808a1ca9bb7360c93d275a5e",
+          "nrmse_max": 1.0544771006736464,
+          "nrmse_min": 0.29502481865223623,
+          "ssim_max": 0.792164836397069,
+          "ssim_min": 0.6448057497107267
+        },
+        "SAM-KEM-MedSAM2-Qwen3-full": {
+          "evaluations": 378,
+          "metric_array_sha256": "cbca9a9fd717e1889c7318928ff1747dbcc107e5efe1fa95d53822057fa541fb",
+          "nrmse_max": 1.4703880453550533,
+          "nrmse_min": 0.2640101778136102,
+          "ssim_max": 0.8342900725189172,
+          "ssim_min": 0.06705677957925664
+        },
+        "SelfKEM": {
+          "evaluations": 63,
+          "metric_array_sha256": "883014fbbf4dc261dabae44dc0b8a7be9e615e89a6eb5ce4964183a4a95275c7",
+          "nrmse_max": 0.7853457117268242,
+          "nrmse_min": 0.24781470429975974,
+          "ssim_max": 0.8519253800782737,
+          "ssim_min": 0.6846395787807048
+        }
+      },
+      "operator_build_seconds": 0.5536728000151925,
+      "process_id": 2704,
+      "realization_id": 0,
+      "result_evaluations": 580,
+      "slice_id": "z038",
+      "subject_id": "subject04",
+      "timings_seconds": {
+        "Bowsher-KEM_seconds": 33.684935400029644,
+        "MLEM_seconds": 3.3135283999727108,
+        "MR-KEM_seconds": 35.565891599981114,
+        "OSEM_seconds": 7.942603999981657,
+        "SAM-KEM-MedSAM2-Qwen3-full_seconds": 37.38758239999879,
+        "SelfKEM_seconds": 35.70112149999477,
+        "prompt_mlem10_seconds": 0.2692471999907866
+      },
+      "total_seconds": 153.86491049994947
+    },
+    {
+      "count_level": 200000,
+      "dataset": "brainweb",
+      "metrics": {
+        "Bowsher-KEM": {
+          "evaluations": 63,
+          "metric_array_sha256": "77493f9894380dedb07fa5817123a5e429236f45df5f58c01ccecde7a25d7ac0",
+          "nrmse_max": 0.4099981080544309,
+          "nrmse_min": 0.221007663204155,
+          "ssim_max": 0.9020224555885753,
+          "ssim_min": 0.7732126499851308
+        },
+        "MLEM": {
+          "evaluations": 8,
+          "metric_array_sha256": "0f557e6b1fc003fb5b2da75265afd5bfa1f3b31fb3aa1fc060eddc7d1a49da1c",
+          "nrmse_max": 0.8493173660565296,
+          "nrmse_min": 0.3432964469277015,
+          "ssim_max": 0.7895739074000765,
+          "ssim_min": 0.19192158051198172
+        },
+        "MR-KEM": {
+          "evaluations": 63,
+          "metric_array_sha256": "3209666f80df7b9650b2198bfdf30e04845ddcd6166a66220d3fb76fa27bf13b",
+          "nrmse_max": 0.5828641543258716,
+          "nrmse_min": 0.22499417017259027,
+          "ssim_max": 0.8985001750703924,
+          "ssim_min": 0.7440146357690105
+        },
+        "OSEM": {
+          "evaluations": 5,
+          "metric_array_sha256": "6593ec4b80836b8d540629d7248056bc1be6c74045b5369a23b0b58196391ad8",
+          "nrmse_max": 1.011031920122353,
+          "nrmse_min": 0.3450737220024331,
+          "ssim_max": 0.7887031137135685,
+          "ssim_min": 0.66330522096012
+        },
+        "SAM-KEM-MedSAM2-Qwen3-full": {
+          "evaluations": 378,
+          "metric_array_sha256": "fa0157833ceacfeb4ae7bb2f3c4d4a594399143f6c46f24014c3ad9f7d7eed27",
+          "nrmse_max": 1.4769676944884194,
+          "nrmse_min": 0.2984956550129324,
+          "ssim_max": 0.8307386688408639,
+          "ssim_min": 0.07704815283598078
+        },
+        "SelfKEM": {
+          "evaluations": 63,
+          "metric_array_sha256": "2f841b8eab7cc5d4e1ec77e8f42b42b82f4698d53a9897c0f050902a952812f0",
+          "nrmse_max": 0.7691362399506804,
+          "nrmse_min": 0.2925085416147396,
+          "ssim_max": 0.8343189599011115,
+          "ssim_min": 0.7041235047300216
+        }
+      },
+      "operator_build_seconds": 0.532340599980671,
+      "process_id": 39264,
+      "realization_id": 0,
+      "result_evaluations": 580,
+      "slice_id": "z039",
+      "subject_id": "subject04",
+      "timings_seconds": {
+        "Bowsher-KEM_seconds": 33.06020969996462,
+        "MLEM_seconds": 3.334709699964151,
+        "MR-KEM_seconds": 34.96969579998404,
+        "OSEM_seconds": 7.891554199974053,
+        "SAM-KEM-MedSAM2-Qwen3-full_seconds": 37.261777899984736,
+        "SelfKEM_seconds": 35.44241509999847,
+        "prompt_mlem10_seconds": 0.2813933999859728
+      },
+      "total_seconds": 152.24175579985604
+    },
+    {
+      "count_level": 200000,
+      "dataset": "brainweb",
+      "metrics": {
+        "Bowsher-KEM": {
+          "evaluations": 63,
+          "metric_array_sha256": "36b0afd45a34bfdef535bd8b4700e8392c02d5fb804e4abe922b19c344b0f3d7",
+          "nrmse_max": 0.41211851866408317,
+          "nrmse_min": 0.21814086137475677,
+          "ssim_max": 0.903161683472989,
+          "ssim_min": 0.7718578782531962
+        },
+        "MLEM": {
+          "evaluations": 8,
+          "metric_array_sha256": "20551d5d972e5cd86483e8e0a1a7bc6aca8c30fe89dc57d8ed15a73400b66152",
+          "nrmse_max": 0.8605680096842249,
+          "nrmse_min": 0.3481336919983832,
+          "ssim_max": 0.7898037998935402,
+          "ssim_min": 0.19230918986978146
+        },
+        "MR-KEM": {
+          "evaluations": 63,
+          "metric_array_sha256": "e3fe482c66311b4e8596ff55126224bfb1647f41544764d0e39b9744067e81f0",
+          "nrmse_max": 0.5859912646697589,
+          "nrmse_min": 0.22772500350714034,
+          "ssim_max": 0.9010190115514735,
+          "ssim_min": 0.7400435201820614
+        },
+        "OSEM": {
+          "evaluations": 5,
+          "metric_array_sha256": "93b25360fbe68fab823ba17a5cf2cddb1524b4d0fd2746b928a40c49bb93723b",
+          "nrmse_max": 1.0247082332318014,
+          "nrmse_min": 0.34935177727164346,
+          "ssim_max": 0.78926782980139,
+          "ssim_min": 0.6601303210207294
+        },
+        "SAM-KEM-MedSAM2-Qwen3-full": {
+          "evaluations": 378,
+          "metric_array_sha256": "970d21a43be536ac620387f274155b22bb0a2f1d98eda1bc74fc7b23e8549784",
+          "nrmse_max": 1.2095880376336832,
+          "nrmse_min": 0.29674833519722016,
+          "ssim_max": 0.8367848619421921,
+          "ssim_min": 0.13227330275559424
+        },
+        "SelfKEM": {
+          "evaluations": 63,
+          "metric_array_sha256": "700f062fd897e4490dbc21a72218193e0aba4d083cdedb82ca378cf08a4a625f",
+          "nrmse_max": 0.7680515987586346,
+          "nrmse_min": 0.29562908578355057,
+          "ssim_max": 0.8333082986529899,
+          "ssim_min": 0.7063019861662709
+        }
+      },
+      "operator_build_seconds": 0.5975904000224546,
+      "process_id": 34516,
+      "realization_id": 0,
+      "result_evaluations": 580,
+      "slice_id": "z040",
+      "subject_id": "subject04",
+      "timings_seconds": {
+        "Bowsher-KEM_seconds": 33.70425700000487,
+        "MLEM_seconds": 3.325474100012798,
+        "MR-KEM_seconds": 35.8866700999788,
+        "OSEM_seconds": 7.817655599967111,
+        "SAM-KEM-MedSAM2-Qwen3-full_seconds": 37.22576559998561,
+        "SelfKEM_seconds": 35.56051710003521,
+        "prompt_mlem10_seconds": 0.2683394000050612
+      },
+      "total_seconds": 153.78867889998946
+    },
+    {
+      "count_level": 200000,
+      "dataset": "brainweb",
+      "metrics": {
+        "Bowsher-KEM": {
+          "evaluations": 63,
+          "metric_array_sha256": "caa1b8b27a6b8de23f2b6725da7265832ffa357ad65d669798ad589044f5ff1f",
+          "nrmse_max": 0.4036211026504357,
+          "nrmse_min": 0.21838851567961687,
+          "ssim_max": 0.9037274484380583,
+          "ssim_min": 0.7712211528996287
+        },
+        "MLEM": {
+          "evaluations": 8,
+          "metric_array_sha256": "71397397f4081aeeb821834a7a4a1501cf499cc64c4bb6df69d4156c4b5f697d",
+          "nrmse_max": 0.8425431510568084,
+          "nrmse_min": 0.3483703199437571,
+          "ssim_max": 0.7930145386535943,
+          "ssim_min": 0.1920102290583524
+        },
+        "MR-KEM": {
+          "evaluations": 63,
+          "metric_array_sha256": "cc6ce394b80d5a3eb4e17000788f27df9dea20d80ec4a3e3310e905a89c5ce2d",
+          "nrmse_max": 0.5846137503138858,
+          "nrmse_min": 0.2309731417325058,
+          "ssim_max": 0.9022658372240924,
+          "ssim_min": 0.744586739279558
+        },
+        "OSEM": {
+          "evaluations": 5,
+          "metric_array_sha256": "9a1f5ebd1a8b1a950e2e6259838220d2938c357cc8dd39e5df70b94dfa8e466b",
+          "nrmse_max": 1.0077181569489726,
+          "nrmse_min": 0.34893439741699006,
+          "ssim_max": 0.7926655904313125,
+          "ssim_min": 0.6637655099399424
+        },
+        "SAM-KEM-MedSAM2-Qwen3-full": {
+          "evaluations": 378,
+          "metric_array_sha256": "c9b6dd1ce826165ae71857bf77c2583a64adbb7570b03e74ce640ebe4fea4eac",
+          "nrmse_max": 1.5211423548005356,
+          "nrmse_min": 0.3072659968687893,
+          "ssim_max": 0.827849758529293,
+          "ssim_min": 0.0807260310950289
+        },
+        "SelfKEM": {
+          "evaluations": 63,
+          "metric_array_sha256": "2eb5b6290e0effc5a420af8d705be3bcd88b2a1ae35d58cce46bf3c659832ca9",
+          "nrmse_max": 0.7315032521671211,
+          "nrmse_min": 0.2952254183382082,
+          "ssim_max": 0.8358607419960007,
+          "ssim_min": 0.7154661402362976
+        }
+      },
+      "operator_build_seconds": 0.5942523999838158,
+      "process_id": 34444,
+      "realization_id": 0,
+      "result_evaluations": 580,
+      "slice_id": "z041",
+      "subject_id": "subject04",
+      "timings_seconds": {
+        "Bowsher-KEM_seconds": 33.687500400003046,
+        "MLEM_seconds": 3.322345499997027,
+        "MR-KEM_seconds": 35.47393929999089,
+        "OSEM_seconds": 7.974971999996342,
+        "SAM-KEM-MedSAM2-Qwen3-full_seconds": 37.1812219999847,
+        "SelfKEM_seconds": 35.88582500000484,
+        "prompt_mlem10_seconds": 0.2802777999895625
+      },
+      "total_seconds": 153.8060819999664
+    },
+    {
+      "count_level": 200000,
+      "dataset": "hecktor",
+      "metrics": {
+        "Bowsher-KEM": {
+          "evaluations": 63,
+          "metric_array_sha256": "132be36e1f35b4dd33e4b487f49b93b2fd20f9b6ad80959c8598860bf119ea9d",
+          "nrmse_max": 0.5829595703989657,
+          "nrmse_min": 0.1652889517395432,
+          "ssim_max": 0.969231862178487,
+          "ssim_min": 0.6733721469250615
+        },
+        "CT-KEM": {
+          "evaluations": 63,
+          "metric_array_sha256": "9c398b19946b0b0d505b9fb4c2fe90c26b5ebbb300b365fffd3504ffedbafa40",
+          "nrmse_max": 0.6251974148937403,
+          "nrmse_min": 0.1586181013373629,
+          "ssim_max": 0.9733932686957795,
+          "ssim_min": 0.6486240299335624
+        },
+        "MLEM": {
+          "evaluations": 8,
+          "metric_array_sha256": "a7ddda5168e987fff92a75f7cd2fdd5bbb0fa00d089bb00bf5f8ee03b90a0fa2",
+          "nrmse_max": 1.2674685130831254,
+          "nrmse_min": 0.21112663708692972,
+          "ssim_max": 0.9466777324300168,
+          "ssim_min": 0.34123646164745286
+        },
+        "OSEM": {
+          "evaluations": 5,
+          "metric_array_sha256": "9fd6e42437a0e3c85c6f7071064fc77725df5f299066d5fa4c00c82e688b94db",
+          "nrmse_max": 1.5083290308773807,
+          "nrmse_min": 0.22900948582734168,
+          "ssim_max": 0.9275600328244087,
+          "ssim_min": 0.2751953005315076
+        },
+        "SAM-KEM-MedSAM2-Qwen3-full": {
+          "evaluations": 378,
+          "metric_array_sha256": "c3ba935debc6aea7fd305cd7b07912f14e16f1d6ea9e3a8a3577fb5a1fa3c8f4",
+          "nrmse_max": 4.974420879500636,
+          "nrmse_min": 0.14207968932691148,
+          "ssim_max": 0.9769760670368166,
+          "ssim_min": 0.08383845170718737
+        },
+        "SelfKEM": {
+          "evaluations": 63,
+          "metric_array_sha256": "fa5c34011b1d6554589fcb5f76b69255119b9778297c0bf9df838160c2730e61",
+          "nrmse_max": 1.1288328844745947,
+          "nrmse_min": 0.16254571574027482,
+          "ssim_max": 0.9700751821786526,
+          "ssim_min": 0.41503298692224844
+        }
+      },
+      "operator_build_seconds": 0.5409593000076711,
+      "process_id": 26732,
+      "realization_id": 0,
+      "result_evaluations": 580,
+      "slice_id": "z072",
+      "subject_id": "10",
+      "timings_seconds": {
+        "Bowsher-KEM_seconds": 33.26384720002534,
+        "CT-KEM_seconds": 35.411358599958476,
+        "MLEM_seconds": 3.4072700000251643,
+        "OSEM_seconds": 7.788382800004911,
+        "SAM-KEM-MedSAM2-Qwen3-full_seconds": 36.73537979996763,
+        "SelfKEM_seconds": 35.38252119999379,
+        "prompt_mlem10_seconds": 0.27335689996834844
+      },
+      "total_seconds": 152.26211649994366
+    },
+    {
+      "count_level": 200000,
+      "dataset": "hecktor",
+      "metrics": {
+        "Bowsher-KEM": {
+          "evaluations": 63,
+          "metric_array_sha256": "88458ac523da9c39ec99b13f92279c53e4ea197dbec92526d8570c6a7a3e20c1",
+          "nrmse_max": 0.5548234278781023,
+          "nrmse_min": 0.19990675576225156,
+          "ssim_max": 0.9558693536523875,
+          "ssim_min": 0.6472966095518311
+        },
+        "CT-KEM": {
+          "evaluations": 63,
+          "metric_array_sha256": "471bcc57cb6553dc8558cb43fd4bb3fd6ea683dd8f0e13bb45df1ffc3b6ed172",
+          "nrmse_max": 0.598261176327501,
+          "nrmse_min": 0.1893883852802998,
+          "ssim_max": 0.9633966017810698,
+          "ssim_min": 0.6164940312150058
+        },
+        "MLEM": {
+          "evaluations": 8,
+          "metric_array_sha256": "edd5cd155a8c6a33c03e79155acb723041280e035951f0887630c5cb1132a8b4",
+          "nrmse_max": 1.1841123651705199,
+          "nrmse_min": 0.24082950705401154,
+          "ssim_max": 0.9276037717814808,
+          "ssim_min": 0.33569618502849813
+        },
+        "OSEM": {
+          "evaluations": 5,
+          "metric_array_sha256": "2da3b892c987ef2e1cceb9fb5cca527c34c949eb151b5a106e9c097f51fad0c4",
+          "nrmse_max": 1.41222276647908,
+          "nrmse_min": 0.2430101993110698,
+          "ssim_max": 0.9122910325852082,
+          "ssim_min": 0.2761968322945608
+        },
+        "SAM-KEM-MedSAM2-Qwen3-full": {
+          "evaluations": 378,
+          "metric_array_sha256": "6f9dfb0d8295a94dd419e5c117db432be808fd452f433925f715e6d8ef9d9484",
+          "nrmse_max": 3.7148894176529224,
+          "nrmse_min": 0.17286510897668314,
+          "ssim_max": 0.9660810752372964,
+          "ssim_min": 0.09451272498707419
+        },
+        "SelfKEM": {
+          "evaluations": 63,
+          "metric_array_sha256": "e29af6397db6460fe91445dfc347f71b1e0541101fcb9a9c126df278cd7072e0",
+          "nrmse_max": 1.008272128725526,
+          "nrmse_min": 0.18679586695134315,
+          "ssim_max": 0.9593671074057585,
+          "ssim_min": 0.4403240321196758
+        }
+      },
+      "operator_build_seconds": 0.5422901999554597,
+      "process_id": 33044,
+      "realization_id": 0,
+      "result_evaluations": 580,
+      "slice_id": "z072",
+      "subject_id": "106",
+      "timings_seconds": {
+        "Bowsher-KEM_seconds": 33.26619070000015,
+        "CT-KEM_seconds": 35.36389080004301,
+        "MLEM_seconds": 3.368111600051634,
+        "OSEM_seconds": 7.975932400033344,
+        "SAM-KEM-MedSAM2-Qwen3-full_seconds": 37.13152709999122,
+        "SelfKEM_seconds": 35.40335320000304,
+        "prompt_mlem10_seconds": 0.26341020001564175
+      },
+      "total_seconds": 152.77241600013804
+    },
+    {
+      "count_level": 200000,
+      "dataset": "hecktor",
+      "metrics": {
+        "Bowsher-KEM": {
+          "evaluations": 63,
+          "metric_array_sha256": "c0102657b6033c84a93ae10ef5bb7f28fd91f1f7e39feccb4e6f9ea64f73d648",
+          "nrmse_max": 0.5158986546403324,
+          "nrmse_min": 0.19032741950651308,
+          "ssim_max": 0.9505389172163662,
+          "ssim_min": 0.6375086153804969
+        },
+        "CT-KEM": {
+          "evaluations": 63,
+          "metric_array_sha256": "91a86f50db1851352d9fcb5e9e61b5e007aa8a9db93cfbc0ab2373d735aadbfc",
+          "nrmse_max": 0.5541778359301619,
+          "nrmse_min": 0.18182035449471712,
+          "ssim_max": 0.9614296502340517,
+          "ssim_min": 0.6103800592536568
+        },
+        "MLEM": {
+          "evaluations": 8,
+          "metric_array_sha256": "3f8dffd8e372a4c3600c88b50b09f8fb797c5e33e177954387f0ce5cfcf2335f",
+          "nrmse_max": 1.075673853733269,
+          "nrmse_min": 0.2278553972333268,
+          "ssim_max": 0.9126203875150889,
+          "ssim_min": 0.3504836078939416
+        },
+        "OSEM": {
+          "evaluations": 5,
+          "metric_array_sha256": "4fb4a765599c7e9382710568a6bbaef992c5a97f51594abb9618170041a8a394",
+          "nrmse_max": 1.2920703568443817,
+          "nrmse_min": 0.23010404026984427,
+          "ssim_max": 0.9003452370514662,
+          "ssim_min": 0.29704580271979186
+        },
+        "SAM-KEM-MedSAM2-Qwen3-full": {
+          "evaluations": 378,
+          "metric_array_sha256": "9dff420c2feaa9c776221c1ae60edeea18c5393f3affa44313cba2da988eec31",
+          "nrmse_max": 1.5015843217780098,
+          "nrmse_min": 0.14509516257334748,
+          "ssim_max": 0.9676320541878358,
+          "ssim_min": 0.46487937214494557
+        },
+        "SelfKEM": {
+          "evaluations": 63,
+          "metric_array_sha256": "ae5c5cd7be5d9b3fe87fe15c63814f8bb0ae6a219b22c14651a347c50d59d9c3",
+          "nrmse_max": 0.8262193095983766,
+          "nrmse_min": 0.1668915426763473,
+          "ssim_max": 0.9608334610820317,
+          "ssim_min": 0.49286667896993885
+        }
+      },
+      "operator_build_seconds": 0.5517582999891602,
+      "process_id": 34040,
+      "realization_id": 0,
+      "result_evaluations": 580,
+      "slice_id": "z072",
+      "subject_id": "109",
+      "timings_seconds": {
+        "Bowsher-KEM_seconds": 33.575567800027784,
+        "CT-KEM_seconds": 35.61823749996256,
+        "MLEM_seconds": 3.2980202000471763,
+        "OSEM_seconds": 7.818730600003619,
+        "SAM-KEM-MedSAM2-Qwen3-full_seconds": 37.10576999996556,
+        "SelfKEM_seconds": 35.986279400007334,
+        "prompt_mlem10_seconds": 0.27840770001057535
+      },
+      "total_seconds": 153.6810132000246
+    },
+    {
+      "count_level": 200000,
+      "dataset": "hecktor",
+      "metrics": {
+        "Bowsher-KEM": {
+          "evaluations": 63,
+          "metric_array_sha256": "c524f008c198a6f1f88831b9a1f8870f04da10c77f83408092bca4a01691f7e1",
+          "nrmse_max": 0.5370995663302898,
+          "nrmse_min": 0.1933767229017181,
+          "ssim_max": 0.9510817754105777,
+          "ssim_min": 0.66393905826227
+        },
+        "CT-KEM": {
+          "evaluations": 63,
+          "metric_array_sha256": "8e39b4e02181f83413f3e55fde9d147452cce9c34312ffad9a81353db309cb30",
+          "nrmse_max": 0.5573412959064683,
+          "nrmse_min": 0.18767183450072222,
+          "ssim_max": 0.960384258833263,
+          "ssim_min": 0.6429959913046559
+        },
+        "MLEM": {
+          "evaluations": 8,
+          "metric_array_sha256": "a2cfece8076d5e59c5468c870bbacb4bec00b014562111c6bc659f8b3f13911e",
+          "nrmse_max": 1.1259805939887968,
+          "nrmse_min": 0.2365318956086969,
+          "ssim_max": 0.9106851241779943,
+          "ssim_min": 0.3776857484454605
+        },
+        "OSEM": {
+          "evaluations": 5,
+          "metric_array_sha256": "49d92f0aeb377e4ba1c7261345e591c74dc7128867633e7e448361c926cdc189",
+          "nrmse_max": 1.343377124060446,
+          "nrmse_min": 0.24016437923611386,
+          "ssim_max": 0.9045612144743549,
+          "ssim_min": 0.32215512293440707
+        },
+        "SAM-KEM-MedSAM2-Qwen3-full": {
+          "evaluations": 378,
+          "metric_array_sha256": "d91d716379863b5597d044839fa80f7c77e709ae2f455298b569db161f776d07",
+          "nrmse_max": 3.396713175013897,
+          "nrmse_min": 0.17293039795740509,
+          "ssim_max": 0.9630643267969659,
+          "ssim_min": 0.10594228053894952
+        },
+        "SelfKEM": {
+          "evaluations": 63,
+          "metric_array_sha256": "d9de938b037f027d6cd44a72e4fa503a949a48408e85120481cd1f5a1351fb02",
+          "nrmse_max": 0.953862498274686,
+          "nrmse_min": 0.17775251927069557,
+          "ssim_max": 0.9579054448875435,
+          "ssim_min": 0.47755543531336503
+        }
+      },
+      "operator_build_seconds": 0.5508493999950588,
+      "process_id": 22192,
+      "realization_id": 0,
+      "result_evaluations": 580,
+      "slice_id": "z072",
+      "subject_id": "117",
+      "timings_seconds": {
+        "Bowsher-KEM_seconds": 33.60321610001847,
+        "CT-KEM_seconds": 35.584754000010435,
+        "MLEM_seconds": 3.488883700047154,
+        "OSEM_seconds": 7.913561700028367,
+        "SAM-KEM-MedSAM2-Qwen3-full_seconds": 37.39758069999516,
+        "SelfKEM_seconds": 35.669135400035884,
+        "prompt_mlem10_seconds": 0.2614195999922231
+      },
+      "total_seconds": 153.9185512001277
+    }
+  ],
+  "parallel_efficiency": 0.6553266938762863,
+  "platform": "Windows-11-10.0.26200-SP0",
+  "prior_registration": {
+    "archive_sha256": "9157b05e19dbfa16187578ca831ca8b8d84927ae9f7405f228fad3361ab8e400",
+    "manifest_sha256": "b21b7612ed206e528032dfd9d737474aef32f2f49ab83e5a3b53ae8534d2ca6d",
+    "prior_manifest_sha256": "45dc3d099e20ba6405430721b8d7bd60dfa83271492bf65badd6a2cec02a0662",
+    "prior_records": 8892,
+    "registered_config_sha256": "a7c2aae59946f50f682de3d58c5b6999fc326132626d6c28e0ac7b8cc6d4f5a9",
+    "source_config_sha256": "1b057ad68ae95ded08fc4a007b3a827911e4070738e4750de897914a0e4b4bf7",
+    "status": "complete"
+  },
+  "projected_full_sweep_hours_at_measured_throughput": 47.93737060450789,
+  "protocol_path": "code/configs/generated/dev_trainmax_v1_protocols/hyperparameter_sweep.yaml",
+  "protocol_sha256": "f2b073f5e460e24addc7a8d6ec0cfde67f8d7d74b4f01f08e7f096f02d0c9c66",
+  "result_evaluations_per_sample": 580,
+  "sample_count": 8,
+  "schema_version": 1,
+  "selection_rule": "first_four_unique_validation_slices_per_dataset_at_c200000_r0",
+  "serial_equivalent_seconds": 813.9825383999851,
+  "serial_reference_seconds_per_case": 101.74781729999813,
+  "serial_runtime_preflight_path": "logs/validation_sweep_runtime_preflight.json",
+  "serial_runtime_preflight_sha256": "d6a3deeb3d82a6ec3ea26580f544fab2d1752fdd4312870cf1b5be471a2eccb7",
+  "status": "PASS",
+  "test_locked_access": "prohibited",
+  "thread_environment": {
+    "MKL_NUM_THREADS": null,
+    "OMP_NUM_THREADS": null,
+    "OPENBLAS_NUM_THREADS": null
+  },
+  "wall_seconds": 155.26273880002555,
+  "worker_processes": 8,
+  "write_policy": "no_formal_sweep_outputs"
+}
