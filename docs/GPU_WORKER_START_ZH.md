@@ -615,3 +615,22 @@ PYTHONPATH=code python code/experiments/run_validation_sweep_shards.py \
 只有进程中断后才可在完全相同的 Git commit 和输入绑定上追加 `--resume-verified`。任何 shard
 三件套不完整或 SHA、主键、行数、case membership、执行 commit 不匹配都会停止；不得删除、覆盖
 或手工补写。741 个 shard 全部验证后只写 `shard_batch_SUCCESS.json`，仍不合并结果、不冻结参数。
+
+### 6M-pre. Read-only completed-shard integrity audit
+
+全量 shard 完成后先做只读审计，不合并、不冻结。审计逐一验证 741 组 CSV/manifest/SUCCESS、
+5,157,360 个结果行的分片主键与方法网格、execution/plan/input SHA 链、首末 shard 和时间线。
+中断遗留的隐藏事务目录只做 SHA inventory，保留原状并从正式 shard set 排除。
+
+```bash
+PYTHONPATH=code python code/experiments/audit_validation_sweep_shards.py \
+  --root . \
+  --config code/configs/generated/dev_trainmax_v1_validation_registered.yaml \
+  --protocol code/configs/generated/dev_trainmax_v1_protocols/hyperparameter_sweep.yaml \
+  --plan logs/validation_sweep_shard_plan.json \
+  --output-dir runs/dev_trainmax_v1/hyperparameter_sweep_shards \
+  --audit logs/validation_sweep_shard_integrity_audit.json
+```
+
+审计 PASS 前禁止 merge。审计输出在研究员审核前不提交；正式 shard 及隐藏事务目录始终不提交、
+不删除、不移动、不覆盖。

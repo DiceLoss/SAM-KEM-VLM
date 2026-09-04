@@ -24,13 +24,18 @@ def _shard() -> dict:
 def _write_complete_shard(output_dir: Path, shard: dict) -> None:
   directory = output_dir / "brainweb" / "subject04" / "z038" / "shard_0000"
   fragment = directory / "results.csv"
+  methods = (
+    ["MLEM"] * 8 + ["OSEM"] * 5 + ["Bowsher-KEM"] * 63
+    + ["SelfKEM"] * 63 + ["MR-KEM"] * 63
+    + ["SAM-KEM-MedSAM2-Qwen3-full"] * 378
+  )
   with atomic_csv_writer(fragment, SWEEP_FIELDS) as writer:
-    for index in range(580):
+    for index, method in enumerate(methods):
       writer.writerow({
         "run_id": "run", "dataset": "brainweb", "subject_id": "subject04",
         "slice_id": "z038", "realization_id": 0, "count_level": 200000,
-        "method": f"method_{index}", "split": "validation", "sigma": 0.0,
-        "radius": 0, "neighbours": 0, "iterations": 1, "osem_subsets": 1,
+        "method": method, "split": "validation", "sigma": 0.0,
+        "radius": 0, "neighbours": 0, "iterations": index + 1, "osem_subsets": 1,
         "effective_em_updates": 1, "alpha": 0.0, "nrmse": 0.1, "ssim": 0.9,
       })
   sidecar = finalize_csv(

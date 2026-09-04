@@ -100,6 +100,16 @@ def verify_sweep_shard(
     for item in shard["case_keys"]
   }
   case_rows = Counter((int(row["count_level"]), int(row["realization_id"])) for row in rows)
+  method_rows = Counter(row["method"] for row in rows)
+  anatomy_method = "MR-KEM" if shard["dataset"] == "brainweb" else "CT-KEM"
+  expected_method_rows = {
+    "MLEM": 8 * int(shard["case_count"]),
+    "OSEM": 5 * int(shard["case_count"]),
+    "Bowsher-KEM": 63 * int(shard["case_count"]),
+    "SelfKEM": 63 * int(shard["case_count"]),
+    anatomy_method: 63 * int(shard["case_count"]),
+    "SAM-KEM-MedSAM2-Qwen3-full": 378 * int(shard["case_count"]),
+  }
   valid_rows = all(
     row["run_id"] == run_id
     and row["dataset"] == shard["dataset"]
@@ -116,6 +126,7 @@ def verify_sweep_shard(
     or len(rows) != int(shard["expected_result_rows"])
     or set(case_rows) != expected_keys
     or any(value != 580 for value in case_rows.values())
+    or dict(method_rows) != expected_method_rows
     or not valid_rows
     or marker.get("artifact_kind") != "validation_sweep_slice_shard_success"
     or marker.get("status") != "complete"
@@ -132,10 +143,13 @@ def verify_sweep_shard(
     "shard_id": shard["shard_id"], "dataset": shard["dataset"],
     "subject_id": shard["subject_id"], "slice_id": shard["slice_id"],
     "case_count": int(shard["case_count"]), "row_count": len(rows),
+    "method_row_counts": dict(method_rows),
     "fragment_path": fragment.relative_to(output_dir).as_posix(),
     "fragment_sha256": file_sha256(fragment),
     "fragment_manifest_sha256": file_sha256(sidecar),
     "success_marker_sha256": file_sha256(marker_path),
+    "elapsed_seconds": float(marker.get("elapsed_seconds", 0.0)),
+    "process_id": int(marker.get("process_id", -1)),
   }
 
 
