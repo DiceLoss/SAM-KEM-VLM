@@ -634,3 +634,24 @@ PYTHONPATH=code python code/experiments/audit_validation_sweep_shards.py \
 
 审计 PASS 前禁止 merge。审计输出在研究员审核前不提交；正式 shard 及隐藏事务目录始终不提交、
 不删除、不移动、不覆盖。
+
+### 6M-merge. Transactional merge integrity gate
+
+已审核并提交 shard audit 后，按冻结 shard 顺序流式合并 741 个 CSV。合并前重新计算完整
+shard-set SHA，并逐项确认 8 个中断事务目录未变；合并目录包含 CSV、sidecar、merge record、
+SUCCESS 四个文件。整个目录一次原子发布，不读取原始图像、不运行 reconstruction、不冻结参数。
+
+```bash
+PYTHONPATH=code python code/experiments/merge_validation_sweep_shards.py \
+  --root . \
+  --config code/configs/generated/dev_trainmax_v1_validation_registered.yaml \
+  --protocol code/configs/generated/dev_trainmax_v1_protocols/hyperparameter_sweep.yaml \
+  --plan logs/validation_sweep_shard_plan.json \
+  --shard-dir runs/dev_trainmax_v1/hyperparameter_sweep_shards \
+  --shard-audit logs/validation_sweep_shard_integrity_audit.json \
+  --output-dir runs/dev_trainmax_v1/hyperparameter_sweep \
+  --audit logs/validation_sweep_merge_integrity_audit.json
+```
+
+输出必须为 5,157,360 行且 `PASS_complete_pending_hyperparameter_freeze`。merge audit 在审核前
+不提交；741 个 shard、8 个中断事务目录和四个 merge 文件均不得删除、移动、覆盖或提交。
