@@ -9,6 +9,7 @@ from sam_kem.sweep_incremental import (
   build_incremental_shards,
   incremental_candidate_map,
 )
+from sam_kem.sweep_incremental_smoke import fixed_incremental_smoke_shards
 
 
 def test_reviewed_plan_has_exact_incremental_case_workload():
@@ -89,3 +90,33 @@ def test_incremental_evaluator_runs_only_declared_candidates(tmp_path, monkeypat
   assert len(records) == 2
   assert [row["iterations"] for row in records] == [20, 140]
   assert all(row["method"] == "SelfKEM" for row in records)
+
+
+def test_smoke_selection_uses_only_predeclared_slice_keys(monkeypatch):
+  shards = [
+    {"shard_id": "shard_0000", "dataset": "brainweb", "subject_id": "subject04",
+     "slice_id": "z038"},
+    {"shard_id": "shard_0696", "dataset": "hecktor", "subject_id": "10",
+     "slice_id": "z072"},
+    {"shard_id": "other", "dataset": "hecktor", "subject_id": "11",
+     "slice_id": "z072"},
+  ]
+  import sam_kem.sweep_incremental_smoke as module
+
+  monkeypatch.setattr(module, "build_incremental_shards", lambda cases, candidates: shards)
+  cases = []
+  for dataset, subject, slice_id in (
+    ("brainweb", "subject04", "z038"), ("hecktor", "10", "z072"),
+  ):
+    for count in (100_000, 200_000, 500_000, 1_000_000):
+      for realization in (0, 1, 2):
+        cases.append(SimpleNamespace(
+          dataset=dataset, subject_id=subject, slice_id=slice_id,
+          count_level=count, realization_id=realization,
+        ))
+  selected, grouped = fixed_incremental_smoke_shards(cases, {})
+  assert [item["shard_id"] for item in selected] == ["shard_0000", "shard_0696"]
+  assert {key: len(value) for key, value in grouped.items()} == {
+    ("brainweb", "subject04", "z038"): 12,
+    ("hecktor", "10", "z072"): 12,
+  }

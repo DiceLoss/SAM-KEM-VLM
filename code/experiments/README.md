@@ -26,6 +26,7 @@ belong in the configuration/protocol YAML, not in ad-hoc command edits.
 | `audit_validation_hyperparameter_selection.py` | Read-only streaming subject-balanced selection and grid-boundary gate |
 | `plan_validation_hyperparameter_expansion.py` | Zero-execution local-shell plan for reviewed boundary selections |
 | `run_incremental_validation_sweep_shards.py` | SHA-bound resumable execution of the reviewed local-shell expansion |
+| `smoke_incremental_validation_sweep_shards.py` | Fixed BrainWeb/HECKTOR numerical smoke before incremental release |
 | `run_comparison.py` | Locked-test paired method comparison and subject statistics |
 | `run_primary.py` | Immutable filter of comparison output at the primary count |
 | `run_ablation.py` | True one-factor-at-a-time locked-test variants |
