@@ -48,6 +48,9 @@ REVIEWED_EXPANSION_PLAN_SHA256 = (
 EXPECTED_SELECTION_AUDIT_SHA256 = (
   "d2ea068f0dbbb3643512f84637ea450a053a2c2b0b8d233897ea39c2d166af28"
 )
+REVIEWED_SMOKE_AUDIT_SHA256 = (
+  "cd6d37840afcb18709699408847da820e5b4db23e6099778a84b9042d3e81af0"
+)
 EXPECTED_ROWS = 80_568
 EXPECTED_OPERATOR_UPDATES = 6_124_905
 OUTPUT_NAMESPACE = "runs/dev_trainmax_v1/hyperparameter_expansion_shards"
@@ -308,7 +311,8 @@ def _write_progress(
 
 def run_incremental_validation_sweep_shards(
   root: Path, config_path: Path, protocol_path: Path, selection_audit_path: Path,
-  plan_path: Path, output_dir: Path, *, workers: int, resume_verified: bool,
+  plan_path: Path, smoke_audit_path: Path, output_dir: Path, *, workers: int,
+  resume_verified: bool,
   release_check_only: bool = False,
 ) -> dict:
   """Run or strictly resume the reviewed 76-candidate incremental shell."""
@@ -317,6 +321,7 @@ def run_incremental_validation_sweep_shards(
   protocol_path = protocol_path.resolve()
   selection_audit_path = selection_audit_path.resolve()
   plan_path = plan_path.resolve()
+  smoke_audit_path = smoke_audit_path.resolve()
   output_dir = output_dir.resolve()
   if workers != 8:
     raise ValueError("the expansion release requires exactly 8 worker processes")
@@ -328,8 +333,15 @@ def run_incremental_validation_sweep_shards(
     raise ValueError("expansion plan is not the researcher-reviewed artifact")
   if file_sha256(selection_audit_path) != EXPECTED_SELECTION_AUDIT_SHA256:
     raise ValueError("selection audit differs from the expansion plan input")
+  if file_sha256(smoke_audit_path) != REVIEWED_SMOKE_AUDIT_SHA256:
+    raise ValueError("incremental smoke audit is not the researcher-reviewed artifact")
   plan = _json(plan_path)
   selection_audit = _json(selection_audit_path)
+  smoke_audit = _json(smoke_audit_path)
+  smoke_identities = {
+    (item.get("dataset"), item.get("subject_id"), item.get("slice_id"))
+    for item in smoke_audit.get("fragments", [])
+  }
   if (
     plan.get("status") != "ready_for_researcher_review_no_execution"
     or plan.get("selection_audit_sha256") != EXPECTED_SELECTION_AUDIT_SHA256
@@ -340,6 +352,26 @@ def run_incremental_validation_sweep_shards(
     or plan.get("frozen_hyperparameters_created") is not False
     or plan.get("test_locked_access") != "prohibited"
     or selection_audit.get("status") != "BLOCKED_grid_boundary_expansion_required"
+    or smoke_audit.get("status") != "PASS"
+    or smoke_audit.get("plan_sha256") != REVIEWED_EXPANSION_PLAN_SHA256
+    or smoke_audit.get("selection_audit_sha256") != EXPECTED_SELECTION_AUDIT_SHA256
+    or smoke_audit.get("merged_csv_sha256") != plan.get("merged_csv_sha256")
+    or smoke_audit.get("execution_backend")
+    != "scipy_sparse_csr_cpu_float64_multiprocess"
+    or smoke_audit.get("worker_processes") != 2
+    or smoke_audit.get("gpu_used") is not False
+    or smoke_identities != {
+      ("brainweb", "subject04", "z038"), ("hecktor", "10", "z072"),
+    }
+    or smoke_audit.get("fixed_shard_count") != 2
+    or smoke_audit.get("fragments_written") != 2
+    or smoke_audit.get("fragments_resume_verified") != 2
+    or smoke_audit.get("total_rows") != 228
+    or smoke_audit.get("process_ids_unique") is not True
+    or smoke_audit.get("formal_output_created") is not False
+    or smoke_audit.get("merge_created") is not False
+    or smoke_audit.get("frozen_hyperparameters_created") is not False
+    or smoke_audit.get("test_locked_access") != "prohibited"
   ):
     raise ValueError("expansion plan is not ready for released execution")
   cfg, contract = load_contract(config_path)
@@ -382,6 +414,7 @@ def run_incremental_validation_sweep_shards(
       "execution_git_commit": execution_commit,
       "plan_sha256": REVIEWED_EXPANSION_PLAN_SHA256,
       "selection_audit_sha256": EXPECTED_SELECTION_AUDIT_SHA256,
+      "smoke_audit_sha256": REVIEWED_SMOKE_AUDIT_SHA256,
       "config_sha256": file_sha256(config_path),
       "protocol_sha256": file_sha256(protocol_path),
       "protocol_binding": "exact_or_lf_crlf_equivalent_bytes",
@@ -415,6 +448,7 @@ def run_incremental_validation_sweep_shards(
       execution_record.get("execution_git_commit") != execution_commit
       or execution_record.get("plan_sha256") != REVIEWED_EXPANSION_PLAN_SHA256
       or execution_record.get("selection_audit_sha256") != EXPECTED_SELECTION_AUDIT_SHA256
+      or execution_record.get("smoke_audit_sha256") != REVIEWED_SMOKE_AUDIT_SHA256
       or execution_record.get("config_sha256") != file_sha256(config_path)
       or execution_record.get("protocol_sha256") != file_sha256(protocol_path)
       or execution_record.get("manifest_sha256") != file_sha256(manifest_path)
@@ -429,6 +463,7 @@ def run_incremental_validation_sweep_shards(
       "execution_git_commit": execution_commit,
       "plan_sha256": REVIEWED_EXPANSION_PLAN_SHA256,
       "selection_audit_sha256": EXPECTED_SELECTION_AUDIT_SHA256,
+      "smoke_audit_sha256": REVIEWED_SMOKE_AUDIT_SHA256,
       "config_sha256": file_sha256(config_path),
       "protocol_sha256": file_sha256(protocol_path),
       "protocol_binding": "exact_or_lf_crlf_equivalent_bytes",
@@ -535,6 +570,7 @@ def run_incremental_validation_sweep_shards(
     "execution_git_commit": execution_commit,
     "execution_record_sha256": execution_record_sha256,
     "plan_sha256": REVIEWED_EXPANSION_PLAN_SHA256,
+    "smoke_audit_sha256": REVIEWED_SMOKE_AUDIT_SHA256,
     "worker_processes": workers, "shards_total": len(shards),
     "shards_reused_verified": len(verified), "shards_written": len(written),
     "shards_completed": len(completed), "total_cases": len(cases),

@@ -98,6 +98,7 @@ def run_incremental_validation_sweep_smoke(
     raise FileExistsError("refusing to overwrite incremental smoke artifacts")
   release = run_incremental_validation_sweep_shards(
     root, config_path, protocol_path, selection_audit_path, plan_path,
+    root / "logs/validation_hyperparameter_expansion_shard_smoke.json",
     root / OUTPUT_NAMESPACE, workers=8, resume_verified=False,
     release_check_only=True,
   )
