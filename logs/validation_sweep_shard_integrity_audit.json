@@ -1,0 +1,209 @@
+{
+  "artifact_kind": "validation_sweep_shard_integrity_audit",
+  "audit_git_commit": "fac68a9f0ba34b0fba511a2df5aa748ea8b690ca",
+  "completion_updated_utc": "2026-09-04T01:57:34.282370+00:00",
+  "config_sha256": "a7c2aae59946f50f682de3d58c5b6999fc326132626d6c28e0ac7b8cc6d4f5a9",
+  "dataset_shard_counts": {
+    "brainweb": 696,
+    "hecktor": 45
+  },
+  "elapsed_wall_seconds_including_interruptions": 242851.857425,
+  "execution_created_utc": "2026-09-01T06:30:02.424945+00:00",
+  "execution_git_commit": "70c5574dfed3fa52a506f3f2cac20f277110d340",
+  "execution_record_sha256": "4604642dcd0e9decfe3483bba5d4a6b71cc696d3bb7d96838efd2993abec80b4",
+  "first_shard": {
+    "case_count": 12,
+    "dataset": "brainweb",
+    "elapsed_seconds": 1949.2424019000027,
+    "fragment_manifest_sha256": "770393788e9cd6a93c80a70905b723fc1be2192bd8a704581a5d6fbcc37ce509",
+    "fragment_path": "brainweb/subject04/z038/shard_0000/results.csv",
+    "fragment_sha256": "5c6f927c9b3656b514d9e0356172d882146e8a4e4f15c1775b2dbcbacc09570c",
+    "method_row_counts": {
+      "Bowsher-KEM": 756,
+      "MLEM": 96,
+      "MR-KEM": 756,
+      "OSEM": 60,
+      "SAM-KEM-MedSAM2-Qwen3-full": 4536,
+      "SelfKEM": 756
+    },
+    "process_id": 4976,
+    "row_count": 6960,
+    "shard_id": "shard_0000",
+    "slice_id": "z038",
+    "subject_id": "subject04",
+    "success_marker_sha256": "17ffff164832ecc2ca6d32fc42fa251aed4ffac212ab59e0d5b4765cda791d91"
+  },
+  "frozen_hyperparameters_created": false,
+  "global_primary_key_uniqueness": "verified_per_shard_and_by_disjoint_dataset_subject_slice_membership",
+  "last_shard": {
+    "case_count": 12,
+    "dataset": "hecktor",
+    "elapsed_seconds": 1713.3823570999084,
+    "fragment_manifest_sha256": "106331cc9c34ae629364365621cd2c50155aa319dec0ae5fb169714c76c4cae8",
+    "fragment_path": "hecktor/98/z072/shard_0740/results.csv",
+    "fragment_sha256": "c1beef3f38014c23a830fe51782a487772fb9559cce65493ff225abd78314915",
+    "method_row_counts": {
+      "Bowsher-KEM": 756,
+      "CT-KEM": 756,
+      "MLEM": 96,
+      "OSEM": 60,
+      "SAM-KEM-MedSAM2-Qwen3-full": 4536,
+      "SelfKEM": 756
+    },
+    "process_id": 3280,
+    "row_count": 6960,
+    "shard_id": "shard_0740",
+    "slice_id": "z072",
+    "subject_id": "98",
+    "success_marker_sha256": "3fe7007db89e381dbf6fa694dcc999bc3a6d1ad9b81c0244460c8979aaa4da49"
+  },
+  "manifest_sha256": "3059c981751f3156fd2fdfe3df2c177a58460b2fd8c455004a1e4bad35ed47b8",
+  "merge_created": false,
+  "method_row_counts": {
+    "brainweb": {
+      "Bowsher-KEM": 526176,
+      "MLEM": 66816,
+      "MR-KEM": 526176,
+      "OSEM": 41760,
+      "SAM-KEM-MedSAM2-Qwen3-full": 3157056,
+      "SelfKEM": 526176
+    },
+    "hecktor": {
+      "Bowsher-KEM": 34020,
+      "CT-KEM": 34020,
+      "MLEM": 4320,
+      "OSEM": 2700,
+      "SAM-KEM-MedSAM2-Qwen3-full": 204120,
+      "SelfKEM": 34020
+    }
+  },
+  "plan_sha256": "5e4eb3e4d1bca772652858b841c62bf287eec5dd11b2b0997e44552dfc24ecd4",
+  "progress_sha256": "a03b6ab9c6d144d1410448cc4e4020f1a843a11c088901e762c1f71222c3bb04",
+  "protocol_sha256": "f2b073f5e460e24addc7a8d6ec0cfde67f8d7d74b4f01f08e7f096f02d0c9c66",
+  "published_file_counts": {
+    "csv_manifest": 741,
+    "result_csv": 741,
+    "shard_artifacts": 2223,
+    "shard_success": 741,
+    "top_level_json": 3,
+    "total": 2226
+  },
+  "read_only": true,
+  "recorded_process_id_count": 16,
+  "recorded_process_ids": [
+    3280,
+    4976,
+    7556,
+    14024,
+    14504,
+    21152,
+    21888,
+    25660,
+    26248,
+    27572,
+    28872,
+    32240,
+    33780,
+    34600,
+    38368,
+    39156
+  ],
+  "schema_version": 1,
+  "shard_batch_success_sha256": "07b1eed36de9543f90537a1d8cc6302743666af977b50633ff241b6204cacf3a",
+  "shard_set_sha256": "5e8332fd22e10fafa997fb385763d962c08a562ee2a824d1a2278466749ea5bc",
+  "shards_reused_verified": 416,
+  "shards_total": 741,
+  "shards_written": 325,
+  "status": "PASS_complete_pending_merge",
+  "sum_shard_compute_seconds": 1490510.8595133997,
+  "temporary_transaction_directories": {
+    "count": 8,
+    "disposition": "preserved_read_only_excluded_from_published_shard_set",
+    "entries": [
+      {
+        "files": [
+          {
+            "byte_size": 487903,
+            "path": ".results.csv.6nbihkyr",
+            "sha256": "838c508ed4e7cbc08f8cd119b66fd087fdc9eba5c10e2e54e71b5849f3c2ae13"
+          }
+        ],
+        "path": "brainweb/subject44/z107/.shard_0416.7mj9kpxc"
+      },
+      {
+        "files": [
+          {
+            "byte_size": 404658,
+            "path": ".results.csv.84vv8wsw",
+            "sha256": "9ae5906da84bc03f5d3cbece2b4cd2c79482c35f4616c95c77a00cfaaf7ebd6f"
+          }
+        ],
+        "path": "brainweb/subject44/z108/.shard_0417.hcz7iy82"
+      },
+      {
+        "files": [
+          {
+            "byte_size": 405101,
+            "path": ".results.csv.f13vlywi",
+            "sha256": "243ad4276a022ed5cf336a95d124522212c7f88adc502032bfaaa61a01f62a8a"
+          }
+        ],
+        "path": "brainweb/subject44/z109/.shard_0418.2lhzdvgi"
+      },
+      {
+        "files": [
+          {
+            "byte_size": 404948,
+            "path": ".results.csv.pxrx54bf",
+            "sha256": "fa699bca594e123bd8b5160f5458da91ef890cb554c7e594fe94ee7c433d6eb3"
+          }
+        ],
+        "path": "brainweb/subject44/z110/.shard_0419.9jeqo9ex"
+      },
+      {
+        "files": [
+          {
+            "byte_size": 404799,
+            "path": ".results.csv.navlvaj3",
+            "sha256": "343d0261d8929740fdc1c2e2292f1985e96f25e9c1ffdf3c7b2339f9d79d68d4"
+          }
+        ],
+        "path": "brainweb/subject44/z111/.shard_0420.kcagavl0"
+      },
+      {
+        "files": [
+          {
+            "byte_size": 239406,
+            "path": ".results.csv.frxz8j5o",
+            "sha256": "3db83575f51ff24b202694dc162e3147f033e3ff578a9eb1cddfb568c1ff003d"
+          }
+        ],
+        "path": "brainweb/subject44/z112/.shard_0421.fcd2bsqv"
+      },
+      {
+        "files": [
+          {
+            "byte_size": 156598,
+            "path": ".results.csv.avy8qdyf",
+            "sha256": "6e1fc4f7b04892dd855be3b8d33f9f79cfad1f6bd6456a34b20e682f913cad10"
+          }
+        ],
+        "path": "brainweb/subject44/z113/.shard_0422.jvr83yof"
+      },
+      {
+        "files": [
+          {
+            "byte_size": 156590,
+            "path": ".results.csv.mtiz4lup",
+            "sha256": "a926ec6217d18d0f9c20f8ef5dcbc94f82244fe1b13ed9fa4c40921e0e7ba4dd"
+          }
+        ],
+        "path": "brainweb/subject44/z114/.shard_0423.ccox4rty"
+      }
+    ]
+  },
+  "test_locked_access": "prohibited",
+  "total_cases": 8892,
+  "total_operator_updates": 41347800,
+  "total_result_rows": 5157360
+}
