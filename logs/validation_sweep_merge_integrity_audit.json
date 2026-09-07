@@ -1,0 +1,46 @@
+{
+  "artifact_kind": "validation_sweep_shard_merge",
+  "execution_git_commit": "70c5574dfed3fa52a506f3f2cac20f277110d340",
+  "formal_merge_artifact_count": 4,
+  "frozen_hyperparameters_created": false,
+  "global_primary_key_uniqueness": "verified_per_shard_and_by_disjoint_dataset_subject_slice_membership",
+  "merge_git_commit": "69be13e0f75010f95967f0c1688a6da72cc8578b",
+  "merge_order": "frozen_shard_id_order_then_existing_fragment_row_order",
+  "merge_record_path": "runs/dev_trainmax_v1/hyperparameter_sweep/merge_record.json",
+  "merge_success_path": "runs/dev_trainmax_v1/hyperparameter_sweep/merge_SUCCESS.json",
+  "merge_success_sha256": "fc048479aff4373cf0edd529da1c2936e069cade02924260316d04d4bae81b73",
+  "merged_csv_byte_size": 723745058,
+  "merged_csv_path": "runs/dev_trainmax_v1/hyperparameter_sweep/validation_sweep.csv",
+  "merged_csv_sha256": "cbdc5beea03939819a0348f684544bccb36b3bda6f3f477152324e70784966bc",
+  "merged_manifest_path": "runs/dev_trainmax_v1/hyperparameter_sweep/validation_sweep.csv.manifest.json",
+  "merged_manifest_sha256": "867bdf03eca36a5851781552fdee8983ce789084692185af633db2317ad4409c",
+  "merged_result_rows": 5157360,
+  "method_row_counts": {
+    "brainweb": {
+      "Bowsher-KEM": 526176,
+      "MLEM": 66816,
+      "MR-KEM": 526176,
+      "OSEM": 41760,
+      "SAM-KEM-MedSAM2-Qwen3-full": 3157056,
+      "SelfKEM": 526176
+    },
+    "hecktor": {
+      "Bowsher-KEM": 34020,
+      "CT-KEM": 34020,
+      "MLEM": 4320,
+      "OSEM": 2700,
+      "SAM-KEM-MedSAM2-Qwen3-full": 204120,
+      "SelfKEM": 34020
+    }
+  },
+  "plan_sha256": "5e4eb3e4d1bca772652858b841c62bf287eec5dd11b2b0997e44552dfc24ecd4",
+  "schema_version": 1,
+  "shard_audit_path": "logs/validation_sweep_shard_integrity_audit.json",
+  "shard_audit_sha256": "25e83bd7b9097840cc2759075388225e70fec0d83d7c3b294a4b1c525f708079",
+  "shard_set_sha256": "5e8332fd22e10fafa997fb385763d962c08a562ee2a824d1a2278466749ea5bc",
+  "source_cases": 8892,
+  "source_shards": 741,
+  "status": "PASS_complete_pending_hyperparameter_freeze",
+  "temporary_transaction_directories_preserved": 8,
+  "test_locked_access": "prohibited"
+}
