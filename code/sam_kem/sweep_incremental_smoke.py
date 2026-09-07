@@ -59,6 +59,7 @@ def fixed_incremental_smoke_shards(
 
 def _fragment_summary(output_dir: Path, shard: dict) -> dict:
   fragment, sidecar, marker = _paths(output_dir, shard)
+  marker_record = json.loads(marker.read_text(encoding="utf-8"))
   with fragment.open("r", encoding="utf-8", newline="") as handle:
     rows = list(csv.DictReader(handle))
   metrics = [(float(row["nrmse"]), float(row["ssim"])) for row in rows]
@@ -73,6 +74,8 @@ def _fragment_summary(output_dir: Path, shard: dict) -> dict:
     "nrmse_max": max(value[0] for value in metrics),
     "ssim_min": min(value[1] for value in metrics),
     "ssim_max": max(value[1] for value in metrics),
+    "elapsed_seconds": float(marker_record["elapsed_seconds"]),
+    "process_id": int(marker_record["process_id"]),
     "fragment_sha256": file_sha256(fragment),
     "fragment_manifest_sha256": file_sha256(sidecar),
     "success_marker_sha256": file_sha256(marker),
@@ -155,6 +158,7 @@ def run_incremental_validation_sweep_smoke(
   if (
     sum(item["row_count"] for item in summaries) != 228
     or any(item["method_row_counts"] != expected_methods[item["dataset"]] for item in summaries)
+    or len({item["process_id"] for item in summaries}) != 2
     or {item["shard_id"] for item in written} != {item["shard_id"] for item in verified}
   ):
     raise ValueError("incremental smoke fragments differ from the reviewed plan")
@@ -169,6 +173,7 @@ def run_incremental_validation_sweep_smoke(
     "worker_processes": 2, "gpu_used": False,
     "fixed_shard_count": 2, "fragments_written": len(written),
     "fragments_resume_verified": len(verified), "total_rows": 228,
+    "process_ids_unique": True,
     "formal_declared_result_rows": EXPECTED_ROWS,
     "formal_declared_operator_updates": EXPECTED_OPERATOR_UPDATES,
     "fragments": summaries,
