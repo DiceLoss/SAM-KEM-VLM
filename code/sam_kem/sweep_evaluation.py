@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
+from collections import defaultdict
 from itertools import product
 
 import numpy as np
@@ -175,6 +176,89 @@ def evaluate_validation_case(
           **_base_record(case, run_id, method),
           "sigma": sigma, "radius": radius, "iterations": iterations,
           "neighbours": neighbours, "osem_subsets": 1,
+          "effective_em_updates": iterations, "alpha": alpha,
+          "nrmse": nrmse(target, image, operator_support),
+          "ssim": ssim(target, image, data_range=1.0, mask=operator_support),
+        })
+  return records
+
+
+def evaluate_incremental_validation_case(
+  case: Case, operator, operator_support: np.ndarray, cfg: dict, run_id: str,
+  candidates: list[dict],
+) -> list[dict]:
+  """Evaluate only predeclared KEM candidates from a boundary-expansion plan."""
+  measured = np.load(case.sinogram_path, allow_pickle=False)
+  target = np.load(case.target_path, allow_pickle=False)
+  if case.mask_path is not None:
+    raise ValueError("external evaluation masks are prohibited in the clean protocol")
+  if case.sam_prior_path is None:
+    raise FileNotFoundError(f"SAM prior missing for validation case: {case}")
+  prior = np.load(case.sam_prior_path, allow_pickle=False)
+  physical_prior = np.clip(
+    prior, cfg["normalization"]["expected_target_range"][0],
+    cfg["normalization"]["expected_target_range"][1],
+  )
+  gain = np.full_like(measured, case.projection_scale, dtype=np.float64)
+  prompt_iterations = int(cfg["reconstruction"]["prompt_mlem_iterations"])
+  mlem_image = mlem(
+    measured, operator, iterations=prompt_iterations, multiplicative=gain,
+  )[prompt_iterations]
+  by_method: dict[str, list[dict]] = defaultdict(list)
+  for candidate in candidates:
+    by_method[str(candidate["method"])].append(candidate)
+  records = []
+  for method, method_candidates in by_method.items():
+    if method == "SelfKEM":
+      feature = normalize_kernel_feature(mlem_image)
+    elif method in {"MR-KEM", "CT-KEM", "Bowsher-KEM"}:
+      if case.anatomy_path is None:
+        raise FileNotFoundError(f"missing anatomy baseline input: {case}")
+      if method == "MR-KEM" and case.dataset != "brainweb":
+        raise ValueError("MR-KEM expansion is permitted only for BrainWeb")
+      if method == "CT-KEM" and case.dataset != "hecktor":
+        raise ValueError("CT-KEM expansion is permitted only for HECKTOR")
+      feature = normalize_kernel_feature(np.load(case.anatomy_path, allow_pickle=False))
+    elif method == "SAM-KEM-MedSAM2-Qwen3-full":
+      feature = normalize_kernel_feature(prior)
+    else:
+      raise ValueError(f"unsupported incremental sweep method: {method}")
+    by_kernel: dict[tuple[float, int, int], list[dict]] = defaultdict(list)
+    for candidate in method_candidates:
+      by_kernel[
+        (float(candidate["sigma"]), int(candidate["radius"]), int(candidate["neighbours"]))
+      ].append(candidate)
+    for (sigma, radius, neighbours), kernel_candidates in by_kernel.items():
+      kernel = (
+        bowsher_kernel(
+          feature, neighbours=neighbours, radius=radius, support=operator_support,
+        )
+        if method == "Bowsher-KEM" else
+        rbf_kernel(feature, sigma=sigma, radius=radius, support=operator_support)
+      )
+      save_iterations = tuple(sorted({int(row["iterations"]) for row in kernel_candidates}))
+      iterates = kem(
+        measured, operator, kernel, iterations=max(save_iterations),
+        save_iterations=save_iterations, multiplicative=gain,
+      )
+      for candidate in kernel_candidates:
+        iterations = int(candidate["iterations"])
+        alpha = float(candidate["alpha"])
+        image = (
+          alpha * physical_prior + (1.0 - alpha) * iterates[iterations]
+          if method.startswith("SAM") else iterates[iterations]
+        )
+        tolerance = float(cfg["evaluation"]["nonnegative_tolerance"])
+        if not np.all(np.isfinite(image)) or float(np.nanmin(image)) < -tolerance:
+          raise ValueError(
+            f"invalid negative/non-finite PET estimate during expansion: "
+            f"{method}, alpha={alpha}, min={float(np.nanmin(image)):.6g}"
+          )
+        image = np.maximum(image, 0.0)
+        records.append({
+          **_base_record(case, run_id, method),
+          "sigma": sigma, "radius": radius, "neighbours": neighbours,
+          "iterations": iterations, "osem_subsets": 1,
           "effective_em_updates": iterations, "alpha": alpha,
           "nrmse": nrmse(target, image, operator_support),
           "ssim": ssim(target, image, data_range=1.0, mask=operator_support),

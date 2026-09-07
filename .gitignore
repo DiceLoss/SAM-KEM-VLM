@@ -11,6 +11,7 @@ staging/
 runs/*/hyperparameter_sweep_shards/
 runs/*/hyperparameter_sweep/
 runs/*/.hyperparameter_sweep.merge.*/
+runs/*/hyperparameter_expansion_shards/
 logs/gpu_*.log
 # Superseded local output from the interrupted Step 4C batch. Its immutable
 # incident decision and forensic summaries are tracked separately.
