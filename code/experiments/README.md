@@ -24,6 +24,7 @@ belong in the configuration/protocol YAML, not in ad-hoc command edits.
 | `generate_priors.py` | Generate continuous priors for explicitly named splits |
 | `run_hyperparameter_sweep.py` | Validation-only selection and parameter freeze |
 | `audit_validation_hyperparameter_selection.py` | Read-only streaming subject-balanced selection and grid-boundary gate |
+| `plan_validation_hyperparameter_expansion.py` | Zero-execution local-shell plan for reviewed boundary selections |
 | `run_comparison.py` | Locked-test paired method comparison and subject statistics |
 | `run_primary.py` | Immutable filter of comparison output at the primary count |
 | `run_ablation.py` | True one-factor-at-a-time locked-test variants |
