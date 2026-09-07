@@ -1,0 +1,71 @@
+{
+  "artifact_kind": "validation_hyperparameter_expansion_shard_smoke",
+  "execution_backend": "scipy_sparse_csr_cpu_float64_multiprocess",
+  "execution_git_commit": "f0da0b3ce6e5c8922e79eb3e0a7d03642c564261",
+  "fixed_shard_count": 2,
+  "formal_declared_operator_updates": 6124905,
+  "formal_declared_result_rows": 80568,
+  "formal_output_created": false,
+  "fragments": [
+    {
+      "dataset": "brainweb",
+      "elapsed_seconds": 232.75991419993807,
+      "fragment_manifest_sha256": "fc5e61ecc600f3b3624255d55957dae993a1896d5fdd75320f801b84cd47623a",
+      "fragment_sha256": "5c1e3aa2b14b853d934d2398e1444958387b2f86266822e2d8140cfaa9f4fb9d",
+      "method_row_counts": {
+        "Bowsher-KEM": 48,
+        "MR-KEM": 18,
+        "SAM-KEM-MedSAM2-Qwen3-full": 12,
+        "SelfKEM": 30
+      },
+      "nrmse_max": 0.30030972732962175,
+      "nrmse_min": 0.13481716589072096,
+      "process_id": 12128,
+      "row_count": 108,
+      "shard_id": "shard_0000",
+      "slice_id": "z038",
+      "ssim_max": 0.956669313345473,
+      "ssim_min": 0.808804521731316,
+      "subject_id": "subject04",
+      "success_marker_sha256": "9921e2c6509b67ce4086c23a3ce7e7e4c226f00e4502cc0d987bace950d3fd86"
+    },
+    {
+      "dataset": "hecktor",
+      "elapsed_seconds": 214.34174840000924,
+      "fragment_manifest_sha256": "cce4f44dd5a0570d73caadfe719de3f3da8ac1476df4ddf81738473257f7ca34",
+      "fragment_sha256": "6b8c06fb3fc546d119e7b6f0a6e42b0f8495ce8fb642d28c56b9598113b41528",
+      "method_row_counts": {
+        "Bowsher-KEM": 6,
+        "CT-KEM": 30,
+        "SAM-KEM-MedSAM2-Qwen3-full": 36,
+        "SelfKEM": 48
+      },
+      "nrmse_max": 0.2144639285349952,
+      "nrmse_min": 0.09311658128223448,
+      "process_id": 3612,
+      "row_count": 120,
+      "shard_id": "shard_0696",
+      "slice_id": "z072",
+      "ssim_max": 0.9890565190409226,
+      "ssim_min": 0.9512247590909555,
+      "subject_id": "10",
+      "success_marker_sha256": "9540901c1964989a09331d1410ff55b08b1716f9efa5fb7b76ada436abb00611"
+    }
+  ],
+  "fragments_resume_verified": 2,
+  "fragments_written": 2,
+  "frozen_hyperparameters_created": false,
+  "gpu_used": false,
+  "merge_created": false,
+  "merged_csv_sha256": "cbdc5beea03939819a0348f684544bccb36b3bda6f3f477152324e70784966bc",
+  "output_namespace": "staging/dev_trainmax_v1_hyperparameter_expansion_shard_smoke",
+  "output_role": "staging_smoke_not_formal_expansion",
+  "plan_sha256": "5a2d7d1013ec0d11fa190db60dc8802248771a3a378ccc04e48116877069b0d8",
+  "process_ids_unique": true,
+  "schema_version": 1,
+  "selection_audit_sha256": "d2ea068f0dbbb3643512f84637ea450a053a2c2b0b8d233897ea39c2d166af28",
+  "status": "PASS",
+  "test_locked_access": "prohibited",
+  "total_rows": 228,
+  "worker_processes": 2
+}
