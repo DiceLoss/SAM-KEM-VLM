@@ -27,6 +27,7 @@ belong in the configuration/protocol YAML, not in ad-hoc command edits.
 | `plan_validation_hyperparameter_expansion.py` | Zero-execution local-shell plan for reviewed boundary selections |
 | `run_incremental_validation_sweep_shards.py` | SHA-bound resumable execution of the reviewed local-shell expansion |
 | `smoke_incremental_validation_sweep_shards.py` | Fixed BrainWeb/HECKTOR numerical smoke before incremental release |
+| `audit_incremental_validation_sweep_shards.py` | Read-only integrity gate over all incremental shard artifacts |
 | `run_comparison.py` | Locked-test paired method comparison and subject statistics |
 | `run_primary.py` | Immutable filter of comparison output at the primary count |
 | `run_ablation.py` | True one-factor-at-a-time locked-test variants |
