@@ -680,3 +680,26 @@ PYTHONPATH=code python code/experiments/merge_incremental_validation_sweep_shard
 输出必须为 80,568 行且状态为 `PASS_complete_pending_union_selection_audit`。正式目录只含
 incremental CSV、sidecar、merge record 和 SUCCESS 四个文件。审核前不提交 merge audit；
 原始 merged CSV、两组 shards、旧事务目录和 smoke staging 均不得删除、移动或覆盖。
+
+### 6U. Streaming union-selection audit
+
+增量 merge audit 经研究员审核并提交后，分别流读原始 5,157,360 行 CSV 和增量 80,568 行
+CSV，在同一 subject-balanced 聚合器中选择；不创建物理 union CSV。30 个 reviewed boundary
+group 的赢家只能是原赢家或预声明 local shell。仅当赢家占据本轮新增的外扩值时才再次触发扩边；
+18 个原内部选择必须保持不变。
+
+```bash
+PYTHONPATH=code python code/experiments/audit_validation_hyperparameter_union_selection.py \
+  --root . \
+  --config code/configs/generated/dev_trainmax_v1_validation_registered.yaml \
+  --protocol code/configs/generated/dev_trainmax_v1_protocols/hyperparameter_sweep.yaml \
+  --original-merge-audit logs/validation_sweep_merge_integrity_audit.json \
+  --original-selection-audit logs/validation_hyperparameter_selection_audit.json \
+  --plan logs/validation_hyperparameter_expansion_plan.json \
+  --incremental-merge-audit logs/validation_hyperparameter_expansion_merge_integrity_audit.json \
+  --output logs/validation_hyperparameter_union_selection_audit.json
+```
+
+`union_rows_streamed` 必须为 5,237,928，选择必须为 BrainWeb 24 + HECKTOR 24。只有
+`expanded_boundary_selection_count == 0` 时状态才是 `PASS_ready_for_hyperparameter_freeze`；
+否则状态为 `BLOCKED_expanded_boundary_requires_additional_shell`，必须先审核下一轮增量扩边，禁止冻结。
