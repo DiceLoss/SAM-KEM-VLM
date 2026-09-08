@@ -747,3 +747,25 @@ PYTHONPATH=code python code/experiments/run_round2_incremental_validation_sweep_
 状态必须为 `PASS_ready_for_round2_incremental_shard_smoke`，正式输出目录必须仍不存在。
 本版本故意锁住非 release-check 调用；必须先完成固定 BrainWeb/HECKTOR 双样本 smoke、审核并绑定其
 SHA，才可释放可恢复的正式 round-2 运行。
+
+### 6W-smoke. Round-2 fixed-slice numerical gate
+
+release check 通过后，只运行固定的 BrainWeb `subject04/z038` 与 HECKTOR `10/z072` 两个
+slice shard。两个进程分别产生 66 与 51 行，共 117 行；staging fragment 必须通过同进程写入和
+严格 resume verification，且所有 NRMSE/SSIM 必须有限。
+
+```bash
+PYTHONPATH=code python code/experiments/smoke_round2_incremental_validation_sweep_shards.py \
+  --root . \
+  --config code/configs/generated/dev_trainmax_v1_validation_registered.yaml \
+  --protocol code/configs/generated/dev_trainmax_v1_protocols/hyperparameter_sweep.yaml \
+  --previous-plan logs/validation_hyperparameter_expansion_plan.json \
+  --union-audit logs/validation_hyperparameter_union_selection_audit.json \
+  --incremental-merge-audit logs/validation_hyperparameter_expansion_merge_integrity_audit.json \
+  --round2-plan logs/validation_hyperparameter_expansion_round2_plan.json \
+  --output-dir staging/dev_trainmax_v1_hyperparameter_expansion_round2_shard_smoke \
+  --audit logs/validation_hyperparameter_expansion_round2_shard_smoke.json
+```
+
+smoke audit 经研究员审核并提交、其 SHA 被正式 runner 绑定之前，不得运行 741-shard round-2
+计算。smoke staging 与正式 namespace 必须分离，且不得合并或生成 frozen hyperparameters。

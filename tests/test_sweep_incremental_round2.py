@@ -9,6 +9,7 @@ from sam_kem.sweep_incremental_round2 import (
   build_round2_shards,
   round2_candidate_map,
 )
+from sam_kem.sweep_incremental_round2_smoke import fixed_round2_smoke_shards
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -61,3 +62,33 @@ def test_round2_formal_execution_remains_locked_before_smoke_review():
   _require_smoke_before_formal_execution(release_check_only=True)
   with pytest.raises(RuntimeError, match="pending a reviewed fixed-sample smoke audit"):
     _require_smoke_before_formal_execution(release_check_only=False)
+
+
+def test_round2_smoke_selection_uses_only_fixed_slice_keys(monkeypatch):
+  shards = [
+    {"shard_id": "shard_0000", "dataset": "brainweb", "subject_id": "subject04",
+     "slice_id": "z038"},
+    {"shard_id": "shard_0696", "dataset": "hecktor", "subject_id": "10",
+     "slice_id": "z072"},
+    {"shard_id": "other", "dataset": "hecktor", "subject_id": "11",
+     "slice_id": "z072"},
+  ]
+  import sam_kem.sweep_incremental_round2_smoke as module
+
+  monkeypatch.setattr(module, "build_round2_shards", lambda cases, candidates: shards)
+  cases = []
+  for dataset, subject, slice_id in (
+    ("brainweb", "subject04", "z038"), ("hecktor", "10", "z072"),
+  ):
+    for count in (100_000, 200_000, 500_000, 1_000_000):
+      for realization in (0, 1, 2):
+        cases.append(SimpleNamespace(
+          dataset=dataset, subject_id=subject, slice_id=slice_id,
+          count_level=count, realization_id=realization,
+        ))
+  selected, grouped = fixed_round2_smoke_shards(cases, {})
+  assert [item["shard_id"] for item in selected] == ["shard_0000", "shard_0696"]
+  assert {key: len(value) for key, value in grouped.items()} == {
+    ("brainweb", "subject04", "z038"): 12,
+    ("hecktor", "10", "z072"): 12,
+  }
