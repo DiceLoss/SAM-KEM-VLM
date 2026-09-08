@@ -722,3 +722,28 @@ PYTHONPATH=code python code/experiments/plan_round2_validation_hyperparameter_ex
 
 该命令只写计划 JSON，不运行 reconstruction、不创建 round-2 shard namespace、不修改第一轮结果，
 也不生成 frozen hyperparameters。
+
+### 6W-release-check. Round-2 shard execution identity
+
+第二轮计划经研究员审核并提交后，先运行零写入 release check。该 gate 精确绑定第二轮计划、
+第一轮计划、第一轮 union selection audit、第一轮 incremental merge audit，以及原始和第一轮
+incremental merged CSV；同时验证 741 个 shard 的完整 membership。BrainWeb 每 shard 66 行，
+HECKTOR 每 shard 51 行，总计 48,231 行。
+
+```bash
+PYTHONPATH=code python code/experiments/run_round2_incremental_validation_sweep_shards.py \
+  --root . \
+  --config code/configs/generated/dev_trainmax_v1_validation_registered.yaml \
+  --protocol code/configs/generated/dev_trainmax_v1_protocols/hyperparameter_sweep.yaml \
+  --previous-plan logs/validation_hyperparameter_expansion_plan.json \
+  --union-audit logs/validation_hyperparameter_union_selection_audit.json \
+  --incremental-merge-audit logs/validation_hyperparameter_expansion_merge_integrity_audit.json \
+  --round2-plan logs/validation_hyperparameter_expansion_round2_plan.json \
+  --output-dir runs/dev_trainmax_v1/hyperparameter_expansion_round2_shards \
+  --workers 8 \
+  --release-check-only
+```
+
+状态必须为 `PASS_ready_for_round2_incremental_shard_smoke`，正式输出目录必须仍不存在。
+本版本故意锁住非 release-check 调用；必须先完成固定 BrainWeb/HECKTOR 双样本 smoke、审核并绑定其
+SHA，才可释放可恢复的正式 round-2 运行。
