@@ -655,3 +655,28 @@ PYTHONPATH=code python code/experiments/merge_validation_sweep_shards.py \
 
 输出必须为 5,157,360 行且 `PASS_complete_pending_hyperparameter_freeze`。merge audit 在审核前
 不提交；741 个 shard、8 个中断事务目录和四个 merge 文件均不得删除、移动、覆盖或提交。
+
+### 6T. Transactional incremental-merge integrity gate
+
+增量 shard audit 经研究员审核并提交后，按 shard ID 顺序流式合并 741 个增量 CSV。该 gate
+重新验证全部 shard 三件套、已审核 shard-set SHA、原始 merged CSV 和 expansion plan/smoke/
+selection audit 绑定，只生成独立的 80,568 行增量 CSV；不与原始 5,157,360 行 CSV 拼接，
+不执行 union selection，也不冻结参数。
+
+```bash
+PYTHONPATH=code python code/experiments/merge_incremental_validation_sweep_shards.py \
+  --root . \
+  --config code/configs/generated/dev_trainmax_v1_validation_registered.yaml \
+  --protocol code/configs/generated/dev_trainmax_v1_protocols/hyperparameter_sweep.yaml \
+  --selection-audit logs/validation_hyperparameter_selection_audit.json \
+  --plan logs/validation_hyperparameter_expansion_plan.json \
+  --smoke-audit logs/validation_hyperparameter_expansion_shard_smoke.json \
+  --shard-dir runs/dev_trainmax_v1/hyperparameter_expansion_shards \
+  --shard-audit logs/validation_hyperparameter_expansion_shard_integrity_audit.json \
+  --output-dir runs/dev_trainmax_v1/hyperparameter_expansion \
+  --audit logs/validation_hyperparameter_expansion_merge_integrity_audit.json
+```
+
+输出必须为 80,568 行且状态为 `PASS_complete_pending_union_selection_audit`。正式目录只含
+incremental CSV、sidecar、merge record 和 SUCCESS 四个文件。审核前不提交 merge audit；
+原始 merged CSV、两组 shards、旧事务目录和 smoke staging 均不得删除、移动或覆盖。
