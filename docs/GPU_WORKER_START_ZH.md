@@ -703,3 +703,22 @@ PYTHONPATH=code python code/experiments/audit_validation_hyperparameter_union_se
 `union_rows_streamed` 必须为 5,237,928，选择必须为 BrainWeb 24 + HECKTOR 24。只有
 `expanded_boundary_selection_count == 0` 时状态才是 `PASS_ready_for_hyperparameter_freeze`；
 否则状态为 `BLOCKED_expanded_boundary_requires_additional_shell`，必须先审核下一轮增量扩边，禁止冻结。
+
+### 6V-plan. Second incremental local-shell plan
+
+若第一轮 union audit 仍为 BLOCKED，只对占据第一轮新增外边界的 25 个组继续扩展。第二轮规则为
+sigma `0.2 -> 0.4`、普通 radius `4 -> 5`、Bowsher neighbours `16 -> 20`、
+Bowsher radius `4 -> 5`、iterations `140 -> 160`；没有新的 iterations lower 扩展。
+18 个单轴组和 7 个双轴组产生 39 个交互完整候选（BrainWeb 22、HECKTOR 17），共 48,231 行。
+
+```bash
+PYTHONPATH=code python code/experiments/plan_round2_validation_hyperparameter_expansion.py \
+  --root . \
+  --union-audit logs/validation_hyperparameter_union_selection_audit.json \
+  --previous-plan logs/validation_hyperparameter_expansion_plan.json \
+  --incremental-merge-audit logs/validation_hyperparameter_expansion_merge_integrity_audit.json \
+  --output logs/validation_hyperparameter_expansion_round2_plan.json
+```
+
+该命令只写计划 JSON，不运行 reconstruction、不创建 round-2 shard namespace、不修改第一轮结果，
+也不生成 frozen hyperparameters。
