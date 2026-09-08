@@ -1,0 +1,1047 @@
+{
+  "adaptive_stopping_rule": "repeat_a_predeclared_immediate_outward_shell_if_and_only_if_the_union_optimum_occupies_a_round2_expanded_boundary",
+  "artifact_kind": "validation_hyperparameter_incremental_expansion_round2_plan",
+  "cumulative_incremental_candidate_count": 115,
+  "cumulative_incremental_result_rows": 128799,
+  "expansion_round": 2,
+  "expansion_rules": {
+    "bowsher_neighbours": {
+      "new_value": 20,
+      "parameter": "neighbours",
+      "reviewed_boundary_value": 16,
+      "rule": "continue_step_4_upper"
+    },
+    "bowsher_radius_upper": {
+      "new_value": 5,
+      "parameter": "radius",
+      "reviewed_boundary_value": 4,
+      "rule": "next_integer_upper"
+    },
+    "iterations": {
+      "new_value": 160,
+      "parameter": "iterations",
+      "reviewed_boundary_value": 140,
+      "rule": "continue_step_20_upper"
+    },
+    "radius_upper": {
+      "new_value": 5,
+      "parameter": "radius",
+      "reviewed_boundary_value": 4,
+      "rule": "next_integer_upper"
+    },
+    "sigma": {
+      "new_value": 0.4,
+      "parameter": "sigma",
+      "reviewed_boundary_value": 0.2,
+      "rule": "continue_geometric_x2_upper"
+    }
+  },
+  "expansion_strategy": "immediate_outward_local_shell_with_all_touched_axis_interactions",
+  "expected_incremental_operator_updates": 3949830,
+  "expected_incremental_result_rows": 48231,
+  "expected_next_union_result_rows": 5286159,
+  "formal_expansion_output_created": false,
+  "frozen_hyperparameters_created": false,
+  "groups": [
+    {
+      "case_count": 2088,
+      "count_level": 100000,
+      "dataset": "brainweb",
+      "expanded_boundary_axes": [
+        "bowsher_neighbours",
+        "bowsher_radius_upper"
+      ],
+      "expected_operator_updates": 250560,
+      "expected_result_rows": 6264,
+      "incremental_candidate_count": 3,
+      "incremental_candidates": [
+        {
+          "alpha": 0.0,
+          "expanded_axes": [
+            "bowsher_neighbours"
+          ],
+          "iterations": 40,
+          "neighbours": 20,
+          "radius": 4,
+          "sigma": 0.0
+        },
+        {
+          "alpha": 0.0,
+          "expanded_axes": [
+            "bowsher_radius_upper"
+          ],
+          "iterations": 40,
+          "neighbours": 16,
+          "radius": 5,
+          "sigma": 0.0
+        },
+        {
+          "alpha": 0.0,
+          "expanded_axes": [
+            "bowsher_neighbours",
+            "bowsher_radius_upper"
+          ],
+          "iterations": 40,
+          "neighbours": 20,
+          "radius": 5,
+          "sigma": 0.0
+        }
+      ],
+      "method": "Bowsher-KEM",
+      "source_selected_parameters": {
+        "alpha": 0.0,
+        "iterations": 40,
+        "neighbours": 16,
+        "radius": 4,
+        "sigma": 0.0
+      },
+      "source_validation_subject_mean_nrmse": 0.20761506989206802,
+      "source_validation_subject_mean_ssim": 0.9175652348901532
+    },
+    {
+      "case_count": 2088,
+      "count_level": 100000,
+      "dataset": "brainweb",
+      "expanded_boundary_axes": [
+        "radius_upper"
+      ],
+      "expected_operator_updates": 83520,
+      "expected_result_rows": 2088,
+      "incremental_candidate_count": 1,
+      "incremental_candidates": [
+        {
+          "alpha": 0.0,
+          "expanded_axes": [
+            "radius_upper"
+          ],
+          "iterations": 40,
+          "neighbours": 0,
+          "radius": 5,
+          "sigma": 0.05
+        }
+      ],
+      "method": "MR-KEM",
+      "source_selected_parameters": {
+        "alpha": 0.0,
+        "iterations": 40,
+        "neighbours": 0,
+        "radius": 4,
+        "sigma": 0.05
+      },
+      "source_validation_subject_mean_nrmse": 0.2195538870118528,
+      "source_validation_subject_mean_ssim": 0.9057657858888388
+    },
+    {
+      "case_count": 2088,
+      "count_level": 200000,
+      "dataset": "brainweb",
+      "expanded_boundary_axes": [
+        "bowsher_neighbours",
+        "bowsher_radius_upper"
+      ],
+      "expected_operator_updates": 375840,
+      "expected_result_rows": 6264,
+      "incremental_candidate_count": 3,
+      "incremental_candidates": [
+        {
+          "alpha": 0.0,
+          "expanded_axes": [
+            "bowsher_neighbours"
+          ],
+          "iterations": 60,
+          "neighbours": 20,
+          "radius": 4,
+          "sigma": 0.0
+        },
+        {
+          "alpha": 0.0,
+          "expanded_axes": [
+            "bowsher_radius_upper"
+          ],
+          "iterations": 60,
+          "neighbours": 16,
+          "radius": 5,
+          "sigma": 0.0
+        },
+        {
+          "alpha": 0.0,
+          "expanded_axes": [
+            "bowsher_neighbours",
+            "bowsher_radius_upper"
+          ],
+          "iterations": 60,
+          "neighbours": 20,
+          "radius": 5,
+          "sigma": 0.0
+        }
+      ],
+      "method": "Bowsher-KEM",
+      "source_selected_parameters": {
+        "alpha": 0.0,
+        "iterations": 60,
+        "neighbours": 16,
+        "radius": 4,
+        "sigma": 0.0
+      },
+      "source_validation_subject_mean_nrmse": 0.18443690816542951,
+      "source_validation_subject_mean_ssim": 0.9333706472551604
+    },
+    {
+      "case_count": 2088,
+      "count_level": 200000,
+      "dataset": "brainweb",
+      "expanded_boundary_axes": [
+        "radius_upper"
+      ],
+      "expected_operator_updates": 125280,
+      "expected_result_rows": 2088,
+      "incremental_candidate_count": 1,
+      "incremental_candidates": [
+        {
+          "alpha": 0.0,
+          "expanded_axes": [
+            "radius_upper"
+          ],
+          "iterations": 60,
+          "neighbours": 0,
+          "radius": 5,
+          "sigma": 0.05
+        }
+      ],
+      "method": "MR-KEM",
+      "source_selected_parameters": {
+        "alpha": 0.0,
+        "iterations": 60,
+        "neighbours": 0,
+        "radius": 4,
+        "sigma": 0.05
+      },
+      "source_validation_subject_mean_nrmse": 0.19256771337545311,
+      "source_validation_subject_mean_ssim": 0.9247414376841834
+    },
+    {
+      "case_count": 2088,
+      "count_level": 200000,
+      "dataset": "brainweb",
+      "expanded_boundary_axes": [
+        "sigma"
+      ],
+      "expected_operator_updates": 83520,
+      "expected_result_rows": 2088,
+      "incremental_candidate_count": 1,
+      "incremental_candidates": [
+        {
+          "alpha": 0.0,
+          "expanded_axes": [
+            "sigma"
+          ],
+          "iterations": 40,
+          "neighbours": 0,
+          "radius": 2,
+          "sigma": 0.4
+        }
+      ],
+      "method": "SAM-KEM-MedSAM2-Qwen3-full",
+      "source_selected_parameters": {
+        "alpha": 0.0,
+        "iterations": 40,
+        "neighbours": 0,
+        "radius": 2,
+        "sigma": 0.2
+      },
+      "source_validation_subject_mean_nrmse": 0.27085346863246257,
+      "source_validation_subject_mean_ssim": 0.8670845753694957
+    },
+    {
+      "case_count": 2088,
+      "count_level": 500000,
+      "dataset": "brainweb",
+      "expanded_boundary_axes": [
+        "bowsher_neighbours",
+        "bowsher_radius_upper"
+      ],
+      "expected_operator_updates": 501120,
+      "expected_result_rows": 6264,
+      "incremental_candidate_count": 3,
+      "incremental_candidates": [
+        {
+          "alpha": 0.0,
+          "expanded_axes": [
+            "bowsher_neighbours"
+          ],
+          "iterations": 80,
+          "neighbours": 20,
+          "radius": 4,
+          "sigma": 0.0
+        },
+        {
+          "alpha": 0.0,
+          "expanded_axes": [
+            "bowsher_radius_upper"
+          ],
+          "iterations": 80,
+          "neighbours": 16,
+          "radius": 5,
+          "sigma": 0.0
+        },
+        {
+          "alpha": 0.0,
+          "expanded_axes": [
+            "bowsher_neighbours",
+            "bowsher_radius_upper"
+          ],
+          "iterations": 80,
+          "neighbours": 20,
+          "radius": 5,
+          "sigma": 0.0
+        }
+      ],
+      "method": "Bowsher-KEM",
+      "source_selected_parameters": {
+        "alpha": 0.0,
+        "iterations": 80,
+        "neighbours": 16,
+        "radius": 4,
+        "sigma": 0.0
+      },
+      "source_validation_subject_mean_nrmse": 0.1605740383038999,
+      "source_validation_subject_mean_ssim": 0.9500610312038538
+    },
+    {
+      "case_count": 2088,
+      "count_level": 500000,
+      "dataset": "brainweb",
+      "expanded_boundary_axes": [
+        "radius_upper"
+      ],
+      "expected_operator_updates": 208800,
+      "expected_result_rows": 2088,
+      "incremental_candidate_count": 1,
+      "incremental_candidates": [
+        {
+          "alpha": 0.0,
+          "expanded_axes": [
+            "radius_upper"
+          ],
+          "iterations": 100,
+          "neighbours": 0,
+          "radius": 5,
+          "sigma": 0.05
+        }
+      ],
+      "method": "MR-KEM",
+      "source_selected_parameters": {
+        "alpha": 0.0,
+        "iterations": 100,
+        "neighbours": 0,
+        "radius": 4,
+        "sigma": 0.05
+      },
+      "source_validation_subject_mean_nrmse": 0.16348850160616182,
+      "source_validation_subject_mean_ssim": 0.9449546349894871
+    },
+    {
+      "case_count": 2088,
+      "count_level": 500000,
+      "dataset": "brainweb",
+      "expanded_boundary_axes": [
+        "sigma"
+      ],
+      "expected_operator_updates": 83520,
+      "expected_result_rows": 2088,
+      "incremental_candidate_count": 1,
+      "incremental_candidates": [
+        {
+          "alpha": 0.0,
+          "expanded_axes": [
+            "sigma"
+          ],
+          "iterations": 40,
+          "neighbours": 0,
+          "radius": 1,
+          "sigma": 0.4
+        }
+      ],
+      "method": "SAM-KEM-MedSAM2-Qwen3-full",
+      "source_selected_parameters": {
+        "alpha": 0.0,
+        "iterations": 40,
+        "neighbours": 0,
+        "radius": 1,
+        "sigma": 0.2
+      },
+      "source_validation_subject_mean_nrmse": 0.23889891279119857,
+      "source_validation_subject_mean_ssim": 0.8923419640345353
+    },
+    {
+      "case_count": 2088,
+      "count_level": 1000000,
+      "dataset": "brainweb",
+      "expanded_boundary_axes": [
+        "bowsher_neighbours",
+        "bowsher_radius_upper"
+      ],
+      "expected_operator_updates": 751680,
+      "expected_result_rows": 6264,
+      "incremental_candidate_count": 3,
+      "incremental_candidates": [
+        {
+          "alpha": 0.0,
+          "expanded_axes": [
+            "bowsher_neighbours"
+          ],
+          "iterations": 120,
+          "neighbours": 20,
+          "radius": 4,
+          "sigma": 0.0
+        },
+        {
+          "alpha": 0.0,
+          "expanded_axes": [
+            "bowsher_radius_upper"
+          ],
+          "iterations": 120,
+          "neighbours": 16,
+          "radius": 5,
+          "sigma": 0.0
+        },
+        {
+          "alpha": 0.0,
+          "expanded_axes": [
+            "bowsher_neighbours",
+            "bowsher_radius_upper"
+          ],
+          "iterations": 120,
+          "neighbours": 20,
+          "radius": 5,
+          "sigma": 0.0
+        }
+      ],
+      "method": "Bowsher-KEM",
+      "source_selected_parameters": {
+        "alpha": 0.0,
+        "iterations": 120,
+        "neighbours": 16,
+        "radius": 4,
+        "sigma": 0.0
+      },
+      "source_validation_subject_mean_nrmse": 0.14696766285187707,
+      "source_validation_subject_mean_ssim": 0.958559431603637
+    },
+    {
+      "case_count": 2088,
+      "count_level": 1000000,
+      "dataset": "brainweb",
+      "expanded_boundary_axes": [
+        "iterations"
+      ],
+      "expected_operator_updates": 334080,
+      "expected_result_rows": 2088,
+      "incremental_candidate_count": 1,
+      "incremental_candidates": [
+        {
+          "alpha": 0.0,
+          "expanded_axes": [
+            "iterations"
+          ],
+          "iterations": 160,
+          "neighbours": 0,
+          "radius": 2,
+          "sigma": 0.1
+        }
+      ],
+      "method": "SelfKEM",
+      "source_selected_parameters": {
+        "alpha": 0.0,
+        "iterations": 140,
+        "neighbours": 0,
+        "radius": 2,
+        "sigma": 0.1
+      },
+      "source_validation_subject_mean_nrmse": 0.20771734996172286,
+      "source_validation_subject_mean_ssim": 0.9142554623539961
+    },
+    {
+      "case_count": 2088,
+      "count_level": 1000000,
+      "dataset": "brainweb",
+      "expanded_boundary_axes": [
+        "iterations",
+        "radius_upper"
+      ],
+      "expected_operator_updates": 960480,
+      "expected_result_rows": 6264,
+      "incremental_candidate_count": 3,
+      "incremental_candidates": [
+        {
+          "alpha": 0.0,
+          "expanded_axes": [
+            "iterations"
+          ],
+          "iterations": 160,
+          "neighbours": 0,
+          "radius": 4,
+          "sigma": 0.05
+        },
+        {
+          "alpha": 0.0,
+          "expanded_axes": [
+            "radius_upper"
+          ],
+          "iterations": 140,
+          "neighbours": 0,
+          "radius": 5,
+          "sigma": 0.05
+        },
+        {
+          "alpha": 0.0,
+          "expanded_axes": [
+            "iterations",
+            "radius_upper"
+          ],
+          "iterations": 160,
+          "neighbours": 0,
+          "radius": 5,
+          "sigma": 0.05
+        }
+      ],
+      "method": "MR-KEM",
+      "source_selected_parameters": {
+        "alpha": 0.0,
+        "iterations": 140,
+        "neighbours": 0,
+        "radius": 4,
+        "sigma": 0.05
+      },
+      "source_validation_subject_mean_nrmse": 0.1465532634834788,
+      "source_validation_subject_mean_ssim": 0.9564727754276721
+    },
+    {
+      "case_count": 2088,
+      "count_level": 1000000,
+      "dataset": "brainweb",
+      "expanded_boundary_axes": [
+        "sigma"
+      ],
+      "expected_operator_updates": 125280,
+      "expected_result_rows": 2088,
+      "incremental_candidate_count": 1,
+      "incremental_candidates": [
+        {
+          "alpha": 0.0,
+          "expanded_axes": [
+            "sigma"
+          ],
+          "iterations": 60,
+          "neighbours": 0,
+          "radius": 1,
+          "sigma": 0.4
+        }
+      ],
+      "method": "SAM-KEM-MedSAM2-Qwen3-full",
+      "source_selected_parameters": {
+        "alpha": 0.0,
+        "iterations": 60,
+        "neighbours": 0,
+        "radius": 1,
+        "sigma": 0.2
+      },
+      "source_validation_subject_mean_nrmse": 0.21614260902814622,
+      "source_validation_subject_mean_ssim": 0.9109372331439409
+    },
+    {
+      "case_count": 135,
+      "count_level": 100000,
+      "dataset": "hecktor",
+      "expanded_boundary_axes": [
+        "sigma"
+      ],
+      "expected_operator_updates": 1350,
+      "expected_result_rows": 135,
+      "incremental_candidate_count": 1,
+      "incremental_candidates": [
+        {
+          "alpha": 0.0,
+          "expanded_axes": [
+            "sigma"
+          ],
+          "iterations": 10,
+          "neighbours": 0,
+          "radius": 3,
+          "sigma": 0.4
+        }
+      ],
+      "method": "SelfKEM",
+      "source_selected_parameters": {
+        "alpha": 0.0,
+        "iterations": 10,
+        "neighbours": 0,
+        "radius": 3,
+        "sigma": 0.2
+      },
+      "source_validation_subject_mean_nrmse": 0.20472642381771458,
+      "source_validation_subject_mean_ssim": 0.9419283537243015
+    },
+    {
+      "case_count": 135,
+      "count_level": 100000,
+      "dataset": "hecktor",
+      "expanded_boundary_axes": [
+        "sigma",
+        "radius_upper"
+      ],
+      "expected_operator_updates": 8100,
+      "expected_result_rows": 405,
+      "incremental_candidate_count": 3,
+      "incremental_candidates": [
+        {
+          "alpha": 0.0,
+          "expanded_axes": [
+            "sigma"
+          ],
+          "iterations": 20,
+          "neighbours": 0,
+          "radius": 4,
+          "sigma": 0.4
+        },
+        {
+          "alpha": 0.0,
+          "expanded_axes": [
+            "radius_upper"
+          ],
+          "iterations": 20,
+          "neighbours": 0,
+          "radius": 5,
+          "sigma": 0.2
+        },
+        {
+          "alpha": 0.0,
+          "expanded_axes": [
+            "sigma",
+            "radius_upper"
+          ],
+          "iterations": 20,
+          "neighbours": 0,
+          "radius": 5,
+          "sigma": 0.4
+        }
+      ],
+      "method": "CT-KEM",
+      "source_selected_parameters": {
+        "alpha": 0.0,
+        "iterations": 20,
+        "neighbours": 0,
+        "radius": 4,
+        "sigma": 0.2
+      },
+      "source_validation_subject_mean_nrmse": 0.19610172383919391,
+      "source_validation_subject_mean_ssim": 0.9501918097400057
+    },
+    {
+      "case_count": 135,
+      "count_level": 100000,
+      "dataset": "hecktor",
+      "expanded_boundary_axes": [
+        "radius_upper"
+      ],
+      "expected_operator_updates": 2700,
+      "expected_result_rows": 135,
+      "incremental_candidate_count": 1,
+      "incremental_candidates": [
+        {
+          "alpha": 0.0,
+          "expanded_axes": [
+            "radius_upper"
+          ],
+          "iterations": 20,
+          "neighbours": 0,
+          "radius": 5,
+          "sigma": 0.1
+        }
+      ],
+      "method": "SAM-KEM-MedSAM2-Qwen3-full",
+      "source_selected_parameters": {
+        "alpha": 0.0,
+        "iterations": 20,
+        "neighbours": 0,
+        "radius": 4,
+        "sigma": 0.1
+      },
+      "source_validation_subject_mean_nrmse": 0.1692810293204177,
+      "source_validation_subject_mean_ssim": 0.9547804147196906
+    },
+    {
+      "case_count": 135,
+      "count_level": 200000,
+      "dataset": "hecktor",
+      "expanded_boundary_axes": [
+        "bowsher_neighbours"
+      ],
+      "expected_operator_updates": 2700,
+      "expected_result_rows": 135,
+      "incremental_candidate_count": 1,
+      "incremental_candidates": [
+        {
+          "alpha": 0.0,
+          "expanded_axes": [
+            "bowsher_neighbours"
+          ],
+          "iterations": 20,
+          "neighbours": 20,
+          "radius": 2,
+          "sigma": 0.0
+        }
+      ],
+      "method": "Bowsher-KEM",
+      "source_selected_parameters": {
+        "alpha": 0.0,
+        "iterations": 20,
+        "neighbours": 16,
+        "radius": 2,
+        "sigma": 0.0
+      },
+      "source_validation_subject_mean_nrmse": 0.18429700459767182,
+      "source_validation_subject_mean_ssim": 0.9493772371391807
+    },
+    {
+      "case_count": 135,
+      "count_level": 200000,
+      "dataset": "hecktor",
+      "expanded_boundary_axes": [
+        "sigma",
+        "radius_upper"
+      ],
+      "expected_operator_updates": 8100,
+      "expected_result_rows": 405,
+      "incremental_candidate_count": 3,
+      "incremental_candidates": [
+        {
+          "alpha": 0.0,
+          "expanded_axes": [
+            "sigma"
+          ],
+          "iterations": 20,
+          "neighbours": 0,
+          "radius": 4,
+          "sigma": 0.4
+        },
+        {
+          "alpha": 0.0,
+          "expanded_axes": [
+            "radius_upper"
+          ],
+          "iterations": 20,
+          "neighbours": 0,
+          "radius": 5,
+          "sigma": 0.2
+        },
+        {
+          "alpha": 0.0,
+          "expanded_axes": [
+            "sigma",
+            "radius_upper"
+          ],
+          "iterations": 20,
+          "neighbours": 0,
+          "radius": 5,
+          "sigma": 0.4
+        }
+      ],
+      "method": "SelfKEM",
+      "source_selected_parameters": {
+        "alpha": 0.0,
+        "iterations": 20,
+        "neighbours": 0,
+        "radius": 4,
+        "sigma": 0.2
+      },
+      "source_validation_subject_mean_nrmse": 0.16927132246580975,
+      "source_validation_subject_mean_ssim": 0.9592417458209932
+    },
+    {
+      "case_count": 135,
+      "count_level": 200000,
+      "dataset": "hecktor",
+      "expanded_boundary_axes": [
+        "sigma"
+      ],
+      "expected_operator_updates": 2700,
+      "expected_result_rows": 135,
+      "incremental_candidate_count": 1,
+      "incremental_candidates": [
+        {
+          "alpha": 0.0,
+          "expanded_axes": [
+            "sigma"
+          ],
+          "iterations": 20,
+          "neighbours": 0,
+          "radius": 3,
+          "sigma": 0.4
+        }
+      ],
+      "method": "CT-KEM",
+      "source_selected_parameters": {
+        "alpha": 0.0,
+        "iterations": 20,
+        "neighbours": 0,
+        "radius": 3,
+        "sigma": 0.2
+      },
+      "source_validation_subject_mean_nrmse": 0.17888100872655777,
+      "source_validation_subject_mean_ssim": 0.9561312830746619
+    },
+    {
+      "case_count": 135,
+      "count_level": 200000,
+      "dataset": "hecktor",
+      "expanded_boundary_axes": [
+        "radius_upper"
+      ],
+      "expected_operator_updates": 2700,
+      "expected_result_rows": 135,
+      "incremental_candidate_count": 1,
+      "incremental_candidates": [
+        {
+          "alpha": 0.0,
+          "expanded_axes": [
+            "radius_upper"
+          ],
+          "iterations": 20,
+          "neighbours": 0,
+          "radius": 5,
+          "sigma": 0.1
+        }
+      ],
+      "method": "SAM-KEM-MedSAM2-Qwen3-full",
+      "source_selected_parameters": {
+        "alpha": 0.0,
+        "iterations": 20,
+        "neighbours": 0,
+        "radius": 4,
+        "sigma": 0.1
+      },
+      "source_validation_subject_mean_nrmse": 0.15222174621439993,
+      "source_validation_subject_mean_ssim": 0.962883971197275
+    },
+    {
+      "case_count": 135,
+      "count_level": 500000,
+      "dataset": "hecktor",
+      "expanded_boundary_axes": [
+        "radius_upper"
+      ],
+      "expected_operator_updates": 5400,
+      "expected_result_rows": 135,
+      "incremental_candidate_count": 1,
+      "incremental_candidates": [
+        {
+          "alpha": 0.0,
+          "expanded_axes": [
+            "radius_upper"
+          ],
+          "iterations": 40,
+          "neighbours": 0,
+          "radius": 5,
+          "sigma": 0.1
+        }
+      ],
+      "method": "SelfKEM",
+      "source_selected_parameters": {
+        "alpha": 0.0,
+        "iterations": 40,
+        "neighbours": 0,
+        "radius": 4,
+        "sigma": 0.1
+      },
+      "source_validation_subject_mean_nrmse": 0.13550905270766855,
+      "source_validation_subject_mean_ssim": 0.9690943436284456
+    },
+    {
+      "case_count": 135,
+      "count_level": 500000,
+      "dataset": "hecktor",
+      "expanded_boundary_axes": [
+        "sigma"
+      ],
+      "expected_operator_updates": 5400,
+      "expected_result_rows": 135,
+      "incremental_candidate_count": 1,
+      "incremental_candidates": [
+        {
+          "alpha": 0.0,
+          "expanded_axes": [
+            "sigma"
+          ],
+          "iterations": 40,
+          "neighbours": 0,
+          "radius": 3,
+          "sigma": 0.4
+        }
+      ],
+      "method": "CT-KEM",
+      "source_selected_parameters": {
+        "alpha": 0.0,
+        "iterations": 40,
+        "neighbours": 0,
+        "radius": 3,
+        "sigma": 0.2
+      },
+      "source_validation_subject_mean_nrmse": 0.156312923380972,
+      "source_validation_subject_mean_ssim": 0.9656217762702292
+    },
+    {
+      "case_count": 135,
+      "count_level": 500000,
+      "dataset": "hecktor",
+      "expanded_boundary_axes": [
+        "radius_upper"
+      ],
+      "expected_operator_updates": 5400,
+      "expected_result_rows": 135,
+      "incremental_candidate_count": 1,
+      "incremental_candidates": [
+        {
+          "alpha": 0.0,
+          "expanded_axes": [
+            "radius_upper"
+          ],
+          "iterations": 40,
+          "neighbours": 0,
+          "radius": 5,
+          "sigma": 0.1
+        }
+      ],
+      "method": "SAM-KEM-MedSAM2-Qwen3-full",
+      "source_selected_parameters": {
+        "alpha": 0.0,
+        "iterations": 40,
+        "neighbours": 0,
+        "radius": 4,
+        "sigma": 0.1
+      },
+      "source_validation_subject_mean_nrmse": 0.12191282784831349,
+      "source_validation_subject_mean_ssim": 0.9736671299920349
+    },
+    {
+      "case_count": 135,
+      "count_level": 1000000,
+      "dataset": "hecktor",
+      "expanded_boundary_axes": [
+        "radius_upper"
+      ],
+      "expected_operator_updates": 8100,
+      "expected_result_rows": 135,
+      "incremental_candidate_count": 1,
+      "incremental_candidates": [
+        {
+          "alpha": 0.0,
+          "expanded_axes": [
+            "radius_upper"
+          ],
+          "iterations": 60,
+          "neighbours": 0,
+          "radius": 5,
+          "sigma": 0.1
+        }
+      ],
+      "method": "SelfKEM",
+      "source_selected_parameters": {
+        "alpha": 0.0,
+        "iterations": 60,
+        "neighbours": 0,
+        "radius": 4,
+        "sigma": 0.1
+      },
+      "source_validation_subject_mean_nrmse": 0.11428370121264124,
+      "source_validation_subject_mean_ssim": 0.9766150099738201
+    },
+    {
+      "case_count": 135,
+      "count_level": 1000000,
+      "dataset": "hecktor",
+      "expanded_boundary_axes": [
+        "sigma"
+      ],
+      "expected_operator_updates": 5400,
+      "expected_result_rows": 135,
+      "incremental_candidate_count": 1,
+      "incremental_candidates": [
+        {
+          "alpha": 0.0,
+          "expanded_axes": [
+            "sigma"
+          ],
+          "iterations": 40,
+          "neighbours": 0,
+          "radius": 2,
+          "sigma": 0.4
+        }
+      ],
+      "method": "CT-KEM",
+      "source_selected_parameters": {
+        "alpha": 0.0,
+        "iterations": 40,
+        "neighbours": 0,
+        "radius": 2,
+        "sigma": 0.2
+      },
+      "source_validation_subject_mean_nrmse": 0.14078726980847522,
+      "source_validation_subject_mean_ssim": 0.9691321859001962
+    },
+    {
+      "case_count": 135,
+      "count_level": 1000000,
+      "dataset": "hecktor",
+      "expanded_boundary_axes": [
+        "radius_upper"
+      ],
+      "expected_operator_updates": 8100,
+      "expected_result_rows": 135,
+      "incremental_candidate_count": 1,
+      "incremental_candidates": [
+        {
+          "alpha": 0.0,
+          "expanded_axes": [
+            "radius_upper"
+          ],
+          "iterations": 60,
+          "neighbours": 0,
+          "radius": 5,
+          "sigma": 0.1
+        }
+      ],
+      "method": "SAM-KEM-MedSAM2-Qwen3-full",
+      "source_selected_parameters": {
+        "alpha": 0.0,
+        "iterations": 60,
+        "neighbours": 0,
+        "radius": 4,
+        "sigma": 0.1
+      },
+      "source_validation_subject_mean_nrmse": 0.10506904406917922,
+      "source_validation_subject_mean_ssim": 0.9794695405700471
+    }
+  ],
+  "incremental_candidate_count": 39,
+  "incremental_candidate_counts": {
+    "brainweb": 22,
+    "hecktor": 17
+  },
+  "incremental_merge_audit_sha256": "121f9cc1aadefb0ee1c59b2680d2a2f91a9cba325b26ee6ed8a5f45927f60e20",
+  "original_merged_csv_sha256": "cbdc5beea03939819a0348f684544bccb36b3bda6f3f477152324e70784966bc",
+  "planning_git_commit": "a4196aeeb696341ba8d73c5c7d61bedfa11915ba",
+  "previous_expansion_plan_sha256": "5a2d7d1013ec0d11fa190db60dc8802248771a3a378ccc04e48116877069b0d8",
+  "read_only_inputs": true,
+  "round1_merged_csv_sha256": "f41c731f731f718388648a99120045fc2bd40a68559c0e6332d5bbc707265260",
+  "schema_version": 1,
+  "selection_rule_after_expansion": "subject_balanced_argmin_over_union_of_original_grid_round1_and_round2_shells",
+  "source_expanded_boundary_group_count": 25,
+  "source_union_selection_audit_path": "logs/validation_hyperparameter_union_selection_audit.json",
+  "source_union_selection_audit_sha256": "854edf296ee368282125d225d93a0746399a0598d9319691e15a1ed062be6b33",
+  "source_union_selection_count": 48,
+  "status": "ready_for_researcher_review_no_execution",
+  "test_locked_access": "prohibited",
+  "unchanged_union_selection_count": 23,
+  "union_selection_audit_created": false
+}
