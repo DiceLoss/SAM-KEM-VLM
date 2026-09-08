@@ -1,0 +1,49 @@
+{
+  "artifact_kind": "validation_hyperparameter_expansion_shard_merge",
+  "execution_git_commit": "0497a5a71cf072705ff3b8b7e1a368b63eaac83b",
+  "formal_merge_artifact_count": 4,
+  "frozen_hyperparameters_created": false,
+  "global_primary_key_uniqueness": "verified_per_shard_and_by_disjoint_dataset_subject_slice_membership",
+  "incremental_merged_csv_byte_size": 10595332,
+  "incremental_merged_csv_path": "runs/dev_trainmax_v1/hyperparameter_expansion/validation_hyperparameter_expansion.csv",
+  "incremental_merged_csv_sha256": "f41c731f731f718388648a99120045fc2bd40a68559c0e6332d5bbc707265260",
+  "incremental_merged_manifest_path": "runs/dev_trainmax_v1/hyperparameter_expansion/validation_hyperparameter_expansion.csv.manifest.json",
+  "incremental_merged_manifest_sha256": "83308edf0e6051dfcfcace9f77fc04494bde6a53ed09595cb6dba4a43b050686",
+  "incremental_operator_updates": 6124905,
+  "incremental_result_rows": 80568,
+  "incremental_shard_audit_path": "logs/validation_hyperparameter_expansion_shard_integrity_audit.json",
+  "incremental_shard_audit_sha256": "717d328b6be6b89cdfeb57005503a28492e8c540f6a9837df6be4bae47e89c4a",
+  "incremental_shard_set_sha256": "a8bb699f80767b4fc628969cb975e67fcf8b44bd8e13a2570604c0790665f16b",
+  "merge_git_commit": "a8cd7275bb511a44fdb35f8227850b692202c6a0",
+  "merge_order": "incremental_shard_id_order_then_existing_fragment_row_order",
+  "merge_record_path": "runs/dev_trainmax_v1/hyperparameter_expansion/merge_record.json",
+  "merge_success_path": "runs/dev_trainmax_v1/hyperparameter_expansion/merge_SUCCESS.json",
+  "merge_success_sha256": "a027ed9b04bf309363c23f3ce809acc623c8a65a01abf1902352d3e3732a7735",
+  "method_row_counts": {
+    "brainweb": {
+      "Bowsher-KEM": 33408,
+      "MR-KEM": 12528,
+      "SAM-KEM-MedSAM2-Qwen3-full": 8352,
+      "SelfKEM": 20880
+    },
+    "hecktor": {
+      "Bowsher-KEM": 270,
+      "CT-KEM": 1350,
+      "SAM-KEM-MedSAM2-Qwen3-full": 1620,
+      "SelfKEM": 2160
+    }
+  },
+  "original_merged_csv_path": "runs/dev_trainmax_v1/hyperparameter_sweep/validation_sweep.csv",
+  "original_merged_csv_sha256": "cbdc5beea03939819a0348f684544bccb36b3bda6f3f477152324e70784966bc",
+  "plan_sha256": "5a2d7d1013ec0d11fa190db60dc8802248771a3a378ccc04e48116877069b0d8",
+  "schema_version": 1,
+  "selection_audit_sha256": "d2ea068f0dbbb3643512f84637ea450a053a2c2b0b8d233897ea39c2d166af28",
+  "smoke_audit_sha256": "cd6d37840afcb18709699408847da820e5b4db23e6099778a84b9042d3e81af0",
+  "source_cases": 8892,
+  "source_shards": 741,
+  "status": "PASS_complete_pending_union_selection_audit",
+  "temporary_transaction_directories_preserved": 0,
+  "test_locked_access": "prohibited",
+  "union_expected_result_rows": 5237928,
+  "union_selection_audit_created": false
+}
