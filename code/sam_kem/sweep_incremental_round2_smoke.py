@@ -14,6 +14,8 @@ from .sweep_incremental import _write_shard_process, verify_incremental_shard
 from .sweep_incremental_round2 import (
   EXPECTED_OPERATOR_UPDATES,
   EXPECTED_ROWS,
+  EXPECTED_METHOD_ROWS,
+  FIXED_SMOKE_KEYS,
   OUTPUT_NAMESPACE,
   REVIEWED_ROUND2_PLAN_SHA256,
   build_round2_shards,
@@ -21,26 +23,6 @@ from .sweep_incremental_round2 import (
   run_round2_incremental_validation_sweep_shards,
 )
 from .sweep_incremental_smoke import _fragment_summary
-
-
-FIXED_SMOKE_KEYS = {
-  ("brainweb", "subject04", "z038"),
-  ("hecktor", "10", "z072"),
-}
-EXPECTED_METHOD_ROWS = {
-  "brainweb": {
-    "Bowsher-KEM": 36,
-    "MR-KEM": 18,
-    "SAM-KEM-MedSAM2-Qwen3-full": 9,
-    "SelfKEM": 3,
-  },
-  "hecktor": {
-    "Bowsher-KEM": 3,
-    "CT-KEM": 18,
-    "SAM-KEM-MedSAM2-Qwen3-full": 12,
-    "SelfKEM": 18,
-  },
-}
 
 
 def fixed_round2_smoke_shards(
@@ -90,7 +72,9 @@ def run_round2_incremental_validation_sweep_smoke(
 
   release = run_round2_incremental_validation_sweep_shards(
     root, config_path, protocol_path, previous_plan_path, union_audit_path,
-    incremental_merge_audit_path, round2_plan_path, root / OUTPUT_NAMESPACE,
+    incremental_merge_audit_path, round2_plan_path,
+    root / "logs/validation_hyperparameter_expansion_round2_shard_smoke.json",
+    root / OUTPUT_NAMESPACE,
     workers=8, resume_verified=False, release_check_only=True,
   )
   plan = json.loads(round2_plan_path.read_text(encoding="utf-8"))

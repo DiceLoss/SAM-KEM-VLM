@@ -5,9 +5,9 @@ from types import SimpleNamespace
 import pytest
 
 from sam_kem.sweep_incremental_round2 import (
-  _require_smoke_before_formal_execution,
   build_round2_shards,
   round2_candidate_map,
+  validate_reviewed_round2_smoke,
 )
 from sam_kem.sweep_incremental_round2_smoke import fixed_round2_smoke_shards
 
@@ -58,10 +58,13 @@ def test_round2_shards_have_dataset_specific_row_counts():
   assert sum(item["expected_result_rows"] for item in shards) == 48_231
 
 
-def test_round2_formal_execution_remains_locked_before_smoke_review():
-  _require_smoke_before_formal_execution(release_check_only=True)
-  with pytest.raises(RuntimeError, match="pending a reviewed fixed-sample smoke audit"):
-    _require_smoke_before_formal_execution(release_check_only=False)
+def test_round2_formal_execution_accepts_only_reviewed_smoke():
+  path = ROOT / "logs/validation_hyperparameter_expansion_round2_shard_smoke.json"
+  smoke = json.loads(path.read_text(encoding="utf-8"))
+  validate_reviewed_round2_smoke(smoke)
+  smoke["total_rows"] = 116
+  with pytest.raises(ValueError, match="not the reviewed PASS artifact"):
+    validate_reviewed_round2_smoke(smoke)
 
 
 def test_round2_smoke_selection_uses_only_fixed_slice_keys(monkeypatch):

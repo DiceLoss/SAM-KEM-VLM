@@ -1,4 +1,4 @@
-"""Validate the reviewed round-2 incremental shard release identity."""
+"""Run or release-check the reviewed round-2 incremental shard execution."""
 
 from __future__ import annotations
 
@@ -20,6 +20,7 @@ def main() -> int:
   parser.add_argument("--union-audit", type=Path, required=True)
   parser.add_argument("--incremental-merge-audit", type=Path, required=True)
   parser.add_argument("--round2-plan", type=Path, required=True)
+  parser.add_argument("--smoke-audit", type=Path, required=True)
   parser.add_argument("--output-dir", type=Path, required=True)
   parser.add_argument("--workers", type=int, required=True)
   parser.add_argument("--resume-verified", action="store_true")
@@ -28,7 +29,7 @@ def main() -> int:
   result = run_round2_incremental_validation_sweep_shards(
     args.root, args.config, args.protocol, args.previous_plan,
     args.union_audit, args.incremental_merge_audit, args.round2_plan,
-    args.output_dir, workers=args.workers,
+    args.smoke_audit, args.output_dir, workers=args.workers,
     resume_verified=args.resume_verified,
     release_check_only=args.release_check_only,
   )

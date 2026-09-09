@@ -723,7 +723,7 @@ PYTHONPATH=code python code/experiments/plan_round2_validation_hyperparameter_ex
 该命令只写计划 JSON，不运行 reconstruction、不创建 round-2 shard namespace、不修改第一轮结果，
 也不生成 frozen hyperparameters。
 
-### 6W-release-check. Round-2 shard execution identity
+### 6X-release-check. Final round-2 shard execution identity
 
 第二轮计划经研究员审核并提交后，先运行零写入 release check。该 gate 精确绑定第二轮计划、
 第一轮计划、第一轮 union selection audit、第一轮 incremental merge audit，以及原始和第一轮
@@ -739,18 +739,20 @@ PYTHONPATH=code python code/experiments/run_round2_incremental_validation_sweep_
   --union-audit logs/validation_hyperparameter_union_selection_audit.json \
   --incremental-merge-audit logs/validation_hyperparameter_expansion_merge_integrity_audit.json \
   --round2-plan logs/validation_hyperparameter_expansion_round2_plan.json \
+  --smoke-audit logs/validation_hyperparameter_expansion_round2_shard_smoke.json \
   --output-dir runs/dev_trainmax_v1/hyperparameter_expansion_round2_shards \
   --workers 8 \
   --release-check-only
 ```
 
-状态必须为 `PASS_ready_for_round2_incremental_shard_smoke`，正式输出目录必须仍不存在。
-本版本故意锁住非 release-check 调用；必须先完成固定 BrainWeb/HECKTOR 双样本 smoke、审核并绑定其
-SHA，才可释放可恢复的正式 round-2 运行。
+smoke audit 提交并由 runner 绑定后，状态必须为
+`PASS_ready_for_round2_incremental_shard_execution`，正式输出目录必须仍不存在。研究员审核该次
+zero-write 输出后，才可使用同一命令移除 `--release-check-only`；中断后只可增加
+`--resume-verified`，不得覆盖既有 shard。
 
 ### 6W-smoke. Round-2 fixed-slice numerical gate
 
-release check 通过后，只运行固定的 BrainWeb `subject04/z038` 与 HECKTOR `10/z072` 两个
+初始 identity release gate 通过后，只运行固定的 BrainWeb `subject04/z038` 与 HECKTOR `10/z072` 两个
 slice shard。两个进程分别产生 66 与 51 行，共 117 行；staging fragment 必须通过同进程写入和
 严格 resume verification，且所有 NRMSE/SSIM 必须有限。
 

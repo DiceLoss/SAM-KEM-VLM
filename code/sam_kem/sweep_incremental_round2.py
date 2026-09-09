@@ -1,20 +1,37 @@
-"""Zero-write release gate for the reviewed second incremental shell."""
+"""SHA-bound, resumable execution of the reviewed second incremental shell."""
 
 from __future__ import annotations
 
 import json
+import math
 import os
+import platform
+import sys
+from concurrent.futures import ProcessPoolExecutor, as_completed
 from collections import Counter, defaultdict
+from datetime import datetime, timezone
 from pathlib import Path
 
-from .artifacts import file_sha256
+import numpy as np
+import scipy
+
+from .artifacts import atomic_write_json, file_sha256
 from .config import load_contract, require_development_execution
 from .experiments import Case, load_case_manifest, validate_case_contract
 from .prior_registration import validate_registered_validation_prior_configuration
 from .protocols import load_protocol
 from .sweep_expansion_round2 import EXPECTED_CANDIDATE_COUNTS
-from .sweep_incremental import REVIEWED_EXPANSION_PLAN_SHA256
-from .sweep_sharded import THREAD_VARIABLES, _clean_commit, line_ending_equivalent_sha256
+from .sweep_incremental import (
+  REVIEWED_EXPANSION_PLAN_SHA256,
+  _write_shard_process,
+  verify_incremental_shard,
+)
+from .sweep_sharded import (
+  THREAD_VARIABLES,
+  _clean_commit,
+  _shard_set_sha256,
+  line_ending_equivalent_sha256,
+)
 from .sweep_sharding import group_validation_cases
 
 
@@ -27,6 +44,12 @@ REVIEWED_UNION_SELECTION_AUDIT_SHA256 = (
 REVIEWED_INCREMENTAL_MERGE_AUDIT_SHA256 = (
   "121f9cc1aadefb0ee1c59b2680d2a2f91a9cba325b26ee6ed8a5f45927f60e20"
 )
+REVIEWED_ROUND2_SMOKE_AUDIT_SHA256 = (
+  "fffbfd57d50c8da7df2544c046b6d69e2022d545d0babc1e358315d0238e3c6e"
+)
+REVIEWED_ROUND2_SMOKE_EXECUTION_COMMIT = (
+  "6bff589af418c6f37faca2ad42f54804ab71f9a5"
+)
 EXPECTED_ORIGINAL_MERGED_CSV_SHA256 = (
   "cbdc5beea03939819a0348f684544bccb36b3bda6f3f477152324e70784966bc"
 )
@@ -37,6 +60,24 @@ EXPECTED_CANDIDATES = 39
 EXPECTED_ROWS = 48_231
 EXPECTED_OPERATOR_UPDATES = 3_949_830
 OUTPUT_NAMESPACE = "runs/dev_trainmax_v1/hyperparameter_expansion_round2_shards"
+FIXED_SMOKE_KEYS = {
+  ("brainweb", "subject04", "z038"),
+  ("hecktor", "10", "z072"),
+}
+EXPECTED_METHOD_ROWS = {
+  "brainweb": {
+    "Bowsher-KEM": 36,
+    "MR-KEM": 18,
+    "SAM-KEM-MedSAM2-Qwen3-full": 9,
+    "SelfKEM": 3,
+  },
+  "hecktor": {
+    "Bowsher-KEM": 3,
+    "CT-KEM": 18,
+    "SAM-KEM-MedSAM2-Qwen3-full": 12,
+    "SelfKEM": 18,
+  },
+}
 
 
 def _json(path: Path) -> dict:
@@ -102,21 +143,88 @@ def build_round2_shards(cases: list[Case], candidates: dict) -> list[dict]:
   return shards
 
 
-def _require_smoke_before_formal_execution(*, release_check_only: bool) -> None:
-  if not release_check_only:
-    raise RuntimeError(
-      "round-2 formal execution remains locked pending a reviewed fixed-sample smoke audit"
+def validate_reviewed_round2_smoke(smoke: dict) -> None:
+  """Require the exact reviewed fixed-slice numerical evidence."""
+  fragments = smoke.get("fragments", [])
+  identities = {
+    (item.get("dataset"), item.get("subject_id"), item.get("slice_id"))
+    for item in fragments
+  }
+  finite_metrics = all(
+    math.isfinite(float(item[key]))
+    for item in fragments
+    for key in ("nrmse_min", "nrmse_max", "ssim_min", "ssim_max")
+  )
+  if (
+    smoke.get("artifact_kind")
+    != "validation_hyperparameter_expansion_round2_shard_smoke"
+    or smoke.get("status") != "PASS"
+    or smoke.get("execution_git_commit") != REVIEWED_ROUND2_SMOKE_EXECUTION_COMMIT
+    or smoke.get("round2_plan_sha256") != REVIEWED_ROUND2_PLAN_SHA256
+    or smoke.get("previous_expansion_plan_sha256")
+    != REVIEWED_EXPANSION_PLAN_SHA256
+    or smoke.get("union_selection_audit_sha256")
+    != REVIEWED_UNION_SELECTION_AUDIT_SHA256
+    or smoke.get("incremental_merge_audit_sha256")
+    != REVIEWED_INCREMENTAL_MERGE_AUDIT_SHA256
+    or smoke.get("original_merged_csv_sha256")
+    != EXPECTED_ORIGINAL_MERGED_CSV_SHA256
+    or smoke.get("round1_merged_csv_sha256")
+    != EXPECTED_ROUND1_MERGED_CSV_SHA256
+    or smoke.get("execution_backend")
+    != "scipy_sparse_csr_cpu_float64_multiprocess"
+    or smoke.get("worker_processes") != 2
+    or smoke.get("gpu_used") is not False
+    or smoke.get("fixed_shard_count") != 2
+    or smoke.get("fragments_written") != 2
+    or smoke.get("fragments_resume_verified") != 2
+    or smoke.get("total_rows") != 117
+    or smoke.get("process_ids_unique") is not True
+    or smoke.get("formal_declared_result_rows") != EXPECTED_ROWS
+    or smoke.get("formal_declared_operator_updates") != EXPECTED_OPERATOR_UPDATES
+    or identities != FIXED_SMOKE_KEYS
+    or len(fragments) != 2
+    or len({int(item["process_id"]) for item in fragments}) != 2
+    or any(
+      int(item["row_count"]) != {"brainweb": 66, "hecktor": 51}[item["dataset"]]
+      or item["method_row_counts"] != EXPECTED_METHOD_ROWS[item["dataset"]]
+      for item in fragments
     )
+    or not finite_metrics
+    or smoke.get("formal_output_created") is not False
+    or smoke.get("merge_created") is not False
+    or smoke.get("union_selection_audit_created") is not False
+    or smoke.get("frozen_hyperparameters_created") is not False
+    or smoke.get("test_locked_access") != "prohibited"
+  ):
+    raise ValueError("round-2 smoke audit is not the reviewed PASS artifact")
+
+
+def _write_round2_progress(
+  path: Path, *, status: str, total: int, reused: int, written: int,
+  failed_shard: str | None = None,
+) -> None:
+  atomic_write_json(path, {
+    "artifact_kind": "validation_hyperparameter_expansion_round2_progress",
+    "schema_version": 1,
+    "status": status,
+    "shards_total": total,
+    "shards_reused_verified": reused,
+    "shards_written": written,
+    "shards_completed": reused + written,
+    "failed_shard": failed_shard,
+    "updated_utc": datetime.now(timezone.utc).isoformat(),
+  }, replace=True)
 
 
 def run_round2_incremental_validation_sweep_shards(
   root: Path, config_path: Path, protocol_path: Path,
   previous_plan_path: Path, union_audit_path: Path,
   incremental_merge_audit_path: Path, round2_plan_path: Path,
-  output_dir: Path, *, workers: int, resume_verified: bool,
+  smoke_audit_path: Path, output_dir: Path, *, workers: int, resume_verified: bool,
   release_check_only: bool = False,
 ) -> dict:
-  """Validate round-2 execution identity without writing or running reconstruction."""
+  """Release-check, run, or strictly resume the reviewed round-2 shell."""
   root = root.resolve()
   config_path = config_path.resolve()
   protocol_path = protocol_path.resolve()
@@ -124,6 +232,7 @@ def run_round2_incremental_validation_sweep_shards(
   union_audit_path = union_audit_path.resolve()
   incremental_merge_audit_path = incremental_merge_audit_path.resolve()
   round2_plan_path = round2_plan_path.resolve()
+  smoke_audit_path = smoke_audit_path.resolve()
   output_dir = output_dir.resolve()
   if workers != 8:
     raise ValueError("the round-2 release requires exactly 8 worker processes")
@@ -139,6 +248,7 @@ def run_round2_incremental_validation_sweep_shards(
     or file_sha256(union_audit_path) != REVIEWED_UNION_SELECTION_AUDIT_SHA256
     or file_sha256(incremental_merge_audit_path)
     != REVIEWED_INCREMENTAL_MERGE_AUDIT_SHA256
+    or file_sha256(smoke_audit_path) != REVIEWED_ROUND2_SMOKE_AUDIT_SHA256
   ):
     raise ValueError("round-2 inputs are not the researcher-reviewed artifacts")
 
@@ -146,6 +256,8 @@ def run_round2_incremental_validation_sweep_shards(
   union_audit = _json(union_audit_path)
   incremental_merge_audit = _json(incremental_merge_audit_path)
   round2_plan = _json(round2_plan_path)
+  smoke_audit = _json(smoke_audit_path)
+  validate_reviewed_round2_smoke(smoke_audit)
   if (
     round2_plan.get("artifact_kind")
     != "validation_hyperparameter_incremental_expansion_round2_plan"
@@ -225,43 +337,197 @@ def run_round2_incremental_validation_sweep_shards(
   cases = load_case_manifest(root, manifest_path, split="validation")
   validate_case_contract(cases, contract)
   shards = build_round2_shards(cases, candidates)
-  if resume_verified:
-    raise ValueError("round-2 release check cannot be combined with --resume-verified")
-  if output_dir.exists():
-    raise FileExistsError("round-2 release check requires an absent output namespace")
-  _require_smoke_before_formal_execution(release_check_only=release_check_only)
-  return {
-    "artifact_kind": "validation_hyperparameter_expansion_round2_release_check",
-    "schema_version": 1,
-    "status": "PASS_ready_for_round2_incremental_shard_smoke",
+  grouped_cases: dict[tuple[str, str, str], list[Case]] = defaultdict(list)
+  for case in cases:
+    grouped_cases[(case.dataset, case.subject_id, case.slice_id)].append(case)
+  for members in grouped_cases.values():
+    members.sort(key=lambda case: (case.count_level, case.realization_id))
+
+  common = {
     "execution_git_commit": execution_commit,
     "round2_plan_sha256": REVIEWED_ROUND2_PLAN_SHA256,
     "previous_expansion_plan_sha256": REVIEWED_EXPANSION_PLAN_SHA256,
     "union_selection_audit_sha256": REVIEWED_UNION_SELECTION_AUDIT_SHA256,
     "incremental_merge_audit_sha256": REVIEWED_INCREMENTAL_MERGE_AUDIT_SHA256,
+    "round2_smoke_audit_sha256": REVIEWED_ROUND2_SMOKE_AUDIT_SHA256,
     "config_sha256": file_sha256(config_path),
     "protocol_sha256": file_sha256(protocol_path),
     "protocol_binding": "exact_or_lf_crlf_equivalent_bytes",
     "manifest_sha256": file_sha256(manifest_path),
     "original_merged_csv_sha256": file_sha256(original_merged_path),
     "round1_merged_csv_sha256": file_sha256(round1_merged_path),
-    "prior_registration": registration,
     "execution_backend": "scipy_sparse_csr_cpu_float64_multiprocess",
     "worker_processes": workers,
     "gpu_used": False,
     "thread_environment": thread_environment,
     "shard_count": len(shards),
-    "dataset_shard_counts": dict(Counter(item["dataset"] for item in shards)),
-    "dataset_rows_per_shard": {"brainweb": 66, "hecktor": 51},
     "total_cases": len(cases),
-    "incremental_candidate_count": EXPECTED_CANDIDATES,
     "total_result_rows": EXPECTED_ROWS,
     "total_operator_updates": EXPECTED_OPERATOR_UPDATES,
-    "formal_output_namespace": OUTPUT_NAMESPACE,
-    "formal_output_created": False,
-    "smoke_audit_created": False,
+    "test_locked_access": "prohibited",
+  }
+  if release_check_only:
+    if resume_verified:
+      raise ValueError("round-2 release check cannot be combined with --resume-verified")
+    if output_dir.exists():
+      raise FileExistsError("round-2 release check requires an absent output namespace")
+    return {
+      "artifact_kind": "validation_hyperparameter_expansion_round2_release_check",
+      "schema_version": 1,
+      "status": "PASS_ready_for_round2_incremental_shard_execution",
+      **common,
+      "prior_registration": registration,
+      "dataset_shard_counts": dict(Counter(item["dataset"] for item in shards)),
+      "dataset_rows_per_shard": {"brainweb": 66, "hecktor": 51},
+      "incremental_candidate_count": EXPECTED_CANDIDATES,
+      "formal_output_namespace": OUTPUT_NAMESPACE,
+      "formal_output_created": False,
+      "merge_created": False,
+      "union_selection_audit_created": False,
+      "frozen_hyperparameters_created": False,
+    }
+
+  execution_record_path = output_dir / "execution_record.json"
+  progress_path = output_dir / "progress.json"
+  completion_path = output_dir / "shard_batch_SUCCESS.json"
+  if output_dir.exists():
+    if not resume_verified:
+      raise FileExistsError("round-2 namespace exists; use --resume-verified")
+    if not execution_record_path.is_file():
+      raise ValueError("round-2 namespace lacks its immutable execution record")
+    execution_record = _json(execution_record_path)
+    if any(execution_record.get(key) != value for key, value in common.items()):
+      raise ValueError("resume identity differs from the existing round-2 execution")
+  else:
+    output_dir.mkdir(parents=True)
+    execution_record = {
+      "artifact_kind": "validation_hyperparameter_expansion_round2_execution",
+      "schema_version": 1,
+      "status": "running",
+      **common,
+      "python": sys.version,
+      "platform": platform.platform(),
+      "numpy_version": np.__version__,
+      "scipy_version": scipy.__version__,
+      "created_utc": datetime.now(timezone.utc).isoformat(),
+    }
+    atomic_write_json(execution_record_path, execution_record)
+  execution_record_sha256 = file_sha256(execution_record_path)
+
+  verified = []
+  pending = []
+  for shard in shards:
+    item = verify_incremental_shard(
+      output_dir, shard, candidates,
+      execution_commit=execution_commit,
+      execution_record_sha256=execution_record_sha256,
+      plan_sha256=REVIEWED_ROUND2_PLAN_SHA256,
+      run_id=contract.run_id,
+    )
+    (pending if item is None else verified).append(shard if item is None else item)
+  if verified and not resume_verified:
+    raise FileExistsError("verified round-2 shards exist; use --resume-verified")
+  if completion_path.exists():
+    completion = _json(completion_path)
+    if (
+      pending
+      or completion.get("status")
+      != "complete_pending_round2_incremental_integrity_merge"
+      or completion.get("execution_git_commit") != execution_commit
+      or completion.get("execution_record_sha256") != execution_record_sha256
+      or completion.get("round2_plan_sha256") != REVIEWED_ROUND2_PLAN_SHA256
+      or completion.get("round2_smoke_audit_sha256")
+      != REVIEWED_ROUND2_SMOKE_AUDIT_SHA256
+      or completion.get("shards_completed") != len(shards)
+      or completion.get("total_result_rows") != EXPECTED_ROWS
+      or completion.get("shard_set_sha256") != _shard_set_sha256(verified)
+      or completion.get("merge_created") is not False
+      or completion.get("union_selection_audit_created") is not False
+      or completion.get("frozen_hyperparameters_created") is not False
+    ):
+      raise ValueError("existing round-2 completion marker failed verification")
+    _write_round2_progress(
+      progress_path, status="complete", total=len(shards),
+      reused=len(verified), written=0,
+    )
+    return completion
+
+  _write_round2_progress(
+    progress_path, status="running", total=len(shards),
+    reused=len(verified), written=0,
+  )
+  written = []
+  failed_shard = None
+  executor = ProcessPoolExecutor(max_workers=workers)
+  futures = {}
+  try:
+    for shard in pending:
+      key = (shard["dataset"], shard["subject_id"], shard["slice_id"])
+      payload = (
+        root, config_path, output_dir, shard, grouped_cases[key], candidates,
+        execution_commit, execution_record_sha256, REVIEWED_ROUND2_PLAN_SHA256,
+      )
+      futures[executor.submit(_write_shard_process, payload)] = shard["shard_id"]
+    for future in as_completed(futures):
+      failed_shard = futures[future]
+      written.append(future.result())
+      failed_shard = None
+      print(json.dumps({
+        "status": "running",
+        "shards_total": len(shards),
+        "shards_reused_verified": len(verified),
+        "shards_written": len(written),
+        "shards_completed": len(verified) + len(written),
+        "latest_shard": written[-1]["shard_id"],
+      }, sort_keys=True), flush=True)
+      _write_round2_progress(
+        progress_path, status="running", total=len(shards),
+        reused=len(verified), written=len(written),
+      )
+  except BaseException:
+    for future in futures:
+      future.cancel()
+    _write_round2_progress(
+      progress_path, status="interrupted", total=len(shards),
+      reused=len(verified), written=len(written), failed_shard=failed_shard,
+    )
+    executor.shutdown(wait=True, cancel_futures=True)
+    raise
+  else:
+    executor.shutdown(wait=True)
+
+  completed = []
+  for shard in shards:
+    item = verify_incremental_shard(
+      output_dir, shard, candidates,
+      execution_commit=execution_commit,
+      execution_record_sha256=execution_record_sha256,
+      plan_sha256=REVIEWED_ROUND2_PLAN_SHA256,
+      run_id=contract.run_id,
+    )
+    if item is None:
+      raise RuntimeError(f"round-2 shard missing after run: {shard['shard_id']}")
+    completed.append(item)
+  result = {
+    "artifact_kind": "validation_hyperparameter_expansion_round2_shard_batch_completion",
+    "schema_version": 1,
+    "status": "complete_pending_round2_incremental_integrity_merge",
+    **common,
+    "execution_record_sha256": execution_record_sha256,
+    "shards_total": len(shards),
+    "shards_reused_verified": len(verified),
+    "shards_written": len(written),
+    "shards_completed": len(completed),
+    "incremental_candidate_count": EXPECTED_CANDIDATES,
+    "total_result_rows": sum(int(item["row_count"]) for item in completed),
+    "shard_set_sha256": _shard_set_sha256(completed),
     "merge_created": False,
     "union_selection_audit_created": False,
     "frozen_hyperparameters_created": False,
-    "test_locked_access": "prohibited",
   }
+  atomic_write_json(completion_path, result)
+  _write_round2_progress(
+    progress_path, status="complete", total=len(shards),
+    reused=len(verified), written=len(written),
+  )
+  return result
