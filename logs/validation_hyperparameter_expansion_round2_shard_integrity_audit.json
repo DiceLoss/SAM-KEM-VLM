@@ -1,0 +1,124 @@
+{
+  "artifact_kind": "validation_hyperparameter_expansion_round2_shard_integrity_audit",
+  "audit_git_commit": "65f658f27102ed841f209c146f2668ce3a736714",
+  "candidate_domain_verified": true,
+  "completion_updated_utc": "2026-09-09T17:23:11.557609+00:00",
+  "config_sha256": "a7c2aae59946f50f682de3d58c5b6999fc326132626d6c28e0ac7b8cc6d4f5a9",
+  "dataset_result_rows": {
+    "brainweb": 45936,
+    "hecktor": 2295
+  },
+  "dataset_shard_counts": {
+    "brainweb": 696,
+    "hecktor": 45
+  },
+  "elapsed_wall_seconds": 22328.539175,
+  "execution_created_utc": "2026-09-09T11:11:03.018434+00:00",
+  "execution_git_commit": "91102be722af53ba1d7e1e222c88eb5839bc0804",
+  "execution_record_sha256": "39565fe3b598d9917c3d0c7b02b01b7abfc1a72e86badfa7b84106edb02899dd",
+  "first_shard": {
+    "case_count": 12,
+    "dataset": "brainweb",
+    "elapsed_seconds": 267.55122720007785,
+    "fragment_manifest_sha256": "9fc632444b3d5462f3c9baed0b5a5f95d8cc653c92e1a0f7a514f9c79ee95d7e",
+    "fragment_sha256": "cd64addebf03cb07f6560f15fddcfd5921c398cf6041112b93d5a5e3cdc42b10",
+    "method_row_counts": {
+      "Bowsher-KEM": 36,
+      "MR-KEM": 18,
+      "SAM-KEM-MedSAM2-Qwen3-full": 9,
+      "SelfKEM": 3
+    },
+    "process_id": 41576,
+    "row_count": 66,
+    "shard_id": "shard_0000",
+    "slice_id": "z038",
+    "subject_id": "subject04",
+    "success_marker_sha256": "89512edfa192326c8b8a0cc90cfe16ea8d088aec189772d4bfcaa28cde92b81e"
+  },
+  "frozen_hyperparameters_created": false,
+  "global_primary_key_uniqueness": "verified_per_shard_and_by_disjoint_dataset_subject_slice_membership",
+  "incremental_candidate_count": 39,
+  "incremental_merge_audit_sha256": "121f9cc1aadefb0ee1c59b2680d2a2f91a9cba325b26ee6ed8a5f45927f60e20",
+  "last_shard": {
+    "case_count": 12,
+    "dataset": "hecktor",
+    "elapsed_seconds": 132.37955139996484,
+    "fragment_manifest_sha256": "0bf34666ba1a0f46acde028930232f61c384412a26a762ffaca5362c8fa01cf7",
+    "fragment_sha256": "b8303e1c6902f7c656c06dd89306253e1fa10c252775733b736709bc7a5e890d",
+    "method_row_counts": {
+      "Bowsher-KEM": 3,
+      "CT-KEM": 18,
+      "SAM-KEM-MedSAM2-Qwen3-full": 12,
+      "SelfKEM": 18
+    },
+    "process_id": 42548,
+    "row_count": 51,
+    "shard_id": "shard_0740",
+    "slice_id": "z072",
+    "subject_id": "98",
+    "success_marker_sha256": "22f6682a26f884bfbec98585af28d8d6b5edae6b34114980a52a870156ac1c62"
+  },
+  "manifest_sha256": "3059c981751f3156fd2fdfe3df2c177a58460b2fd8c455004a1e4bad35ed47b8",
+  "merge_created": false,
+  "method_row_counts": {
+    "brainweb": {
+      "Bowsher-KEM": 25056,
+      "MR-KEM": 12528,
+      "SAM-KEM-MedSAM2-Qwen3-full": 6264,
+      "SelfKEM": 2088
+    },
+    "hecktor": {
+      "Bowsher-KEM": 135,
+      "CT-KEM": 810,
+      "SAM-KEM-MedSAM2-Qwen3-full": 540,
+      "SelfKEM": 810
+    }
+  },
+  "metrics_finite": true,
+  "original_merged_csv_sha256": "cbdc5beea03939819a0348f684544bccb36b3bda6f3f477152324e70784966bc",
+  "previous_expansion_plan_sha256": "5a2d7d1013ec0d11fa190db60dc8802248771a3a378ccc04e48116877069b0d8",
+  "progress_sha256": "ffe61292ec88e746237384151f38e42fad4f63394786954205f748a0dfb8009d",
+  "protocol_sha256": "f2b073f5e460e24addc7a8d6ec0cfde67f8d7d74b4f01f08e7f096f02d0c9c66",
+  "published_file_counts": {
+    "csv_manifest": 741,
+    "result_csv": 741,
+    "shard_artifacts": 2223,
+    "shard_success": 741,
+    "top_level_json": 3,
+    "total": 2226
+  },
+  "read_only": true,
+  "recorded_process_id_count": 8,
+  "recorded_process_ids": [
+    4976,
+    18076,
+    19792,
+    23496,
+    25364,
+    34024,
+    41576,
+    42548
+  ],
+  "round1_merged_csv_sha256": "f41c731f731f718388648a99120045fc2bd40a68559c0e6332d5bbc707265260",
+  "round2_plan_sha256": "a326b070ffefd791f14969d7841b907954b4f041916607fdeba0a5ce227b44ce",
+  "round2_smoke_audit_sha256": "fffbfd57d50c8da7df2544c046b6d69e2022d545d0babc1e358315d0238e3c6e",
+  "schema_version": 1,
+  "shard_batch_success_sha256": "ba02e6d8ef7471931842a9f4d81d00809f797a134556b9c0eef784553cb6143f",
+  "shard_set_sha256": "4feab8a096898be67cdde83c9dfa728b661ca6e3b18806ac5dc5875a56c1d2a2",
+  "shards_reused_verified": 0,
+  "shards_total": 741,
+  "shards_written": 741,
+  "status": "PASS_complete_pending_round2_incremental_merge",
+  "sum_shard_compute_seconds": 178029.48340490262,
+  "temporary_transaction_directories": {
+    "count": 0,
+    "disposition": "preserved_read_only_excluded_from_published_shard_set",
+    "entries": []
+  },
+  "test_locked_access": "prohibited",
+  "total_cases": 8892,
+  "total_operator_updates": 3949830,
+  "total_result_rows": 48231,
+  "union_selection_audit_created": false,
+  "union_selection_audit_sha256": "854edf296ee368282125d225d93a0746399a0598d9319691e15a1ed062be6b33"
+}
