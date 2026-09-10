@@ -771,3 +771,26 @@ PYTHONPATH=code python code/experiments/smoke_round2_incremental_validation_swee
 
 smoke audit 经研究员审核并提交、其 SHA 被正式 runner 绑定之前，不得运行 741-shard round-2
 计算。smoke staging 与正式 namespace 必须分离，且不得合并或生成 frozen hyperparameters。
+
+### 6X-pre. Round-2 shard integrity audit
+
+741 个 round-2 shard 完成后，先执行只读完整性审计。该 gate 逐 shard 验证 CSV、manifest、
+SUCCESS、主键、候选集合、行数、SHA、有限 NRMSE/SSIM 与 execution identity，并核对恰好 8 个
+worker PID。它只写外部 audit JSON，不合并 fragment，也不改动 shard namespace。
+
+```bash
+PYTHONPATH=code python code/experiments/audit_round2_incremental_validation_sweep_shards.py \
+  --root . \
+  --config code/configs/generated/dev_trainmax_v1_validation_registered.yaml \
+  --protocol code/configs/generated/dev_trainmax_v1_protocols/hyperparameter_sweep.yaml \
+  --previous-plan logs/validation_hyperparameter_expansion_plan.json \
+  --union-audit logs/validation_hyperparameter_union_selection_audit.json \
+  --incremental-merge-audit logs/validation_hyperparameter_expansion_merge_integrity_audit.json \
+  --round2-plan logs/validation_hyperparameter_expansion_round2_plan.json \
+  --smoke-audit logs/validation_hyperparameter_expansion_round2_shard_smoke.json \
+  --output-dir runs/dev_trainmax_v1/hyperparameter_expansion_round2_shards \
+  --audit logs/validation_hyperparameter_expansion_round2_shard_integrity_audit.json
+```
+
+状态必须为 `PASS_complete_pending_round2_incremental_merge`，共 741 套三件套、48,231 行，
+BrainWeb/HECKTOR 分别为 45,936/2,295 行。审核并单独提交 audit 前不得 merge。
