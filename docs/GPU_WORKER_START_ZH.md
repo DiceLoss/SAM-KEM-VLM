@@ -912,3 +912,26 @@ PYTHONPATH=code python code/experiments/smoke_round3_incremental_validation_swee
 
 smoke audit 审核并提交、其 SHA 被正式 runner 绑定前，不得运行 741-shard round-3 sweep。审核前
 不提交 smoke audit 或 staging，不生成 frozen hyperparameters。
+
+### 6AB-final-release-check. Bind the reviewed Round-3 smoke
+
+smoke audit 提交后，正式 runner 必须绑定其 SHA，再做最后一次零写入 release check：
+
+```bash
+PYTHONPATH=code python code/experiments/run_round3_incremental_validation_sweep_shards.py \
+  --root . \
+  --config code/configs/generated/dev_trainmax_v1_validation_registered.yaml \
+  --protocol code/configs/generated/dev_trainmax_v1_protocols/hyperparameter_sweep.yaml \
+  --round2-plan logs/validation_hyperparameter_expansion_round2_plan.json \
+  --union-audit logs/validation_hyperparameter_round2_union_selection_audit.json \
+  --round2-merge-audit logs/validation_hyperparameter_expansion_round2_merge_integrity_audit.json \
+  --round3-plan logs/validation_hyperparameter_expansion_round3_plan.json \
+  --smoke-audit logs/validation_hyperparameter_expansion_round3_shard_smoke.json \
+  --output-dir runs/dev_trainmax_v1/hyperparameter_expansion_round3_shards \
+  --workers 8 \
+  --release-check-only
+```
+
+状态必须为 `PASS_ready_for_round3_incremental_shard_execution`，并绑定 smoke audit SHA
+`a0bf660f2b1452c68e312e5519ac102c9ec937e748172299e4f434ece53efb19`。正式 namespace 必须
+仍不存在；移除 `--release-check-only` 前必须再次取得 researcher 明确授权。

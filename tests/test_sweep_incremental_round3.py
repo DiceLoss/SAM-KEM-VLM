@@ -3,10 +3,12 @@ from pathlib import Path
 from types import SimpleNamespace
 
 import sam_kem.sweep_incremental_round3_smoke as smoke_module
+import pytest
 from sam_kem.sweep_incremental import _expected_case_rows
 from sam_kem.sweep_incremental_round3 import (
   build_round3_shards,
   round3_candidate_map,
+  validate_reviewed_round3_smoke,
 )
 from sam_kem.sweep_incremental_round3_smoke import fixed_round3_smoke_shards
 
@@ -56,6 +58,15 @@ def test_expected_case_rows_omits_reviewed_zero_candidate_cells():
     ("hecktor", 1_000_000): [],
   }
   assert _expected_case_rows(shard, candidates) == {(500_000, 0): 1}
+
+
+def test_round3_formal_execution_accepts_only_reviewed_smoke():
+  path = ROOT / "logs/validation_hyperparameter_expansion_round3_shard_smoke.json"
+  smoke = json.loads(path.read_text(encoding="utf-8"))
+  validate_reviewed_round3_smoke(smoke)
+  smoke["total_rows"] = 59
+  with pytest.raises(ValueError, match="not the reviewed PASS artifact"):
+    validate_reviewed_round3_smoke(smoke)
 
 
 def test_round3_shards_have_dataset_specific_row_counts():
