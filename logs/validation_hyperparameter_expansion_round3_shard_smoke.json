@@ -1,0 +1,73 @@
+{
+  "artifact_kind": "validation_hyperparameter_expansion_round3_shard_smoke",
+  "execution_backend": "scipy_sparse_csr_cpu_float64_multiprocess",
+  "execution_git_commit": "452e4ccefbc9b78dc607e626eb47707dca68c9af",
+  "fixed_shard_count": 2,
+  "formal_declared_operator_updates": 2647080,
+  "formal_declared_result_rows": 31995,
+  "formal_output_created": false,
+  "fragments": [
+    {
+      "dataset": "brainweb",
+      "elapsed_seconds": 175.66057559999172,
+      "fragment_manifest_sha256": "2adc36bcda4ecddad3bc3de83018179fbf7190c338e87cbf0db50ba3b8e1cee1",
+      "fragment_sha256": "18a2186faa84d62f0902112c34a0a8c3ce2fa4fd4ea8a19ec1bfbf8331e69d8e",
+      "method_row_counts": {
+        "Bowsher-KEM": 27,
+        "MR-KEM": 18
+      },
+      "nrmse_max": 0.19290491550951103,
+      "nrmse_min": 0.12703598894940796,
+      "process_id": 31424,
+      "row_count": 45,
+      "shard_id": "shard_0000",
+      "slice_id": "z038",
+      "ssim_max": 0.9648529857240876,
+      "ssim_min": 0.9071673674455509,
+      "subject_id": "subject04",
+      "success_marker_sha256": "80e498d6b0ded7308b133fd8485d9723dc951628fe96d2f4ff9601feacfbfa98"
+    },
+    {
+      "dataset": "hecktor",
+      "elapsed_seconds": 31.075906899990514,
+      "fragment_manifest_sha256": "12e46057c79b4646c186bd0dd8f9f811cd9a6a6630744537304998e7a2aca3aa",
+      "fragment_sha256": "2a1c172ecdf8109886bcc5662bca565eeb3af17d00a1574094ba93a1f686f26b",
+      "method_row_counts": {
+        "Bowsher-KEM": 3,
+        "CT-KEM": 9,
+        "SAM-KEM-MedSAM2-Qwen3-full": 3
+      },
+      "nrmse_max": 0.18088064678587695,
+      "nrmse_min": 0.14527992914133522,
+      "process_id": 18160,
+      "row_count": 15,
+      "shard_id": "shard_0696",
+      "slice_id": "z072",
+      "ssim_max": 0.9771570226366084,
+      "ssim_min": 0.9677000272086845,
+      "subject_id": "10",
+      "success_marker_sha256": "f7ab6e1c0688e0d7c091f98b34a16953f489f10b89c5036212fdc0cbcf54fdea"
+    }
+  ],
+  "fragments_resume_verified": 2,
+  "fragments_written": 2,
+  "frozen_hyperparameters_created": false,
+  "gpu_used": false,
+  "merge_created": false,
+  "original_merged_csv_sha256": "cbdc5beea03939819a0348f684544bccb36b3bda6f3f477152324e70784966bc",
+  "output_namespace": "staging/dev_trainmax_v1_hyperparameter_expansion_round3_shard_smoke",
+  "output_role": "staging_smoke_not_formal_round3_expansion",
+  "process_ids_unique": true,
+  "round1_merged_csv_sha256": "f41c731f731f718388648a99120045fc2bd40a68559c0e6332d5bbc707265260",
+  "round2_merge_audit_sha256": "715f42e5481d7dc9f4acdac56fb71919049012c7ae8a82263b2801f0e39e94f8",
+  "round2_merged_csv_sha256": "6de1e06fd0fd31e38b10a83230a4421b4173b831541e1b93445947bb62a0f192",
+  "round2_plan_sha256": "a326b070ffefd791f14969d7841b907954b4f041916607fdeba0a5ce227b44ce",
+  "round3_plan_sha256": "1559ead5c7ba844d78feb1b17ebbb481b3830d4bf7c6f45215fd21bd8036a192",
+  "schema_version": 1,
+  "status": "PASS",
+  "test_locked_access": "prohibited",
+  "total_rows": 60,
+  "union_selection_audit_created": false,
+  "union_selection_audit_sha256": "b5e25f9c92cff2a8c3c00b665a472e738d1b65d77d8b18a404b58252b6264c6a",
+  "worker_processes": 2
+}
