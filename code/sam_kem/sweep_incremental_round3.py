@@ -85,6 +85,12 @@ def round3_candidate_map(plan: dict) -> dict[tuple[str, int], list[dict]]:
         raise ValueError(f"duplicate round-3 candidate: {identity}")
       seen.add(identity)
       result[(dataset, count)].append(candidate)
+  # The generic shard writer indexes every validation case directly.  Retain
+  # uncovered cells explicitly so a reviewed zero-candidate cell is skipped
+  # instead of being confused with a malformed plan.
+  for dataset in ("brainweb", "hecktor"):
+    for count in (100_000, 200_000, 500_000, 1_000_000):
+      result.setdefault((dataset, count), [])
   counts = Counter()
   for (dataset, _count), items in result.items():
     counts[dataset] += len(items)

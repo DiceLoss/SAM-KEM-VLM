@@ -28,7 +28,18 @@ def test_reviewed_round3_plan_has_exact_incremental_case_workload():
     ("hecktor", 100_000): 2,
     ("hecktor", 200_000): 2,
     ("hecktor", 500_000): 1,
+    ("hecktor", 1_000_000): 0,
   }
+
+
+def test_round3_candidate_map_exposes_reviewed_empty_cells_to_shard_writer():
+  plan = json.loads(
+    (ROOT / "logs/validation_hyperparameter_expansion_round3_plan.json").read_text(
+      encoding="utf-8",
+    )
+  )
+  candidates = round3_candidate_map(plan)
+  assert candidates[("hecktor", 1_000_000)] == []
 
 
 def test_round3_shards_have_dataset_specific_row_counts():
