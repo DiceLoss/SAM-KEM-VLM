@@ -3,6 +3,7 @@ from pathlib import Path
 from types import SimpleNamespace
 
 import sam_kem.sweep_incremental_round3_smoke as smoke_module
+from sam_kem.sweep_incremental import _expected_case_rows
 from sam_kem.sweep_incremental_round3 import (
   build_round3_shards,
   round3_candidate_map,
@@ -40,6 +41,21 @@ def test_round3_candidate_map_exposes_reviewed_empty_cells_to_shard_writer():
   )
   candidates = round3_candidate_map(plan)
   assert candidates[("hecktor", 1_000_000)] == []
+
+
+def test_expected_case_rows_omits_reviewed_zero_candidate_cells():
+  shard = {
+    "dataset": "hecktor",
+    "case_keys": [
+      {"count_level": 500_000, "realization_id": 0},
+      {"count_level": 1_000_000, "realization_id": 0},
+    ],
+  }
+  candidates = {
+    ("hecktor", 500_000): [{"method": "CT-KEM"}],
+    ("hecktor", 1_000_000): [],
+  }
+  assert _expected_case_rows(shard, candidates) == {(500_000, 0): 1}
 
 
 def test_round3_shards_have_dataset_specific_row_counts():

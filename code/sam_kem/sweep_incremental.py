@@ -121,12 +121,18 @@ def build_incremental_shards(cases: list[Case], candidates: dict) -> list[dict]:
 
 
 def _expected_case_rows(shard: dict, candidates: dict) -> dict[tuple[int, int], int]:
-  return {
-    (int(key["count_level"]), int(key["realization_id"])): len(
+  expected = {}
+  for key in shard["case_keys"]:
+    candidate_count = len(
       candidates[(shard["dataset"], int(key["count_level"]))]
     )
-    for key in shard["case_keys"]
-  }
+    # Counter(rows) cannot contain a case that correctly emitted zero rows.
+    # Omit those reviewed empty cells from the expected sparse histogram too.
+    if candidate_count:
+      expected[(int(key["count_level"]), int(key["realization_id"]))] = (
+        candidate_count
+      )
+  return expected
 
 
 def _expected_method_rows(shard: dict, candidates: dict) -> dict[str, int]:
