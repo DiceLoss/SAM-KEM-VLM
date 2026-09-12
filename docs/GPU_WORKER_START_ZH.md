@@ -984,3 +984,33 @@ PYTHONPATH=code python code/experiments/merge_round3_incremental_validation_swee
 状态必须为 `PASS_complete_pending_round3_union_selection_audit`；正式目录只含 Round-3 CSV、
 manifest、merge record 与 SUCCESS 四个文件。审核前不提交 merge audit，不运行 four-source union
 selection，不生成 frozen hyperparameters。
+
+### 6AH. Four-source streaming union-selection audit
+
+Round-3 merge audit 经研究员审核并单独提交后，分别流读原始 5,157,360 行、Round-1 80,568 行、
+Round-2 48,231 行和 Round-3 31,995 行 CSV，在同一 subject-balanced 聚合器中对 5,318,154 行
+做选择。该 gate 不创建物理 union CSV；36 个未进入 Round-3 的选择必须与上一轮 union audit
+逐参数一致，另外 12 个组的赢家只能是上一轮 union 赢家或预声明的 Round-3 local-shell candidate。
+
+```bash
+PYTHONPATH=code python code/experiments/audit_round3_validation_hyperparameter_union_selection.py \
+  --root . \
+  --config code/configs/generated/dev_trainmax_v1_validation_registered.yaml \
+  --protocol code/configs/generated/dev_trainmax_v1_protocols/hyperparameter_sweep.yaml \
+  --original-merge-audit logs/validation_sweep_merge_integrity_audit.json \
+  --original-selection-audit logs/validation_hyperparameter_selection_audit.json \
+  --round1-plan logs/validation_hyperparameter_expansion_plan.json \
+  --round1-merge-audit logs/validation_hyperparameter_expansion_merge_integrity_audit.json \
+  --round1-union-audit logs/validation_hyperparameter_union_selection_audit.json \
+  --round2-plan logs/validation_hyperparameter_expansion_round2_plan.json \
+  --round2-merge-audit logs/validation_hyperparameter_expansion_round2_merge_integrity_audit.json \
+  --round2-union-audit logs/validation_hyperparameter_round2_union_selection_audit.json \
+  --round3-plan logs/validation_hyperparameter_expansion_round3_plan.json \
+  --round3-merge-audit logs/validation_hyperparameter_expansion_round3_merge_integrity_audit.json \
+  --output logs/validation_hyperparameter_round3_union_selection_audit.json
+```
+
+仅当 `expanded_boundary_selection_count == 0` 时状态才是
+`PASS_ready_for_hyperparameter_freeze`；否则状态为
+`BLOCKED_expanded_boundary_requires_additional_shell`。审核前不提交 audit；无论哪种状态，本步骤
+均不得生成 frozen hyperparameters、物理 union CSV，或删除任何既有 shard、merge 与 staging 产物。
