@@ -1180,3 +1180,22 @@ PYTHONPATH=code python code/experiments/audit_round4_validation_hyperparameter_u
 `expanded_boundary_selection_count == 0` 时状态才是 `PASS_ready_for_hyperparameter_freeze`；否则状态
 为 `BLOCKED_expanded_boundary_requires_additional_shell`，禁止冻结。审核前不提交 audit；无论状态如何，
 本步骤都不创建 union CSV 或 frozen hyperparameters。
+
+### 6AP. Round-5 reviewed local-shell plan
+
+若五源 union audit 仍为 `BLOCKED_expanded_boundary_requires_additional_shell`，只对其中仍获胜的
+Round-4 新边界生成下一层局部壳，不扩展已经解决或未触发的轴：
+
+```bash
+PYTHONPATH=code python code/experiments/plan_round5_validation_hyperparameter_expansion.py \
+  --root . \
+  --union-audit logs/validation_hyperparameter_round4_union_selection_audit.json \
+  --round4-plan logs/validation_hyperparameter_expansion_round4_plan.json \
+  --round4-merge-audit logs/validation_hyperparameter_expansion_round4_merge_integrity_audit.json \
+  --output logs/validation_hyperparameter_expansion_round5_plan.json
+```
+
+当前 reviewed shell 仅含 6 个 BrainWeb 单轴候选：`neighbours 28→32` 两组、`radius 7→8`
+三组、`iterations 200→220` 一组。计划应声明 12,528 行、1,085,760 operator updates、累计
+151 个增量候选与 192,249 行，下一次六源 streaming union 应为 5,349,609 行。本步骤只写计划
+JSON，不运行 reconstruction、merge、selection 或 freeze，审核前不得提交。
