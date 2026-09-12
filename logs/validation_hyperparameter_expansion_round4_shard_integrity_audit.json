@@ -1,0 +1,116 @@
+{
+  "artifact_kind": "validation_hyperparameter_expansion_round4_shard_integrity_audit",
+  "audit_git_commit": "ad1b48e92085e224d6ee54622433e3dcd0bb0492",
+  "candidate_domain_verified": true,
+  "completion_updated_utc": "2026-09-12T12:13:17.363629+00:00",
+  "config_sha256": "a7c2aae59946f50f682de3d58c5b6999fc326132626d6c28e0ac7b8cc6d4f5a9",
+  "dataset_result_rows": {
+    "brainweb": 18792,
+    "hecktor": 135
+  },
+  "dataset_shard_counts": {
+    "brainweb": 696,
+    "hecktor": 45
+  },
+  "elapsed_wall_seconds": 13061.377043,
+  "execution_created_utc": "2026-09-12T08:35:35.986586+00:00",
+  "execution_git_commit": "3b33fce32ede6ebe2375a67b3ad99f3a4281d16d",
+  "execution_record_sha256": "7d9facb80d3630749c23d584450c51767abd7e6453d81196761f5d365ed13300",
+  "first_shard": {
+    "case_count": 12,
+    "dataset": "brainweb",
+    "elapsed_seconds": 156.36867460000212,
+    "fragment_manifest_sha256": "bde5e453234eac044bc25a99cd36067489da8735b59bc1f04e9173d7a68ffe3a",
+    "fragment_sha256": "a47f22ef632e7207f88b9071e06b1b69d90c1b1a0784d9d377ec3916ba100cd7",
+    "method_row_counts": {
+      "Bowsher-KEM": 9,
+      "MR-KEM": 18
+    },
+    "process_id": 9784,
+    "row_count": 27,
+    "shard_id": "shard_0000",
+    "slice_id": "z038",
+    "subject_id": "subject04",
+    "success_marker_sha256": "b2c30895f22869f4a207c2aaa9d50a1535dcaf869915f2e386b9766441271791"
+  },
+  "frozen_hyperparameters_created": false,
+  "global_primary_key_uniqueness": "verified_per_shard_and_by_disjoint_dataset_subject_slice_membership",
+  "incremental_candidate_count": 10,
+  "last_shard": {
+    "case_count": 12,
+    "dataset": "hecktor",
+    "elapsed_seconds": 6.205245299992384,
+    "fragment_manifest_sha256": "574f917ceda6e668499c13cf13443c8d261c6949df74cbc8339a20c6b2192e90",
+    "fragment_sha256": "c3ab0d0627a3d3644a15bf25a60d75e7d8e5782f297a01645631f4375a9cb176",
+    "method_row_counts": {
+      "Bowsher-KEM": 3
+    },
+    "process_id": 14836,
+    "row_count": 3,
+    "shard_id": "shard_0740",
+    "slice_id": "z072",
+    "subject_id": "98",
+    "success_marker_sha256": "0e8858e389c7245b29749d7246d7947773848c71ec113e83e40bba0bd6054f40"
+  },
+  "manifest_sha256": "3059c981751f3156fd2fdfe3df2c177a58460b2fd8c455004a1e4bad35ed47b8",
+  "merge_created": false,
+  "method_row_counts": {
+    "brainweb": {
+      "Bowsher-KEM": 6264,
+      "MR-KEM": 12528
+    },
+    "hecktor": {
+      "Bowsher-KEM": 135
+    }
+  },
+  "metrics_finite": true,
+  "original_merged_csv_sha256": "cbdc5beea03939819a0348f684544bccb36b3bda6f3f477152324e70784966bc",
+  "progress_sha256": "2f50b069217625ea1cbf89ef3afdfb3afc1dc5d2178893570230c5042e588571",
+  "protocol_sha256": "f2b073f5e460e24addc7a8d6ec0cfde67f8d7d74b4f01f08e7f096f02d0c9c66",
+  "published_file_counts": {
+    "csv_manifest": 741,
+    "result_csv": 741,
+    "shard_artifacts": 2223,
+    "shard_success": 741,
+    "top_level_json": 3,
+    "total": 2226
+  },
+  "read_only": true,
+  "recorded_process_id_count": 8,
+  "recorded_process_ids": [
+    5300,
+    6432,
+    9784,
+    14836,
+    16712,
+    19088,
+    27184,
+    38592
+  ],
+  "round1_merged_csv_sha256": "f41c731f731f718388648a99120045fc2bd40a68559c0e6332d5bbc707265260",
+  "round2_merged_csv_sha256": "6de1e06fd0fd31e38b10a83230a4421b4173b831541e1b93445947bb62a0f192",
+  "round3_merge_audit_sha256": "ad71b6335973c9c46b7a4cf97bb0daebbcbba8eb7570bdfd1d31824929b2722b",
+  "round3_merged_csv_sha256": "9cdefd0e3f88f90d6992c734b53b33c4d7fb6ab5e5e06d209851a03789b12027",
+  "round3_plan_sha256": "1559ead5c7ba844d78feb1b17ebbb481b3830d4bf7c6f45215fd21bd8036a192",
+  "round4_plan_sha256": "6e28bbbb1219af82c3b92225d1ca589213ce83453b87de2f058a7103c3778268",
+  "round4_smoke_audit_sha256": "1f3d799a1513e6c6a50176b399bcec1ed85fabd2c6a38269a6d8af70a937a52e",
+  "schema_version": 1,
+  "shard_batch_success_sha256": "0d32063b331da2825b76dfe0466e9b806d1627f4e6b5b047b5a603eed46661ee",
+  "shard_set_sha256": "f16c7e6aa1a1606a06efacc343c4d1ecf5d0942e0ea2101740f7e60d23669ef7",
+  "shards_reused_verified": 0,
+  "shards_total": 741,
+  "shards_written": 741,
+  "status": "PASS_complete_pending_round4_incremental_merge",
+  "sum_shard_compute_seconds": 104353.64102040001,
+  "temporary_transaction_directories": {
+    "count": 0,
+    "disposition": "preserved_read_only_excluded_from_published_shard_set",
+    "entries": []
+  },
+  "test_locked_access": "prohibited",
+  "total_cases": 8892,
+  "total_operator_updates": 2007180,
+  "total_result_rows": 18927,
+  "union_selection_audit_created": false,
+  "union_selection_audit_sha256": "250f57e74e977609cbc42f279423e62d71ec25c51ef40c8af41a17f30cb30dc1"
+}
