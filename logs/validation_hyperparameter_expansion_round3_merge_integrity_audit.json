@@ -1,0 +1,51 @@
+{
+  "artifact_kind": "validation_hyperparameter_expansion_round3_shard_merge",
+  "execution_git_commit": "f94fafeac4eeae878174abdf14404bcdb3295f52",
+  "formal_merge_artifact_count": 4,
+  "frozen_hyperparameters_created": false,
+  "global_primary_key_uniqueness": "verified_per_shard_and_by_disjoint_dataset_subject_slice_membership",
+  "merge_git_commit": "0a390170ed69fb9bbee21ba906a06362154db1e0",
+  "merge_order": "round3_shard_id_order_then_existing_fragment_row_order",
+  "merge_record_path": "runs/dev_trainmax_v1/hyperparameter_expansion_round3/merge_record.json",
+  "merge_success_path": "runs/dev_trainmax_v1/hyperparameter_expansion_round3/merge_SUCCESS.json",
+  "merge_success_sha256": "d0e64a410028a73b63b014814147f0e133124aff29bc77dbef33f8d573e4b629",
+  "method_row_counts": {
+    "brainweb": {
+      "Bowsher-KEM": 18792,
+      "MR-KEM": 12528
+    },
+    "hecktor": {
+      "Bowsher-KEM": 135,
+      "CT-KEM": 405,
+      "SAM-KEM-MedSAM2-Qwen3-full": 135
+    }
+  },
+  "next_union_expected_result_rows": 5318154,
+  "original_merged_csv_sha256": "cbdc5beea03939819a0348f684544bccb36b3bda6f3f477152324e70784966bc",
+  "physical_union_created": false,
+  "round1_merged_csv_sha256": "f41c731f731f718388648a99120045fc2bd40a68559c0e6332d5bbc707265260",
+  "round2_incremental_merge_audit_sha256": "715f42e5481d7dc9f4acdac56fb71919049012c7ae8a82263b2801f0e39e94f8",
+  "round2_merged_csv_sha256": "6de1e06fd0fd31e38b10a83230a4421b4173b831541e1b93445947bb62a0f192",
+  "round2_plan_sha256": "a326b070ffefd791f14969d7841b907954b4f041916607fdeba0a5ce227b44ce",
+  "round2_union_selection_audit_sha256": "b5e25f9c92cff2a8c3c00b665a472e738d1b65d77d8b18a404b58252b6264c6a",
+  "round3_incremental_candidate_count": 20,
+  "round3_incremental_operator_updates": 2647080,
+  "round3_incremental_result_rows": 31995,
+  "round3_merged_csv_byte_size": 4164898,
+  "round3_merged_csv_path": "runs/dev_trainmax_v1/hyperparameter_expansion_round3/validation_hyperparameter_expansion_round3.csv",
+  "round3_merged_csv_sha256": "9cdefd0e3f88f90d6992c734b53b33c4d7fb6ab5e5e06d209851a03789b12027",
+  "round3_merged_manifest_path": "runs/dev_trainmax_v1/hyperparameter_expansion_round3/validation_hyperparameter_expansion_round3.csv.manifest.json",
+  "round3_merged_manifest_sha256": "4b7f143a3632d6af5fea7a49c4bab27705f80b02ea6879f2faabf40b60521810",
+  "round3_plan_sha256": "1559ead5c7ba844d78feb1b17ebbb481b3830d4bf7c6f45215fd21bd8036a192",
+  "round3_shard_audit_path": "logs/validation_hyperparameter_expansion_round3_shard_integrity_audit.json",
+  "round3_shard_audit_sha256": "d0e861735f0aa120045e479774ce13a57dcd4e84f936c9395d166ad91ae9dd39",
+  "round3_shard_set_sha256": "28e53b2b6ba0f4018af15371b26fe7e436fd96695eab1f3427676e585c1768c9",
+  "round3_smoke_audit_sha256": "a0bf660f2b1452c68e312e5519ac102c9ec937e748172299e4f434ece53efb19",
+  "round3_union_selection_audit_created": false,
+  "schema_version": 1,
+  "source_cases": 8892,
+  "source_shards": 741,
+  "status": "PASS_complete_pending_round3_union_selection_audit",
+  "temporary_transaction_directories_preserved": 0,
+  "test_locked_access": "prohibited"
+}
