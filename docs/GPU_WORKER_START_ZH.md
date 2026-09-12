@@ -1124,3 +1124,28 @@ PYTHONPATH=code python code/experiments/audit_round4_incremental_validation_swee
 
 成功状态必须为 `PASS_complete_pending_round4_incremental_merge`。审核并记录 audit JSON 前，不得
 创建 Round-4 merge namespace、运行五源 selection 或冻结参数。
+
+### 6AM-merge. Round-4 transactional incremental merge
+
+Round-4 shard audit 审核记录后，事务式拼接 741 个 shard CSV 为独立 Round-4 incremental CSV；
+不与原始或前三轮 CSV 创建 physical union。
+
+```bash
+PYTHONPATH=code python code/experiments/merge_round4_incremental_validation_sweep_shards.py \
+  --root . \
+  --config code/configs/generated/dev_trainmax_v1_validation_registered.yaml \
+  --protocol code/configs/generated/dev_trainmax_v1_protocols/hyperparameter_sweep.yaml \
+  --union-audit logs/validation_hyperparameter_round3_union_selection_audit.json \
+  --round3-plan logs/validation_hyperparameter_expansion_round3_plan.json \
+  --round3-merge-audit logs/validation_hyperparameter_expansion_round3_merge_integrity_audit.json \
+  --round4-plan logs/validation_hyperparameter_expansion_round4_plan.json \
+  --smoke-audit logs/validation_hyperparameter_expansion_round4_shard_smoke.json \
+  --shard-dir runs/dev_trainmax_v1/hyperparameter_expansion_round4_shards \
+  --shard-audit logs/validation_hyperparameter_expansion_round4_shard_integrity_audit.json \
+  --output-dir runs/dev_trainmax_v1/hyperparameter_expansion_round4 \
+  --audit logs/validation_hyperparameter_expansion_round4_merge_integrity_audit.json
+```
+
+成功状态必须为 `PASS_complete_pending_round4_union_selection_audit`，CSV 必须为 18,927 data
+rows，下一轮五源 streaming union 声明为 5,337,081 rows。merge audit 审核前不得提交，不得启动
+selection 或 freeze。
