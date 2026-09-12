@@ -1077,3 +1077,28 @@ PYTHONPATH=code python code/experiments/smoke_round4_incremental_validation_swee
 
 smoke audit 审核并提交、其 SHA 被正式 runner 绑定前，不得运行 741-shard Round-4 sweep。审核前
 不提交 smoke audit 或 staging，不生成 frozen hyperparameters。
+
+### 6AK. Round-4 formal execution release
+
+smoke audit 以 SHA `1f3d799a1513e6c6a50176b399bcec1ed85fabd2c6a38269a6d8af70a937a52e`
+审核并提交后，正式 runner 才允许 final zero-write release check 或可恢复全量执行。最终 release
+check 仍不得创建 namespace：
+
+```bash
+PYTHONPATH=code python code/experiments/run_round4_incremental_validation_sweep_shards.py \
+  --root . \
+  --config code/configs/generated/dev_trainmax_v1_validation_registered.yaml \
+  --protocol code/configs/generated/dev_trainmax_v1_protocols/hyperparameter_sweep.yaml \
+  --union-audit logs/validation_hyperparameter_round3_union_selection_audit.json \
+  --round3-plan logs/validation_hyperparameter_expansion_round3_plan.json \
+  --round3-merge-audit logs/validation_hyperparameter_expansion_round3_merge_integrity_audit.json \
+  --round4-plan logs/validation_hyperparameter_expansion_round4_plan.json \
+  --smoke-audit logs/validation_hyperparameter_expansion_round4_shard_smoke.json \
+  --output-dir runs/dev_trainmax_v1/hyperparameter_expansion_round4_shards \
+  --workers 8 \
+  --release-check-only
+```
+
+审核明确释放后，移除 `--release-check-only` 执行 741 shards；中断后仅可用相同命令增加
+`--resume-verified`。完成标记必须为
+`complete_pending_round4_incremental_integrity_merge`，18,927 行不得在此步骤合并或选择。

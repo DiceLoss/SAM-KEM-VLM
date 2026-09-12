@@ -3,14 +3,25 @@ from pathlib import Path
 from types import SimpleNamespace
 
 import sam_kem.sweep_incremental_round4_smoke as smoke_module
+import pytest
 from sam_kem.sweep_incremental_round4 import (
   build_round4_shards,
   round4_candidate_map,
+  validate_reviewed_round4_smoke,
 )
 from sam_kem.sweep_incremental_round4_smoke import fixed_round4_smoke_shards
 
 
 ROOT = Path(__file__).resolve().parents[1]
+
+
+def test_round4_formal_execution_accepts_only_reviewed_smoke():
+  path = ROOT / "logs/validation_hyperparameter_expansion_round4_shard_smoke.json"
+  smoke = json.loads(path.read_text(encoding="utf-8"))
+  validate_reviewed_round4_smoke(smoke)
+  smoke["total_rows"] = 29
+  with pytest.raises(ValueError, match="not the reviewed PASS artifact"):
+    validate_reviewed_round4_smoke(smoke)
 
 
 def test_reviewed_round4_plan_has_exact_incremental_case_workload():
