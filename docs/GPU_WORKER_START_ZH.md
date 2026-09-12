@@ -1034,3 +1034,46 @@ PYTHONPATH=code python code/experiments/plan_round4_validation_hyperparameter_ex
 该命令只写 SHA-bound 计划 JSON，不运行 reconstruction、不创建 Round-4 shard namespace，也不修改
 前四份 merged CSV。计划必须声明 cumulative incremental candidates/rows 为 145/179,721，下一次
 五源 streaming union 为 5,337,081 行。审核前不提交计划，不生成 frozen hyperparameters。
+
+### 6AJ-release-check. Round-4 smoke execution identity
+
+第四轮计划审核并提交后，先运行零写入 release check。该 gate 绑定四源 union audit、Round-3
+plan/merge audit、Round-4 plan 与前四份 merged CSV。BrainWeb 每 shard 27 行，HECKTOR 每
+shard 3 行，总计 18,927 行；smoke audit 审核前从代码层禁止正式执行。
+
+```bash
+PYTHONPATH=code python code/experiments/run_round4_incremental_validation_sweep_shards.py \
+  --root . \
+  --config code/configs/generated/dev_trainmax_v1_validation_registered.yaml \
+  --protocol code/configs/generated/dev_trainmax_v1_protocols/hyperparameter_sweep.yaml \
+  --union-audit logs/validation_hyperparameter_round3_union_selection_audit.json \
+  --round3-plan logs/validation_hyperparameter_expansion_round3_plan.json \
+  --round3-merge-audit logs/validation_hyperparameter_expansion_round3_merge_integrity_audit.json \
+  --round4-plan logs/validation_hyperparameter_expansion_round4_plan.json \
+  --output-dir runs/dev_trainmax_v1/hyperparameter_expansion_round4_shards \
+  --workers 8 \
+  --release-check-only
+```
+
+状态必须为 `PASS_ready_for_round4_incremental_shard_smoke`，正式 namespace 必须仍不存在。
+
+### 6AJ-smoke. Round-4 fixed-slice numerical gate
+
+release check 通过后，只运行 BrainWeb `subject04/z038` 与 HECKTOR `10/z072` 两个固定 slice shard。
+两个独立进程分别产生 27 与 3 行，共 30 行，并在 staging 内严格 resume-verify。
+
+```bash
+PYTHONPATH=code python code/experiments/smoke_round4_incremental_validation_sweep_shards.py \
+  --root . \
+  --config code/configs/generated/dev_trainmax_v1_validation_registered.yaml \
+  --protocol code/configs/generated/dev_trainmax_v1_protocols/hyperparameter_sweep.yaml \
+  --union-audit logs/validation_hyperparameter_round3_union_selection_audit.json \
+  --round3-plan logs/validation_hyperparameter_expansion_round3_plan.json \
+  --round3-merge-audit logs/validation_hyperparameter_expansion_round3_merge_integrity_audit.json \
+  --round4-plan logs/validation_hyperparameter_expansion_round4_plan.json \
+  --output-dir staging/dev_trainmax_v1_hyperparameter_expansion_round4_shard_smoke \
+  --audit logs/validation_hyperparameter_expansion_round4_shard_smoke.json
+```
+
+smoke audit 审核并提交、其 SHA 被正式 runner 绑定前，不得运行 741-shard Round-4 sweep。审核前
+不提交 smoke audit 或 staging，不生成 frozen hyperparameters。
