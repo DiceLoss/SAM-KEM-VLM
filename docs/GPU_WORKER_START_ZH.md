@@ -1014,3 +1014,23 @@ PYTHONPATH=code python code/experiments/audit_round3_validation_hyperparameter_u
 `PASS_ready_for_hyperparameter_freeze`；否则状态为
 `BLOCKED_expanded_boundary_requires_additional_shell`。审核前不提交 audit；无论哪种状态，本步骤
 均不得生成 frozen hyperparameters、物理 union CSV，或删除任何既有 shard、merge 与 staging 产物。
+
+### 6AI-plan. Fourth incremental local-shell plan
+
+若四源 union audit 仍为 BLOCKED，只对占据 Round-3 新外边界的 8 个组继续扩展。第四轮规则为
+Bowsher neighbours `24 -> 28`、普通 radius `6 -> 7`、iterations `180 -> 200`；本轮没有
+sigma 或 Bowsher radius 触边，因此不得扩这两个轴。7 个单轴组与 1 个双轴组产生 10 个
+交互完整候选（BrainWeb 9、HECKTOR 1），新增 18,927 行和 2,007,180 operator updates。
+
+```bash
+PYTHONPATH=code python code/experiments/plan_round4_validation_hyperparameter_expansion.py \
+  --root . \
+  --union-audit logs/validation_hyperparameter_round3_union_selection_audit.json \
+  --round3-plan logs/validation_hyperparameter_expansion_round3_plan.json \
+  --round3-merge-audit logs/validation_hyperparameter_expansion_round3_merge_integrity_audit.json \
+  --output logs/validation_hyperparameter_expansion_round4_plan.json
+```
+
+该命令只写 SHA-bound 计划 JSON，不运行 reconstruction、不创建 Round-4 shard namespace，也不修改
+前四份 merged CSV。计划必须声明 cumulative incremental candidates/rows 为 145/179,721，下一次
+五源 streaming union 为 5,337,081 行。审核前不提交计划，不生成 frozen hyperparameters。
