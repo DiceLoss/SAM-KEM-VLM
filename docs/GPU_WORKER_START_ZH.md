@@ -1102,3 +1102,25 @@ PYTHONPATH=code python code/experiments/run_round4_incremental_validation_sweep_
 审核明确释放后，移除 `--release-check-only` 执行 741 shards；中断后仅可用相同命令增加
 `--resume-verified`。完成标记必须为
 `complete_pending_round4_incremental_integrity_merge`，18,927 行不得在此步骤合并或选择。
+
+### 6AL-pre. Round-4 shard integrity audit
+
+741 shards 完成后先运行只读完整性审计。它重新验证全部 CSV/manifest/SUCCESS、有限指标、候选域、
+8 个进程身份、SHA-bound 执行记录与精确方法行数；不合并 shards。
+
+```bash
+PYTHONPATH=code python code/experiments/audit_round4_incremental_validation_sweep_shards.py \
+  --root . \
+  --config code/configs/generated/dev_trainmax_v1_validation_registered.yaml \
+  --protocol code/configs/generated/dev_trainmax_v1_protocols/hyperparameter_sweep.yaml \
+  --union-audit logs/validation_hyperparameter_round3_union_selection_audit.json \
+  --round3-plan logs/validation_hyperparameter_expansion_round3_plan.json \
+  --round3-merge-audit logs/validation_hyperparameter_expansion_round3_merge_integrity_audit.json \
+  --round4-plan logs/validation_hyperparameter_expansion_round4_plan.json \
+  --smoke-audit logs/validation_hyperparameter_expansion_round4_shard_smoke.json \
+  --output-dir runs/dev_trainmax_v1/hyperparameter_expansion_round4_shards \
+  --audit logs/validation_hyperparameter_expansion_round4_shard_integrity_audit.json
+```
+
+成功状态必须为 `PASS_complete_pending_round4_incremental_merge`。审核并记录 audit JSON 前，不得
+创建 Round-4 merge namespace、运行五源 selection 或冻结参数。
