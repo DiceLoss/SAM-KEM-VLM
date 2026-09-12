@@ -1,0 +1,72 @@
+{
+  "artifact_kind": "validation_hyperparameter_expansion_round4_shard_smoke",
+  "execution_backend": "scipy_sparse_csr_cpu_float64_multiprocess",
+  "execution_git_commit": "611a6c850bd0066cf07ce5086ca3f79e7ae2d086",
+  "fixed_shard_count": 2,
+  "formal_declared_operator_updates": 2007180,
+  "formal_declared_result_rows": 18927,
+  "formal_output_created": false,
+  "fragments": [
+    {
+      "dataset": "brainweb",
+      "elapsed_seconds": 125.4953525000019,
+      "fragment_manifest_sha256": "b91002c4026dd92a1672a149d759df1be08fac5175344b72b05441bd38f8bafe",
+      "fragment_sha256": "a47f22ef632e7207f88b9071e06b1b69d90c1b1a0784d9d377ec3916ba100cd7",
+      "method_row_counts": {
+        "Bowsher-KEM": 9,
+        "MR-KEM": 18
+      },
+      "nrmse_max": 0.18977025908866155,
+      "nrmse_min": 0.12477294674935598,
+      "process_id": 23848,
+      "row_count": 27,
+      "shard_id": "shard_0000",
+      "slice_id": "z038",
+      "ssim_max": 0.967114717984985,
+      "ssim_min": 0.9121358552161757,
+      "subject_id": "subject04",
+      "success_marker_sha256": "dfe30950dc1d3201f3f2f7412216aec949d73087789126bb569076d9b2f6dd9a"
+    },
+    {
+      "dataset": "hecktor",
+      "elapsed_seconds": 5.855554299982032,
+      "fragment_manifest_sha256": "bf9c84fa6b176318ba0abbded1070e5f6da7cb61e6b347d7e7bc5082548d4314",
+      "fragment_sha256": "6786657b48d797c2c48354fca6c66ad0c5025e5872540ba8ab7edc2bcc172f26",
+      "method_row_counts": {
+        "Bowsher-KEM": 3
+      },
+      "nrmse_max": 0.16891520807281032,
+      "nrmse_min": 0.15923151608786346,
+      "process_id": 25844,
+      "row_count": 3,
+      "shard_id": "shard_0696",
+      "slice_id": "z072",
+      "ssim_max": 0.9730842034423419,
+      "ssim_min": 0.9714301759145114,
+      "subject_id": "10",
+      "success_marker_sha256": "b2f06e2f4ce08da3d068816aa6b87eefd662afeb36dda0bccbddf55424724e30"
+    }
+  ],
+  "fragments_resume_verified": 2,
+  "fragments_written": 2,
+  "frozen_hyperparameters_created": false,
+  "gpu_used": false,
+  "merge_created": false,
+  "original_merged_csv_sha256": "cbdc5beea03939819a0348f684544bccb36b3bda6f3f477152324e70784966bc",
+  "output_namespace": "staging/dev_trainmax_v1_hyperparameter_expansion_round4_shard_smoke",
+  "output_role": "staging_smoke_not_formal_round4_expansion",
+  "process_ids_unique": true,
+  "round1_merged_csv_sha256": "f41c731f731f718388648a99120045fc2bd40a68559c0e6332d5bbc707265260",
+  "round2_merged_csv_sha256": "6de1e06fd0fd31e38b10a83230a4421b4173b831541e1b93445947bb62a0f192",
+  "round3_merge_audit_sha256": "ad71b6335973c9c46b7a4cf97bb0daebbcbba8eb7570bdfd1d31824929b2722b",
+  "round3_merged_csv_sha256": "9cdefd0e3f88f90d6992c734b53b33c4d7fb6ab5e5e06d209851a03789b12027",
+  "round3_plan_sha256": "1559ead5c7ba844d78feb1b17ebbb481b3830d4bf7c6f45215fd21bd8036a192",
+  "round4_plan_sha256": "6e28bbbb1219af82c3b92225d1ca589213ce83453b87de2f058a7103c3778268",
+  "schema_version": 1,
+  "status": "PASS",
+  "test_locked_access": "prohibited",
+  "total_rows": 30,
+  "union_selection_audit_created": false,
+  "union_selection_audit_sha256": "250f57e74e977609cbc42f279423e62d71ec25c51ef40c8af41a17f30cb30dc1",
+  "worker_processes": 2
+}
