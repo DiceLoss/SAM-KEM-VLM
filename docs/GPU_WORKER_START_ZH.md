@@ -1199,3 +1199,46 @@ PYTHONPATH=code python code/experiments/plan_round5_validation_hyperparameter_ex
 三组、`iterations 200→220` 一组。计划应声明 12,528 行、1,085,760 operator updates、累计
 151 个增量候选与 192,249 行，下一次六源 streaming union 应为 5,349,609 行。本步骤只写计划
 JSON，不运行 reconstruction、merge、selection 或 freeze，审核前不得提交。
+
+### 6AQ. Round-5 SHA-bound release check and empty-domain smoke
+
+Round-5 计划审核记录后，先执行 zero-write release check。它绑定五源 union audit、Round-4 plan、
+Round-4 merge audit 与 Round-5 plan 的精确 SHA，并要求 BLAS thread override 全部未设置：
+
+```bash
+PYTHONPATH=code python code/experiments/run_round5_incremental_validation_sweep_shards.py \
+  --root . \
+  --config code/configs/generated/dev_trainmax_v1_validation_registered.yaml \
+  --protocol code/configs/generated/dev_trainmax_v1_protocols/hyperparameter_sweep.yaml \
+  --union-audit logs/validation_hyperparameter_round4_union_selection_audit.json \
+  --round4-plan logs/validation_hyperparameter_expansion_round4_plan.json \
+  --round4-merge-audit logs/validation_hyperparameter_expansion_round4_merge_integrity_audit.json \
+  --round5-plan logs/validation_hyperparameter_expansion_round5_plan.json \
+  --output-dir runs/dev_trainmax_v1/hyperparameter_expansion_round5_shards \
+  --workers 8 \
+  --release-check-only
+```
+
+状态必须为 `PASS_ready_for_round5_incremental_shard_smoke`，正式 namespace 必须仍不存在。正式
+inventory 保留全部 741 slice shards：BrainWeb 696 shards 每个 18 行，HECKTOR 45 shards 每个 0 行，
+合计 12,528 行。HECKTOR 的 0 行是 reviewed empty candidate domain，不得删去其 shard 身份。
+
+release check 审核通过后，固定 smoke 同时验证 BrainWeb `subject04/z038` 的 18 行数值输出与 HECKTOR
+`10/z072` 的 header-only 0 行完整 shard：
+
+```bash
+PYTHONPATH=code python code/experiments/smoke_round5_incremental_validation_sweep_shards.py \
+  --root . \
+  --config code/configs/generated/dev_trainmax_v1_validation_registered.yaml \
+  --protocol code/configs/generated/dev_trainmax_v1_protocols/hyperparameter_sweep.yaml \
+  --union-audit logs/validation_hyperparameter_round4_union_selection_audit.json \
+  --round4-plan logs/validation_hyperparameter_expansion_round4_plan.json \
+  --round4-merge-audit logs/validation_hyperparameter_expansion_round4_merge_integrity_audit.json \
+  --round5-plan logs/validation_hyperparameter_expansion_round5_plan.json \
+  --output-dir staging/dev_trainmax_v1_hyperparameter_expansion_round5_shard_smoke \
+  --audit logs/validation_hyperparameter_expansion_round5_shard_smoke.json
+```
+
+两个独立进程都必须写出并 resume-verify CSV/manifest/SUCCESS；HECKTOR metric extrema 必须为 JSON
+`null` 且 `metrics_finite=true`。smoke audit 审核并记录、其精确 SHA 被正式 runner 绑定前，不得运行
+741-shard Round-5 sweep、merge、selection 或 freeze。
