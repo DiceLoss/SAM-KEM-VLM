@@ -1242,3 +1242,28 @@ PYTHONPATH=code python code/experiments/smoke_round5_incremental_validation_swee
 两个独立进程都必须写出并 resume-verify CSV/manifest/SUCCESS；HECKTOR metric extrema 必须为 JSON
 `null` 且 `metrics_finite=true`。smoke audit 审核并记录、其精确 SHA 被正式 runner 绑定前，不得运行
 741-shard Round-5 sweep、merge、selection 或 freeze。
+
+### 6AS. Round-5 formal execution release
+
+smoke audit 以 SHA `5f72af9494d3afad09ec0060ef88a064c18da9d60d95701fc425e334c8580c3d`
+审核并提交后，正式 runner 才允许 final zero-write release check 或可恢复全量执行：
+
+```bash
+PYTHONPATH=code python code/experiments/run_round5_incremental_validation_sweep_shards.py \
+  --root . \
+  --config code/configs/generated/dev_trainmax_v1_validation_registered.yaml \
+  --protocol code/configs/generated/dev_trainmax_v1_protocols/hyperparameter_sweep.yaml \
+  --union-audit logs/validation_hyperparameter_round4_union_selection_audit.json \
+  --round4-plan logs/validation_hyperparameter_expansion_round4_plan.json \
+  --round4-merge-audit logs/validation_hyperparameter_expansion_round4_merge_integrity_audit.json \
+  --round5-plan logs/validation_hyperparameter_expansion_round5_plan.json \
+  --smoke-audit logs/validation_hyperparameter_expansion_round5_shard_smoke.json \
+  --output-dir runs/dev_trainmax_v1/hyperparameter_expansion_round5_shards \
+  --workers 8 \
+  --release-check-only
+```
+
+final release check 必须为 `PASS_ready_for_round5_incremental_shard_execution`，并保持正式 namespace
+不存在。研究员明确释放后才可移除 `--release-check-only`；中断后仅可在完整执行身份不变时增加
+`--resume-verified`。正式执行保留 BW 696 个 18 行 shard 与 HE 45 个 0 行完整 shard，完成状态必须为
+`complete_pending_round5_incremental_integrity_merge`。本步骤不得 merge、selection 或 freeze。

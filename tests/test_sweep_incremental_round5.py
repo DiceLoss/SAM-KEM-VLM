@@ -8,6 +8,7 @@ from sam_kem.sweep_incremental_round5 import (
   build_round5_shards,
   release_check_round5_incremental_validation_sweep,
   round5_candidate_map,
+  validate_reviewed_round5_smoke,
 )
 from sam_kem.sweep_incremental_round5_smoke import (
   _metric_ranges,
@@ -112,3 +113,12 @@ def test_round5_release_check_requires_exact_worker_count(tmp_path):
       tmp_path / "round4-merge", tmp_path / "round5-plan",
       tmp_path / "output", workers=7, release_check_only=True,
     )
+
+
+def test_round5_formal_execution_accepts_only_reviewed_empty_domain_smoke():
+  path = ROOT / "logs/validation_hyperparameter_expansion_round5_shard_smoke.json"
+  smoke = json.loads(path.read_text(encoding="utf-8"))
+  validate_reviewed_round5_smoke(smoke)
+  smoke["fragments"][1]["nrmse_min"] = 0.0
+  with pytest.raises(ValueError, match="not the reviewed PASS artifact"):
+    validate_reviewed_round5_smoke(smoke)
