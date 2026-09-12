@@ -1,0 +1,256 @@
+{
+  "adaptive_stopping_rule": "repeat_a_predeclared_immediate_outward_shell_if_and_only_if_the_union_optimum_occupies_a_round5_expanded_boundary",
+  "artifact_kind": "validation_hyperparameter_incremental_expansion_round5_plan",
+  "cumulative_incremental_candidate_count": 151,
+  "cumulative_incremental_result_rows": 192249,
+  "expansion_round": 5,
+  "expansion_rules": {
+    "bowsher_neighbours": {
+      "new_value": 32,
+      "parameter": "neighbours",
+      "reviewed_boundary_value": 28,
+      "rule": "continue_step_4_upper"
+    },
+    "iterations": {
+      "new_value": 220,
+      "parameter": "iterations",
+      "reviewed_boundary_value": 200,
+      "rule": "continue_step_20_upper"
+    },
+    "radius_upper": {
+      "new_value": 8,
+      "parameter": "radius",
+      "reviewed_boundary_value": 7,
+      "rule": "next_integer_upper"
+    }
+  },
+  "expansion_strategy": "immediate_outward_local_shell_with_all_touched_axis_interactions",
+  "expected_incremental_operator_updates": 1085760,
+  "expected_incremental_result_rows": 12528,
+  "expected_next_union_result_rows": 5349609,
+  "formal_expansion_output_created": false,
+  "frozen_hyperparameters_created": false,
+  "groups": [
+    {
+      "case_count": 2088,
+      "count_level": 100000,
+      "dataset": "brainweb",
+      "expanded_boundary_axes": [
+        "bowsher_neighbours"
+      ],
+      "expected_operator_updates": 83520,
+      "expected_result_rows": 2088,
+      "incremental_candidate_count": 1,
+      "incremental_candidates": [
+        {
+          "alpha": 0.0,
+          "expanded_axes": [
+            "bowsher_neighbours"
+          ],
+          "iterations": 40,
+          "neighbours": 32,
+          "radius": 5,
+          "sigma": 0.0
+        }
+      ],
+      "method": "Bowsher-KEM",
+      "source_selected_parameters": {
+        "alpha": 0.0,
+        "iterations": 40,
+        "neighbours": 28,
+        "radius": 5,
+        "sigma": 0.0
+      },
+      "source_validation_subject_mean_nrmse": 0.19816829171408595,
+      "source_validation_subject_mean_ssim": 0.9270343009577204
+    },
+    {
+      "case_count": 2088,
+      "count_level": 100000,
+      "dataset": "brainweb",
+      "expanded_boundary_axes": [
+        "radius_upper"
+      ],
+      "expected_operator_updates": 83520,
+      "expected_result_rows": 2088,
+      "incremental_candidate_count": 1,
+      "incremental_candidates": [
+        {
+          "alpha": 0.0,
+          "expanded_axes": [
+            "radius_upper"
+          ],
+          "iterations": 40,
+          "neighbours": 0,
+          "radius": 8,
+          "sigma": 0.05
+        }
+      ],
+      "method": "MR-KEM",
+      "source_selected_parameters": {
+        "alpha": 0.0,
+        "iterations": 40,
+        "neighbours": 0,
+        "radius": 7,
+        "sigma": 0.05
+      },
+      "source_validation_subject_mean_nrmse": 0.19896942791555705,
+      "source_validation_subject_mean_ssim": 0.9247508973093683
+    },
+    {
+      "case_count": 2088,
+      "count_level": 200000,
+      "dataset": "brainweb",
+      "expanded_boundary_axes": [
+        "bowsher_neighbours"
+      ],
+      "expected_operator_updates": 125280,
+      "expected_result_rows": 2088,
+      "incremental_candidate_count": 1,
+      "incremental_candidates": [
+        {
+          "alpha": 0.0,
+          "expanded_axes": [
+            "bowsher_neighbours"
+          ],
+          "iterations": 60,
+          "neighbours": 32,
+          "radius": 5,
+          "sigma": 0.0
+        }
+      ],
+      "method": "Bowsher-KEM",
+      "source_selected_parameters": {
+        "alpha": 0.0,
+        "iterations": 60,
+        "neighbours": 28,
+        "radius": 5,
+        "sigma": 0.0
+      },
+      "source_validation_subject_mean_nrmse": 0.17756284974172126,
+      "source_validation_subject_mean_ssim": 0.9408648916592394
+    },
+    {
+      "case_count": 2088,
+      "count_level": 200000,
+      "dataset": "brainweb",
+      "expanded_boundary_axes": [
+        "radius_upper"
+      ],
+      "expected_operator_updates": 125280,
+      "expected_result_rows": 2088,
+      "incremental_candidate_count": 1,
+      "incremental_candidates": [
+        {
+          "alpha": 0.0,
+          "expanded_axes": [
+            "radius_upper"
+          ],
+          "iterations": 60,
+          "neighbours": 0,
+          "radius": 8,
+          "sigma": 0.05
+        }
+      ],
+      "method": "MR-KEM",
+      "source_selected_parameters": {
+        "alpha": 0.0,
+        "iterations": 60,
+        "neighbours": 0,
+        "radius": 7,
+        "sigma": 0.05
+      },
+      "source_validation_subject_mean_nrmse": 0.17710619765437433,
+      "source_validation_subject_mean_ssim": 0.9393999577902156
+    },
+    {
+      "case_count": 2088,
+      "count_level": 500000,
+      "dataset": "brainweb",
+      "expanded_boundary_axes": [
+        "radius_upper"
+      ],
+      "expected_operator_updates": 208800,
+      "expected_result_rows": 2088,
+      "incremental_candidate_count": 1,
+      "incremental_candidates": [
+        {
+          "alpha": 0.0,
+          "expanded_axes": [
+            "radius_upper"
+          ],
+          "iterations": 100,
+          "neighbours": 0,
+          "radius": 8,
+          "sigma": 0.05
+        }
+      ],
+      "method": "MR-KEM",
+      "source_selected_parameters": {
+        "alpha": 0.0,
+        "iterations": 100,
+        "neighbours": 0,
+        "radius": 7,
+        "sigma": 0.05
+      },
+      "source_validation_subject_mean_nrmse": 0.1558472951264264,
+      "source_validation_subject_mean_ssim": 0.9533654522596533
+    },
+    {
+      "case_count": 2088,
+      "count_level": 1000000,
+      "dataset": "brainweb",
+      "expanded_boundary_axes": [
+        "iterations"
+      ],
+      "expected_operator_updates": 459360,
+      "expected_result_rows": 2088,
+      "incremental_candidate_count": 1,
+      "incremental_candidates": [
+        {
+          "alpha": 0.0,
+          "expanded_axes": [
+            "iterations"
+          ],
+          "iterations": 220,
+          "neighbours": 0,
+          "radius": 6,
+          "sigma": 0.05
+        }
+      ],
+      "method": "MR-KEM",
+      "source_selected_parameters": {
+        "alpha": 0.0,
+        "iterations": 200,
+        "neighbours": 0,
+        "radius": 6,
+        "sigma": 0.05
+      },
+      "source_validation_subject_mean_nrmse": 0.14146949585708188,
+      "source_validation_subject_mean_ssim": 0.9611991878909348
+    }
+  ],
+  "incremental_candidate_count": 6,
+  "incremental_candidate_counts": {
+    "brainweb": 6
+  },
+  "original_merged_csv_sha256": "cbdc5beea03939819a0348f684544bccb36b3bda6f3f477152324e70784966bc",
+  "planning_git_commit": "85a01b0f0b7bc1e6c3cfd801eee105926d9bbdfc",
+  "previous_round4_expansion_plan_sha256": "6e28bbbb1219af82c3b92225d1ca589213ce83453b87de2f058a7103c3778268",
+  "read_only_inputs": true,
+  "round1_merged_csv_sha256": "f41c731f731f718388648a99120045fc2bd40a68559c0e6332d5bbc707265260",
+  "round2_merged_csv_sha256": "6de1e06fd0fd31e38b10a83230a4421b4173b831541e1b93445947bb62a0f192",
+  "round3_merged_csv_sha256": "9cdefd0e3f88f90d6992c734b53b33c4d7fb6ab5e5e06d209851a03789b12027",
+  "round4_incremental_merge_audit_sha256": "2012c94053b23a519f1bc8b238f5ed1ccf7f14c22c3ff3bc9ddc2bd6d34b5518",
+  "round4_merged_csv_sha256": "9aecd21d6286f3d293727cf6a9cf49f2055c37ee5de8e992436a3189a9170f1c",
+  "schema_version": 1,
+  "selection_rule_after_expansion": "subject_balanced_argmin_over_union_of_original_grid_round1_round2_round3_round4_and_round5_shells",
+  "source_expanded_boundary_group_count": 6,
+  "source_union_selection_audit_path": "logs/validation_hyperparameter_round4_union_selection_audit.json",
+  "source_union_selection_audit_sha256": "ed584b813aaa5a0504f13ceb33f4a83f267d72a5e64e956a5b05cba61a53f971",
+  "source_union_selection_count": 48,
+  "status": "ready_for_researcher_review_no_execution",
+  "test_locked_access": "prohibited",
+  "unchanged_union_selection_count": 42,
+  "union_selection_audit_created": false
+}
