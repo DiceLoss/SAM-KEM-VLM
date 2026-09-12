@@ -17,6 +17,9 @@ runs/*/.hyperparameter_expansion.merge.*/
 runs/*/hyperparameter_expansion_round2_shards/
 runs/*/hyperparameter_expansion_round2/
 runs/*/.hyperparameter_expansion_round2.merge.*/
+runs/*/hyperparameter_expansion_round3_shards/
+runs/*/hyperparameter_expansion_round3/
+runs/*/.hyperparameter_expansion_round3.merge.*/
 logs/gpu_*.log
 # Superseded local output from the interrupted Step 4C batch. Its immutable
 # incident decision and forensic summaries are tracked separately.

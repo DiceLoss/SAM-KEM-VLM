@@ -935,3 +935,26 @@ PYTHONPATH=code python code/experiments/run_round3_incremental_validation_sweep_
 状态必须为 `PASS_ready_for_round3_incremental_shard_execution`，并绑定 smoke audit SHA
 `a0bf660f2b1452c68e312e5519ac102c9ec937e748172299e4f434ece53efb19`。正式 namespace 必须
 仍不存在；移除 `--release-check-only` 前必须再次取得 researcher 明确授权。
+
+### 6AF-pre. Round-3 shard integrity audit
+
+741 个 Round-3 shard 全部完成后，先运行只读完整性审计。该 gate 用 runner 的规范
+`_shard_set_sha256` 算法复核 completion marker，并逐 shard 验证 candidate domain、有限指标、
+manifest、success marker、执行身份与文件 inventory；审计阶段不 merge。
+
+```bash
+PYTHONPATH=code python code/experiments/audit_round3_incremental_validation_sweep_shards.py \
+  --root . \
+  --config code/configs/generated/dev_trainmax_v1_validation_registered.yaml \
+  --protocol code/configs/generated/dev_trainmax_v1_protocols/hyperparameter_sweep.yaml \
+  --round2-plan logs/validation_hyperparameter_expansion_round2_plan.json \
+  --union-audit logs/validation_hyperparameter_round2_union_selection_audit.json \
+  --round2-merge-audit logs/validation_hyperparameter_expansion_round2_merge_integrity_audit.json \
+  --round3-plan logs/validation_hyperparameter_expansion_round3_plan.json \
+  --smoke-audit logs/validation_hyperparameter_expansion_round3_shard_smoke.json \
+  --output-dir runs/dev_trainmax_v1/hyperparameter_expansion_round3_shards \
+  --audit logs/validation_hyperparameter_expansion_round3_shard_integrity_audit.json
+```
+
+状态必须为 `PASS_complete_pending_round3_incremental_merge`，规范 shard-set SHA 必须与 batch
+completion marker 一致。审核前不提交 audit，不 merge、不运行 union selection、不冻结参数。
