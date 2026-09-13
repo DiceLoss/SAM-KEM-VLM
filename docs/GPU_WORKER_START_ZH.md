@@ -1372,3 +1372,27 @@ PYTHONPATH=code python code/experiments/plan_round6_validation_hyperparameter_ex
 1M 的 `iterations 220→240`。计划应声明 6,264 行、709,920 operator updates、累计 154 个增量
 候选与 198,513 行，下一次七源 streaming union 应为 5,355,873 行。本步骤只写计划 JSON，不运行
 reconstruction、merge、selection 或 freeze，审核前不得提交。
+
+### 6AY. Round-6 SHA-bound release check and empty-domain smoke authorization
+
+Round-6 计划审核记录后，先执行 zero-write release check。它绑定六源 union audit、Round-5 plan、
+Round-5 merge audit 与 Round-6 plan 的精确 SHA，并要求 BLAS thread override 全部未设置：
+
+```bash
+PYTHONPATH=code python code/experiments/run_round6_incremental_validation_sweep_shards.py \
+  --root . \
+  --config code/configs/generated/dev_trainmax_v1_validation_registered.yaml \
+  --protocol code/configs/generated/dev_trainmax_v1_protocols/hyperparameter_sweep.yaml \
+  --union-audit logs/validation_hyperparameter_round5_union_selection_audit.json \
+  --round5-plan logs/validation_hyperparameter_expansion_round5_plan.json \
+  --round5-merge-audit logs/validation_hyperparameter_expansion_round5_merge_integrity_audit.json \
+  --round6-plan logs/validation_hyperparameter_expansion_round6_plan.json \
+  --output-dir runs/dev_trainmax_v1/hyperparameter_expansion_round6_shards \
+  --workers 8 \
+  --release-check-only
+```
+
+状态必须为 `PASS_ready_for_round6_incremental_shard_smoke`，正式 namespace 必须仍不存在。正式
+inventory 保留全部 741 slice shards：BrainWeb 696 shards 每个 9 行，HECKTOR 45 shards 每个 0 行，
+合计 6,264 行。HECKTOR 的 0 行是 reviewed empty candidate domain，不得删去其 shard 身份。此 release
+check 审核通过前不得运行 smoke、正式 sweep、merge、selection 或 freeze。
