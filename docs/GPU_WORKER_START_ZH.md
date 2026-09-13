@@ -1353,3 +1353,22 @@ PYTHONPATH=code python code/experiments/audit_round5_validation_hyperparameter_u
 `PASS_ready_for_hyperparameter_freeze`；否则为
 `BLOCKED_expanded_boundary_requires_additional_shell`，禁止冻结。审核前不提交 audit；无论状态如何，
 本步骤都不创建 union CSV 或 frozen hyperparameters。
+
+### 6AX. Round-6 reviewed local-shell plan
+
+若六源 union audit 仍为 `BLOCKED_expanded_boundary_requires_additional_shell`，只对其中仍获胜的
+Round-5 新边界生成第六层局部壳，不再扩展已经回到来源 winner 的 Bowsher 组或已解决的 MR 500k 组：
+
+```bash
+PYTHONPATH=code python code/experiments/plan_round6_validation_hyperparameter_expansion.py \
+  --root . \
+  --union-audit logs/validation_hyperparameter_round5_union_selection_audit.json \
+  --round5-plan logs/validation_hyperparameter_expansion_round5_plan.json \
+  --round5-merge-audit logs/validation_hyperparameter_expansion_round5_merge_integrity_audit.json \
+  --output logs/validation_hyperparameter_expansion_round6_plan.json
+```
+
+当前 reviewed shell 仅含 3 个 BrainWeb MR-KEM 单轴候选：100k 与 200k 的 `radius 8→9`，以及
+1M 的 `iterations 220→240`。计划应声明 6,264 行、709,920 operator updates、累计 154 个增量
+候选与 198,513 行，下一次七源 streaming union 应为 5,355,873 行。本步骤只写计划 JSON，不运行
+reconstruction、merge、selection 或 freeze，审核前不得提交。
