@@ -1291,3 +1291,29 @@ PYTHONPATH=code python code/experiments/audit_round5_incremental_validation_swee
 成功状态必须为 `PASS_complete_pending_round5_incremental_merge`，BrainWeb 方法行数为 Bowsher 4,176、
 MR 8,352，HECKTOR 方法字典为空且 `zero_row_shard_count=45`。审核并记录 audit JSON 前，不得创建
 Round-5 merge namespace、运行六源 selection 或冻结参数。
+
+### 6AV-merge. Round-5 transactional incremental merge
+
+Round-5 shard audit 审核记录后，事务式拼接全部 741 个 shard CSV 为独立 Round-5 incremental
+CSV；45 个 HECKTOR header-only shard 保留为已验证来源身份，但不贡献数据行。本步骤不创建六源
+physical union：
+
+```bash
+PYTHONPATH=code python code/experiments/merge_round5_incremental_validation_sweep_shards.py \
+  --root . \
+  --config code/configs/generated/dev_trainmax_v1_validation_registered.yaml \
+  --protocol code/configs/generated/dev_trainmax_v1_protocols/hyperparameter_sweep.yaml \
+  --union-audit logs/validation_hyperparameter_round4_union_selection_audit.json \
+  --round4-plan logs/validation_hyperparameter_expansion_round4_plan.json \
+  --round4-merge-audit logs/validation_hyperparameter_expansion_round4_merge_integrity_audit.json \
+  --round5-plan logs/validation_hyperparameter_expansion_round5_plan.json \
+  --smoke-audit logs/validation_hyperparameter_expansion_round5_shard_smoke.json \
+  --shard-dir runs/dev_trainmax_v1/hyperparameter_expansion_round5_shards \
+  --shard-audit logs/validation_hyperparameter_expansion_round5_shard_integrity_audit.json \
+  --output-dir runs/dev_trainmax_v1/hyperparameter_expansion_round5 \
+  --audit logs/validation_hyperparameter_expansion_round5_merge_integrity_audit.json
+```
+
+成功状态必须为 `PASS_complete_pending_round5_union_selection_audit`，CSV 必须为 12,528 data
+rows，下一轮六源 streaming union 声明为 5,349,609 rows。merge audit 审核前不得提交，不得启动
+selection 或 freeze；不得删除任何零行 shard、旧 shard、事务目录或 staging 证据。
