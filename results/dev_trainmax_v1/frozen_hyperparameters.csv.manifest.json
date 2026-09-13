@@ -1,0 +1,29 @@
+{
+  "artifact_path": "frozen_hyperparameters.csv",
+  "artifact_sha256": "4b7624c0339b4e387a7c7a1e52ed359f757a89516de437a6a8f73871f12c204e",
+  "byte_size": 4746,
+  "columns": [
+    "run_id",
+    "dataset",
+    "count_level",
+    "method",
+    "sigma",
+    "radius",
+    "neighbours",
+    "iterations",
+    "alpha",
+    "validation_subject_mean_nrmse",
+    "validation_subject_mean_ssim"
+  ],
+  "completed_utc": "2026-09-13T16:10:30.364254+00:00",
+  "primary_key": [
+    "run_id",
+    "dataset",
+    "count_level",
+    "method"
+  ],
+  "row_count": 48,
+  "schema_name": "frozen_hyperparameters_v2",
+  "schema_version": 1,
+  "split": "validation"
+}

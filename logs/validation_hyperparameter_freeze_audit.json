@@ -1,0 +1,48 @@
+{
+  "artifact_kind": "validation_hyperparameter_freeze",
+  "config_sha256": "a7c2aae59946f50f682de3d58c5b6999fc326132626d6c28e0ac7b8cc6d4f5a9",
+  "dataset_selection_counts": {
+    "brainweb": 24,
+    "hecktor": 24
+  },
+  "expanded_boundary_selection_count": 0,
+  "formal_output_created": true,
+  "freeze_git_commit": "52b164ee418b64c1fc6f011974b783eca6176d26",
+  "frozen_hyperparameters_created": true,
+  "frozen_hyperparameters_path": "results/dev_trainmax_v1/frozen_hyperparameters.csv",
+  "frozen_hyperparameters_sha256": "4b7624c0339b4e387a7c7a1e52ed359f757a89516de437a6a8f73871f12c204e",
+  "frozen_manifest_path": "results/dev_trainmax_v1/frozen_hyperparameters.csv.manifest.json",
+  "frozen_manifest_sha256": "8f09db5ce4066538f5e63dccaf69d1e5398b8a71dd671e492c1efe9fca14a4f4",
+  "immutable_archive_uri_modified": false,
+  "locked_config_created": false,
+  "prior_registration": {
+    "archive_sha256": "9157b05e19dbfa16187578ca831ca8b8d84927ae9f7405f228fad3361ab8e400",
+    "manifest_sha256": "b21b7612ed206e528032dfd9d737474aef32f2f49ab83e5a3b53ae8534d2ca6d",
+    "prior_manifest_sha256": "45dc3d099e20ba6405430721b8d7bd60dfa83271492bf65badd6a2cec02a0662",
+    "prior_records": 8892,
+    "registered_config_sha256": "a7c2aae59946f50f682de3d58c5b6999fc326132626d6c28e0ac7b8cc6d4f5a9",
+    "source_config_sha256": "1b057ad68ae95ded08fc4a007b3a827911e4070738e4750de897914a0e4b4bf7",
+    "status": "complete"
+  },
+  "protocol_sha256": "f2b073f5e460e24addc7a8d6ec0cfde67f8d7d74b4f01f08e7f096f02d0c9c66",
+  "release_check_only": false,
+  "schema_version": 1,
+  "selection_audit_sha256": "36dd6d9df4e822f76a6e8521377f73a52b4d09a84553f0eeb788b8fa8f53c9f5",
+  "selection_count": 48,
+  "source_artifact_count": 28,
+  "source_csv_sha256": {
+    "original": "cbdc5beea03939819a0348f684544bccb36b3bda6f3f477152324e70784966bc",
+    "round1": "f41c731f731f718388648a99120045fc2bd40a68559c0e6332d5bbc707265260",
+    "round2": "6de1e06fd0fd31e38b10a83230a4421b4173b831541e1b93445947bb62a0f192",
+    "round3": "9cdefd0e3f88f90d6992c734b53b33c4d7fb6ab5e5e06d209851a03789b12027",
+    "round4": "9aecd21d6286f3d293727cf6a9cf49f2055c37ee5de8e992436a3189a9170f1c",
+    "round5": "db90380839ebe405ddbb9100aab79af97d81bea57c023d4a1b1786fc10c99df2",
+    "round6": "85bc8c535bb22970fefabe68dde8e363cfb68bd370d4c7f6b1a9fe4071046fda"
+  },
+  "status": "PASS_hyperparameters_frozen_pending_locked_config",
+  "test_locked_access": "prohibited",
+  "validation_completion_artifact_count": 31,
+  "validation_completion_created": true,
+  "validation_completion_path": "runs/dev_trainmax_v1/hyperparameter_sweep/_SUCCESS.json",
+  "validation_completion_sha256": "94a854af1b7bf8f18bbc522613e101de27d20273d400bc6f5ec108f88a9bfd51"
+}
