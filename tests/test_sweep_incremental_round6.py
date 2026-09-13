@@ -8,6 +8,7 @@ from sam_kem.sweep_incremental_round6 import (
   build_round6_shards,
   release_check_round6_incremental_validation_sweep,
   round6_candidate_map,
+  validate_reviewed_round6_smoke,
 )
 from sam_kem.sweep_incremental_round6_smoke import (
   _metric_ranges,
@@ -111,3 +112,12 @@ def test_round6_metric_ranges_accept_reviewed_empty_domain():
   }
   with pytest.raises(ValueError, match="non-finite"):
     _metric_ranges([{"nrmse": "nan", "ssim": "0.9"}])
+
+
+def test_round6_formal_execution_accepts_only_reviewed_empty_domain_smoke():
+  path = ROOT / "logs/validation_hyperparameter_expansion_round6_shard_smoke.json"
+  smoke = json.loads(path.read_text(encoding="utf-8"))
+  validate_reviewed_round6_smoke(smoke)
+  smoke["fragments"][1]["ssim_max"] = 0.0
+  with pytest.raises(ValueError, match="not the reviewed PASS artifact"):
+    validate_reviewed_round6_smoke(smoke)

@@ -1416,3 +1416,29 @@ PYTHONPATH=code python code/experiments/smoke_round6_incremental_validation_swee
 两个独立进程都必须写出并 resume-verify CSV/manifest/SUCCESS；HECKTOR metric extrema 必须为 JSON
 `null` 且 `metrics_finite=true`。smoke audit 审核并记录、其精确 SHA 被正式 runner 绑定前，不得运行
 741-shard Round-6 sweep、merge、selection 或 freeze。
+
+### 6BA. Round-6 formal execution release
+
+Round-6 smoke audit 审核并单独提交后，正式 runner 必须绑定该 audit 的精确 SHA。先运行最后一次
+zero-write release check：
+
+```bash
+PYTHONPATH=code python code/experiments/run_round6_incremental_validation_sweep_shards.py \
+  --root . \
+  --config code/configs/generated/dev_trainmax_v1_validation_registered.yaml \
+  --protocol code/configs/generated/dev_trainmax_v1_protocols/hyperparameter_sweep.yaml \
+  --union-audit logs/validation_hyperparameter_round5_union_selection_audit.json \
+  --round5-plan logs/validation_hyperparameter_expansion_round5_plan.json \
+  --round5-merge-audit logs/validation_hyperparameter_expansion_round5_merge_integrity_audit.json \
+  --round6-plan logs/validation_hyperparameter_expansion_round6_plan.json \
+  --smoke-audit logs/validation_hyperparameter_expansion_round6_shard_smoke.json \
+  --output-dir runs/dev_trainmax_v1/hyperparameter_expansion_round6_shards \
+  --workers 8 \
+  --release-check-only
+```
+
+状态必须为 `PASS_ready_for_round6_incremental_shard_execution`，并再次确认正式 namespace 不存在。
+研究员明确释放后才可移除 `--release-check-only` 执行 741 shards；首次执行不得使用
+`--resume-verified`。仅当同一执行身份下已有 namespace 且需要验证后续跑时，才可在原命令增加
+`--resume-verified`。正式完成状态为
+`complete_pending_round6_incremental_integrity_merge`；完成前后均不得自行 merge、selection 或 freeze。
