@@ -1491,3 +1491,31 @@ PYTHONPATH=code python code/experiments/merge_round6_incremental_validation_swee
 状态必须为 `PASS_complete_pending_round6_union_selection_audit`；独立 CSV 必须为 6,264 行，下一次
 七源 streaming union 必须声明 5,355,873 行。正式目录只允许 CSV、manifest、merge record 与 SUCCESS
 四个文件。merge audit 审核并单独记录前，不得运行七源 selection 或 freeze。
+
+### 6BE. Seven-source streaming union selection
+
+Round-6 merge audit 审核并单独记录后，对 original 与 Round-1 至 Round-6 七个独立 CSV 执行
+subject-balanced streaming selection；不得创建 physical union CSV：
+
+```bash
+PYTHONPATH=code python code/experiments/audit_round6_validation_hyperparameter_union_selection.py \
+  --root . \
+  --config code/configs/generated/dev_trainmax_v1_validation_registered.yaml \
+  --protocol code/configs/generated/dev_trainmax_v1_protocols/hyperparameter_sweep.yaml \
+  --round1-plan logs/validation_hyperparameter_expansion_plan.json \
+  --round2-plan logs/validation_hyperparameter_expansion_round2_plan.json \
+  --round3-plan logs/validation_hyperparameter_expansion_round3_plan.json \
+  --round4-plan logs/validation_hyperparameter_expansion_round4_plan.json \
+  --round5-plan logs/validation_hyperparameter_expansion_round5_plan.json \
+  --round5-union-audit logs/validation_hyperparameter_round5_union_selection_audit.json \
+  --round6-plan logs/validation_hyperparameter_expansion_round6_plan.json \
+  --round6-merge-audit logs/validation_hyperparameter_expansion_round6_merge_integrity_audit.json \
+  --output logs/validation_hyperparameter_round6_union_selection_audit.json
+```
+
+七源输入必须合计 5,355,873 行与 116,879 个 subject-configuration aggregates。45 个非 R6
+边界组必须与上一轮 winner 精确一致；3 个 reviewed R6 边界组的 winner 只能来自上一轮 winner 或其
+对应 R6 候选。仅当 `expanded_boundary_selection_count == 0` 时状态才是
+`PASS_ready_for_hyperparameter_freeze`；否则为
+`BLOCKED_expanded_boundary_requires_additional_shell`，禁止冻结。审核前不提交 audit；无论状态如何，
+本步骤都不创建 union CSV 或 frozen hyperparameters。
