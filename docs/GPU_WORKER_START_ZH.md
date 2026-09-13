@@ -1267,3 +1267,27 @@ final release check 必须为 `PASS_ready_for_round5_incremental_shard_execution
 不存在。研究员明确释放后才可移除 `--release-check-only`；中断后仅可在完整执行身份不变时增加
 `--resume-verified`。正式执行保留 BW 696 个 18 行 shard 与 HE 45 个 0 行完整 shard，完成状态必须为
 `complete_pending_round5_incremental_integrity_merge`。本步骤不得 merge、selection 或 freeze。
+
+### 6AU-pre. Round-5 shard integrity audit
+
+741 shard identities 完成后，先运行只读完整性审计。审计必须重新验证全部 2,223 个 shard 文件、
+候选域、有限指标、8 个进程身份和 shard-set SHA；45 个 HECKTOR header-only shard 必须作为合法 0 行
+身份逐一通过 CSV/manifest/SUCCESS 验证：
+
+```bash
+PYTHONPATH=code python code/experiments/audit_round5_incremental_validation_sweep_shards.py \
+  --root . \
+  --config code/configs/generated/dev_trainmax_v1_validation_registered.yaml \
+  --protocol code/configs/generated/dev_trainmax_v1_protocols/hyperparameter_sweep.yaml \
+  --union-audit logs/validation_hyperparameter_round4_union_selection_audit.json \
+  --round4-plan logs/validation_hyperparameter_expansion_round4_plan.json \
+  --round4-merge-audit logs/validation_hyperparameter_expansion_round4_merge_integrity_audit.json \
+  --round5-plan logs/validation_hyperparameter_expansion_round5_plan.json \
+  --smoke-audit logs/validation_hyperparameter_expansion_round5_shard_smoke.json \
+  --output-dir runs/dev_trainmax_v1/hyperparameter_expansion_round5_shards \
+  --audit logs/validation_hyperparameter_expansion_round5_shard_integrity_audit.json
+```
+
+成功状态必须为 `PASS_complete_pending_round5_incremental_merge`，BrainWeb 方法行数为 Bowsher 4,176、
+MR 8,352，HECKTOR 方法字典为空且 `zero_row_shard_count=45`。审核并记录 audit JSON 前，不得创建
+Round-5 merge namespace、运行六源 selection 或冻结参数。
