@@ -1442,3 +1442,27 @@ PYTHONPATH=code python code/experiments/run_round6_incremental_validation_sweep_
 `--resume-verified`。仅当同一执行身份下已有 namespace 且需要验证后续跑时，才可在原命令增加
 `--resume-verified`。正式完成状态为
 `complete_pending_round6_incremental_integrity_merge`；完成前后均不得自行 merge、selection 或 freeze。
+
+### 6BC. Round-6 shard integrity audit
+
+正式执行完成后，先运行只读 shard audit；不得直接 merge。该 gate 对全部 741 个 shard 重新验证
+execution identity、candidate domain、finite metrics、CSV/manifest/SUCCESS 三件套、进程身份与完整
+namespace inventory：
+
+```bash
+PYTHONPATH=code python code/experiments/audit_round6_incremental_validation_sweep_shards.py \
+  --root . \
+  --config code/configs/generated/dev_trainmax_v1_validation_registered.yaml \
+  --protocol code/configs/generated/dev_trainmax_v1_protocols/hyperparameter_sweep.yaml \
+  --union-audit logs/validation_hyperparameter_round5_union_selection_audit.json \
+  --round5-plan logs/validation_hyperparameter_expansion_round5_plan.json \
+  --round5-merge-audit logs/validation_hyperparameter_expansion_round5_merge_integrity_audit.json \
+  --round6-plan logs/validation_hyperparameter_expansion_round6_plan.json \
+  --smoke-audit logs/validation_hyperparameter_expansion_round6_shard_smoke.json \
+  --output-dir runs/dev_trainmax_v1/hyperparameter_expansion_round6_shards \
+  --audit logs/validation_hyperparameter_expansion_round6_shard_integrity_audit.json
+```
+
+状态必须为 `PASS_complete_pending_round6_incremental_merge`。BrainWeb 必须为 696 shards、6,264
+MR-KEM 行；HECKTOR 必须保留 45 个完整零行 shard，且全局 `zero_row_shard_count=45`。audit 审核并
+单独记录前，不得 merge、运行七源 selection 或 freeze。
