@@ -1519,3 +1519,25 @@ PYTHONPATH=code python code/experiments/audit_round6_validation_hyperparameter_u
 `PASS_ready_for_hyperparameter_freeze`；否则为
 `BLOCKED_expanded_boundary_requires_additional_shell`，禁止冻结。审核前不提交 audit；无论状态如何，
 本步骤都不创建 union CSV 或 frozen hyperparameters。
+
+### 6BF. SHA-bound terminal hyperparameter freeze
+
+七源 audit 单独审核并记录后，先执行零写入 release check：
+
+```bash
+PYTHONPATH=code python code/experiments/freeze_validation_hyperparameters.py \
+  --root . \
+  --config code/configs/generated/dev_trainmax_v1_validation_registered.yaml \
+  --protocol code/configs/generated/dev_trainmax_v1_protocols/hyperparameter_sweep.yaml \
+  --selection-audit logs/validation_hyperparameter_round6_union_selection_audit.json \
+  --audit logs/validation_hyperparameter_freeze_audit.json \
+  --release-check-only
+```
+
+release check 必须为 `PASS_ready_for_hyperparameter_freeze_execution`，并保持 frozen CSV、sidecar、
+validation `_SUCCESS.json` 与 freeze audit 全部不存在。研究员明确释放后，才可移除
+`--release-check-only`。正式 gate 从最终 audit 原序写出 48 行 `frozen_hyperparameters.csv`，生成
+`frozen_hyperparameters_v2` sidecar，并用 validation `_SUCCESS.json` 绑定七源各四件套、最终 selection
+audit、frozen CSV 与 sidecar，共 31 个 artifact。成功状态必须为
+`PASS_hyperparameters_frozen_pending_locked_config`；本步骤不创建 locked config、不修改
+`immutable_archive_uri`，并继续禁止 test-locked access。正式输出与 audit 审核前不得提交。

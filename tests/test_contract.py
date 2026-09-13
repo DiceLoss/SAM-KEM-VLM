@@ -3,6 +3,7 @@ from pathlib import Path
 import pytest
 
 from sam_kem.boxes import Box, BoxCache, BoxKey, BoxRecord, centroid_fallback
+from sam_kem.artifacts import atomic_csv_writer, finalize_csv, write_success_marker
 from sam_kem.config import (
   ConfigurationError, load_yaml_strict, require_development_execution, require_test_release,
 )
@@ -60,6 +61,41 @@ def test_locked_test_stays_sealed_without_completed_validation(tmp_path: Path):
   }
   with pytest.raises(ConfigurationError, match="locked test is sealed"):
     require_test_release(tmp_path, cfg)
+
+
+def test_locked_test_accepts_transactionally_merged_v3_validation_sweep(tmp_path: Path):
+  frozen = tmp_path / "results/run/frozen.csv"
+  sweep = tmp_path / "runs/run/sweep/validation.csv"
+  frozen_fields = [
+    "run_id", "dataset", "count_level", "method", "sigma", "radius",
+    "neighbours", "iterations", "alpha",
+  ]
+  sweep_fields = ["run_id", "split", "case"]
+  with atomic_csv_writer(frozen, frozen_fields) as writer:
+    writer.writerow({
+      "run_id": "run", "dataset": "brainweb", "count_level": 100_000,
+      "method": "MLEM", "sigma": 0, "radius": 0, "neighbours": 0,
+      "iterations": 10, "alpha": 0,
+    })
+  frozen_manifest = finalize_csv(
+    frozen, schema_name="frozen_hyperparameters_v2",
+    primary_key=["run_id", "dataset", "count_level", "method"],
+    split="validation",
+  )
+  with atomic_csv_writer(sweep, sweep_fields) as writer:
+    writer.writerow({"run_id": "run", "split": "validation", "case": "one"})
+  sweep_manifest = finalize_csv(
+    sweep, schema_name="validation_hyperparameter_sweep_v3",
+    primary_key=["run_id", "split", "case"], split="validation",
+  )
+  write_success_marker(sweep.parent, [sweep, sweep_manifest, frozen, frozen_manifest])
+  require_test_release(tmp_path, {
+    "run_id": "run", "locked": True, "status": "locked_for_execution",
+    "outputs": {
+      "frozen_hyperparameters": "results/run/frozen.csv",
+      "hyperparameter_sweep": "runs/run/sweep/validation.csv",
+    },
+  })
 
 
 def test_only_generated_candidate_can_run_unlocked_validation():

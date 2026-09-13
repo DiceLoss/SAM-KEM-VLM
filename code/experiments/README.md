@@ -28,6 +28,7 @@ belong in the configuration/protocol YAML, not in ad-hoc command edits.
 | `run_incremental_validation_sweep_shards.py` | SHA-bound resumable execution of the reviewed local-shell expansion |
 | `smoke_incremental_validation_sweep_shards.py` | Fixed BrainWeb/HECKTOR numerical smoke before incremental release |
 | `audit_incremental_validation_sweep_shards.py` | Read-only integrity gate over all incremental shard artifacts |
+| `freeze_validation_hyperparameters.py` | SHA-bound terminal validation selection freeze and completion marker |
 | `run_comparison.py` | Locked-test paired method comparison and subject statistics |
 | `run_primary.py` | Immutable filter of comparison output at the primary count |
 | `run_ablation.py` | True one-factor-at-a-time locked-test variants |

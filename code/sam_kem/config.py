@@ -272,7 +272,9 @@ def require_test_release(root: Path, cfg: dict[str, Any]) -> None:
     ) from error
   if (
     frozen_record.get("schema_name") != "frozen_hyperparameters_v2"
-    or sweep_record.get("schema_name") != "validation_hyperparameter_sweep_v2"
+    or sweep_record.get("schema_name") not in {
+      "validation_hyperparameter_sweep_v2", "validation_hyperparameter_sweep_v3",
+    }
     or frozen_record.get("split") != "validation"
     or sweep_record.get("split") != "validation"
   ):
