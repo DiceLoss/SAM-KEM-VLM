@@ -1,0 +1,34 @@
+{
+  "artifact_path": "selected_per_subject_metrics.csv",
+  "artifact_sha256": "cc36f05a267cf839ce64f6245f2c9aaaba4456b4302c636744cc1e934124d667",
+  "byte_size": 187803,
+  "columns": [
+    "run_id",
+    "dataset",
+    "subject_id",
+    "count_level",
+    "method",
+    "sigma",
+    "radius",
+    "neighbours",
+    "iterations",
+    "alpha",
+    "observation_count",
+    "mean_nrmse",
+    "mean_ssim",
+    "reporting_scope",
+    "selection_and_reporting_same_split"
+  ],
+  "completed_utc": "2026-09-15T04:02:46.983789+00:00",
+  "primary_key": [
+    "run_id",
+    "dataset",
+    "subject_id",
+    "count_level",
+    "method"
+  ],
+  "row_count": 1176,
+  "schema_name": "validation_only_selected_per_subject_metrics_v1",
+  "schema_version": 1,
+  "split": "validation"
+}

@@ -1,0 +1,42 @@
+{
+  "artifacts": [
+    {
+      "byte_size": 7337744,
+      "path": "selected_per_case_metrics.csv",
+      "sha256": "25cd13845a5b6410f344bdef5e202493c9d8f160ae9c775c73034b215d064c36"
+    },
+    {
+      "byte_size": 894,
+      "path": "selected_per_case_metrics.csv.manifest.json",
+      "sha256": "d2f647e8566a905a87c76eb55f39acb112df84161e27cbc6d62993efbd95f2db"
+    },
+    {
+      "byte_size": 187803,
+      "path": "selected_per_subject_metrics.csv",
+      "sha256": "cc36f05a267cf839ce64f6245f2c9aaaba4456b4302c636744cc1e934124d667"
+    },
+    {
+      "byte_size": 765,
+      "path": "selected_per_subject_metrics.csv.manifest.json",
+      "sha256": "cbda921e0faaaf6ab09519bb71a50652e4397126c0f6276e9ad0a6b07e888810"
+    },
+    {
+      "byte_size": 7924,
+      "path": "selected_summary_metrics.csv",
+      "sha256": "f8c9f8ba0a84a88d530a1d57f00b17635ca34c41d24bc8a7d454dccf0468e731"
+    },
+    {
+      "byte_size": 751,
+      "path": "selected_summary_metrics.csv.manifest.json",
+      "sha256": "edc3f4fcb7942e00d778aa0e434a6648afac8ce989bd7320f8297c6a8a13942a"
+    },
+    {
+      "byte_size": 529,
+      "path": "REPORTING_SCOPE.json",
+      "sha256": "b7e4e7e1d2788d1b32ade5324807dc79566b7e84be574795fdf197a16648e040"
+    }
+  ],
+  "completed_utc": "2026-09-15T04:02:47.232298+00:00",
+  "schema_version": 1,
+  "status": "complete"
+}

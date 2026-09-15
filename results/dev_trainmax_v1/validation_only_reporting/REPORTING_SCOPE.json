@@ -1,0 +1,15 @@
+{
+  "artifact_kind": "validation_only_reporting_scope",
+  "independent_test_set_available": false,
+  "permitted_claim": "descriptive_internal_validation_performance",
+  "prohibited_claims": [
+    "independent_test_performance",
+    "external_generalization",
+    "one_time_final_test_evaluation",
+    "unbiased_post_selection_performance"
+  ],
+  "reporting_scope": "development_validation_only_no_untouched_test_cohort",
+  "schema_version": 1,
+  "selection_and_reporting_same_split": true,
+  "test_locked_access": "prohibited"
+}
