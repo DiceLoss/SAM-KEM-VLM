@@ -1541,3 +1541,34 @@ validation `_SUCCESS.json` 与 freeze audit 全部不存在。研究员明确释
 audit、frozen CSV 与 sidecar，共 31 个 artifact。成功状态必须为
 `PASS_hyperparameters_frozen_pending_locked_config`；本步骤不创建 locked config、不修改
 `immutable_archive_uri`，并继续禁止 test-locked access。正式输出与 audit 审核前不得提交。
+
+### 6BI. Validation-only reporting（本 run 的终态路线）
+
+研究员已决定 `dev_trainmax_v1` 不再等待或构造未暴露测试集。本 run 保持
+BrainWeb 16/4/0、HECKTOR 179/45/0；244 个现有对象全部是
+`development_allowed`，禁止把其中任何对象重标为 `test_locked`。具体科学口径见
+`docs/VALIDATION_ONLY_DECISION.md`。
+
+先执行一次零写入 release check：
+
+```bash
+PYTHONPATH=code python code/experiments/build_validation_only_reporting.py \
+  --root . \
+  --config code/configs/generated/dev_trainmax_v1_validation_registered.yaml \
+  --protocol code/configs/generated/dev_trainmax_v1_protocols/hyperparameter_sweep.yaml \
+  --selection-audit logs/validation_hyperparameter_round6_union_selection_audit.json \
+  --freeze-audit logs/validation_hyperparameter_freeze_audit.json \
+  --output results/dev_trainmax_v1/validation_only_reporting \
+  --audit logs/validation_only_reporting_audit.json \
+  --release-check-only
+```
+
+release check 必须为 `PASS_ready_for_validation_only_reporting_execution`，且不得创建
+output 或 audit。它会流式读取七份已审核 validation CSV，只匹配 48 个冻结参数组合，
+预期选出 53,352 条逐例记录、1,176 条 subject aggregate 和 48 条 summary。
+`selection_and_reporting_same_split=true` 与 `selection_bias_warning_required=true` 是
+强制口径，不是可删除的警告。审核明确释放后才可移除
+`--release-check-only`。
+
+本路线始终禁止创建 locked config、运行 test-release、读取 `test_locked`、调用 Qwen、
+执行新 reconstruction，或运行旧 comparison/primary/ablation/convergence test protocols。
