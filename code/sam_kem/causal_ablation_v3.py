@@ -1,18 +1,23 @@
-"""Step 6BM Stage A — corrected 8-variant causal ablation protocol.
+"""Step 6BN Stage A — corrected 8-variant causal ablation protocol (v3).
 
-Implements the eight matched pure-KEM variants per directive 5882184688:
-  1. Q_ADAPT
-  2. FULL_ADAPT
-  3. CENTER_ADAPT
-  4. CENTROID_ADAPT
-  5. Q_RELEASED
-  6. MLEM_FEATURE_MATCHED
-  7. Q_SHUFFLED_MATCHED  (corrected BW shuffle per directive)
-  8. UNIFORM_FEATURE_MATCHED  (all local RBF edges weight 1)
+Fixes per directive 5890879059:
 
-All variants share the same archived observation, operator, gain/background,
-initialization, support, metrics, and frozen Q_ADAPT SAM-KEM tuple. The
-final image is the pure KEM reconstruction (alpha=0, no post-fusion).
+1. ``build_center_box`` now places the box at the **image geometric
+   center**, preserving the Qwen (or fallback) width/height. It no
+   longer aliases Q_ADAPT.
+2. A single ``translate_to_bounds`` helper handles edge clamping for
+   both CENTER and CENTROID controls without shrinking width or height.
+3. ``build_centroid_box`` continues to use the preliminary MLEM10
+   intensity centroid; with ``translate_to_bounds`` it never shrinks.
+4. Corrected BrainWeb ``Q_SHUFFLED_MATCHED`` derangement (same-slice
+   cyclic rotation + two explicit cross-slice repairs).
+5. UNIFORM_FEATURE_MATCHED: constant 128x128 unit feature; all
+   allowed local RBF edges weight 1 before row normalization.
+
+All eight variants share the same archived observation, operator,
+gain/background, initialization, support, metrics, and frozen Q_ADAPT
+SAM-KEM tuple. Final image is the pure KEM reconstruction (alpha=0,
+no post-fusion).
 """
 from __future__ import annotations
 
@@ -64,45 +69,93 @@ def qwen_box_lookup(qwen_box_csv: Path, ds: str, subj: str, slc: str, count: int
 
 
 # ============================================================================
-# Box builders
+# Box builders — fixed per directive 5890879059
 # ============================================================================
+
+def _clamp_size_to_image(width: int, height: int, image_shape) -> tuple[int, int]:
+    """Clip a requested (width, height) to the image's max possible extent.
+
+    If the Qwen box is larger than the image on either axis, the
+    resulting box saturates at ``min(width, W)`` and
+    ``min(height, H)``. This is the *only* place where a box's
+    width/height may shrink.
+    """
+    h, w = image_shape
+    return min(width, w), min(height, h)
+
+
+def translate_to_bounds(x0: int, y0: int, width: int, height: int,
+                        image_shape) -> tuple[int, int, int, int]:
+    """Place a box of fixed (width, height) at the requested top-left,
+    translating the whole box inward if any side would fall off the
+    image. Never shrinks the box.
+    """
+    h, w = image_shape
+    if x0 < 0:
+        x0 = 0
+    if y0 < 0:
+        y0 = 0
+    if x0 + width > w:
+        x0 = w - width
+    if y0 + height > h:
+        y0 = h - height
+    # If width/height exceed the image (shouldn't happen if
+    # _clamp_size_to_image was called), saturate.
+    if x0 < 0:
+        x0 = 0
+    if y0 < 0:
+        y0 = 0
+    return x0, y0, x0 + width, y0 + height
+
 
 def build_full_image_box(image_shape):
     h, w = image_shape
     return (0, 0, w, h)
 
 
-def build_center_box(image_shape, qwen_box):
+def build_center_box(image_shape, qwen_box) -> tuple[int, int, int, int]:
+    """Image geometric-center control: same width/height as the Qwen
+    box, placed at the image geometric center. Independent of Qwen
+    location.
+    """
     h, w = image_shape
     qx0, qy0, qx1, qy1 = qwen_box
-    bw = qx1 - qx0
-    bh = qy1 - qy0
-    cx, cy = (qx0 + qx1) // 2, (qy0 + qy1) // 2
-    x0 = max(0, cx - bw // 2)
-    y0 = max(0, cy - bh // 2)
-    x1 = min(w, x0 + bw)
-    y1 = min(h, y0 + bh)
-    return (x0, y0, x1, y1)
+    bw, bh = qx1 - qx0, qy1 - qy0
+    bw, bh = _clamp_size_to_image(bw, bh, image_shape)
+    # Image geometric center: the box is centered at (W/2, H/2).
+    # For integer arithmetic we use floor on the top-left and rely on
+    # translate_to_bounds to keep it inside the image.
+    cx = (w - bw) // 2
+    cy = (h - bh) // 2
+    return translate_to_bounds(cx, cy, bw, bh, image_shape)
 
 
-def build_centroid_box(mlem10: np.ndarray, image_shape, qwen_box):
+def build_centroid_box(mlem10: np.ndarray, image_shape, qwen_box) -> tuple[int, int, int, int]:
+    """Intensity-weighted centroid control: same width/height as the
+    Qwen box, centered on the MLEM10 first intensity-moment centroid.
+    """
     h, w = image_shape
     qx0, qy0, qx1, qy1 = qwen_box
-    bw = qx1 - qx0
-    bh = qy1 - qy0
+    bw, bh = qx1 - qx0, qy1 - qy0
+    bw, bh = _clamp_size_to_image(bw, bh, image_shape)
     arr = np.asarray(mlem10, dtype=np.float64)
     total = float(arr.sum())
     if total <= 0:
-        return (max(0, w//2 - bw//2), max(0, h//2 - bh//2), min(w, w//2 + bw//2), min(h, h//2 + bh//2))
-    yy, xx = np.indices(arr.shape)
-    cx = float((xx * arr).sum() / total)
-    cy = float((yy * arr).sum() / total)
-    x0 = int(max(0, round(cx - bw/2)))
-    y0 = int(max(0, round(cy - bh/2)))
-    x1 = int(min(w, x0 + bw))
-    y1 = int(min(h, y0 + bh))
-    return (x0, y0, x1, y1)
+        cx = (w - bw) // 2
+        cy = (h - bh) // 2
+    else:
+        yy, xx = np.indices(arr.shape)
+        cxx = float((xx * arr).sum() / total)
+        cyy = float((yy * arr).sum() / total)
+        # Top-left so that the box center is at (cxx, cyy).
+        cx = int(round(cxx - bw / 2.0))
+        cy = int(round(cyy - bh / 2.0))
+    return translate_to_bounds(cx, cy, bw, bh, image_shape)
 
+
+# ============================================================================
+# Decoder invocation helper
+# ============================================================================
 
 def decode_prior_with_predictor(predictor, pet: np.ndarray, box: tuple, image_shape) -> np.ndarray:
     """Run the decoder with the given box, return 128x128 float32 logits."""
@@ -126,6 +179,7 @@ def load_prior_for_variant(
     """Return (prior: np.ndarray, source: str)."""
     qwen_box = qwen_box_lookup(qwen_box_csv, ds, subj, slc, count)
     image_shape = pet_image.shape
+    bw, bh = _qwen_or_fallback_size(qwen_box, image_shape)
 
     if variant == "Q_ADAPT":
         prior = _load_qwen_prior(zip_path, ds, subj, slc, count, real)
@@ -133,19 +187,17 @@ def load_prior_for_variant(
 
     if variant in ("FULL_ADAPT", "CENTER_ADAPT", "CENTROID_ADAPT"):
         adapted_key = f"pet_adapted_{ds}"
-        if qwen_box is None:
-            box = build_full_image_box(image_shape)
-        elif variant == "FULL_ADAPT":
+        if variant == "FULL_ADAPT":
             box = build_full_image_box(image_shape)
         elif variant == "CENTER_ADAPT":
-            box = build_center_box(image_shape, qwen_box)
+            box = build_center_box(image_shape, (0, 0, bw, bh))
         else:  # CENTROID_ADAPT
             mlem10_path = repo_root / f"arrays/dev_trainmax_v1/{ds}/{subj}/{slc}/c{count}/r{real}/mlem10.npy"
             if mlem10_path.exists():
                 mlem10 = np.load(mlem10_path).astype(np.float32)
             else:
                 mlem10 = pet_image
-            box = build_centroid_box(mlem10, image_shape, qwen_box)
+            box = build_centroid_box(mlem10, image_shape, (0, 0, bw, bh))
         prior = decode_prior_with_predictor(predictors[adapted_key], pet_image, box, image_shape)
         return prior, f"decoded/{variant}"
 
@@ -186,6 +238,16 @@ def load_prior_for_variant(
     raise ValueError(f"Unknown variant: {variant}")
 
 
+def _qwen_or_fallback_size(qwen_box, image_shape) -> tuple[int, int]:
+    """Qwen width/height if available; otherwise full image. Used as
+    the canonical reference size for CENTER/CENTROID controls."""
+    if qwen_box is None:
+        h, w = image_shape
+        return w, h
+    qx0, qy0, qx1, qy1 = qwen_box
+    return qx1 - qx0, qy1 - qy0
+
+
 def _load_qwen_prior(zip_path: Path, ds: str, subj: str, slc: str, count: int, real: int) -> np.ndarray:
     cstr = "c" + str(count)
     inner_path = f"arrays/dev_trainmax_v1/{ds}/{subj}/{slc}/{cstr}/r{real}/sam_prior.npy"
@@ -203,13 +265,6 @@ def _load_qwen_prior(zip_path: Path, ds: str, subj: str, slc: str, count: int, r
 #     Repair #2: target (brainweb, subject44, z213) <- source (brainweb, subject04, z210)
 #     All other BW targets within a slice get a same-slice subject rotation (cyclic).
 #   HECKTOR: 45/45 same-slice (z072) derangement per (count, real) cell.
-#
-# Implementation: build the assignment by walking the case list. For each
-# (ds, count, real) group, sort by (slice, subject); apply per-slice
-# rotation (cyclic successor within the same slice), then explicitly
-# override the two specified repairs, and for HE apply cyclic successor
-# within the (ds, count, real) group (one slice, so equivalent to slice-
-# level rotation).
 # ============================================================================
 
 def compute_corrected_shuffle_assignment(zip_path: Path, shuffle_seed: int = 20260915) -> tuple:
@@ -217,10 +272,9 @@ def compute_corrected_shuffle_assignment(zip_path: Path, shuffle_seed: int = 202
 
     shuffle_assignment maps (ds, subj, slc, count, real) -> (src_ds, src_subj, src_slc, src_count, src_real).
     """
-    # Discover all cases per (ds, count, real)
     with zipfile.ZipFile(zip_path, "r") as zf:
         paths = [n for n in zf.namelist() if n.endswith("sam_prior.npy")]
-    cases_by_key = {}  # (ds, count, real) -> [(subj, slc)]
+    cases_by_key = {}
     for p in paths:
         parts = p.split("/")
         ds_p, subj_p, slc_p, cstr, rstr = parts[2], parts[3], parts[4], parts[5], parts[6]
@@ -239,15 +293,11 @@ def compute_corrected_shuffle_assignment(zip_path: Path, shuffle_seed: int = 202
         if n < 2:
             continue
 
-        # Group by slice
         by_slice = {}
         for subj, slc in cs_sorted:
             by_slice.setdefault(slc, []).append(subj)
 
         if ds == "brainweb":
-            # For each shared slice (>=2 subjects), apply cyclic successor within slice.
-            # Singleton targets (e.g. z213 has 1 subject) are then overridden by the
-            # explicit cross-slice repairs below.
             intra_slice_assignments = {}
             cross_slice_repairs = {}
             for slc, subjects in by_slice.items():
@@ -257,25 +307,15 @@ def compute_corrected_shuffle_assignment(zip_path: Path, shuffle_seed: int = 202
                     for i, t_subj in enumerate(subjects_sorted):
                         s_subj = subjects_sorted[(i + 1) % k]
                         intra_slice_assignments[(slc, t_subj)] = s_subj
-            # Small slices:
-            # z210 (3 subjects): subject04, subject42, subject44 (verify in by_slice)
-            # z211 (2): ?
-            # z212 (2): ?
-            # z213 (1): subject04
-            # Compute the actual subjects present in z210 and z213 only
-            # (z211/z212 are auto-handled by per-slice cyclic successor)
+
             z210_subs = sorted(by_slice.get("z210", []))
             z213_subs = sorted(by_slice.get("z213", []))
 
-            # Repair #1: target (subject50, z210) <- source (subject44, z213)
-            # Requires subject50 present in z210, subject44 present in z213
             if "subject50" in z210_subs and "subject44" in z213_subs:
                 cross_slice_repairs[("z210", "subject50")] = ("subject44", "z213")
-            # Repair #2: target (subject44, z213) <- source (subject04, z210)
             if "subject44" in z213_subs and "subject04" in z210_subs:
                 cross_slice_repairs[("z213", "subject44")] = ("subject04", "z210")
 
-            # Build the (count, real) cell assignment
             intra_count = 0
             cross_count = 0
             same_subj_violations = 0
@@ -302,7 +342,6 @@ def compute_corrected_shuffle_assignment(zip_path: Path, shuffle_seed: int = 202
                 "repairs": list(cross_slice_repairs.items()),
             })
         elif ds == "hecktor":
-            # Single slice (z072), 45 subjects: cyclic successor within (count, real)
             for i, (t_subj, t_slc) in enumerate(cs_sorted):
                 s_subj, s_slc = cs_sorted[(i + 1) % n]
                 shuffle[(ds, t_subj, t_slc, count, real)] = (ds, s_subj, s_slc, count, real)
@@ -317,13 +356,11 @@ def compute_corrected_shuffle_assignment(zip_path: Path, shuffle_seed: int = 202
         else:
             raise ValueError(f"Unknown dataset: {ds}")
 
-    # Verify no fixed points anywhere
     for k, v in shuffle.items():
         ds_k, subj_k, slc_k, count_k, real_k = k
         if (v[0], v[1], v[2]) == (ds_k, subj_k, slc_k):
             raise RuntimeError(f"Fixed point detected: {k}")
 
-    # SHA the assignment
     sorted_records = sorted([f"{k}->{v}" for k, v in shuffle.items()])
     sha = hashlib.sha256(json.dumps(sorted_records).encode()).hexdigest()
 
@@ -336,14 +373,9 @@ def compute_corrected_shuffle_assignment(zip_path: Path, shuffle_seed: int = 202
 
 def build_uniform_kernel(feature: np.ndarray, sigma: float, radius: int,
                          support: np.ndarray | None = None):
-    """Build a row-normalized RBF kernel where every allowed local edge has
-    weight 1 before the row-normalization step. Pass feature=ones (constant)
-    so the Gaussian-decay collapses to 1 for all (i,j) within Manhattan
-    distance r.
-
-    Returns a CSR kernel identical in shape to ``rbf_kernel(constant_feature, ...)``
-    but with weight=1 instead of ``exp(-(diff**2)/(2*sigma**2))``. Uses the
-    same Manhattan-radius neighborhood as ``rbf_kernel``.
+    """Build a row-normalized RBF kernel where every allowed local edge
+    has weight 1 before the row-normalization step. Uses the same
+    Manhattan-radius neighborhood as ``rbf_kernel``.
     """
     import scipy.sparse as sp
     values = np.asarray(feature, dtype=np.float64)
@@ -371,3 +403,81 @@ def build_uniform_kernel(feature: np.ndarray, sigma: float, radius: int,
     row_sums = np.asarray(K.sum(axis=1)).ravel()
     row_sums = np.maximum(row_sums, 1e-12)
     return K.multiply(1.0 / row_sums[:, None])
+
+
+# ============================================================================
+# Box audit (per directive 5890879059 §2)
+# ============================================================================
+
+def audit_box_over_validation_cohort(repo_root: Path, qwen_box_csv: Path,
+                                     image_shape=(128, 128),
+                                     mlem10_root: Optional[Path] = None) -> dict:
+    """Walk every Qwen box in the validation cohort; verify that
+    CENTER and CENTROID boxes have width/height exactly equal to the
+    Qwen (or fallback) width/height and valid half-open bounds.
+    Returns a JSON-friendly audit dict.
+    """
+    df = pd.read_csv(qwen_box_csv, low_memory=False)
+    n_total = 0
+    n_zero_width_center = 0
+    n_zero_height_center = 0
+    n_zero_width_centroid = 0
+    n_zero_height_centroid = 0
+    n_invalid_center = 0
+    n_invalid_centroid = 0
+    mismatch_width_center = []
+    mismatch_height_center = []
+    mismatch_width_centroid = []
+    mismatch_height_centroid = []
+
+    for _, row in df.iterrows():
+        try:
+            x0, y0 = int(row["xmin"]), int(row["ymin"])
+            x1, y1 = int(row["xmax"]), int(row["ymax"])
+        except (ValueError, TypeError):
+            continue
+        if not (x1 > x0 and y1 > y0):
+            continue
+        bw, bh = x1 - x0, y1 - y0
+        n_total += 1
+        # CENTER box
+        cb = build_center_box(image_shape, (x0, y0, x1, y1))
+        if cb[2] - cb[0] != bw:
+            n_zero_width_center += 1
+            if len(mismatch_width_center) < 5:
+                mismatch_width_center.append({"qwen": (x0, y0, x1, y1), "center": cb})
+        if cb[3] - cb[1] != bh:
+            n_zero_height_center += 1
+            if len(mismatch_height_center) < 5:
+                mismatch_height_center.append({"qwen": (x0, y0, x1, y1), "center": cb})
+        if not (0 <= cb[0] < cb[2] <= image_shape[1] and 0 <= cb[1] < cb[3] <= image_shape[0]):
+            n_invalid_center += 1
+        # CENTROID box (fallback to image center if no mlem10)
+        cc = build_centroid_box(np.zeros(image_shape, dtype=np.float32), image_shape,
+                                (x0, y0, x1, y1))
+        if cc[2] - cc[0] != bw:
+            n_zero_width_centroid += 1
+            if len(mismatch_width_centroid) < 5:
+                mismatch_width_centroid.append({"qwen": (x0, y0, x1, y1), "centroid": cc})
+        if cc[3] - cc[1] != bh:
+            n_zero_height_centroid += 1
+            if len(mismatch_height_centroid) < 5:
+                mismatch_height_centroid.append({"qwen": (x0, y0, x1, y1), "centroid": cc})
+        if not (0 <= cc[0] < cc[2] <= image_shape[1] and 0 <= cc[1] < cc[3] <= image_shape[0]):
+            n_invalid_centroid += 1
+
+    return {
+        "n_qwen_boxes_audited": n_total,
+        "center": {
+            "n_width_mismatch": n_zero_width_center,
+            "n_height_mismatch": n_zero_height_center,
+            "n_invalid_bounds": n_invalid_center,
+            "mismatches_first5": mismatch_width_center + mismatch_height_center,
+        },
+        "centroid": {
+            "n_width_mismatch": n_zero_width_centroid,
+            "n_height_mismatch": n_zero_height_centroid,
+            "n_invalid_bounds": n_invalid_centroid,
+            "mismatches_first5": mismatch_width_centroid + mismatch_height_centroid,
+        },
+    }

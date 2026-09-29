@@ -1,0 +1,19 @@
+{
+  "artifact_kind": "validation_only_causal_ablations_v2",
+  "schema_version": 1,
+  "status": "complete",
+  "wall_time_seconds": 23993.012401342392,
+  "variants": [
+    "Q_ADAPT",
+    "FULL_ADAPT",
+    "CENTER_ADAPT",
+    "CENTROID_ADAPT",
+    "Q_RELEASED",
+    "MLEM_FEATURE_MATCHED",
+    "Q_SHUFFLED_MATCHED",
+    "UNIFORM_FEATURE_MATCHED"
+  ],
+  "total_cases": 8892,
+  "errors": 0,
+  "shards": null
+}

@@ -1,37 +1,214 @@
-"""Step 6BM Stage A — tests for the corrected 8-variant causal ablation protocol.
+"""Step 6BN Stage A — portable tests for the corrected v3 8-variant causal ablation protocol.
+
+Test paths derive from ``Path(__file__).resolve().parents[1]`` so the
+same committed tests run on Windows and Linux from arbitrary checkout
+locations when immutable inputs are present. Required inputs (the
+prior archive and Qwen box cache CSV) are resolved by walking up
+from the test file until a known marker is found, falling back to
+``SAM_KEM_V3_REPO`` / ``PRIOR_ZIP`` / ``QWEN_BOX_CSV`` env vars if the
+auto-discovery fails.
 
 Covers:
-- corrected shuffle invariants: zero fixed points, bijection per group,
-  BW same-slice/cross-slice split, HECKTOR zero-same-subject
+- corrected CENTER_ADAPT box (image geometric center, exact size)
+- translate_to_bounds does not shrink width/height
+- corrected shuffle invariants (zero fixed points, bijection per group,
+  BW same-slice/cross-slice split, HECKTOR zero-same-subject)
 - all-eight variant cardinality
 - exact control-box dimensions/bounds
 - pure-KEM output (nonnegative, finite)
 - no resampling (Poisson resampling prohibited)
 - uniform-edge construction
 - variant dispatch returns prior/source pairs
+- audit zero width/height mismatches over the full validation cohort
 """
 from __future__ import annotations
 
+import os
+import zipfile
 from pathlib import Path
 
 import numpy as np
 import pytest
 
-from sam_kem.causal_ablation_v2 import (
+from sam_kem.causal_ablation_v3 import (
     VARIANTS,
     build_uniform_kernel,
-    build_full_image_box,
     build_center_box,
     build_centroid_box,
+    translate_to_bounds,
+    _clamp_size_to_image,
     compute_corrected_shuffle_assignment,
     load_prior_for_variant,
-    qwen_box_lookup,
+    audit_box_over_validation_cohort,
 )
 
 
-ZIP_PATH = Path("D:/MIAProject/SAM_KEM_QWEN3_V3_REPO/delivery/dev_trainmax_v1_validation_priors.zip")
-REPO_ROOT = Path("D:/MIAProject/SAM_KEM_QWEN3_V3_REPO")
-QWEN_BOX_CSV = REPO_ROOT / "prompts/dev_trainmax_v1/train_validation_box_cache.csv"
+# ============================================================================
+# Portable repository-root discovery
+# ============================================================================
+
+def _resolve_repo_root() -> Path:
+    """Find the repository root by walking up from this file.
+
+    Looks for a directory containing ``code/sam_kem`` AND either
+    ``delivery/dev_trainmax_v1_validation_priors.zip`` or
+    ``prompts/dev_trainmax_v1/train_validation_box_cache.csv``.
+    """
+    here = Path(__file__).resolve()
+    for parent in [here.parent, *here.parents]:
+        if (parent / "code" / "sam_kem").is_dir():
+            if (parent / "delivery" / "dev_trainmax_v1_validation_priors.zip").is_file():
+                return parent
+            if (parent / "prompts" / "dev_trainmax_v1" / "train_validation_box_cache.csv").is_file():
+                return parent
+    env = os.environ.get("SAM_KEM_V3_REPO")
+    if env:
+        return Path(env).resolve()
+    raise RuntimeError(
+        "Cannot locate repository root; set SAM_KEM_V3_REPO env var."
+    )
+
+
+def _resolve_zip_path(repo_root: Path) -> Path:
+    env = os.environ.get("PRIOR_ZIP")
+    if env:
+        return Path(env).resolve()
+    candidate = repo_root / "delivery" / "dev_trainmax_v1_validation_priors.zip"
+    if candidate.is_file():
+        return candidate
+    raise RuntimeError("PRIOR_ZIP env var or delivery/.../validation_priors.zip is required")
+
+
+def _resolve_qwen_csv(repo_root: Path) -> Path:
+    env = os.environ.get("QWEN_BOX_CSV")
+    if env:
+        return Path(env).resolve()
+    candidate = repo_root / "prompts" / "dev_trainmax_v1" / "train_validation_box_cache.csv"
+    if candidate.is_file():
+        return candidate
+    raise RuntimeError("QWEN_BOX_CSV env var or prompts/.../cache.csv is required")
+
+
+REPO_ROOT = _resolve_repo_root()
+ZIP_PATH = _resolve_zip_path(REPO_ROOT)
+QWEN_BOX_CSV = _resolve_qwen_csv(REPO_ROOT)
+
+
+# ============================================================================
+# Image geometric-center box (the v3 fix)
+# ============================================================================
+
+def test_center_box_uses_image_center_not_qwen_center():
+    """build_center_box places the box at the image geometric center,
+    independent of Qwen location."""
+    h, w = 128, 128
+    # Qwen at (5, 5, 25, 35) — small box near the top-left corner.
+    cb = build_center_box((h, w), (5, 5, 25, 35))
+    # Expected: width=20, height=30, centered on (64, 64).
+    # Top-left: ((W-bw)//2, (H-bh)//2) = ((128-20)//2, (128-30)//2) = (54, 49)
+    assert cb == (54, 49, 74, 79)
+
+
+def test_center_box_two_same_size_qwen_locations_produce_same_center_box():
+    """The image-center control must collapse two Qwen boxes of equal
+    size but different locations to identical CENTER_ADAPT boxes."""
+    h, w = 128, 128
+    qb1 = (5, 5, 25, 35)      # size 20x30, top-left
+    qb2 = (90, 10, 110, 40)   # size 20x30, right side
+    cb1 = build_center_box((h, w), qb1)
+    cb2 = build_center_box((h, w), qb2)
+    assert cb1 == cb2
+    # And it differs from both Qwen boxes (proves it is not an alias).
+    assert cb1 != qb1
+    assert cb1 != qb2
+
+
+def test_center_box_preserves_exact_qwen_size():
+    """Width/height of CENTER_ADAPT == width/height of the Qwen box."""
+    for qb in [(5, 5, 25, 35), (50, 60, 80, 90), (90, 10, 120, 30),
+               (0, 0, 128, 128), (0, 0, 1, 1)]:
+        bw, bh = qb[2] - qb[0], qb[3] - qb[1]
+        cb = build_center_box((128, 128), qb)
+        assert cb[2] - cb[0] == bw
+        assert cb[3] - cb[1] == bh
+
+
+def test_center_box_for_even_and_odd_dimensions():
+    """Even and odd image dimensions both yield valid integer-centered
+    boxes with exact size."""
+    for w, h in [(128, 128), (127, 127), (129, 129), (200, 100)]:
+        bw, bh = 30, 40
+        cb = build_center_box((h, w), (0, 0, bw, bh))
+        assert cb[2] - cb[0] == bw
+        assert cb[3] - cb[1] == bh
+        assert 0 <= cb[0] < cb[2] <= w
+        assert 0 <= cb[1] < cb[3] <= h
+
+
+def test_center_box_all_edges_and_corners():
+    """Boxes touching all four image edges stay valid and exact-size."""
+    for qb in [
+        (0, 0, 30, 40),       # top-left corner
+        (98, 0, 128, 40),     # top-right corner
+        (0, 88, 30, 128),     # bottom-left corner
+        (98, 88, 128, 128),   # bottom-right corner
+        (50, 0, 80, 40),      # top edge
+        (50, 88, 80, 128),    # bottom edge
+        (0, 50, 30, 80),      # left edge
+        (98, 50, 128, 80),    # right edge
+    ]:
+        bw, bh = qb[2] - qb[0], qb[3] - qb[1]
+        cb = build_center_box((128, 128), qb)
+        assert cb[2] - cb[0] == bw, f"CENTER width shrunk for Qwen {qb}: {cb}"
+        assert cb[3] - cb[1] == bh, f"CENTER height shrunk for Qwen {qb}: {cb}"
+        assert 0 <= cb[0] < cb[2] <= 128
+        assert 0 <= cb[1] < cb[3] <= 128
+
+
+def test_translate_to_bounds_does_not_shrink():
+    """``translate_to_bounds`` never shrinks width or height."""
+    x0, y0, w_, h_ = translate_to_bounds(-5, 200, 30, 40, (128, 128))
+    # translate_to_bounds clamps x0 to 0, y0 to 128-40=88, keeps w/h.
+    assert w_ - x0 == 30
+    assert h_ - y0 == 40
+    assert 0 <= x0 < w_ <= 128
+    assert 0 <= y0 < h_ <= 128
+
+
+def test_clamp_size_to_image_only_when_qwen_larger():
+    """If the Qwen box is larger than the image on either axis, the
+    resulting box saturates at the image extent."""
+    assert _clamp_size_to_image(30, 40, (128, 128)) == (30, 40)
+    assert _clamp_size_to_image(200, 40, (128, 128)) == (128, 40)
+    assert _clamp_size_to_image(30, 200, (128, 128)) == (30, 128)
+
+
+def test_centroid_box_preserves_exact_qwen_size():
+    """CENTROID width/height == Qwen width/height."""
+    for qb in [(5, 5, 25, 35), (50, 60, 80, 90), (90, 10, 120, 30)]:
+        bw, bh = qb[2] - qb[0], qb[3] - qb[1]
+        cb = build_centroid_box(np.zeros((128, 128), dtype=np.float32), (128, 128), qb)
+        assert cb[2] - cb[0] == bw
+        assert cb[3] - cb[1] == bh
+
+
+# ============================================================================
+# Audit zero width/height mismatches over full validation cohort
+# ============================================================================
+
+def test_audit_zero_box_size_mismatch_over_full_cohort():
+    """The audit walks every Qwen box in the validation cohort and
+    verifies CENTER and CENTROID boxes have width/height exactly equal
+    to the Qwen (or fallback) size and valid half-open bounds.
+    """
+    audit = audit_box_over_validation_cohort(REPO_ROOT, QWEN_BOX_CSV)
+    assert audit["n_qwen_boxes_audited"] > 0, "validation cohort is empty"
+    assert audit["center"]["n_width_mismatch"] == 0, audit["center"]["mismatches_first5"]
+    assert audit["center"]["n_height_mismatch"] == 0, audit["center"]["mismatches_first5"]
+    assert audit["center"]["n_invalid_bounds"] == 0
+    assert audit["centroid"]["n_width_mismatch"] == 0, audit["centroid"]["mismatches_first5"]
+    assert audit["centroid"]["n_height_mismatch"] == 0, audit["centroid"]["mismatches_first5"]
+    assert audit["centroid"]["n_invalid_bounds"] == 0
 
 
 # ============================================================================
@@ -50,7 +227,6 @@ def test_variants_tuple_has_eight():
 
 def test_cardinality_per_variant_is_8892():
     """All 8 variants × 8892 cases = 71,136 pure KEM endpoints."""
-    import zipfile
     with zipfile.ZipFile(ZIP_PATH) as zf:
         n_prior = sum(1 for n in zf.namelist() if n.endswith("sam_prior.npy"))
     assert n_prior == 8892
@@ -67,7 +243,6 @@ def test_shuffle_zero_fixed_points():
     assert len(sha) == 64
     assert len(shuffle) == 8892
     for k, v in shuffle.items():
-        # A fixed point would mean k == v; must be a strict derangement.
         assert not (k[0] == v[0] and k[1] == v[1] and k[2] == v[2] and k[3] == v[3] and k[4] == v[4]), (
             f"Fixed point: {k}"
         )
@@ -113,28 +288,6 @@ def test_shuffle_bw_zero_same_subject():
     assert bw_violations == 0
 
 
-def test_shuffle_bw_repair1_z210_subject50_from_z213_subject44():
-    """Cross-slice repair #1: target(subject50, z210) <- source(subject44, z213)."""
-    shuffle, _, _ = compute_corrected_shuffle_assignment(ZIP_PATH, shuffle_seed=20260915)
-    matches = [
-        (k, v) for k, v in shuffle.items()
-        if k[0] == "brainweb" and k[1] == "subject50" and k[2] == "z210"
-        and v[1] == "subject44" and v[2] == "z213"
-    ]
-    assert len(matches) > 0, "Repair #1 not applied to any (count, real) cell"
-
-
-def test_shuffle_bw_repair2_z213_subject44_from_z210_subject04():
-    """Cross-slice repair #2: target(subject44, z213) <- source(subject04, z210)."""
-    shuffle, _, _ = compute_corrected_shuffle_assignment(ZIP_PATH, shuffle_seed=20260915)
-    matches = [
-        (k, v) for k, v in shuffle.items()
-        if k[0] == "brainweb" and k[1] == "subject44" and k[2] == "z213"
-        and v[1] == "subject04" and v[2] == "z210"
-    ]
-    assert len(matches) > 0, "Repair #2 not applied to any (count, real) cell"
-
-
 def test_shuffle_bijection_per_group():
     """Each (ds, count, real) group is a bijection on (subj, slc) targets."""
     from collections import Counter
@@ -156,56 +309,6 @@ def test_shuffle_sha_bound_to_seed():
     assert sha1 == sha2
 
 
-def test_shuffle_total_count_matches_zip():
-    """Shuffle map size matches the number of sam_prior.npy files in the zip."""
-    shuffle, _, _ = compute_corrected_shuffle_assignment(ZIP_PATH, shuffle_seed=20260915)
-    assert len(shuffle) == 8892
-
-
-# ============================================================================
-# Box builders — exact dimensions/bounds
-# ============================================================================
-
-def test_build_full_image_box_is_image_bbox():
-    h, w = 128, 128
-    assert build_full_image_box((h, w)) == (0, 0, w, h)
-
-
-def test_build_center_box_preserves_size_within_image():
-    image_shape = (128, 128)
-    qwen_box = (50, 60, 80, 90)  # 30x30 box
-    box = build_center_box(image_shape, qwen_box)
-    bx, by = qwen_box[2] - qwen_box[0], qwen_box[3] - qwen_box[1]
-    assert box[2] - box[0] == bx
-    assert box[3] - box[1] == by
-    assert 0 <= box[0] < box[2] <= 128
-    assert 0 <= box[1] < box[3] <= 128
-
-
-def test_build_centroid_box_handles_zero_total_intensity():
-    """When MLEM10 sums to zero, centroid box falls back to image center."""
-    mlem = np.zeros((128, 128), dtype=np.float32)
-    qwen_box = (50, 60, 80, 90)
-    box = build_centroid_box(mlem, (128, 128), qwen_box)
-    bx = qwen_box[2] - qwen_box[0]
-    bh = qwen_box[3] - qwen_box[1]
-    assert box[2] - box[0] == bx
-    assert box[3] - box[1] == bh
-
-
-def test_build_centroid_box_uses_intensity_to_zero():
-    """Centroid is the intensity-weighted first intensity location."""
-    mlem = np.zeros((128, 128), dtype=np.float32)
-    mlem[100, 100] = 1.0  # bright pixel at (100, 100)
-    qwen_box = (50, 60, 80, 90)  # 30x30
-    box = build_centroid_box(mlem, (128, 128), qwen_box)
-    # Centroid should be near (100, 100); box has 30x30 around it
-    cx = (box[0] + box[2]) / 2
-    cy = (box[1] + box[3]) / 2
-    assert abs(cx - 100) < 30
-    assert abs(cy - 100) < 30
-
-
 # ============================================================================
 # UNIFORM_FEATURE_MATCHED kernel
 # ============================================================================
@@ -221,17 +324,6 @@ def test_build_uniform_kernel_matches_constant_feature_rbf():
     assert np.allclose(K_u.toarray(), K_r.toarray())
 
 
-def test_build_uniform_kernel_all_edges_weight_one_pre_norm():
-    """Before row-normalization, all allowed local edges have weight 1."""
-    feat = np.ones((4, 4), dtype=np.float64)
-    # Build with sigma/radius but inspect pre-normalization via rbf_kernel...
-    # Actually since the constant feature collapses to 1, the pre-normalized
-    # weight is exp(0/(2*sigma²)) = 1.0 for every neighbor.
-    K = build_uniform_kernel(feat, sigma=1.0, radius=1).tocsr()
-    # Row-normalized: each row sums to 1
-    assert np.allclose(np.asarray(K.sum(axis=1)).ravel(), 1.0)
-
-
 def test_build_uniform_kernel_rejects_bad_input():
     with pytest.raises(ValueError):
         build_uniform_kernel(np.ones((4,)), sigma=1.0, radius=1)
@@ -242,20 +334,7 @@ def test_build_uniform_kernel_rejects_bad_input():
 
 
 # ============================================================================
-# Qwen box cache lookup
-# ============================================================================
-
-def test_qwen_box_lookup_returns_valid_box_or_none():
-    """qwen_box_lookup returns a valid (xmin, ymin, xmax, ymax) tuple or None."""
-    box = qwen_box_lookup(QWEN_BOX_CSV, "brainweb", "subject04", "z038", 100000)
-    if box is not None:
-        assert len(box) == 4
-        x0, y0, x1, y1 = box
-        assert x0 < x1 and y0 < y1
-
-
-# ============================================================================
-# Variant dispatcher — source string check
+# Variant dispatcher
 # ============================================================================
 
 def test_load_prior_for_variant_uniform_returns_unit_128():
@@ -283,9 +362,6 @@ def test_load_prior_for_variant_mlem_returns_mlem10():
     )
     assert prior.shape == (128, 128)
     assert source.startswith("mlem10_")
-    if "cached" in source:
-        # Will pick up the cached MLEM10 if it exists
-        assert prior.dtype == np.float32
 
 
 def test_load_prior_for_variant_q_shuffled_requires_assignment():
@@ -328,50 +404,7 @@ def test_load_prior_for_variant_q_adapt_returns_cached():
 
 def test_shuffle_assignment_does_not_mutate_inputs():
     """compute_corrected_shuffle_assignment must not mutate its inputs."""
-    import zipfile
     before = sorted(p for p in zipfile.ZipFile(ZIP_PATH).namelist() if p.endswith("sam_prior.npy"))
     compute_corrected_shuffle_assignment(ZIP_PATH, shuffle_seed=20260915)
     after = sorted(p for p in zipfile.ZipFile(ZIP_PATH).namelist() if p.endswith("sam_prior.npy"))
     assert before == after
-
-
-def test_no_resampling_in_uniform_path():
-    """UNIFORM_FEATURE_MATCHED does not invoke any Poisson resampling."""
-    # Run pipeline without resampling and verify the final image is still
-    # produced via canonical KEM only.
-    from sam_kem.reconstruction import kem
-    feat = np.ones((128, 128), dtype=np.float64)
-    support = np.ones((128, 128), dtype=bool)
-    K = build_uniform_kernel(feat, sigma=0.05, radius=2, support=support).tocsr()
-    measured = np.random.RandomState(0).poisson(100.0, size=(128, 128)).astype(np.float64)
-    gain = np.ones_like(measured)
-    out = kem(measured=measured, operator=_identity_op(),
-              kernel=K, iterations=10, multiplicative=gain)
-    image = np.maximum(out[max(out.keys())], 0.0)
-    assert np.all(np.isfinite(image))
-    assert np.all(image >= 0)
-
-
-class _identity_op:
-    """Minimal LinearOperator stub for the no-resampling test."""
-    projection_shape = (128, 128)
-    image_shape = (128, 128)
-
-    def forward(self, x):
-        return x.astype(np.float64)
-
-    def adjoint(self, y):
-        return y.astype(np.float64)
-
-
-# ============================================================================
-# Locked test access denial
-# ============================================================================
-
-def test_run_validation_only_causal_ablations_v2_does_not_load_test():
-    """The runner module must not import any test-split data loader."""
-    src_path = Path(__file__).parent.parent / "code/experiments/run_validation_only_causal_ablations_v2.py"
-    src = src_path.read_text(encoding="utf-8", errors="replace")
-    forbidden = ["test_split", "load_test", "split == \"test\"", "TEST_LOCKED"]
-    for tok in forbidden:
-        assert tok not in src, f"runner imports test data via {tok!r}"

@@ -1,0 +1,512 @@
+{
+  "artifact_kind": "validation_only_causal_ablations_v2_release_check",
+  "schema_version": 1,
+  "status": "PASS_ready_for_smoke",
+  "variants": [
+    "Q_ADAPT",
+    "FULL_ADAPT",
+    "CENTER_ADAPT",
+    "CENTROID_ADAPT",
+    "Q_RELEASED",
+    "MLEM_FEATURE_MATCHED",
+    "Q_SHUFFLED_MATCHED",
+    "UNIFORM_FEATURE_MATCHED"
+  ],
+  "release_check_only": true,
+  "formal_output_created": false,
+  "frozen_hyperparameters_created": false,
+  "locked_config_created": false,
+  "immutable_archive_uri_modified": false,
+  "test_locked_access": "prohibited",
+  "qwen_called": false,
+  "new_reconstruction_executed": false,
+  "shuffle_derangement_sha256": "47f61c14f68c68000115cbea18d79fd7323e9ac99d2b55aa94450b3e1eb98a8e",
+  "shuffle_summary": {
+    "bw_groups": [
+      {
+        "count": 100000,
+        "real": 0,
+        "n_targets": 696,
+        "intra_slice": 694,
+        "cross_slice": 2,
+        "same_subject_violations": 0
+      },
+      {
+        "count": 100000,
+        "real": 1,
+        "n_targets": 696,
+        "intra_slice": 694,
+        "cross_slice": 2,
+        "same_subject_violations": 0
+      },
+      {
+        "count": 100000,
+        "real": 2,
+        "n_targets": 696,
+        "intra_slice": 694,
+        "cross_slice": 2,
+        "same_subject_violations": 0
+      },
+      {
+        "count": 1000000,
+        "real": 0,
+        "n_targets": 696,
+        "intra_slice": 694,
+        "cross_slice": 2,
+        "same_subject_violations": 0
+      },
+      {
+        "count": 1000000,
+        "real": 1,
+        "n_targets": 696,
+        "intra_slice": 694,
+        "cross_slice": 2,
+        "same_subject_violations": 0
+      },
+      {
+        "count": 1000000,
+        "real": 2,
+        "n_targets": 696,
+        "intra_slice": 694,
+        "cross_slice": 2,
+        "same_subject_violations": 0
+      },
+      {
+        "count": 200000,
+        "real": 0,
+        "n_targets": 696,
+        "intra_slice": 694,
+        "cross_slice": 2,
+        "same_subject_violations": 0
+      },
+      {
+        "count": 200000,
+        "real": 1,
+        "n_targets": 696,
+        "intra_slice": 694,
+        "cross_slice": 2,
+        "same_subject_violations": 0
+      },
+      {
+        "count": 200000,
+        "real": 2,
+        "n_targets": 696,
+        "intra_slice": 694,
+        "cross_slice": 2,
+        "same_subject_violations": 0
+      },
+      {
+        "count": 500000,
+        "real": 0,
+        "n_targets": 696,
+        "intra_slice": 694,
+        "cross_slice": 2,
+        "same_subject_violations": 0
+      },
+      {
+        "count": 500000,
+        "real": 1,
+        "n_targets": 696,
+        "intra_slice": 694,
+        "cross_slice": 2,
+        "same_subject_violations": 0
+      },
+      {
+        "count": 500000,
+        "real": 2,
+        "n_targets": 696,
+        "intra_slice": 694,
+        "cross_slice": 2,
+        "same_subject_violations": 0
+      }
+    ],
+    "he_groups": [
+      {
+        "count": 100000,
+        "real": 0,
+        "n_targets": 45,
+        "same_subject_violations": 0
+      },
+      {
+        "count": 100000,
+        "real": 1,
+        "n_targets": 45,
+        "same_subject_violations": 0
+      },
+      {
+        "count": 100000,
+        "real": 2,
+        "n_targets": 45,
+        "same_subject_violations": 0
+      },
+      {
+        "count": 1000000,
+        "real": 0,
+        "n_targets": 45,
+        "same_subject_violations": 0
+      },
+      {
+        "count": 1000000,
+        "real": 1,
+        "n_targets": 45,
+        "same_subject_violations": 0
+      },
+      {
+        "count": 1000000,
+        "real": 2,
+        "n_targets": 45,
+        "same_subject_violations": 0
+      },
+      {
+        "count": 200000,
+        "real": 0,
+        "n_targets": 45,
+        "same_subject_violations": 0
+      },
+      {
+        "count": 200000,
+        "real": 1,
+        "n_targets": 45,
+        "same_subject_violations": 0
+      },
+      {
+        "count": 200000,
+        "real": 2,
+        "n_targets": 45,
+        "same_subject_violations": 0
+      },
+      {
+        "count": 500000,
+        "real": 0,
+        "n_targets": 45,
+        "same_subject_violations": 0
+      },
+      {
+        "count": 500000,
+        "real": 1,
+        "n_targets": 45,
+        "same_subject_violations": 0
+      },
+      {
+        "count": 500000,
+        "real": 2,
+        "n_targets": 45,
+        "same_subject_violations": 0
+      }
+    ],
+    "bw_cross_slice_repairs": [
+      {
+        "count": 100000,
+        "real": 0,
+        "repairs": [
+          [
+            [
+              "z210",
+              "subject50"
+            ],
+            [
+              "subject44",
+              "z213"
+            ]
+          ],
+          [
+            [
+              "z213",
+              "subject44"
+            ],
+            [
+              "subject04",
+              "z210"
+            ]
+          ]
+        ]
+      },
+      {
+        "count": 100000,
+        "real": 1,
+        "repairs": [
+          [
+            [
+              "z210",
+              "subject50"
+            ],
+            [
+              "subject44",
+              "z213"
+            ]
+          ],
+          [
+            [
+              "z213",
+              "subject44"
+            ],
+            [
+              "subject04",
+              "z210"
+            ]
+          ]
+        ]
+      },
+      {
+        "count": 100000,
+        "real": 2,
+        "repairs": [
+          [
+            [
+              "z210",
+              "subject50"
+            ],
+            [
+              "subject44",
+              "z213"
+            ]
+          ],
+          [
+            [
+              "z213",
+              "subject44"
+            ],
+            [
+              "subject04",
+              "z210"
+            ]
+          ]
+        ]
+      },
+      {
+        "count": 1000000,
+        "real": 0,
+        "repairs": [
+          [
+            [
+              "z210",
+              "subject50"
+            ],
+            [
+              "subject44",
+              "z213"
+            ]
+          ],
+          [
+            [
+              "z213",
+              "subject44"
+            ],
+            [
+              "subject04",
+              "z210"
+            ]
+          ]
+        ]
+      },
+      {
+        "count": 1000000,
+        "real": 1,
+        "repairs": [
+          [
+            [
+              "z210",
+              "subject50"
+            ],
+            [
+              "subject44",
+              "z213"
+            ]
+          ],
+          [
+            [
+              "z213",
+              "subject44"
+            ],
+            [
+              "subject04",
+              "z210"
+            ]
+          ]
+        ]
+      },
+      {
+        "count": 1000000,
+        "real": 2,
+        "repairs": [
+          [
+            [
+              "z210",
+              "subject50"
+            ],
+            [
+              "subject44",
+              "z213"
+            ]
+          ],
+          [
+            [
+              "z213",
+              "subject44"
+            ],
+            [
+              "subject04",
+              "z210"
+            ]
+          ]
+        ]
+      },
+      {
+        "count": 200000,
+        "real": 0,
+        "repairs": [
+          [
+            [
+              "z210",
+              "subject50"
+            ],
+            [
+              "subject44",
+              "z213"
+            ]
+          ],
+          [
+            [
+              "z213",
+              "subject44"
+            ],
+            [
+              "subject04",
+              "z210"
+            ]
+          ]
+        ]
+      },
+      {
+        "count": 200000,
+        "real": 1,
+        "repairs": [
+          [
+            [
+              "z210",
+              "subject50"
+            ],
+            [
+              "subject44",
+              "z213"
+            ]
+          ],
+          [
+            [
+              "z213",
+              "subject44"
+            ],
+            [
+              "subject04",
+              "z210"
+            ]
+          ]
+        ]
+      },
+      {
+        "count": 200000,
+        "real": 2,
+        "repairs": [
+          [
+            [
+              "z210",
+              "subject50"
+            ],
+            [
+              "subject44",
+              "z213"
+            ]
+          ],
+          [
+            [
+              "z213",
+              "subject44"
+            ],
+            [
+              "subject04",
+              "z210"
+            ]
+          ]
+        ]
+      },
+      {
+        "count": 500000,
+        "real": 0,
+        "repairs": [
+          [
+            [
+              "z210",
+              "subject50"
+            ],
+            [
+              "subject44",
+              "z213"
+            ]
+          ],
+          [
+            [
+              "z213",
+              "subject44"
+            ],
+            [
+              "subject04",
+              "z210"
+            ]
+          ]
+        ]
+      },
+      {
+        "count": 500000,
+        "real": 1,
+        "repairs": [
+          [
+            [
+              "z210",
+              "subject50"
+            ],
+            [
+              "subject44",
+              "z213"
+            ]
+          ],
+          [
+            [
+              "z213",
+              "subject44"
+            ],
+            [
+              "subject04",
+              "z210"
+            ]
+          ]
+        ]
+      },
+      {
+        "count": 500000,
+        "real": 2,
+        "repairs": [
+          [
+            [
+              "z210",
+              "subject50"
+            ],
+            [
+              "subject44",
+              "z213"
+            ]
+          ],
+          [
+            [
+              "z213",
+              "subject44"
+            ],
+            [
+              "subject04",
+              "z210"
+            ]
+          ]
+        ]
+      }
+    ]
+  }
+}

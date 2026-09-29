@@ -1,0 +1,22 @@
+{
+  "artifact_kind": "validation_only_causal_ablations_v2",
+  "schema_version": 1,
+  "status": "complete",
+  "wall_time_seconds": 239.6251082420349,
+  "variants": [
+    "Q_ADAPT",
+    "FULL_ADAPT",
+    "CENTER_ADAPT",
+    "CENTROID_ADAPT",
+    "Q_RELEASED",
+    "MLEM_FEATURE_MATCHED",
+    "Q_SHUFFLED_MATCHED",
+    "UNIFORM_FEATURE_MATCHED"
+  ],
+  "total_cases": 12,
+  "errors": 0,
+  "shards": [
+    "brainweb/subject04/z038",
+    "hecktor/10/z072"
+  ]
+}
