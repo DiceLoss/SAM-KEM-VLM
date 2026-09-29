@@ -1,0 +1,9 @@
+{
+  "n_keys_merged": 8892,
+  "max_abs_nrmse_diff": 0.0,
+  "max_abs_ssim_diff": 0.0,
+  "tolerance": 5e-07,
+  "nrmse_pass": true,
+  "ssim_pass": true,
+  "overall_pass": true
+}

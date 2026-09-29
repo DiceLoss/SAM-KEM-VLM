@@ -1,0 +1,42 @@
+{
+  "n_bootstrap": 1000,
+  "seed": 20260929,
+  "results": [
+    {
+      "dataset": "hecktor",
+      "count_level": 100000,
+      "variant": "Q_ADAPT",
+      "n_subjects": 45,
+      "nrmse_mean": 0.16862075108473734,
+      "nrmse_ci95_low": 0.16223349962712202,
+      "nrmse_ci95_high": 0.174884896830382
+    },
+    {
+      "dataset": "hecktor",
+      "count_level": 200000,
+      "variant": "Q_ADAPT",
+      "n_subjects": 45,
+      "nrmse_mean": 0.1522217462143999,
+      "nrmse_ci95_low": 0.1463126606714048,
+      "nrmse_ci95_high": 0.15823144043860726
+    },
+    {
+      "dataset": "hecktor",
+      "count_level": 500000,
+      "variant": "Q_ADAPT",
+      "n_subjects": 45,
+      "nrmse_mean": 0.12191282784831348,
+      "nrmse_ci95_low": 0.11625182946917471,
+      "nrmse_ci95_high": 0.1276840668956038
+    },
+    {
+      "dataset": "hecktor",
+      "count_level": 1000000,
+      "variant": "Q_ADAPT",
+      "n_subjects": 45,
+      "nrmse_mean": 0.10506904406917919,
+      "nrmse_ci95_low": 0.09914873412229501,
+      "nrmse_ci95_high": 0.11069271253703085
+    }
+  ]
+}

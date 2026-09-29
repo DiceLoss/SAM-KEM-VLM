@@ -1,0 +1,111 @@
+{
+  "fixed_cases": [
+    {
+      "case": "brainweb/subject04/z038/c100000/r0",
+      "metrics_by_variant": {
+        "Q_ADAPT": {
+          "nrmse": 0.2974020311477804,
+          "ssim": 0.8034027206451693,
+          "source": "cached",
+          "timing_total_s": 2.2355992794036865
+        },
+        "FULL_ADAPT": {
+          "nrmse": 0.2764892240579403,
+          "ssim": 0.8300814289630722,
+          "source": "decoded/FULL_ADAPT",
+          "timing_total_s": 13.255208492279053
+        },
+        "CENTER_ADAPT": {
+          "nrmse": 0.2880036289393412,
+          "ssim": 0.8139312116636134,
+          "source": "decoded/CENTER_ADAPT",
+          "timing_total_s": 2.323307991027832
+        },
+        "CENTROID_ADAPT": {
+          "nrmse": 0.2871931942275265,
+          "ssim": 0.8149430830279485,
+          "source": "decoded/CENTROID_ADAPT",
+          "timing_total_s": 2.4410674571990967
+        },
+        "Q_RELEASED": {
+          "nrmse": 0.2762843610339519,
+          "ssim": 0.831091164510826,
+          "source": "decoded/Q_RELEASED",
+          "timing_total_s": 2.4760079383850098
+        },
+        "MLEM_FEATURE_MATCHED": {
+          "nrmse": 0.2760061796499957,
+          "ssim": 0.8291107901511763,
+          "source": "mlem10_cached",
+          "timing_total_s": 1.898522138595581
+        },
+        "Q_SHUFFLED_MATCHED": {
+          "nrmse": 0.27687725104492,
+          "ssim": 0.8294617193363522,
+          "source": "shuffled_from=brainweb/subject42/z038/c100000/r0",
+          "timing_total_s": 1.936483860015869
+        },
+        "UNIFORM_FEATURE_MATCHED": {
+          "nrmse": 0.2773560870024636,
+          "ssim": 0.82948802106023,
+          "source": "constant_unit_128",
+          "timing_total_s": 1.3816230297088623
+        }
+      }
+    },
+    {
+      "case": "hecktor/10/z072/c100000/r0",
+      "metrics_by_variant": {
+        "Q_ADAPT": {
+          "nrmse": 0.1594995438985732,
+          "ssim": 0.9735766420326782,
+          "source": "cached",
+          "timing_total_s": 3.850303888320923
+        },
+        "FULL_ADAPT": {
+          "nrmse": 0.1597498688214509,
+          "ssim": 0.973612119500053,
+          "source": "decoded/FULL_ADAPT",
+          "timing_total_s": 4.594878911972046
+        },
+        "CENTER_ADAPT": {
+          "nrmse": 0.1593657042137315,
+          "ssim": 0.9736529059823842,
+          "source": "decoded/CENTER_ADAPT",
+          "timing_total_s": 4.3915228843688965
+        },
+        "CENTROID_ADAPT": {
+          "nrmse": 0.1595637381678978,
+          "ssim": 0.9735987636214718,
+          "source": "decoded/CENTROID_ADAPT",
+          "timing_total_s": 5.04275107383728
+        },
+        "Q_RELEASED": {
+          "nrmse": 0.1755849152887837,
+          "ssim": 0.969717114684487,
+          "source": "decoded/Q_RELEASED",
+          "timing_total_s": 4.340863227844238
+        },
+        "MLEM_FEATURE_MATCHED": {
+          "nrmse": 0.1740562392401591,
+          "ssim": 0.970276348236042,
+          "source": "mlem10_cached",
+          "timing_total_s": 3.6903114318847656
+        },
+        "Q_SHUFFLED_MATCHED": {
+          "nrmse": 0.1581253749042342,
+          "ssim": 0.9740233129541748,
+          "source": "shuffled_from=hecktor/106/z072/c100000/r0",
+          "timing_total_s": 3.8741683959960938
+        },
+        "UNIFORM_FEATURE_MATCHED": {
+          "nrmse": 0.1738523092473071,
+          "ssim": 0.970374944238244,
+          "source": "constant_unit_128",
+          "timing_total_s": 2.40627384185791
+        }
+      }
+    }
+  ],
+  "fixed_meta_sha256": "726e55c1a1b5dc73738a62dd93c81c306f13cfffbd7137085d6ff44816f7992e"
+}

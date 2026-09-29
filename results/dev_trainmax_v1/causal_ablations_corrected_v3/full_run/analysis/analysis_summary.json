@@ -1,0 +1,37 @@
+{
+  "artifact_kind": "validation_only_causal_ablations_v3_analysis",
+  "schema_version": 1,
+  "status": "PASS",
+  "q_adapt_reproduction": {
+    "n_keys_merged": 8892,
+    "max_abs_nrmse_diff": 0.0,
+    "max_abs_ssim_diff": 0.0,
+    "tolerance": 5e-07,
+    "nrmse_pass": true,
+    "ssim_pass": true,
+    "overall_pass": true
+  },
+  "subject_balanced": "subject_balanced_means.csv",
+  "paired_deltas": "paired_deltas.csv",
+  "hecktor_bootstrap": "hecktor_bootstrap.json",
+  "improvement_loss": "improvement_loss.csv",
+  "kernel_diagnostics": "kernel_diagnostics.json",
+  "fixed_cases": "fixed_cases.json",
+  "fixed_meta_sha256": "726e55c1a1b5dc73738a62dd93c81c306f13cfffbd7137085d6ff44816f7992e",
+  "component_timing": "component_timing.csv",
+  "hash_bindings": {
+    "execution_commit": "6eb7a705723ddd1d08e6a2775efdeac7053de447",
+    "config_yaml_sha256": "a7c2aae59946f50f682de3d58c5b6999fc326132626d6c28e0ac7b8cc6d4f5a9",
+    "manifest_sha256": "3059c981751f3156fd2fdfe3df2c177a58460b2fd8c455004a1e4bad35ed47b8",
+    "frozen_hyperparameters_sha256": "4b7624c0339b4e387a7c7a1e52ed359f757a89516de437a6a8f73871f12c204e",
+    "selected_per_case_sha256": "25cd13845a5b6410f344bdef5e202493c9d8f160ae9c775c73034b215d064c36",
+    "prior_archive_sha256": "9157b05e19dbfa16187578ca831ca8b8d84927ae9f7405f228fad3361ab8e400",
+    "qwen_box_cache_sha256": "3ae6a2b468fb704572e9309469251516b20d9476fd5d48aa182ede2fea1d0793",
+    "released_medsam2_sha256": "c92743b99f00d078bf32a3afcc38aaa9faf1c1692dffe3eaa7a90938c1991060",
+    "medsam2_decoder_brainweb_sha256": "5b3fad3469079c0c3c9738dada5548077e36f8878351f2616a1cb6b368cfb605",
+    "medsam2_decoder_hecktor_sha256": "c264789fd0a084d6d0b4a9423ab83575911d3b50228873f6f91dbf6f8c3df7c1",
+    "shuffle_derangement_sha256": "47f61c14f68c68000115cbea18d79fd7323e9ac99d2b55aa94450b3e1eb98a8e",
+    "shuffle_seed": 20260915
+  },
+  "execution_run_id": "9859e13baa9d"
+}
