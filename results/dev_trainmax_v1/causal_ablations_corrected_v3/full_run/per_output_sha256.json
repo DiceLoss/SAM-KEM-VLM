@@ -1,0 +1,10 @@
+{
+  "Q_ADAPT/per_case.csv": "4649554ba4644499f0ec40928fb177aa8e8538011de2140ae61c7374c3f659ed",
+  "FULL_ADAPT/per_case.csv": "d52198ebae9b4d0ef57b1025824ea6f0bf70d8cf7fb9ba2285cd6c6e6168800f",
+  "CENTER_ADAPT/per_case.csv": "6283b97d723fc948aee69f17bf88a3eb2ab335371f04ea85e1f047690d05331d",
+  "CENTROID_ADAPT/per_case.csv": "56ea0ec2057621c00ab3fa8eab0ad8df9695ab02b9d1f176ddcacf8860ff4984",
+  "Q_RELEASED/per_case.csv": "6bc89b0a6defa4cdcc53b53dcbb24e0af47ee93e2ca1d88ea14d7ad4258d57df",
+  "MLEM_FEATURE_MATCHED/per_case.csv": "be173f72a3144637f9bfeebe91dea968370f4d9bb5a9bf2adc0815e919cfeb01",
+  "Q_SHUFFLED_MATCHED/per_case.csv": "84ea5e17131356c73d00f7a0102d0a966ede63af8dde2e75810e7e33035065e0",
+  "UNIFORM_FEATURE_MATCHED/per_case.csv": "0f90a7532a942e23ada155fcb22b1c10c1821b484d3062782d121cd1b0ec2fed"
+}

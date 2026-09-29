@@ -1,0 +1,47 @@
+{
+  "artifact_kind": "validation_only_causal_ablations_v3_full",
+  "schema_version": 1,
+  "status": "complete",
+  "run_id": "9859e13baa9d",
+  "wall_time_seconds": 22763.521417617798,
+  "variants": [
+    "Q_ADAPT",
+    "FULL_ADAPT",
+    "CENTER_ADAPT",
+    "CENTROID_ADAPT",
+    "Q_RELEASED",
+    "MLEM_FEATURE_MATCHED",
+    "Q_SHUFFLED_MATCHED",
+    "UNIFORM_FEATURE_MATCHED"
+  ],
+  "total_cases": 8892,
+  "errors": 0,
+  "per_output_sha256": {
+    "Q_ADAPT/per_case.csv": "4649554ba4644499f0ec40928fb177aa8e8538011de2140ae61c7374c3f659ed",
+    "FULL_ADAPT/per_case.csv": "d52198ebae9b4d0ef57b1025824ea6f0bf70d8cf7fb9ba2285cd6c6e6168800f",
+    "CENTER_ADAPT/per_case.csv": "6283b97d723fc948aee69f17bf88a3eb2ab335371f04ea85e1f047690d05331d",
+    "CENTROID_ADAPT/per_case.csv": "56ea0ec2057621c00ab3fa8eab0ad8df9695ab02b9d1f176ddcacf8860ff4984",
+    "Q_RELEASED/per_case.csv": "6bc89b0a6defa4cdcc53b53dcbb24e0af47ee93e2ca1d88ea14d7ad4258d57df",
+    "MLEM_FEATURE_MATCHED/per_case.csv": "be173f72a3144637f9bfeebe91dea968370f4d9bb5a9bf2adc0815e919cfeb01",
+    "Q_SHUFFLED_MATCHED/per_case.csv": "84ea5e17131356c73d00f7a0102d0a966ede63af8dde2e75810e7e33035065e0",
+    "UNIFORM_FEATURE_MATCHED/per_case.csv": "0f90a7532a942e23ada155fcb22b1c10c1821b484d3062782d121cd1b0ec2fed"
+  },
+  "shards": null,
+  "hash_bindings": {
+    "execution_commit": "6eb7a705723ddd1d08e6a2775efdeac7053de447",
+    "config_yaml_sha256": "a7c2aae59946f50f682de3d58c5b6999fc326132626d6c28e0ac7b8cc6d4f5a9",
+    "manifest_sha256": "3059c981751f3156fd2fdfe3df2c177a58460b2fd8c455004a1e4bad35ed47b8",
+    "frozen_hyperparameters_sha256": "4b7624c0339b4e387a7c7a1e52ed359f757a89516de437a6a8f73871f12c204e",
+    "selected_per_case_sha256": "25cd13845a5b6410f344bdef5e202493c9d8f160ae9c775c73034b215d064c36",
+    "prior_archive_sha256": "9157b05e19dbfa16187578ca831ca8b8d84927ae9f7405f228fad3361ab8e400",
+    "qwen_box_cache_sha256": "3ae6a2b468fb704572e9309469251516b20d9476fd5d48aa182ede2fea1d0793",
+    "released_medsam2_sha256": "c92743b99f00d078bf32a3afcc38aaa9faf1c1692dffe3eaa7a90938c1991060",
+    "medsam2_decoder_brainweb_sha256": "5b3fad3469079c0c3c9738dada5548077e36f8878351f2616a1cb6b368cfb605",
+    "medsam2_decoder_hecktor_sha256": "c264789fd0a084d6d0b4a9423ab83575911d3b50228873f6f91dbf6f8c3df7c1",
+    "shuffle_derangement_sha256": "47f61c14f68c68000115cbea18d79fd7323e9ac99d2b55aa94450b3e1eb98a8e",
+    "shuffle_seed": 20260915
+  },
+  "worker_count": 8,
+  "shuffle_derangement_sha256": "47f61c14f68c68000115cbea18d79fd7323e9ac99d2b55aa94450b3e1eb98a8e",
+  "shuffle_seed": 20260915
+}
