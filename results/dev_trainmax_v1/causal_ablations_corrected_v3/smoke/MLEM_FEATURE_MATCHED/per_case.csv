@@ -1,0 +1,3 @@
+variant,dataset,subject_id,slice_id,count_level,realization_id,nrmse,ssim,sigma,radius,neighbours,iterations,alpha,source
+MLEM_FEATURE_MATCHED,brainweb,subject04,z038,200000,0,0.24670045839725713,0.8536620358530751,0.2,2,0,40,0.0,mlem10_cached
+MLEM_FEATURE_MATCHED,hecktor,10,z072,200000,0,0.1529426084400143,0.9756475405640692,0.1,4,0,20,0.0,mlem10_cached

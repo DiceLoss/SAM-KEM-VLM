@@ -1,0 +1,3 @@
+variant,dataset,subject_id,slice_id,count_level,realization_id,nrmse,ssim,sigma,radius,neighbours,iterations,alpha,source
+Q_SHUFFLED_MATCHED,brainweb,subject04,z038,200000,0,0.2473729349931345,0.8538040557933109,0.2,2,0,40,0.0,shuffled_from=brainweb/subject42/z038/c200000/r0
+Q_SHUFFLED_MATCHED,hecktor,10,z072,200000,0,0.1335428450570937,0.9797000086313039,0.1,4,0,20,0.0,shuffled_from=hecktor/106/z072/c200000/r0

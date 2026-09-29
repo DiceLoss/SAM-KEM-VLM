@@ -1,0 +1,3 @@
+variant,dataset,subject_id,slice_id,count_level,realization_id,nrmse,ssim,sigma,radius,neighbours,iterations,alpha,source
+CENTROID_ADAPT,brainweb,subject04,z038,200000,0,0.25036175314536213,0.8497075761440376,0.2,2,0,40,0.0,decoded/CENTROID_ADAPT
+CENTROID_ADAPT,hecktor,10,z072,200000,0,0.13329454821723136,0.9796910820807384,0.1,4,0,20,0.0,decoded/CENTROID_ADAPT

@@ -313,7 +313,7 @@ def collect_cases(repo_root: Path, shards: Optional[list[str]] = None,
 def compute_hash_bindings(repo_root: Path, zip_path: Path, qwen_box_csv: Path,
                           shuffle_seed: int) -> dict:
     cfg_path = repo_root / "code/configs/generated/dev_trainmax_v1_validation_registered.yaml"
-    manifest_path = repo_root / "results/dev_trainmax_v1/validation_manifest.csv"
+    manifest_path = repo_root / "results/dev_trainmax_v1/validation_case_manifest.csv"
     frozen_hp = repo_root / "results/dev_trainmax_v1/frozen_hyperparameters.csv"
     selected = repo_root / "results/dev_trainmax_v1/validation_only_reporting/selected_per_case_metrics.csv"
     bw_path = repo_root / "checkpoints/dev_trainmax_v1/medsam2_decoder_brainweb.pt"
@@ -355,7 +355,7 @@ def verify_inputs(repo_root: Path, zip_path: Path, qwen_box_csv: Path,
     exists and is non-empty.
     """
     cfg_path = repo_root / "code/configs/generated/dev_trainmax_v1_validation_registered.yaml"
-    manifest_path = repo_root / "results/dev_trainmax_v1/validation_manifest.csv"
+    manifest_path = repo_root / "results/dev_trainmax_v1/validation_case_manifest.csv"
     frozen_hp = repo_root / "results/dev_trainmax_v1/frozen_hyperparameters.csv"
     bw_path = repo_root / "checkpoints/dev_trainmax_v1/medsam2_decoder_brainweb.pt"
     he_path = repo_root / "checkpoints/dev_trainmax_v1/medsam2_decoder_hecktor.pt"

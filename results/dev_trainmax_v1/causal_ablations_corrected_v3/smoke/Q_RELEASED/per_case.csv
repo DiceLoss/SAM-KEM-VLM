@@ -1,0 +1,3 @@
+variant,dataset,subject_id,slice_id,count_level,realization_id,nrmse,ssim,sigma,radius,neighbours,iterations,alpha,source
+Q_RELEASED,brainweb,subject04,z038,200000,0,0.24706110939448864,0.8539584929394487,0.2,2,0,40,0.0,decoded/Q_RELEASED
+Q_RELEASED,hecktor,10,z072,200000,0,0.1537753887935778,0.9753795713651683,0.1,4,0,20,0.0,decoded/Q_RELEASED
