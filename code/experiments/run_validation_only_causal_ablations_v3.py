@@ -1,10 +1,12 @@
-"""Step 6BN Stage A/C — corrected v3 8-variant runner with atomic/resumable output.
+"""Step 6BN Stage A/C — corrected v3 8-variant runner.
 
-Improvements per directive 5890879059 §2:
+Per directive 5890879059 §2:
 
-- Atomic, resumable: each per-variant CSV is written once per process
-  via ``csv.writer`` with a single ``open(..., 'w', newline='')``
-  call. Records reused-vs-written counts.
+- Each per-variant CSV is written via a single ``open(..., 'w', newline='')``
+  call to ``per_case.csv`` so the on-disk bytes are byte-identical to
+  the contents of that variant's CSV at the moment of the final flush.
+  There is no transactional or resumable journal; partial failures
+  between variants leave partial CSVs on disk.
 - Hash bindings: the runner exposes a ``hash_bindings`` block listing
   the execution commit, frozen config, manifest, frozen CSV, prior
   archive, prompt cache, adapted/released checkpoints, shuffle map,
@@ -14,8 +16,13 @@ Improvements per directive 5890879059 §2:
   flush). The release check verifies all required inputs exist
   before claiming PASS; it does NOT create the formal output
   directory when ``--release-check-only`` is set.
-- Worker/process identity recorded at start-up.
-- Segmented timing: load / decode / KEM / metrics split.
+- Per-case segmented timing (load / mlem / decode / kernel / kem / metrics).
+
+Provenance limitations: this runner does NOT record worker PIDs, per-job
+reuse counts, or per-job error counts in the output CSVs (each row carries
+its own timing fields, but no global worker identity map). The runner is
+NOT genuinely transactional or resumable across interruptions. Do not
+claim those properties.
 """
 from __future__ import annotations
 
