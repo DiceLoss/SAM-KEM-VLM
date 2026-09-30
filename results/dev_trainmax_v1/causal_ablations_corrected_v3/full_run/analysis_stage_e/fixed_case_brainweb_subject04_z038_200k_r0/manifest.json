@@ -1,0 +1,306 @@
+{
+  "case": "brainweb/subject04/z038/c200000/r0",
+  "shapes_dtypes": {
+    "Q_ADAPT": {
+      "target": [
+        128,
+        128,
+        "float32"
+      ],
+      "prior_Q_ADAPT": [
+        128,
+        128,
+        "float32"
+      ],
+      "reconstruction_Q_ADAPT": [
+        128,
+        128,
+        "float32"
+      ],
+      "abs_error_Q_ADAPT": [
+        128,
+        128,
+        "float32"
+      ]
+    },
+    "FULL_ADAPT": {
+      "target": [
+        128,
+        128,
+        "float32"
+      ],
+      "prior_FULL_ADAPT": [
+        128,
+        128,
+        "float32"
+      ],
+      "reconstruction_FULL_ADAPT": [
+        128,
+        128,
+        "float32"
+      ],
+      "abs_error_FULL_ADAPT": [
+        128,
+        128,
+        "float32"
+      ]
+    },
+    "CENTER_ADAPT": {
+      "target": [
+        128,
+        128,
+        "float32"
+      ],
+      "prior_CENTER_ADAPT": [
+        128,
+        128,
+        "float32"
+      ],
+      "reconstruction_CENTER_ADAPT": [
+        128,
+        128,
+        "float32"
+      ],
+      "abs_error_CENTER_ADAPT": [
+        128,
+        128,
+        "float32"
+      ]
+    },
+    "CENTROID_ADAPT": {
+      "target": [
+        128,
+        128,
+        "float32"
+      ],
+      "prior_CENTROID_ADAPT": [
+        128,
+        128,
+        "float32"
+      ],
+      "reconstruction_CENTROID_ADAPT": [
+        128,
+        128,
+        "float32"
+      ],
+      "abs_error_CENTROID_ADAPT": [
+        128,
+        128,
+        "float32"
+      ]
+    },
+    "Q_RELEASED": {
+      "target": [
+        128,
+        128,
+        "float32"
+      ],
+      "prior_Q_RELEASED": [
+        128,
+        128,
+        "float32"
+      ],
+      "reconstruction_Q_RELEASED": [
+        128,
+        128,
+        "float32"
+      ],
+      "abs_error_Q_RELEASED": [
+        128,
+        128,
+        "float32"
+      ]
+    },
+    "MLEM_FEATURE_MATCHED": {
+      "target": [
+        128,
+        128,
+        "float32"
+      ],
+      "prior_MLEM_FEATURE_MATCHED": [
+        128,
+        128,
+        "float32"
+      ],
+      "reconstruction_MLEM_FEATURE_MATCHED": [
+        128,
+        128,
+        "float32"
+      ],
+      "abs_error_MLEM_FEATURE_MATCHED": [
+        128,
+        128,
+        "float32"
+      ]
+    },
+    "Q_SHUFFLED_MATCHED": {
+      "target": [
+        128,
+        128,
+        "float32"
+      ],
+      "prior_Q_SHUFFLED_MATCHED": [
+        128,
+        128,
+        "float32"
+      ],
+      "reconstruction_Q_SHUFFLED_MATCHED": [
+        128,
+        128,
+        "float32"
+      ],
+      "abs_error_Q_SHUFFLED_MATCHED": [
+        128,
+        128,
+        "float32"
+      ]
+    },
+    "UNIFORM_FEATURE_MATCHED": {
+      "target": [
+        128,
+        128,
+        "float32"
+      ],
+      "prior_UNIFORM_FEATURE_MATCHED": [
+        128,
+        128,
+        "float32"
+      ],
+      "reconstruction_UNIFORM_FEATURE_MATCHED": [
+        128,
+        128,
+        "float32"
+      ],
+      "abs_error_UNIFORM_FEATURE_MATCHED": [
+        128,
+        128,
+        "float32"
+      ]
+    }
+  },
+  "sha256": {
+    "Q_ADAPT": {
+      "target": "e9698cb56e46dc121d865b39d72264cd9a9998bbef10abf7079d7c54a2edbdbd",
+      "prior_Q_ADAPT": "432c76346f17454c1e5f5c4ce3228d87209244cb24800f049283e0b27e962278",
+      "reconstruction_Q_ADAPT": "830dda7d2401b324352c59b675fb6bf91b42d722f36c969c9785c31a8b38e711",
+      "abs_error_Q_ADAPT": "0ae8c6ecdeb3caad182f3aed54a60cd2e9c60c73aaa77aa939aaacbc48cb1c97"
+    },
+    "FULL_ADAPT": {
+      "target": "e9698cb56e46dc121d865b39d72264cd9a9998bbef10abf7079d7c54a2edbdbd",
+      "prior_FULL_ADAPT": "bfe3f81609387ff309dff699fa13462454b499c2caa2d57c9a25398015206b1b",
+      "reconstruction_FULL_ADAPT": "eebea46c8a20031c8be7aecce07392532e295f3d94757e9ff6b7dd149dcbc51b",
+      "abs_error_FULL_ADAPT": "8d930ecce61016d0a326a3b78ccbdea9f77c628ecf9d608afd47473065d5faab"
+    },
+    "CENTER_ADAPT": {
+      "target": "e9698cb56e46dc121d865b39d72264cd9a9998bbef10abf7079d7c54a2edbdbd",
+      "prior_CENTER_ADAPT": "42e098a2a4fd27baec6c112eed499dea05431af680dbf3471342f1e6ca3db1c6",
+      "reconstruction_CENTER_ADAPT": "52926310b2a0dbf923a9fde24311481967b4f6a4697120a927dca2d696418e1b",
+      "abs_error_CENTER_ADAPT": "362e64f1014cec79625966302cb643e7999237e71bae345fe5cdfc81c7785171"
+    },
+    "CENTROID_ADAPT": {
+      "target": "e9698cb56e46dc121d865b39d72264cd9a9998bbef10abf7079d7c54a2edbdbd",
+      "prior_CENTROID_ADAPT": "f61dc8ae2e2bc6f3d3854b3b2ada3258d8a798d0e3d853b5c28a52dc1cde9f33",
+      "reconstruction_CENTROID_ADAPT": "166740031d3ee8c50c74e27797f9b03e7711e14fbeb77f5ed086c0fb63cb75a8",
+      "abs_error_CENTROID_ADAPT": "6094e07dac9373bf407d6c618aeb61eecaf209f382a57ca579a849a3b1364c28"
+    },
+    "Q_RELEASED": {
+      "target": "e9698cb56e46dc121d865b39d72264cd9a9998bbef10abf7079d7c54a2edbdbd",
+      "prior_Q_RELEASED": "090acb6d092ed30c2c3685aec0a8b27cf6276d0f155cb6a70b819942b6f1318f",
+      "reconstruction_Q_RELEASED": "d93cb2fa1e8a0d43d575eb4a2b23c62cc3a8a48614489ec309474d7745e6c47d",
+      "abs_error_Q_RELEASED": "7f322bdba148429ac08f962330c555676cc388f202b71c3ccc191ed51b756e60"
+    },
+    "MLEM_FEATURE_MATCHED": {
+      "target": "e9698cb56e46dc121d865b39d72264cd9a9998bbef10abf7079d7c54a2edbdbd",
+      "prior_MLEM_FEATURE_MATCHED": "bbc46169d2a235d7d571f20fc063e14504d37f254327bb4eca135b39586a0c82",
+      "reconstruction_MLEM_FEATURE_MATCHED": "67109e9678921e7d671696f4309da61ed6aa9ceca3097c71a293d4a5a22e3cc9",
+      "abs_error_MLEM_FEATURE_MATCHED": "70a5ad847ab2830e5e0fb47dbd4039977f0301bb52fa0ea60cf391ad57a49e25"
+    },
+    "Q_SHUFFLED_MATCHED": {
+      "target": "e9698cb56e46dc121d865b39d72264cd9a9998bbef10abf7079d7c54a2edbdbd",
+      "prior_Q_SHUFFLED_MATCHED": "d01573403f111c8400dab48ca2b705587f72bca646cd0aaf3286ed583d4779f7",
+      "reconstruction_Q_SHUFFLED_MATCHED": "41fcdc4148f3feba86594ba732b0aab0854cbb578320e647ed211490ad63e956",
+      "abs_error_Q_SHUFFLED_MATCHED": "0d0a05c65b939f7053f82c4bca5efe23190d18fae388d14a813bb778594747a5"
+    },
+    "UNIFORM_FEATURE_MATCHED": {
+      "target": "e9698cb56e46dc121d865b39d72264cd9a9998bbef10abf7079d7c54a2edbdbd",
+      "prior_UNIFORM_FEATURE_MATCHED": "3513f7981d1ead42bde088485afbba413d675b83c061c6362634bcb044bf8613",
+      "reconstruction_UNIFORM_FEATURE_MATCHED": "04a5023ebdf89b2eaab7d6436ff2f89462d93b7d49f3913d5aabab4d4ae0b62f",
+      "abs_error_UNIFORM_FEATURE_MATCHED": "93dfded9047b56773a4a9ee4d966c801950855c9a0bb615a3b52cde42d169bce"
+    }
+  },
+  "metrics": {
+    "Q_ADAPT": {
+      "nrmse_recomputed": 0.25037529965506655,
+      "nrmse_committed": 0.2503752996550665,
+      "nrmse_match": true,
+      "ssim_recomputed": 0.8496798088328442,
+      "ssim_committed": 0.8496798088328442,
+      "ssim_match": true,
+      "source": "cached"
+    },
+    "FULL_ADAPT": {
+      "nrmse_recomputed": 0.24981155911507427,
+      "nrmse_committed": 0.2498115591150742,
+      "nrmse_match": true,
+      "ssim_recomputed": 0.8502838387160143,
+      "ssim_committed": 0.8502838387160143,
+      "ssim_match": true,
+      "source": "decoded/FULL_ADAPT"
+    },
+    "CENTER_ADAPT": {
+      "nrmse_recomputed": 0.2505410547283883,
+      "nrmse_committed": 0.2505410547283883,
+      "nrmse_match": true,
+      "ssim_recomputed": 0.8495060449901427,
+      "ssim_committed": 0.8495060449901427,
+      "ssim_match": true,
+      "source": "decoded/CENTER_ADAPT"
+    },
+    "CENTROID_ADAPT": {
+      "nrmse_recomputed": 0.25036175314536213,
+      "nrmse_committed": 0.2503617531453621,
+      "nrmse_match": true,
+      "ssim_recomputed": 0.8497075761440376,
+      "ssim_committed": 0.8497075761440376,
+      "ssim_match": true,
+      "source": "decoded/CENTROID_ADAPT"
+    },
+    "Q_RELEASED": {
+      "nrmse_recomputed": 0.24706110939448864,
+      "nrmse_committed": 0.2470611093944886,
+      "nrmse_match": true,
+      "ssim_recomputed": 0.8539584929394487,
+      "ssim_committed": 0.8539584929394487,
+      "ssim_match": true,
+      "source": "decoded/Q_RELEASED"
+    },
+    "MLEM_FEATURE_MATCHED": {
+      "nrmse_recomputed": 0.24670045839725713,
+      "nrmse_committed": 0.2467004583972571,
+      "nrmse_match": true,
+      "ssim_recomputed": 0.8536620358530751,
+      "ssim_committed": 0.8536620358530751,
+      "ssim_match": true,
+      "source": "mlem10_cached"
+    },
+    "Q_SHUFFLED_MATCHED": {
+      "nrmse_recomputed": 0.2473729349931345,
+      "nrmse_committed": 0.2473729349931345,
+      "nrmse_match": true,
+      "ssim_recomputed": 0.8538040557933109,
+      "ssim_committed": 0.8538040557933109,
+      "ssim_match": true,
+      "source": "shuffled_from=brainweb/subject42/z038/c200000/r0"
+    },
+    "UNIFORM_FEATURE_MATCHED": {
+      "nrmse_recomputed": 0.24788034227136332,
+      "nrmse_committed": 0.2478803422713633,
+      "nrmse_match": true,
+      "ssim_recomputed": 0.8532071783232095,
+      "ssim_committed": 0.8532071783232095,
+      "ssim_match": true,
+      "source": "constant_unit_128"
+    }
+  },
+  "all_metrics_match": true
+}

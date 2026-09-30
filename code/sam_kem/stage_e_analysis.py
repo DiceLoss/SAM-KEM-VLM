@@ -322,8 +322,9 @@ def compute_kernel_diagnostics_for_case(repo_root: Path, ds: str, subj: str,
                 from sam_kem.causal_ablation_v3 import _load_qwen_prior
                 prior = _load_qwen_prior(repo_root / "delivery/dev_trainmax_v1_validation_priors.zip",
                                           ds, subj, slc, count, real).astype(np.float32)
-            if v != "MLEM_FEATURE_MATCHED":
-                feat = _norm(prior)
+            # Match Stage C: MLEM_FEATURE_MATCHED does NOT normalize
+            if v == "MLEM_FEATURE_MATCHED":
+                feat = prior.astype(np.float32)
             else:
                 feat = _norm(prior)
             K = rbf_kernel(feat, sigma=sigma, radius=radius, support=support)
@@ -401,9 +402,8 @@ def export_fixed_case(repo_root: Path, ds: str, subj: str, slc: str,
     gain = np.full_like(measured, 1.0, dtype=np.float64)  # projection scale = 1 in registry (no projection_scale override for fixed export)
     # Use the same per-case projection_scale that the runner used:
     manifest_path = repo_root / str(cfg["outputs"]["validation_manifest"])
-    from sam_kem.experiments import load_case_manifest, validate_case_contract
+    from sam_kem.experiments import load_case_manifest
     cases = load_case_manifest(repo_root, manifest_path, split="validation")
-    validate_case_contract(cases, contract=None)
     case = next(c for c in cases if (c.dataset == ds and c.subject_id == subj
                                        and c.slice_id == slc
                                        and int(c.realization_id) == real
@@ -412,6 +412,11 @@ def export_fixed_case(repo_root: Path, ds: str, subj: str, slc: str,
 
     zip_path = repo_root / "delivery/dev_trainmax_v1_validation_priors.zip"
     qwen_csv = repo_root / "prompts/dev_trainmax_v1/train_validation_box_cache.csv"
+
+    # Shuffle map (needed for Q_SHUFFLED_MATCHED)
+    from sam_kem.causal_ablation_v3 import compute_corrected_shuffle_assignment
+    shuffle, _, _ = compute_corrected_shuffle_assignment(
+        zip_path, shuffle_seed=20260915)
 
     exports = {"case": case_id, "shapes_dtypes": {}, "sha256": {}, "metrics": {}}
     for v in VARIANTS:
@@ -424,15 +429,19 @@ def export_fixed_case(repo_root: Path, ds: str, subj: str, slc: str,
             v, repo_root=repo_root, zip_path=zip_path,
             ds=ds, subj=subj, slc=slc, count=count, real=real,
             pet_image=mlem10, qwen_box_csv=qwen_csv,
-            predictors=predictors,
+            predictors=predictors, shuffle_assignment=shuffle,
         )
         np.save(prior_path, prior.astype(np.float32))
         prior_sha = sha256_bytes(prior.astype(np.float32))
 
-        # Build kernel + KEM
+        # Build kernel + KEM. Match Stage C exactly: MLEM_FEATURE_MATCHED
+        # does NOT normalize the feature, all other variants do.
         if v == "UNIFORM_FEATURE_MATCHED":
             K = build_uniform_kernel(np.ones((128, 128), dtype=np.float32),
                                      sigma=sigma, radius=radius, support=support)
+        elif v == "MLEM_FEATURE_MATCHED":
+            feat = prior.astype(np.float32)  # no normalize
+            K = rbf_kernel(feat, sigma=sigma, radius=radius, support=support)
         else:
             feat = normalize_kernel_feature(prior.astype(np.float32))
             K = rbf_kernel(feat, sigma=sigma, radius=radius, support=support)

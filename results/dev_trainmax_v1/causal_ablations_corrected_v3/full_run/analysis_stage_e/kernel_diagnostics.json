@@ -1,0 +1,259 @@
+{
+  "brainweb_subject04_z038_c200000_r0": {
+    "Q_ADAPT": {
+      "mean_diagonal_mass": 0.0850163291818673,
+      "min_diagonal_mass": 0.0776647694034581,
+      "max_diagonal_mass": 0.37001773851866027,
+      "mean_row_nnz": 12.843994140625,
+      "median_row_nnz": 13.0,
+      "min_row_nnz": 6,
+      "max_row_nnz": 13,
+      "n_total_nnz": 210436,
+      "variant": "Q_ADAPT",
+      "kernel_class": "learned"
+    },
+    "FULL_ADAPT": {
+      "mean_diagonal_mass": 0.0850163291818673,
+      "min_diagonal_mass": 0.0776647694034581,
+      "max_diagonal_mass": 0.37001773851866027,
+      "mean_row_nnz": 12.843994140625,
+      "median_row_nnz": 13.0,
+      "min_row_nnz": 6,
+      "max_row_nnz": 13,
+      "n_total_nnz": 210436,
+      "variant": "FULL_ADAPT",
+      "kernel_class": "learned"
+    },
+    "CENTER_ADAPT": {
+      "mean_diagonal_mass": 0.0850163291818673,
+      "min_diagonal_mass": 0.0776647694034581,
+      "max_diagonal_mass": 0.37001773851866027,
+      "mean_row_nnz": 12.843994140625,
+      "median_row_nnz": 13.0,
+      "min_row_nnz": 6,
+      "max_row_nnz": 13,
+      "n_total_nnz": 210436,
+      "variant": "CENTER_ADAPT",
+      "kernel_class": "learned"
+    },
+    "CENTROID_ADAPT": {
+      "mean_diagonal_mass": 0.0850163291818673,
+      "min_diagonal_mass": 0.0776647694034581,
+      "max_diagonal_mass": 0.37001773851866027,
+      "mean_row_nnz": 12.843994140625,
+      "median_row_nnz": 13.0,
+      "min_row_nnz": 6,
+      "max_row_nnz": 13,
+      "n_total_nnz": 210436,
+      "variant": "CENTROID_ADAPT",
+      "kernel_class": "learned"
+    },
+    "Q_RELEASED": {
+      "mean_diagonal_mass": 0.0850163291818673,
+      "min_diagonal_mass": 0.0776647694034581,
+      "max_diagonal_mass": 0.37001773851866027,
+      "mean_row_nnz": 12.843994140625,
+      "median_row_nnz": 13.0,
+      "min_row_nnz": 6,
+      "max_row_nnz": 13,
+      "n_total_nnz": 210436,
+      "variant": "Q_RELEASED",
+      "kernel_class": "learned"
+    },
+    "MLEM_FEATURE_MATCHED": {
+      "mean_diagonal_mass": 0.0784886796244029,
+      "min_diagonal_mass": 0.07692307692341648,
+      "max_diagonal_mass": 0.16666666667021932,
+      "mean_row_nnz": 12.843994140625,
+      "median_row_nnz": 13.0,
+      "min_row_nnz": 6,
+      "max_row_nnz": 13,
+      "n_total_nnz": 210436,
+      "variant": "MLEM_FEATURE_MATCHED",
+      "kernel_class": "learned_mlem"
+    },
+    "Q_SHUFFLED_MATCHED": {
+      "mean_diagonal_mass": 0.0850163291818673,
+      "min_diagonal_mass": 0.0776647694034581,
+      "max_diagonal_mass": 0.37001773851866027,
+      "mean_row_nnz": 12.843994140625,
+      "median_row_nnz": 13.0,
+      "min_row_nnz": 6,
+      "max_row_nnz": 13,
+      "n_total_nnz": 210436,
+      "variant": "Q_SHUFFLED_MATCHED",
+      "kernel_class": "learned"
+    },
+    "UNIFORM_FEATURE_MATCHED": {
+      "mean_diagonal_mass": 0.07820092640649279,
+      "min_diagonal_mass": 0.07692307692307693,
+      "max_diagonal_mass": 0.16666666666666666,
+      "mean_row_nnz": 12.843994140625,
+      "median_row_nnz": 13.0,
+      "min_row_nnz": 6,
+      "max_row_nnz": 13,
+      "n_total_nnz": 210436,
+      "variant": "UNIFORM_FEATURE_MATCHED",
+      "kernel_class": "uniform"
+    }
+  },
+  "hecktor_10_z072_c200000_r0": {
+    "Q_ADAPT": {
+      "mean_diagonal_mass": 0.03036961934530541,
+      "min_diagonal_mass": 0.02557863792383786,
+      "max_diagonal_mass": 0.37417683461590384,
+      "mean_row_nnz": 40.066162109375,
+      "median_row_nnz": 41.0,
+      "min_row_nnz": 15,
+      "max_row_nnz": 41,
+      "n_total_nnz": 656444,
+      "variant": "Q_ADAPT",
+      "kernel_class": "learned"
+    },
+    "FULL_ADAPT": {
+      "mean_diagonal_mass": 0.03036961934530541,
+      "min_diagonal_mass": 0.02557863792383786,
+      "max_diagonal_mass": 0.37417683461590384,
+      "mean_row_nnz": 40.066162109375,
+      "median_row_nnz": 41.0,
+      "min_row_nnz": 15,
+      "max_row_nnz": 41,
+      "n_total_nnz": 656444,
+      "variant": "FULL_ADAPT",
+      "kernel_class": "learned"
+    },
+    "CENTER_ADAPT": {
+      "mean_diagonal_mass": 0.03036961934530541,
+      "min_diagonal_mass": 0.02557863792383786,
+      "max_diagonal_mass": 0.37417683461590384,
+      "mean_row_nnz": 40.066162109375,
+      "median_row_nnz": 41.0,
+      "min_row_nnz": 15,
+      "max_row_nnz": 41,
+      "n_total_nnz": 656444,
+      "variant": "CENTER_ADAPT",
+      "kernel_class": "learned"
+    },
+    "CENTROID_ADAPT": {
+      "mean_diagonal_mass": 0.03036961934530541,
+      "min_diagonal_mass": 0.02557863792383786,
+      "max_diagonal_mass": 0.37417683461590384,
+      "mean_row_nnz": 40.066162109375,
+      "median_row_nnz": 41.0,
+      "min_row_nnz": 15,
+      "max_row_nnz": 41,
+      "n_total_nnz": 656444,
+      "variant": "CENTROID_ADAPT",
+      "kernel_class": "learned"
+    },
+    "Q_RELEASED": {
+      "mean_diagonal_mass": 0.03036961934530541,
+      "min_diagonal_mass": 0.02557863792383786,
+      "max_diagonal_mass": 0.37417683461590384,
+      "mean_row_nnz": 40.066162109375,
+      "median_row_nnz": 41.0,
+      "min_row_nnz": 15,
+      "max_row_nnz": 41,
+      "n_total_nnz": 656444,
+      "variant": "Q_RELEASED",
+      "kernel_class": "learned"
+    },
+    "MLEM_FEATURE_MATCHED": {
+      "mean_diagonal_mass": 0.02535610854981323,
+      "min_diagonal_mass": 0.024390250410617428,
+      "max_diagonal_mass": 0.06966686768564821,
+      "mean_row_nnz": 40.066162109375,
+      "median_row_nnz": 41.0,
+      "min_row_nnz": 15,
+      "max_row_nnz": 41,
+      "n_total_nnz": 656444,
+      "variant": "MLEM_FEATURE_MATCHED",
+      "kernel_class": "learned_mlem"
+    },
+    "Q_SHUFFLED_MATCHED": {
+      "mean_diagonal_mass": 0.03036961934530541,
+      "min_diagonal_mass": 0.02557863792383786,
+      "max_diagonal_mass": 0.37417683461590384,
+      "mean_row_nnz": 40.066162109375,
+      "median_row_nnz": 41.0,
+      "min_row_nnz": 15,
+      "max_row_nnz": 41,
+      "n_total_nnz": 656444,
+      "variant": "Q_SHUFFLED_MATCHED",
+      "kernel_class": "learned"
+    },
+    "UNIFORM_FEATURE_MATCHED": {
+      "mean_diagonal_mass": 0.025203467900257494,
+      "min_diagonal_mass": 0.024390243902439025,
+      "max_diagonal_mass": 0.06666666666666667,
+      "mean_row_nnz": 40.066162109375,
+      "median_row_nnz": 41.0,
+      "min_row_nnz": 15,
+      "max_row_nnz": 41,
+      "n_total_nnz": 656444,
+      "variant": "UNIFORM_FEATURE_MATCHED",
+      "kernel_class": "uniform"
+    }
+  },
+  "learned_vs_uniform_ratios_brainweb": {
+    "Q_ADAPT": {
+      "row_nnz_ratio_vs_uniform": 1.0,
+      "diag_mass_ratio_vs_uniform": 1.0871524557132184
+    },
+    "FULL_ADAPT": {
+      "row_nnz_ratio_vs_uniform": 1.0,
+      "diag_mass_ratio_vs_uniform": 1.0871524557132184
+    },
+    "CENTER_ADAPT": {
+      "row_nnz_ratio_vs_uniform": 1.0,
+      "diag_mass_ratio_vs_uniform": 1.0871524557132184
+    },
+    "CENTROID_ADAPT": {
+      "row_nnz_ratio_vs_uniform": 1.0,
+      "diag_mass_ratio_vs_uniform": 1.0871524557132184
+    },
+    "Q_RELEASED": {
+      "row_nnz_ratio_vs_uniform": 1.0,
+      "diag_mass_ratio_vs_uniform": 1.0871524557132184
+    },
+    "MLEM_FEATURE_MATCHED": {
+      "row_nnz_ratio_vs_uniform": 1.0,
+      "diag_mass_ratio_vs_uniform": 1.0036796650772952
+    },
+    "Q_SHUFFLED_MATCHED": {
+      "row_nnz_ratio_vs_uniform": 1.0,
+      "diag_mass_ratio_vs_uniform": 1.0871524557132184
+    }
+  },
+  "learned_vs_uniform_ratios_hecktor": {
+    "Q_ADAPT": {
+      "row_nnz_ratio_vs_uniform": 1.0,
+      "diag_mass_ratio_vs_uniform": 1.204977801685582
+    },
+    "FULL_ADAPT": {
+      "row_nnz_ratio_vs_uniform": 1.0,
+      "diag_mass_ratio_vs_uniform": 1.204977801685582
+    },
+    "CENTER_ADAPT": {
+      "row_nnz_ratio_vs_uniform": 1.0,
+      "diag_mass_ratio_vs_uniform": 1.204977801685582
+    },
+    "CENTROID_ADAPT": {
+      "row_nnz_ratio_vs_uniform": 1.0,
+      "diag_mass_ratio_vs_uniform": 1.204977801685582
+    },
+    "Q_RELEASED": {
+      "row_nnz_ratio_vs_uniform": 1.0,
+      "diag_mass_ratio_vs_uniform": 1.204977801685582
+    },
+    "MLEM_FEATURE_MATCHED": {
+      "row_nnz_ratio_vs_uniform": 1.0,
+      "diag_mass_ratio_vs_uniform": 1.0060563351900544
+    },
+    "Q_SHUFFLED_MATCHED": {
+      "row_nnz_ratio_vs_uniform": 1.0,
+      "diag_mass_ratio_vs_uniform": 1.204977801685582
+    }
+  },
+  "notes": "Diagnostics computed from the actual sparse RBF kernels rebuilt on the two 200k/r0 fixed cases. The unified_kernel has a smaller mean_row_nnz (radius=2, Manhattan distance <= 2) and a larger diagonal mass because every neighbor contributes weight 1 before normalization."
+}

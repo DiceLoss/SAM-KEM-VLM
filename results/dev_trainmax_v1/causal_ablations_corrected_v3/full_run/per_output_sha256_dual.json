@@ -1,0 +1,55 @@
+{
+  "artifact_kind": "validation_only_causal_ablations_v3_stage_e_sha_audit",
+  "schema_version": 1,
+  "files": {
+    "Q_ADAPT/per_case.csv": {
+      "sha256_raw_crlf": "4649554ba4644499f0ec40928fb177aa8e8538011de2140ae61c7374c3f659ed",
+      "sha256_lf_normalized": "5524a43f9cb4f141390d11a94b6a421c1044a0941e74431bef82b28fcecb8c46",
+      "hashes_differ": true,
+      "size_bytes": 1971879
+    },
+    "FULL_ADAPT/per_case.csv": {
+      "sha256_raw_crlf": "d52198ebae9b4d0ef57b1025824ea6f0bf70d8cf7fb9ba2285cd6c6e6168800f",
+      "sha256_lf_normalized": "014f953147615a4061d76893014fee7e4fa41bccb93f00bd7fece92e4e8d2cf5",
+      "hashes_differ": true,
+      "size_bytes": 2100929
+    },
+    "CENTER_ADAPT/per_case.csv": {
+      "sha256_raw_crlf": "6283b97d723fc948aee69f17bf88a3eb2ab335371f04ea85e1f047690d05331d",
+      "sha256_lf_normalized": "6f73d0b8e1ba40459072c5e3191416dfe3b9f5078a010842973c49d370ddb57e",
+      "hashes_differ": true,
+      "size_bytes": 2136373
+    },
+    "CENTROID_ADAPT/per_case.csv": {
+      "sha256_raw_crlf": "56ea0ec2057621c00ab3fa8eab0ad8df9695ab02b9d1f176ddcacf8860ff4984",
+      "sha256_lf_normalized": "ebd7f879ec5b336e75720731c14530c0abdd787bde1f5428294ef5477013637c",
+      "hashes_differ": true,
+      "size_bytes": 2171645
+    },
+    "Q_RELEASED/per_case.csv": {
+      "sha256_raw_crlf": "6bc89b0a6defa4cdcc53b53dcbb24e0af47ee93e2ca1d88ea14d7ad4258d57df",
+      "sha256_lf_normalized": "01ab6f101f516c876a928dda74809dbb6302c9af12e92cdcb3f84aa8359e2e39",
+      "hashes_differ": true,
+      "size_bytes": 2100958
+    },
+    "MLEM_FEATURE_MATCHED/per_case.csv": {
+      "sha256_raw_crlf": "be173f72a3144637f9bfeebe91dea968370f4d9bb5a9bf2adc0815e919cfeb01",
+      "sha256_lf_normalized": "ad39d3d50b29c0698b0d729f6163532e935b54d131fd1206559293784d6033ab",
+      "hashes_differ": true,
+      "size_bytes": 2010474
+    },
+    "Q_SHUFFLED_MATCHED/per_case.csv": {
+      "sha256_raw_crlf": "84ea5e17131356c73d00f7a0102d0a966ede63af8dde2e75810e7e33035065e0",
+      "sha256_lf_normalized": "9c387f8868483457d6ae1206e26afa5241c0026f9148132364df53d37e624e6c",
+      "hashes_differ": true,
+      "size_bytes": 2441005
+    },
+    "UNIFORM_FEATURE_MATCHED/per_case.csv": {
+      "sha256_raw_crlf": "0f90a7532a942e23ada155fcb22b1c10c1821b484d3062782d121cd1b0ec2fed",
+      "sha256_lf_normalized": "fb14650fc8f0c438e47cb0ee753c66e800cf7a40daa5bb285e0f67c2e213658b",
+      "hashes_differ": true,
+      "size_bytes": 2068688
+    }
+  },
+  "crlf_lf_relationship": "Git stores text files with LF. When Python on Windows writes text files via the default 'open' mode (newline=None), it uses the platform-native CRLF. The execution-time SHA-256 (CRLF) is what the runner saw; the repository-byte SHA-256 (LF) is what Git stores. The two hashes differ when the file contains any newline character; the relationship is: sha256_crlf = sha256(content with CRLF), sha256_lf = sha256(content with LF)."
+}

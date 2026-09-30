@@ -1,0 +1,17 @@
+{
+  "artifact_kind": "validation_only_causal_ablations_v3_stage_e",
+  "schema_version": 1,
+  "loss_ratio_formula": "(NRMSE_v - NRMSE_Q) / (NRMSE_MLEM - NRMSE_Q)",
+  "loss_ratio_cells": "loss_ratio_cells.csv",
+  "loss_ratio_summary": "loss_ratio_summary.csv",
+  "hecktor_paired_bootstrap": "hecktor_paired_bootstrap.json",
+  "kernel_diagnostics": "kernel_diagnostics.json",
+  "fixed_case_brainweb": "fixed_case_brainweb_subject04_z038_200k_r0/",
+  "fixed_case_hecktor": "fixed_case_hecktor_10_z072_200k_r0/",
+  "paired_subject_deltas": "paired_subject_deltas.csv",
+  "paired_subject_deltas_summary": "paired_subject_deltas_summary.csv",
+  "mbootstrap_seed": 20260929,
+  "n_bootstrap": 10000,
+  "all_metrics_match_brainweb": true,
+  "all_metrics_match_hecktor": true
+}

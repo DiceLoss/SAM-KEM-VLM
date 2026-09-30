@@ -1,0 +1,61 @@
+{
+  "artifact_kind": "validation_only_causal_ablations_v3_stage_e_integrity",
+  "schema_version": 1,
+  "stage_e_files": [
+    "loss_ratio_cells.csv",
+    "loss_ratio_summary.csv",
+    "hecktor_paired_bootstrap.json",
+    "kernel_diagnostics.json",
+    "paired_subject_deltas.csv",
+    "paired_subject_deltas_summary.csv",
+    "fixed_case_brainweb_subject04_z038_200k_r0/",
+    "fixed_case_hecktor_10_z072_200k_r0/",
+    "stage_e_summary.json",
+    "per_output_sha256_dual.json"
+  ],
+  "n_fixed_cases": 2,
+  "fixed_cases_all_metrics_match": true,
+  "n_loss_ratio_cells_per_variant": 8,
+  "n_paired_subject_deltas_rows": 1372,
+  "n_bw_subjects_per_cell": 4,
+  "n_hecktor_subjects": 45,
+  "n_bootstrap": 10000,
+  "mbootstrap_seed": 20260929,
+  "loss_ratio_summary_table": [
+    {
+      "variant": "CENTER_ADAPT",
+      "n_q_lower_nrmse": 7,
+      "median_loss_ratio": 0.0297804693093702
+    },
+    {
+      "variant": "CENTROID_ADAPT",
+      "n_q_lower_nrmse": 4,
+      "median_loss_ratio": 0.0338752391507016
+    },
+    {
+      "variant": "FULL_ADAPT",
+      "n_q_lower_nrmse": 8,
+      "median_loss_ratio": 0.1702211605162991
+    },
+    {
+      "variant": "MLEM_FEATURE_MATCHED",
+      "n_q_lower_nrmse": 8,
+      "median_loss_ratio": 1.0
+    },
+    {
+      "variant": "Q_RELEASED",
+      "n_q_lower_nrmse": 8,
+      "median_loss_ratio": 1.2978948651594064
+    },
+    {
+      "variant": "Q_SHUFFLED_MATCHED",
+      "n_q_lower_nrmse": 7,
+      "median_loss_ratio": 0.5738124372680085
+    },
+    {
+      "variant": "UNIFORM_FEATURE_MATCHED",
+      "n_q_lower_nrmse": 8,
+      "median_loss_ratio": 1.3449818657479506
+    }
+  ]
+}
