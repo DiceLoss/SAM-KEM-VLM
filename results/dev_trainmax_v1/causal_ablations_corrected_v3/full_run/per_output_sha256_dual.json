@@ -1,47 +1,47 @@
 {
   "artifact_kind": "validation_only_causal_ablations_v3_dual_sha",
   "schema_version": 1,
-  "relationship": "Git stores text files with LF. Python on Windows writes text files using the platform-native CRLF by default. The execution-time SHA-256 (file bytes, possibly CRLF) is what the runner saw; the repository-byte SHA-256 (LF-normalized) is what Git stores. The two hashes differ when the file contains any newline character.",
+  "relationship": "csv_repository_lf_sha256: canonical LF-normalized hash of the committed CSV file (platform-independent). csv_execution_crlf_sha256: synthesized CRLF hash for cross-check against the Stage C historical per_output_sha256.json value. On Windows the runner wrote CRLF; on Linux the runner would write LF.",
   "files": {
     "Q_ADAPT/per_case.csv": {
-      "npy_file_sha256": "4649554ba4644499f0ec40928fb177aa8e8538011de2140ae61c7374c3f659ed",
-      "lf_normalized_sha256": "5524a43f9cb4f141390d11a94b6a421c1044a0941e74431bef82b28fcecb8c46",
-      "size_bytes": 1971879
+      "csv_repository_lf_sha256": "5524a43f9cb4f141390d11a94b6a421c1044a0941e74431bef82b28fcecb8c46",
+      "csv_execution_crlf_sha256": "4649554ba4644499f0ec40928fb177aa8e8538011de2140ae61c7374c3f659ed",
+      "csv_size_bytes": 1962986
     },
     "FULL_ADAPT/per_case.csv": {
-      "npy_file_sha256": "d52198ebae9b4d0ef57b1025824ea6f0bf70d8cf7fb9ba2285cd6c6e6168800f",
-      "lf_normalized_sha256": "014f953147615a4061d76893014fee7e4fa41bccb93f00bd7fece92e4e8d2cf5",
-      "size_bytes": 2100929
+      "csv_repository_lf_sha256": "014f953147615a4061d76893014fee7e4fa41bccb93f00bd7fece92e4e8d2cf5",
+      "csv_execution_crlf_sha256": "d52198ebae9b4d0ef57b1025824ea6f0bf70d8cf7fb9ba2285cd6c6e6168800f",
+      "csv_size_bytes": 2092036
     },
     "CENTER_ADAPT/per_case.csv": {
-      "npy_file_sha256": "6283b97d723fc948aee69f17bf88a3eb2ab335371f04ea85e1f047690d05331d",
-      "lf_normalized_sha256": "6f73d0b8e1ba40459072c5e3191416dfe3b9f5078a010842973c49d370ddb57e",
-      "size_bytes": 2136373
+      "csv_repository_lf_sha256": "6f73d0b8e1ba40459072c5e3191416dfe3b9f5078a010842973c49d370ddb57e",
+      "csv_execution_crlf_sha256": "6283b97d723fc948aee69f17bf88a3eb2ab335371f04ea85e1f047690d05331d",
+      "csv_size_bytes": 2127480
     },
     "CENTROID_ADAPT/per_case.csv": {
-      "npy_file_sha256": "56ea0ec2057621c00ab3fa8eab0ad8df9695ab02b9d1f176ddcacf8860ff4984",
-      "lf_normalized_sha256": "ebd7f879ec5b336e75720731c14530c0abdd787bde1f5428294ef5477013637c",
-      "size_bytes": 2171645
+      "csv_repository_lf_sha256": "ebd7f879ec5b336e75720731c14530c0abdd787bde1f5428294ef5477013637c",
+      "csv_execution_crlf_sha256": "56ea0ec2057621c00ab3fa8eab0ad8df9695ab02b9d1f176ddcacf8860ff4984",
+      "csv_size_bytes": 2162752
     },
     "Q_RELEASED/per_case.csv": {
-      "npy_file_sha256": "6bc89b0a6defa4cdcc53b53dcbb24e0af47ee93e2ca1d88ea14d7ad4258d57df",
-      "lf_normalized_sha256": "01ab6f101f516c876a928dda74809dbb6302c9af12e92cdcb3f84aa8359e2e39",
-      "size_bytes": 2100958
+      "csv_repository_lf_sha256": "01ab6f101f516c876a928dda74809dbb6302c9af12e92cdcb3f84aa8359e2e39",
+      "csv_execution_crlf_sha256": "6bc89b0a6defa4cdcc53b53dcbb24e0af47ee93e2ca1d88ea14d7ad4258d57df",
+      "csv_size_bytes": 2092065
     },
     "MLEM_FEATURE_MATCHED/per_case.csv": {
-      "npy_file_sha256": "be173f72a3144637f9bfeebe91dea968370f4d9bb5a9bf2adc0815e919cfeb01",
-      "lf_normalized_sha256": "ad39d3d50b29c0698b0d729f6163532e935b54d131fd1206559293784d6033ab",
-      "size_bytes": 2010474
+      "csv_repository_lf_sha256": "ad39d3d50b29c0698b0d729f6163532e935b54d131fd1206559293784d6033ab",
+      "csv_execution_crlf_sha256": "be173f72a3144637f9bfeebe91dea968370f4d9bb5a9bf2adc0815e919cfeb01",
+      "csv_size_bytes": 2001581
     },
     "Q_SHUFFLED_MATCHED/per_case.csv": {
-      "npy_file_sha256": "84ea5e17131356c73d00f7a0102d0a966ede63af8dde2e75810e7e33035065e0",
-      "lf_normalized_sha256": "9c387f8868483457d6ae1206e26afa5241c0026f9148132364df53d37e624e6c",
-      "size_bytes": 2441005
+      "csv_repository_lf_sha256": "9c387f8868483457d6ae1206e26afa5241c0026f9148132364df53d37e624e6c",
+      "csv_execution_crlf_sha256": "84ea5e17131356c73d00f7a0102d0a966ede63af8dde2e75810e7e33035065e0",
+      "csv_size_bytes": 2432112
     },
     "UNIFORM_FEATURE_MATCHED/per_case.csv": {
-      "npy_file_sha256": "0f90a7532a942e23ada155fcb22b1c10c1821b484d3062782d121cd1b0ec2fed",
-      "lf_normalized_sha256": "fb14650fc8f0c438e47cb0ee753c66e800cf7a40daa5bb285e0f67c2e213658b",
-      "size_bytes": 2068688
+      "csv_repository_lf_sha256": "fb14650fc8f0c438e47cb0ee753c66e800cf7a40daa5bb285e0f67c2e213658b",
+      "csv_execution_crlf_sha256": "0f90a7532a942e23ada155fcb22b1c10c1821b484d3062782d121cd1b0ec2fed",
+      "csv_size_bytes": 2059795
     }
   }
 }

@@ -287,5 +287,5 @@
     "Q_vs_uniform_eff_to_geo_ratio": 0.9600184296263723,
     "Q_vs_uniform_diagonal_mass": 1.204977801685582
   },
-  "notes": "Kernel diagnostics built from the actual sparse RBF kernels, with each variant using its Stage C prior (decoder-based priors for FULL/CENTER/CENTROID/Q_RELEASED/Q_SHUFFLED_MATCHED; MLEM10 for MLEM_FEATURE_MATCHED; cached Qwen-box prior for Q_ADAPT; constant unit feature for UNIFORM_FEATURE_MATCHED). Effective-neighbor count n_eff_i = 1 / sum_j K_ij^2 (per supported row). The uniform kernel and the learned kernel have identical geometric support (same radius), so mean_geometric_degree is the same. The diagonal mass and effective-neighbor count differ because each kernel carries different feature weights."
+  "notes": "Kernel diagnostics built from committed fixed-case prior arrays using Stage C's RBF kernel builder, with NO decoder, NO KEM, NO sinogram, NO Qwen call. Each variant uses its committed prior; MLEM_FEATURE_MATCHED does NOT normalize, all other variants do. Uniform kernel = constant unit feature; geometric degree depends only on radius so it is identical across variants."
 }

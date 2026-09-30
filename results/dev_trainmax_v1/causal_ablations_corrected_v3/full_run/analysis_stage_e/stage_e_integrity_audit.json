@@ -10,7 +10,8 @@
     "paired_subject_deltas_summary.csv",
     "fixed_case_brainweb_subject04_z038_200k_r0/",
     "fixed_case_hecktor_10_z072_200k_r0/",
-    "stage_e_summary.json"
+    "stage_e_summary.json",
+    "../per_output_sha256_dual.json"
   ],
   "n_fixed_cases": 2,
   "fixed_cases_all_metrics_match": true,
