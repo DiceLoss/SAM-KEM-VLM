@@ -10,8 +10,7 @@
     "paired_subject_deltas_summary.csv",
     "fixed_case_brainweb_subject04_z038_200k_r0/",
     "fixed_case_hecktor_10_z072_200k_r0/",
-    "stage_e_summary.json",
-    "per_output_sha256_dual.json"
+    "stage_e_summary.json"
   ],
   "n_fixed_cases": 2,
   "fixed_cases_all_metrics_match": true,
@@ -21,41 +20,44 @@
   "n_hecktor_subjects": 45,
   "n_bootstrap": 10000,
   "mbootstrap_seed": 20260929,
+  "n_loss_ratio_summary_rows": 7,
+  "n_paired_deltas_summary_rows": 56,
+  "n_bootstrap_records": 28,
   "loss_ratio_summary_table": [
     {
       "variant": "CENTER_ADAPT",
       "n_q_lower_nrmse": 7,
-      "median_loss_ratio": 0.0297804693093702
+      "median_loss_ratio": 0.009349427408778019
     },
     {
       "variant": "CENTROID_ADAPT",
       "n_q_lower_nrmse": 4,
-      "median_loss_ratio": 0.0338752391507016
+      "median_loss_ratio": 0.009302382452906755
     },
     {
       "variant": "FULL_ADAPT",
       "n_q_lower_nrmse": 8,
-      "median_loss_ratio": 0.1702211605162991
+      "median_loss_ratio": 0.048030498587901184
     },
     {
       "variant": "MLEM_FEATURE_MATCHED",
       "n_q_lower_nrmse": 8,
-      "median_loss_ratio": 1.0
+      "median_loss_ratio": 0.2570826882202153
     },
     {
       "variant": "Q_RELEASED",
       "n_q_lower_nrmse": 8,
-      "median_loss_ratio": 1.2978948651594064
+      "median_loss_ratio": 0.3143857993606197
     },
     {
       "variant": "Q_SHUFFLED_MATCHED",
       "n_q_lower_nrmse": 7,
-      "median_loss_ratio": 0.5738124372680085
+      "median_loss_ratio": 0.13552175101007002
     },
     {
       "variant": "UNIFORM_FEATURE_MATCHED",
       "n_q_lower_nrmse": 8,
-      "median_loss_ratio": 1.3449818657479506
+      "median_loss_ratio": 0.38726386122199774
     }
   ]
 }
