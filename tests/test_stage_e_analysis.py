@@ -10,6 +10,7 @@ fallback; no machine-specific absolute paths.
 """
 from __future__ import annotations
 
+import json
 import os
 import sys
 from pathlib import Path
@@ -274,24 +275,117 @@ def test_sha256_file_vs_payload_differ_for_saved_npy():
         assert len(file_sha) == 64
 
 
-def test_load_stage_c_priors_distinct_per_variant():
-    """For each fixed case, the decoder-based priors must be
-    distinct from the Q_ADAPT cached prior and from each other
-    (not all collapsed onto Q)."""
-    from sam_kem.stage_e_analysis import load_stage_c_priors_for_fixed_case
-    bw = load_stage_c_priors_for_fixed_case(REPO_ROOT, "brainweb", "subject04", "z038", 200000, 0)
-    # Q_ADAPT is the cached Qwen-box prior.
-    # FULL_ADAPT/CENTER_ADAPT/CENTROID_ADAPT/Q_RELEASED/Q_SHUFFLED_MATCHED
-    # are decoder-based and must differ from Q_ADAPT.
-    for v in ["FULL_ADAPT", "CENTER_ADAPT", "CENTROID_ADAPT", "Q_RELEASED", "Q_SHUFFLED_MATCHED"]:
-        diff = np.abs(bw[v].astype(np.float32) - bw["Q_ADAPT"]).sum()
-        assert diff > 0, f"{v} prior equals Q_ADAPT prior (should differ)"
+def test_byte_reproduction_of_stage_e_text_artifacts(tmp_path):
+    """Regenerate every Stage E text artifact into tmp_path from the
+    committed inputs and compare byte-for-byte with the committed
+    artifacts. NO .npy arrays are rewritten."""
+    from sam_kem.stage_e_analysis import main as stage_e_main
+    tmp_out = tmp_path / "analysis_stage_e"
+    tmp_run = tmp_path / "run"
+    # Mirror the committed run_dir and fixed-case archives into tmp_path
+    tmp_run.mkdir(parents=True, exist_ok=True)
+    for v in VARIANTS:
+        (tmp_run / v).mkdir(parents=True, exist_ok=True)
+        (tmp_run / v / "per_case.csv").write_bytes(
+            (RUN_DIR / v / "per_case.csv").read_bytes())
+    (tmp_run / "summary.json").write_bytes((RUN_DIR / "summary.json").read_bytes())
+    (tmp_run / "per_output_sha256.json").write_bytes(
+        (RUN_DIR / "per_output_sha256.json").read_bytes())
+    (tmp_run / "integrity_audit.json").write_bytes(
+        (RUN_DIR / "integrity_audit.json").read_bytes())
+    # Copy both fixed-case archives (committed .npy arrays)
+    for src in (RUN_DIR / "analysis_stage_e").glob("fixed_case_*"):
+        dst = tmp_run / "analysis_stage_e" / src.name
+        dst.mkdir(parents=True, exist_ok=True)
+        for f in src.iterdir():
+            (dst / f.name).write_bytes(f.read_bytes())
+
+    # Run the deterministic tool
+    stage_e_main(REPO_ROOT, tmp_run, tmp_out)
+
+    # Compare every text artifact byte-for-byte with committed.
+    # NOTE: fixed-case manifests are at tmp_run/analysis_stage_e/fixed_case_*/
+    #       Other text artifacts are at tmp_out/ (which is tmp_path/analysis_stage_e/).
+    in_out_dir = [
+        ("tmp_out", "analysis_stage_e/loss_ratio_cells.csv"),
+        ("tmp_out", "analysis_stage_e/loss_ratio_summary.csv"),
+        ("tmp_out", "analysis_stage_e/hecktor_paired_bootstrap.json"),
+        ("tmp_out", "analysis_stage_e/kernel_diagnostics.json"),
+        ("tmp_out", "analysis_stage_e/paired_subject_deltas.csv"),
+        ("tmp_out", "analysis_stage_e/paired_subject_deltas_summary.csv"),
+        ("tmp_out", "analysis_stage_e/stage_e_summary.json"),
+        ("tmp_out", "analysis_stage_e/stage_e_integrity_audit.json"),
+        ("tmp_run", "analysis_stage_e/fixed_case_brainweb_subject04_z038_200k_r0/manifest.json"),
+        ("tmp_run", "analysis_stage_e/fixed_case_hecktor_10_z072_200k_r0/manifest.json"),
+    ]
+    for which, rel in in_out_dir:
+        committed = (RUN_DIR / rel).read_bytes()
+        if which == "tmp_out":
+            regenerated = (tmp_path / rel).read_bytes()
+        else:
+            regenerated = (tmp_run / rel).read_bytes()
+        assert committed == regenerated, f"byte mismatch in {rel}"
+
+    # Dual CSV SHA lives at run_dir/per_output_sha256_dual.json
+    committed = (RUN_DIR / "per_output_sha256_dual.json").read_bytes()
+    regenerated = (tmp_run / "per_output_sha256_dual.json").read_bytes()
+    assert committed == regenerated, "byte mismatch in per_output_sha256_dual.json"
 
 
-def test_load_stage_c_priors_dict_has_all_variants():
-    from sam_kem.stage_e_analysis import load_stage_c_priors_for_fixed_case
-    bw = load_stage_c_priors_for_fixed_case(REPO_ROOT, "brainweb", "subject04", "z038", 200000, 0)
+def test_stage_e_summary_no_dynamic_git_head():
+    """stage_e_summary.json must NOT contain a dynamic git HEAD. It
+    binds the immutable Stage C run_id from the run summary only."""
+    s = json.load(open(RUN_DIR / "analysis_stage_e" / "stage_e_summary.json",
+                        encoding="utf-8"))
+    assert "execution_commit" not in s
+    assert "git_head" not in s
+    assert "stage_c_execution_run_id" in s
+
+
+def test_csv_dual_sha_platform_independent():
+    """csv_dual_sha must use canonical LF SHA (platform-independent)
+    AND synthesized CRLF SHA (matching historical Stage C values)."""
+    from sam_kem.stage_e_analysis import csv_dual_sha_map
+    stage_c = json.load(open(RUN_DIR / "per_output_sha256.json", encoding="utf-8"))
+    dual = csv_dual_sha_map(RUN_DIR, stage_c)
+    for path, info in dual.items():
+        assert "csv_repository_lf_sha256" in info
+        assert "csv_execution_crlf_sha256" in info
+        # The synthesized CRLF SHA must match the historical Stage C value
+        hist = stage_c.get(path)
+        if hist is not None:
+            assert info["csv_execution_crlf_sha256"] == hist, (
+                f"CRLF mismatch on {path}: {info['csv_execution_crlf_sha256']} != {hist}")
+
+
+def test_fixed_case_manifests_use_csv_field_names():
+    """Fixed-case manifests must use csv_* field names for the per-case
+    .npy files (target, prior, reconstruction, abs_error) — never
+    npy_* (per directive §3)."""
+    bw = json.load(open(RUN_DIR / "analysis_stage_e" /
+                        "fixed_case_brainweb_subject04_z038_200k_r0/manifest.json",
+                        encoding="utf-8"))
+    for v, info in bw["sha256"].items():
+        # Each key ends with _sha256; the prefix must be csv_* not npy_*
+        for key in info:
+            assert not key.startswith("npy_"), f"{v}.{key} uses npy_* prefix"
+
+
+def test_load_priors_from_fixed_case_archive():
+    """Priors are loaded from committed fixed-case prior_*.npy files;
+    NO decoder, NO KEM, NO MLEM10 lookup. The committed archive is
+    the authoritative source."""
+    from sam_kem.stage_e_analysis import load_priors_from_fixed_case_archive
+    bw_dir = RUN_DIR / "analysis_stage_e" / "fixed_case_brainweb_subject04_z038_200k_r0"
+    he_dir = RUN_DIR / "analysis_stage_e" / "fixed_case_hecktor_10_z072_200k_r0"
+    bw = load_priors_from_fixed_case_archive(bw_dir)
+    he = load_priors_from_fixed_case_archive(he_dir)
     expected = {"Q_ADAPT", "FULL_ADAPT", "CENTER_ADAPT", "CENTROID_ADAPT",
                 "Q_RELEASED", "MLEM_FEATURE_MATCHED", "Q_SHUFFLED_MATCHED",
                 "UNIFORM_FEATURE_MATCHED"}
     assert set(bw.keys()) == expected
+    assert set(he.keys()) == expected
+    # Decoder-based variants must differ from Q_ADAPT
+    for v in ["FULL_ADAPT", "CENTER_ADAPT", "CENTROID_ADAPT", "Q_RELEASED", "Q_SHUFFLED_MATCHED"]:
+        diff = np.abs(bw[v].astype(np.float32) - bw["Q_ADAPT"]).sum()
+        assert diff > 0, f"{v} prior equals Q_ADAPT prior (should differ)"

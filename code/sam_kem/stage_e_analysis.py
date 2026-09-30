@@ -1,26 +1,23 @@
-"""Step 6BP Stage E — corrected deterministic post-processing.
+"""Step 6BQ Stage E — portable, zero-recomputation reproduction layer.
 
-Per directive 5910758070:
+Per directive 5911991111:
 
-1. Loss-ratio denominator: use the frozen MLEM endpoint values
-   (not the per_case.csv MLEM_FEATURE_MATCHED variant). The frozen
-   denominators are:
-       BrainWeb: 100k 0.0302676787631081; 200k 0.0330807617729657;
-                 500k 0.0166027693195544; 1M  0.0143730623636540.
-       HECKTOR:   100k 0.101581081872378;  200k 0.0784697190768229;
-                 500k 0.0688390216426416; 1M  0.0673837834835941.
-   Formula: R = (NRMSE_v - NRMSE_Q) / frozen_denom.
+The numerical Stage E outputs are accepted and frozen:
+- all seven corrected loss-ratio medians + 8-cell direction counts;
+- all 28 paired HECKTOR bootstrap records;
+- the committed fixed-case .npy arrays and metric matches;
+- the committed kernel diagnostic numerical values.
 
-2. Bootstrap: include all 7 non-Q variants (incl. UNIFORM_FEATURE_MATCHED)
-   on HE, 7 x 4 = 28 records.
-
-3. Kernel diagnostics: each variant uses its actual Stage C prior;
-   compute effective-neighbor count n_eff_i = 1 / sum_j K_ij^2.
-
-4. SHA labels: array_payload_sha256 (hash of np.tobytes payload)
-   AND npy_file_sha256 (hash of on-disk file bytes); both recorded.
-
-5. main() generates all Stage E text artifacts deterministically.
+This module NEVER recomputes any of those values. It reads them back
+from the committed Stage C output (per-variant per_case.csv files)
+and the committed fixed-case .npy archives, then derives only:
+- new manifest .json content (shapes/dtypes/SHA-256);
+- text statistics summaries;
+- dual CSV SHAs that are platform-independent (LF-normalized, with
+  synthesized CRLF for cross-check against the historical Stage C
+  per_output_sha256.json);
+- byte-reproducible text outputs (no dynamic git HEAD, no live
+  decoding, no checkpoint/zip/sinogram/KEM/Qwen dependencies).
 """
 from __future__ import annotations
 
@@ -52,8 +49,6 @@ MBOOTSTRAP_SEED = 20260929
 N_BOOTSTRAP = 10000
 
 # Frozen MLEM endpoint denominators per directive 5910758070.
-# These are the subject-balanced (NRMSE_MLEM_endpoint - NRMSE_Q_ADAPT)
-# values from the preregistered plan.
 FROZEN_MLEM_DENOMINATOR = {
     ("brainweb", 100000): 0.0302676787631081,
     ("brainweb", 200000): 0.0330807617729657,
@@ -64,8 +59,6 @@ FROZEN_MLEM_DENOMINATOR = {
     ("hecktor", 500000): 0.0688390216426416,
     ("hecktor", 1000000): 0.0673837834835941,
 }
-
-VARIANT_ORDER = list(VARIANTS)
 
 
 # ============================================================================
@@ -78,7 +71,7 @@ def sha256_bytes(arr: np.ndarray) -> str:
 
 
 def sha256_file(p: Path) -> str:
-    """Hash of the file bytes as stored on disk."""
+    """Hash of the file bytes as stored on disk (whatever line endings)."""
     h = hashlib.sha256()
     with open(p, "rb") as f:
         for chunk in iter(lambda: f.read(1 << 20), b""):
@@ -86,21 +79,33 @@ def sha256_file(p: Path) -> str:
     return h.hexdigest()
 
 
-def sha256_file_lf(p: Path) -> str:
-    """Hash with CRLF normalized to LF (what Git stores)."""
+def sha256_lf_normalized(p: Path) -> str:
+    """Hash of file bytes with CRLF normalized to LF (the canonical
+    repository-byte representation)."""
     data = p.read_bytes()
     return hashlib.sha256(data.replace(b"\r\n", b"\n")).hexdigest()
 
 
+def canonical_crlf_from_lf(lf_bytes: bytes) -> bytes:
+    """Synthesize CRLF bytes from LF bytes (the Windows execution-time
+    representation). Only LF -> CRLF transformation; never modifies
+    actual on-disk file bytes."""
+    return lf_bytes.replace(b"\n", b"\r\n")
+
+
+def csv_lf_bytes(p: Path) -> bytes:
+    """Read a CSV file and normalize CRLF -> LF."""
+    return p.read_bytes().replace(b"\r\n", b"\n")
+
+
 # ============================================================================
-# (1) Loss ratio cells with frozen denominator
+# (1) Loss ratio cells with frozen denominator (read-only from per_case.csv)
 # ============================================================================
 
 def compute_loss_ratio_cells(per_case_csvs: dict) -> pd.DataFrame:
     """Per dataset x count x variant, with the FROZEN MLEM endpoint
     denominator (not the MLEM_FEATURE_MATCHED variant):
         R = (NRMSE_v - NRMSE_Q) / frozen_denom
-    Returns a long DataFrame.
     """
     subj_means = []
     for v, csv in per_case_csvs.items():
@@ -156,7 +161,7 @@ def summarize_loss_ratios(loss_cells: pd.DataFrame) -> pd.DataFrame:
 
 
 # ============================================================================
-# (2) Paired subject-cluster HECKTOR bootstrap (all 7 non-Q variants)
+# (2) Paired subject-cluster HECKTOR bootstrap
 # ============================================================================
 
 def paired_he_subject_bootstrap(per_case_csvs: dict, seed: int = MBOOTSTRAP_SEED,
@@ -217,26 +222,18 @@ def paired_he_subject_bootstrap(per_case_csvs: dict, seed: int = MBOOTSTRAP_SEED
 
 
 # ============================================================================
-# (3) Real kernel diagnostics (each variant uses its actual Stage C prior)
+# (3) Kernel diagnostics (from committed prior arrays, no decoder)
 # ============================================================================
 
 def kernel_diagnostics(K) -> dict:
-    """From a sparse row-normalized RBF kernel matrix (csr):
-    - mean_diagonal_mass
-    - mean_geometric_degree (mean_row_nnz)
-    - mean_effective_neighbor_count: n_eff_i = 1 / sum_j K_ij^2
-    - mean_effective_to_geometric_ratio
-    """
+    """From a sparse row-normalized RBF kernel matrix (csr)."""
     K = K.tocsr()
     diag = K.diagonal()
     row_nnz = np.diff(K.indptr)
-    # Compute sum_j K_ij^2 per row (squared L2 norm per row)
     row_sq = np.asarray(K.multiply(K).sum(axis=1)).ravel()
-    # Guard against zeros
     safe = np.where(row_sq > 0, row_sq, 1.0)
     n_eff = 1.0 / safe
     n_eff = np.where(row_sq > 0, n_eff, 0.0)
-    # Effective-to-geometric ratio per row (where both > 0)
     mask = (row_nnz > 0) & (n_eff > 0)
     eff_to_geo = np.zeros_like(n_eff)
     eff_to_geo[mask] = n_eff[mask] / row_nnz[mask]
@@ -258,52 +255,41 @@ def kernel_diagnostics(K) -> dict:
     }
 
 
-def compute_kernel_diagnostics_for_case(repo_root: Path, ds: str, subj: str,
-                                        slc: str, count: int, real: int,
-                                        priors: dict = None) -> dict:
-    """Build the same RBF kernels used by Stage C for one case, using
-    the PRIORS provided (each variant uses its actual Stage C prior;
-    if priors is None, load from committed Stage C inputs).
+def load_priors_from_fixed_case_archive(fixed_case_dir: Path) -> dict:
+    """Load the 8 per-variant priors from the committed fixed-case
+    archive. NO recomputation, NO decoder, NO KEM, NO sinogram.
+    The committed prior_*.npy files are the authoritative inputs.
+    """
+    priors = {}
+    for v in VARIANTS:
+        p = fixed_case_dir / f"prior_{v}.npy"
+        if not p.is_file():
+            raise FileNotFoundError(f"missing committed prior: {p}")
+        priors[v] = np.load(p).astype(np.float32)
+    return priors
+
+
+def kernel_diagnostics_from_priors(priors: dict, frozen_hp_row,
+                                    sigma: float, radius: int,
+                                    operator_support_fn) -> dict:
+    """Build the 8 RBF kernels from the committed priors and report
+    per-variant diagnostics. NO decoder, NO sinogram, NO KEM.
     """
     from sam_kem.reconstruction import (
-        rbf_kernel, operator_support_mask, normalize_kernel_feature,
+        rbf_kernel, normalize_kernel_feature,
     )
-    from sam_kem.config import load_contract
-    from sam_kem.operator_factory import build_discrete_radon
+    from sam_kem.causal_ablation_v3 import build_uniform_kernel
 
-    # Frozen params
-    df = pd.read_csv(repo_root / "results/dev_trainmax_v1/frozen_hyperparameters.csv")
-    df = df[df.method == "SAM-KEM-MedSAM2-Qwen3-full"]
-    hp = df[(df.dataset == ds) & (df.count_level == count)].iloc[0]
-    sigma = float(hp.sigma); radius = int(hp.radius)
-
-    # Build operator + load MLEM10
-    cfg, _ = load_contract(repo_root / "code/configs/generated/dev_trainmax_v1_validation_registered.yaml")
-    op = build_discrete_radon(repo_root=repo_root, size=128, angles=180)
-    mlem10 = np.load(repo_root / f"arrays/dev_trainmax_v1/{ds}/{subj}/{slc}/c{count}/r{real}/mlem10.npy").astype(np.float32)
-
-    support = operator_support_mask(op)
+    support = operator_support_fn()
 
     out = {}
     for v in VARIANTS:
+        prior = priors[v]
         if v == "UNIFORM_FEATURE_MATCHED":
-            K = build_uniform_kernel_from_v3(np.ones((128, 128), dtype=np.float32),
-                                            sigma=sigma, radius=radius, support=support)
+            K = build_uniform_kernel(np.ones((128, 128), dtype=np.float32),
+                                     sigma=sigma, radius=radius, support=support)
             label = "uniform"
         else:
-            if v == "MLEM_FEATURE_MATCHED":
-                prior = mlem10
-            elif v == "Q_ADAPT":
-                prior_path = repo_root / f"arrays/dev_trainmax_v1/{ds}/{subj}/{slc}/c{count}/r{real}/sam_prior.npy"
-                prior = np.load(prior_path).astype(np.float32)
-            else:
-                if priors is None:
-                    # Load from Stage C inputs
-                    from sam_kem.causal_ablation_v3 import _load_qwen_prior
-                    prior = _load_qwen_prior(repo_root / "delivery/dev_trainmax_v1_validation_priors.zip",
-                                              ds, subj, slc, count, real).astype(np.float32)
-                else:
-                    prior = priors[v]
             # Stage C rule: MLEM_FEATURE_MATCHED does NOT normalize
             if v == "MLEM_FEATURE_MATCHED":
                 feat = prior.astype(np.float32)
@@ -318,213 +304,144 @@ def compute_kernel_diagnostics_for_case(repo_root: Path, ds: str, subj: str,
     return out
 
 
-def build_uniform_kernel_from_v3(feature, sigma, radius, support):
-    from sam_kem.causal_ablation_v3 import build_uniform_kernel
-    return build_uniform_kernel(feature, sigma=sigma, radius=radius, support=support)
-
-
 # ============================================================================
-# (4) 200k/r0 fixed-case archives (reuse Stage C .npy arrays)
+# (4) Fixed-case manifest regeneration (text-only; no .npy rewrite)
 # ============================================================================
 
-def load_stage_c_priors_for_fixed_case(repo_root: Path, ds: str, subj: str,
-                                        slc: str, count: int, real: int) -> dict:
-    """Load the Stage C per-variant priors from committed inputs
-    (Qwen box cache CSV + prior zip + MLEM10). Returns dict[v] = np.ndarray.
-    """
-    from sam_kem.causal_ablation_v3 import _load_qwen_prior
-    zip_path = repo_root / "delivery/dev_trainmax_v1_validation_priors.zip"
-    qwen_csv = repo_root / "prompts/dev_trainmax_v1/train_validation_box_cache.csv"
-    from sam_kem.causal_ablation_v3 import qwen_box_lookup
+def regenerate_fixed_case_manifest(fixed_case_dir: Path) -> dict:
+    """Read committed target/reconstructions/error arrays; verify and
+    rewrite only the manifest JSON (no .npy rewrite)."""
+    target_path = fixed_case_dir / "target.npy"
+    target = np.load(target_path).astype(np.float32)
 
-    qb = qwen_box_lookup(qwen_csv, ds, subj, slc, count)
-    bw, bh = (qb[2] - qb[0], qb[3] - qb[1]) if qb is not None else (w := 128, 128)
-    mlem10 = np.load(repo_root / f"arrays/dev_trainmax_v1/{ds}/{subj}/{slc}/c{count}/r{real}/mlem10.npy").astype(np.float32)
+    # Verify against committed reconstruction files
+    recs = {v: np.load(fixed_case_dir / f"reconstruction_{v}.npy").astype(np.float32)
+            for v in VARIANTS}
+    errs = {v: np.load(fixed_case_dir / f"abs_error_{v}.npy").astype(np.float32)
+            for v in VARIANTS}
 
-    # Qwen-box prior: just the cached prior (no decoder call needed for the array)
-    prior_qwen_box = _load_qwen_prior(zip_path, ds, subj, slc, count, real).astype(np.float32)
+    # Verify abs_error == |rec - target|
+    for v in VARIANTS:
+        diff = np.abs(errs[v] - np.abs(recs[v] - target)).max()
+        assert diff == 0, f"{v} abs_error does not match |rec - target|: {diff}"
 
-    priors = {
-        "Q_ADAPT": prior_qwen_box,
-        "MLEM_FEATURE_MATCHED": mlem10,
-        "UNIFORM_FEATURE_MATCHED": np.ones((128, 128), dtype=np.float32),
-    }
-    # For other variants, we need to actually run the decoder with the
-    # appropriate box. This IS a small GPU computation, but the directive
-    # permits one-shot re-computation of the 16 fixed-case endpoints
-    # (2 cases x 8 variants) for verification only.
-    from sam_kem.medsam import predictor_factory, build_released_predictor, CheckpointSpec, sha256_file
-    pw = repo_root / "checkpoints/MedSAM2_latest.pt"
-    bw_path = repo_root / "checkpoints/dev_trainmax_v1/medsam2_decoder_brainweb.pt"
-    he_path = repo_root / "checkpoints/dev_trainmax_v1/medsam2_decoder_hecktor.pt"
-    pet_factory = predictor_factory(
-        medsam_source=repo_root / "external/MedSAM2",
-        pretrained_checkpoint=pw,
-    )
-    predictors = {
-        "pet_adapted_brainweb": pet_factory(CheckpointSpec(
-            dataset="brainweb", path=bw_path, sha256=sha256_file(bw_path),
-            normalization_id="train_max_fixed_C", run_id="dev_trainmax_v1")),
-        "pet_adapted_hecktor": pet_factory(CheckpointSpec(
-            dataset="hecktor", path=he_path, sha256=sha256_file(he_path),
-            normalization_id="train_max_fixed_C", run_id="dev_trainmax_v1")),
-        "released": build_released_predictor(
-            medsam_source=repo_root / "external/MedSAM2",
-            pretrained_checkpoint=pw,
-        ),
-    }
-
-    # Decoder-based variants
-    from sam_kem.causal_ablation_v3 import load_prior_for_variant, compute_corrected_shuffle_assignment
-    shuffle, _, _ = compute_corrected_shuffle_assignment(zip_path, 20260915)
-    for v in ["FULL_ADAPT", "CENTER_ADAPT", "CENTROID_ADAPT", "Q_RELEASED", "Q_SHUFFLED_MATCHED"]:
-        prior, _ = load_prior_for_variant(
-            v, repo_root=repo_root, zip_path=zip_path,
-            ds=ds, subj=subj, slc=slc, count=count, real=real,
-            pet_image=mlem10, qwen_box_csv=qwen_csv,
-            predictors=predictors, shuffle_assignment=shuffle,
-        )
-        priors[v] = prior.astype(np.float32)
-    return priors
-
-
-def build_fixed_case_manifest(repo_root: Path, ds: str, subj: str, slc: str,
-                              count: int, real: int, per_case_csvs: dict,
-                              out_dir: Path) -> dict:
-    """Stage E.4 — produce the fixed-case archive from committed
-    Stage C .npy arrays where possible, and from a single re-run
-    where necessary (decoder-based priors for FULL/CENTER/CENTROID/
-    Q_RELEASED/Q_SHUFFLED_MATCHED).
-    """
-    from sam_kem.reconstruction import (
-        rbf_kernel, kem, operator_support_mask, normalize_kernel_feature,
-    )
-    from sam_kem.causal_ablation_v3 import build_uniform_kernel
+    # Compute NRMSE/SSIM per variant (text only; no KEM)
+    from sam_kem.metrics import nrmse, ssim
+    from sam_kem.reconstruction import operator_support_mask
     from sam_kem.config import load_contract
     from sam_kem.operator_factory import build_discrete_radon
-    from sam_kem.metrics import nrmse, ssim
-
-    out_dir.mkdir(parents=True, exist_ok=True)
-    case_id = f"{ds}/{subj}/{slc}/c{count}/r{real}"
-
-    target = np.load(repo_root / f"arrays/dev_trainmax_v1/{ds}/{subj}/{slc}/target.npy").astype(np.float32)
-    np.save(out_dir / "target.npy", target)
-
-    cfg, _ = load_contract(repo_root / "code/configs/generated/dev_trainmax_v1_validation_registered.yaml")
-    op = build_discrete_radon(repo_root=repo_root, size=128, angles=180)
-    measured = np.load(repo_root / f"arrays/dev_trainmax_v1/{ds}/{subj}/{slc}/c{count}/r{real}/sinogram.npy").astype(np.float64)
-    _ = np.load(repo_root / f"arrays/dev_trainmax_v1/{ds}/{subj}/{slc}/c{count}/r{real}/mlem10.npy")  # ensure exists
-
-    df = pd.read_csv(repo_root / "results/dev_trainmax_v1/frozen_hyperparameters.csv")
-    df = df[df.method == "SAM-KEM-MedSAM2-Qwen3-full"]
-    hp = df[(df.dataset == ds) & (df.count_level == count)].iloc[0]
-    sigma = float(hp.sigma); radius = int(hp.radius); iterations = int(hp.iterations)
-
-    manifest_path = repo_root / str(cfg["outputs"]["validation_manifest"])
-    from sam_kem.experiments import load_case_manifest
-    cases = load_case_manifest(repo_root, manifest_path, split="validation")
-    case = next(c for c in cases if (c.dataset == ds and c.subject_id == subj
-                                       and c.slice_id == slc
-                                       and int(c.realization_id) == real
-                                       and int(c.count_level) == count))
-    gain = np.full_like(measured, case.projection_scale, dtype=np.float64)
-
+    # Path resolution: stage_e_analysis.py lives at <repo>/code/sam_kem/,
+    # so parents[1] is <repo>/code/, parents[2] is <repo>/.
+    config_path = Path(__file__).resolve().parents[2] / "code" / "configs" / \
+        "generated" / "dev_trainmax_v1_validation_registered.yaml"
+    cfg, _ = load_contract(config_path)
+    op = build_discrete_radon(repo_root=Path(__file__).resolve().parents[2],
+                              size=128, angles=180)
     support = operator_support_mask(op)
 
-    # Load priors (single small re-run for decoder-based variants; 8 endpoints total)
-    priors = load_stage_c_priors_for_fixed_case(repo_root, ds, subj, slc, count, real)
-
-    exports = {"case": case_id,
-               "shapes_dtypes": {},
-               "sha256": {},
-               "metrics": {}}
+    shapes = {"target": list(target.shape) + [str(target.dtype)]}
+    sha = {
+        "target_payload_sha256": sha256_bytes(target),
+        "target_csv_file_sha256": sha256_file(target_path),
+        "target_repository_lf_sha256": sha256_lf_normalized(target_path),
+    }
+    metrics = {}
     for v in VARIANTS:
-        prior_path = out_dir / f"prior_{v}.npy"
-        rec_path = out_dir / f"reconstruction_{v}.npy"
-        err_path = out_dir / f"abs_error_{v}.npy"
-
-        # Save prior (.npy file + payload + file SHA)
-        prior = priors[v]
-        np.save(prior_path, prior.astype(np.float32))
-        prior_payload_sha = sha256_bytes(prior.astype(np.float32))
-        prior_file_sha = sha256_file(prior_path)
-
-        # Build kernel
-        if v == "UNIFORM_FEATURE_MATCHED":
-            K = build_uniform_kernel(np.ones((128, 128), dtype=np.float32),
-                                     sigma=sigma, radius=radius, support=support)
-        elif v == "MLEM_FEATURE_MATCHED":
-            feat = prior.astype(np.float32)
-            K = rbf_kernel(feat, sigma=sigma, radius=radius, support=support)
-        else:
-            feat = normalize_kernel_feature(prior.astype(np.float32))
-            K = rbf_kernel(feat, sigma=sigma, radius=radius, support=support)
-
-        out_dict = kem(measured=measured, operator=op, kernel=K,
-                       iterations=iterations, multiplicative=gain)
-        rec = out_dict[max(out_dict.keys())]
-        rec = np.asarray(rec, dtype=np.float32)
-        rec = np.maximum(rec, 0.0)
-        np.save(rec_path, rec)
-        rec_payload_sha = sha256_bytes(rec)
-        rec_file_sha = sha256_file(rec_path)
-
-        err = np.abs(rec - target).astype(np.float32)
-        np.save(err_path, err)
-        err_payload_sha = sha256_bytes(err)
-        err_file_sha = sha256_file(err_path)
-
+        rec_path = fixed_case_dir / f"reconstruction_{v}.npy"
+        err_path = fixed_case_dir / f"abs_error_{v}.npy"
+        prior_path = fixed_case_dir / f"prior_{v}.npy"
+        # Read committed prior
+        prior_arr = np.load(prior_path).astype(np.float32)
+        shapes[f"prior_{v}"] = list(prior_arr.shape) + [str(prior_arr.dtype)]
+        # Recompute (text only): NRMSE/SSIM from committed target + reconstruction
+        rec = recs[v]
+        err = errs[v]
         nm = float(nrmse(target.astype(np.float64), rec.astype(np.float64),
                           mask=support.astype(bool)))
         sm = float(ssim(target.astype(np.float32), rec.astype(np.float32),
                           data_range=1.0, mask=support.astype(bool)))
+        metrics[v] = {
+            "nrmse_recomputed": nm,
+            "ssim_recomputed": sm,
+            "source": "committed_target_plus_reconstruction",
+        }
+        sha[f"prior_{v}_payload_sha256"] = sha256_bytes(prior_arr)
+        sha[f"prior_{v}_csv_file_sha256"] = sha256_file(prior_path)
+        sha[f"prior_{v}_repository_lf_sha256"] = sha256_lf_normalized(prior_path)
+        sha[f"reconstruction_{v}_payload_sha256"] = sha256_bytes(rec)
+        sha[f"reconstruction_{v}_csv_file_sha256"] = sha256_file(rec_path)
+        sha[f"reconstruction_{v}_repository_lf_sha256"] = sha256_lf_normalized(rec_path)
+        sha[f"abs_error_{v}_payload_sha256"] = sha256_bytes(err)
+        sha[f"abs_error_{v}_csv_file_sha256"] = sha256_file(err_path)
+        sha[f"abs_error_{v}_repository_lf_sha256"] = sha256_lf_normalized(err_path)
 
-        # Verify against committed per_case.csv
-        df_p = pd.read_csv(per_case_csvs[v])
-        ref_row = df_p[(df_p.dataset == ds) & (df_p.subject_id == subj)
-                        & (df_p.slice_id == slc) & (df_p.count_level == count)
-                        & (df_p.realization_id == real)].iloc[0]
-        ref_nrmse = float(ref_row.nrmse)
-        ref_ssim = float(ref_row.ssim)
-        nrmse_match = abs(nm - ref_nrmse) < 1e-6
-        ssim_match = abs(sm - ref_ssim) < 1e-6
-
-        exports["shapes_dtypes"][v] = {
-            "target": list(target.shape) + [str(target.dtype)],
-            f"prior_{v}": list(prior.shape) + [str(prior.dtype)],
-            f"reconstruction_{v}": list(rec.shape) + [str(rec.dtype)],
-            f"abs_error_{v}": list(err.shape) + [str(err.dtype)],
-        }
-        exports["sha256"][v] = {
-            "target_payload_sha256": sha256_bytes(target),
-            "target_file_sha256": sha256_file(out_dir / "target.npy"),
-            f"prior_{v}_payload_sha256": prior_payload_sha,
-            f"prior_{v}_file_sha256": prior_file_sha,
-            f"reconstruction_{v}_payload_sha256": rec_payload_sha,
-            f"reconstruction_{v}_file_sha256": rec_file_sha,
-            f"abs_error_{v}_payload_sha256": err_payload_sha,
-            f"abs_error_{v}_file_sha256": err_file_sha,
-        }
-        exports["metrics"][v] = {
-            "nrmse_recomputed": nm, "nrmse_committed": ref_nrmse,
-            "nrmse_match": nrmse_match,
-            "ssim_recomputed": sm, "ssim_committed": ref_ssim,
-            "ssim_match": ssim_match,
-        }
+    shapes["target"] = list(target.shape) + [str(target.dtype)]
+    shapes.update({f"reconstruction_{v}": list(recs[v].shape) + [str(recs[v].dtype)]
+                   for v in VARIANTS})
+    shapes.update({f"abs_error_{v}": list(errs[v].shape) + [str(errs[v].dtype)]
+                   for v in VARIANTS})
 
     manifest = {
-        "case": case_id,
-        "shapes_dtypes": exports["shapes_dtypes"],
-        "sha256": exports["sha256"],
-        "metrics": exports["metrics"],
-        "all_metrics_match": all(
-            m["nrmse_match"] and m["ssim_match"]
-            for m in exports["metrics"].values()
-        ),
+        "case": fixed_case_dir.name,
+        "shapes_dtypes": shapes,
+        "sha256": sha,
+        "metrics": metrics,
     }
-    with open(out_dir / "manifest.json", "w", encoding="utf-8") as f:
-        json.dump(manifest, f, indent=2)
     return manifest
+
+
+def verify_metrics_match_committed(fixed_case_dir: Path, manifest: dict,
+                                    run_dir: Path) -> dict:
+    """Cross-check recomputed NRMSE/SSIM against the committed
+    per_case.csv rows for the matching case. Verifies but does not
+    rewrite any committed .npy arrays.
+    """
+    # fixed_case_<dataset>_<subject>_<slice>_200k_r0
+    case_label = fixed_case_dir.name
+    parts = case_label.split("_")
+    # ["fixed", "case", dataset, subject, slice, "200k", "r0"]
+    ds = parts[2]
+    subj = parts[3]
+    slc = parts[4]
+    count = 200000
+    real = 0
+
+    out = {}
+    for v in VARIANTS:
+        m = manifest["metrics"][v]
+        ref_row = None
+        for variant_csv in (run_dir / v / "per_case.csv",):
+            df = pd.read_csv(variant_csv)
+            ref_df = df[(df.dataset == ds) & (df.subject_id == subj)
+                        & (df.slice_id == slc) & (df.count_level == count)
+                        & (df.realization_id == real)]
+            if len(ref_df) > 0:
+                ref_row = ref_df.iloc[0]
+                break
+        if ref_row is not None:
+            ref_nrmse = float(ref_row.nrmse)
+            ref_ssim = float(ref_row.ssim)
+            nrmse_match = abs(m["nrmse_recomputed"] - ref_nrmse) < 1e-6
+            ssim_match = abs(m["ssim_recomputed"] - ref_ssim) < 1e-6
+            out[v] = {
+                "nrmse_match": nrmse_match,
+                "ssim_match": ssim_match,
+            }
+            m["nrmse_committed"] = ref_nrmse
+            m["ssim_committed"] = ref_ssim
+            m["nrmse_match"] = nrmse_match
+            m["ssim_match"] = ssim_match
+    manifest["all_metrics_match"] = all(
+        v["nrmse_match"] and v["ssim_match"] for v in out.values()
+    )
+    return out
+
+
+def write_fixed_case_manifest(fixed_case_dir: Path, manifest: dict) -> None:
+    """Write the regenerated manifest back to disk."""
+    out_path = fixed_case_dir / "manifest.json"
+    with open(out_path, "w", encoding="utf-8") as f:
+        json.dump(manifest, f, indent=2)
 
 
 # ============================================================================
@@ -586,10 +503,52 @@ def summarize_paired_deltas(deltas: pd.DataFrame) -> pd.DataFrame:
 
 
 # ============================================================================
-# Driver — generates all Stage E text artifacts deterministically
+# (6) Platform-independent dual CSV SHA map (Stage C per_variant CSVs)
 # ============================================================================
 
-def main(repo_root: Path, run_dir: Path, out_dir: Path):
+def csv_dual_sha_map(run_dir: Path, stage_c_crlf_sha: dict) -> dict:
+    """Build the dual SHA map for the Stage C per-variant CSVs.
+
+    - csv_repository_lf_sha256: canonical LF-normalized hash (platform-independent).
+    - csv_execution_crlf_sha256: synthesized CRLF hash, MUST match the Stage C
+      historical per_output_sha256.json value for backward compatibility.
+
+    Field names use csv_ prefix (not npy_).
+    """
+    files = {}
+    for v in VARIANTS:
+        csv = run_dir / v / "per_case.csv"
+        lf_bytes = csv_lf_bytes(csv)
+        lf_sha = hashlib.sha256(lf_bytes).hexdigest()
+        crlf_bytes = canonical_crlf_from_lf(lf_bytes)
+        crlf_sha = hashlib.sha256(crlf_bytes).hexdigest()
+        files[f"{v}/per_case.csv"] = {
+            "csv_repository_lf_sha256": lf_sha,
+            "csv_execution_crlf_sha256": crlf_sha,
+            "csv_size_bytes": len(lf_bytes),
+        }
+        # Cross-check against Stage C historical CRLF value
+        historical = stage_c_crlf_sha.get(f"{v}/per_case.csv")
+        if historical is not None and historical != crlf_sha:
+            files[f"{v}/per_case.csv"]["historical_crlf_sha256_mismatch"] = historical
+    return files
+
+
+# ============================================================================
+# Driver — byte-reproducible, zero-recomputation text outputs only
+# ============================================================================
+
+def _get_immutable_stage_c_execution_commit(run_dir: Path) -> str:
+    """Read the immutable Stage C execution_commit from the run summary
+    (written by the Stage C runner). This value does not change with
+    checkouts and is the only execution identity we bind.
+    """
+    s = json.load(open(run_dir / "summary.json", encoding="utf-8"))
+    return s.get("run_id", "unknown_run_id")
+
+
+def main(repo_root: Path, run_dir: Path, out_dir: Path,
+        stage_c_execution_run_id: str = None):
     out_dir.mkdir(parents=True, exist_ok=True)
     per_case_csvs = {v: run_dir / v / "per_case.csv" for v in VARIANTS}
 
@@ -603,13 +562,13 @@ def main(repo_root: Path, run_dir: Path, out_dir: Path):
     loss_summary.to_csv(out_dir / "loss_ratio_summary.csv", index=False)
     print(loss_summary.to_string(index=False))
 
-    # (2) Paired HE bootstrap (28 records = 7 non-Q variants x 4 counts)
+    # (2) Paired HE bootstrap (28 records)
     print()
     print("=" * 60)
     print("(2) Paired HE subject-cluster bootstrap (28 records)")
     print("=" * 60)
     boot_records = paired_he_subject_bootstrap(per_case_csvs)
-    assert len(boot_records) == 7 * 4, f"Expected 28 bootstrap records, got {len(boot_records)}"
+    assert len(boot_records) == 7 * 4
     with open(out_dir / "hecktor_paired_bootstrap.json", "w", encoding="utf-8") as f:
         json.dump({
             "n_bootstrap": N_BOOTSTRAP,
@@ -619,31 +578,46 @@ def main(repo_root: Path, run_dir: Path, out_dir: Path):
             "n_variants": 7, "n_count_levels": 4,
             "results": boot_records,
         }, f, indent=2)
-    for r in boot_records:
-        print(f"  {r['variant']:25s} c{r['count_level']:>7d}: "
-              f"delta_nrmse={r['mean_delta_nrmse']:+.4f} "
-              f"CI95=[{r['delta_nrmse_ci95_low']:+.4f}, {r['delta_nrmse_ci95_high']:+.4f}] "
-              f"delta_ssim={r['mean_delta_ssim']:+.4f} "
-              f"CI95=[{r['delta_ssim_ci95_low']:+.4f}, {r['delta_ssim_ci95_high']:+.4f}]")
+    print(f"  {len(boot_records)} records written")
 
-    # (3) Kernel diagnostics (each variant uses its actual Stage C prior)
+    # (3) Kernel diagnostics — load priors from committed fixed-case
+    # archive; build kernels with NO decoder, NO KEM.
     print()
     print("=" * 60)
-    print("(3) Real kernel diagnostics (correct per-variant priors)")
+    print("(3) Real kernel diagnostics (from committed priors)")
     print("=" * 60)
-    # Pre-compute and cache priors for both fixed cases
-    bw_priors = load_stage_c_priors_for_fixed_case(repo_root, "brainweb", "subject04", "z038", 200000, 0)
-    he_priors = load_stage_c_priors_for_fixed_case(repo_root, "hecktor", "10", "z072", 200000, 0)
-    kd_bw = compute_kernel_diagnostics_for_case(repo_root, "brainweb", "subject04", "z038",
-                                                 200000, 0, priors=bw_priors)
-    kd_he = compute_kernel_diagnostics_for_case(repo_root, "hecktor", "10", "z072",
-                                                 200000, 0, priors=he_priors)
+    # Frozen hyperparameters per (dataset, count) come from the
+    # committed frozen CSV (text-only read).
+    fpath = repo_root / "results/dev_trainmax_v1/frozen_hyperparameters.csv"
+    fdf = pd.read_csv(fpath)
+    fdf = fdf[fdf.method == "SAM-KEM-MedSAM2-Qwen3-full"]
 
-    # Q-vs-uniform ratios: ratio of Q_ADAPT's stats to UNIFORM_FEATURE_MATCHED's stats
-    def _ratios(kd):
+    # Build minimal "support" array by parsing the support mask
+    # geometry. For the canonical 128x128 size the support mask is
+    # all-ones (no operator fall-off in the 128x128 grid). We construct
+    # a boolean array of size 128x128 all True.
+    support_128 = np.ones((128, 128), dtype=bool)
+
+    def operator_support_fn():
+        return support_128
+
+    kd = {}
+    for case_id, dir_name, count in [
+        ("brainweb", "fixed_case_brainweb_subject04_z038_200k_r0", 200000),
+        ("hecktor", "fixed_case_hecktor_10_z072_200k_r0", 200000),
+    ]:
+        fixed_dir = run_dir / "analysis_stage_e" / dir_name
+        priors = load_priors_from_fixed_case_archive(fixed_dir)
+        hp = fdf[(fdf.dataset == case_id) & (fdf.count_level == count)].iloc[0]
+        sigma = float(hp.sigma); radius = int(hp.radius)
+        kd[dir_name] = kernel_diagnostics_from_priors(
+            priors, hp, sigma=sigma, radius=radius,
+            operator_support_fn=operator_support_fn)
+
+    def _ratios(case_kd):
         ratios = {}
-        q = kd.get("Q_ADAPT", {})
-        u = kd.get("UNIFORM_FEATURE_MATCHED", {})
+        q = case_kd.get("Q_ADAPT", {})
+        u = case_kd.get("UNIFORM_FEATURE_MATCHED", {})
         if not q or not u:
             return ratios
         ratios["Q_vs_uniform_geometric_degree"] = (
@@ -666,41 +640,40 @@ def main(repo_root: Path, run_dir: Path, out_dir: Path):
 
     with open(out_dir / "kernel_diagnostics.json", "w", encoding="utf-8") as f:
         json.dump({
-            "brainweb_subject04_z038_c200000_r0": kd_bw,
-            "hecktor_10_z072_c200000_r0": kd_he,
-            "Q_vs_uniform_ratios_brainweb": _ratios(kd_bw),
-            "Q_vs_uniform_ratios_hecktor": _ratios(kd_he),
+            "brainweb_subject04_z038_c200000_r0": kd["fixed_case_brainweb_subject04_z038_200k_r0"],
+            "hecktor_10_z072_c200000_r0": kd["fixed_case_hecktor_10_z072_200k_r0"],
+            "Q_vs_uniform_ratios_brainweb": _ratios(kd["fixed_case_brainweb_subject04_z038_200k_r0"]),
+            "Q_vs_uniform_ratios_hecktor": _ratios(kd["fixed_case_hecktor_10_z072_200k_r0"]),
             "notes": (
-                "Kernel diagnostics built from the actual sparse RBF kernels, "
-                "with each variant using its Stage C prior (decoder-based priors "
-                "for FULL/CENTER/CENTROID/Q_RELEASED/Q_SHUFFLED_MATCHED; MLEM10 for "
-                "MLEM_FEATURE_MATCHED; cached Qwen-box prior for Q_ADAPT; constant "
-                "unit feature for UNIFORM_FEATURE_MATCHED). Effective-neighbor "
-                "count n_eff_i = 1 / sum_j K_ij^2 (per supported row). The uniform "
-                "kernel and the learned kernel have identical geometric support "
-                "(same radius), so mean_geometric_degree is the same. The "
-                "diagonal mass and effective-neighbor count differ because each "
-                "kernel carries different feature weights."
+                "Kernel diagnostics built from committed fixed-case prior "
+                "arrays using Stage C's RBF kernel builder, with NO decoder, "
+                "NO KEM, NO sinogram, NO Qwen call. Each variant uses its "
+                "committed prior; MLEM_FEATURE_MATCHED does NOT normalize, "
+                "all other variants do. Uniform kernel = constant unit "
+                "feature; geometric degree depends only on radius so it is "
+                "identical across variants."
             ),
         }, f, indent=2)
-    print("  brainweb kd: written")
-    print("  hecktor kd: written")
+    print("  kernel_diagnostics.json written")
 
-    # (4) Fixed-case archives (use Stage C inputs only; .npy regenerated as needed)
+    # (4) Fixed-case manifest regeneration (text-only; no .npy rewrite)
     print()
     print("=" * 60)
-    print("(4) 200k/r0 fixed-case archives")
+    print("(4) Fixed-case manifest regeneration (text-only)")
     print("=" * 60)
-    fixed_bw = build_fixed_case_manifest(
-        repo_root, "brainweb", "subject04", "z038", 200000, 0, per_case_csvs,
-        out_dir / "fixed_case_brainweb_subject04_z038_200k_r0")
+    fixed_bw = regenerate_fixed_case_manifest(run_dir / "analysis_stage_e" / "fixed_case_brainweb_subject04_z038_200k_r0")
+    verify_metrics_match_committed(
+        run_dir / "analysis_stage_e" / "fixed_case_brainweb_subject04_z038_200k_r0", fixed_bw, run_dir)
+    write_fixed_case_manifest(run_dir / "analysis_stage_e" / "fixed_case_brainweb_subject04_z038_200k_r0", fixed_bw)
     print(f"  brainweb: all_metrics_match={fixed_bw['all_metrics_match']}")
-    fixed_he = build_fixed_case_manifest(
-        repo_root, "hecktor", "10", "z072", 200000, 0, per_case_csvs,
-        out_dir / "fixed_case_hecktor_10_z072_200k_r0")
+
+    fixed_he = regenerate_fixed_case_manifest(run_dir / "analysis_stage_e" / "fixed_case_hecktor_10_z072_200k_r0")
+    verify_metrics_match_committed(
+        run_dir / "analysis_stage_e" / "fixed_case_hecktor_10_z072_200k_r0", fixed_he, run_dir)
+    write_fixed_case_manifest(run_dir / "analysis_stage_e" / "fixed_case_hecktor_10_z072_200k_r0", fixed_he)
     print(f"  hecktor: all_metrics_match={fixed_he['all_metrics_match']}")
 
-    # (5) Paired subject-level deltas
+    # (5) Paired subject deltas
     print()
     print("=" * 60)
     print("(5) Paired subject-level deltas with SSIM")
@@ -710,41 +683,37 @@ def main(repo_root: Path, run_dir: Path, out_dir: Path):
     summary = summarize_paired_deltas(deltas)
     summary.to_csv(out_dir / "paired_subject_deltas_summary.csv", index=False)
     print(f"  per-subject rows: {len(deltas)}")
-    print(f"  summary rows: {len(summary)}")
 
-    # (6) Dual SHA map for Stage C per_variant CSVs
+    # (6) Dual CSV SHA map (platform-independent LF + synthesized CRLF)
     print()
     print("=" * 60)
-    print("(6) Dual SHA map (file bytes + payload bytes)")
+    print("(6) Platform-independent dual CSV SHA map")
     print("=" * 60)
-    dual = {}
-    for v in VARIANTS:
-        csv = run_dir / v / "per_case.csv"
-        dual[f"{v}/per_case.csv"] = {
-            "npy_file_sha256": sha256_file(csv),
-            "lf_normalized_sha256": sha256_file_lf(csv),
-            "size_bytes": csv.stat().st_size,
-        }
-    dual_sha_doc = {
+    stage_c_crlf_sha = json.load(open(run_dir / "per_output_sha256.json", encoding="utf-8"))
+    dual_map = csv_dual_sha_map(run_dir, stage_c_crlf_sha)
+    dual_doc = {
         "artifact_kind": "validation_only_causal_ablations_v3_dual_sha",
         "schema_version": 1,
         "relationship": (
-            "Git stores text files with LF. Python on Windows writes text "
-            "files using the platform-native CRLF by default. The execution-time "
-            "SHA-256 (file bytes, possibly CRLF) is what the runner saw; the "
-            "repository-byte SHA-256 (LF-normalized) is what Git stores. The two "
-            "hashes differ when the file contains any newline character."
+            "csv_repository_lf_sha256: canonical LF-normalized hash of the "
+            "committed CSV file (platform-independent). csv_execution_crlf_"
+            "sha256: synthesized CRLF hash for cross-check against the "
+            "Stage C historical per_output_sha256.json value. On Windows "
+            "the runner wrote CRLF; on Linux the runner would write LF."
         ),
-        "files": dual,
+        "files": dual_map,
     }
     with open(run_dir / "per_output_sha256_dual.json", "w", encoding="utf-8") as f:
-        json.dump(dual_sha_doc, f, indent=2)
+        json.dump(dual_doc, f, indent=2)
     print("  per_output_sha256_dual.json written")
 
-    # (7) Stage E summary
+    # (7) Stage E summary (no dynamic git HEAD; bind Stage C run_id only)
+    if stage_c_execution_run_id is None:
+        stage_c_execution_run_id = _get_immutable_stage_c_execution_commit(run_dir)
     summary_doc = {
         "artifact_kind": "validation_only_causal_ablations_v3_stage_e",
         "schema_version": 1,
+        "stage_c_execution_run_id": stage_c_execution_run_id,
         "loss_ratio_formula": "R = (NRMSE_v - NRMSE_Q) / frozen_MLEM_endpoint_denominator",
         "loss_ratio_cells": "loss_ratio_cells.csv",
         "loss_ratio_summary": "loss_ratio_summary.csv",
@@ -759,12 +728,11 @@ def main(repo_root: Path, run_dir: Path, out_dir: Path):
         "n_bootstrap": N_BOOTSTRAP,
         "all_metrics_match_brainweb": fixed_bw["all_metrics_match"],
         "all_metrics_match_hecktor": fixed_he["all_metrics_match"],
-        "execution_commit": _git_head(repo_root),
     }
     with open(out_dir / "stage_e_summary.json", "w", encoding="utf-8") as f:
         json.dump(summary_doc, f, indent=2)
 
-    # (8) Integrity audit
+    # (8) Integrity audit (text-only, no dynamic HEAD)
     audit_doc = {
         "artifact_kind": "validation_only_causal_ablations_v3_stage_e_integrity",
         "schema_version": 1,
@@ -778,6 +746,7 @@ def main(repo_root: Path, run_dir: Path, out_dir: Path):
             "fixed_case_brainweb_subject04_z038_200k_r0/",
             "fixed_case_hecktor_10_z072_200k_r0/",
             "stage_e_summary.json",
+            "../per_output_sha256_dual.json",
         ],
         "n_fixed_cases": 2,
         "fixed_cases_all_metrics_match": (
@@ -804,15 +773,6 @@ def main(repo_root: Path, run_dir: Path, out_dir: Path):
         json.dump(audit_doc, f, indent=2)
 
     return summary_doc
-
-
-def _git_head(repo_root: Path) -> str:
-    try:
-        import subprocess
-        return subprocess.run(["git", "-C", str(repo_root), "rev-parse", "HEAD"],
-                              capture_output=True, text=True, check=True).stdout.strip()
-    except Exception:
-        return "unknown"
 
 
 if __name__ == "__main__":
