@@ -1,471 +1,173 @@
-"""Stage 7A-v2 — corrected prompt-plan structures, strict JSON parser,
-per-object schema, per-pixel logit max aggregation, refinement with
-prior-logits mask_input, DET_COMPONENT with peaks + background
-negatives, and full adversarial test surface.
+"""Stage 7A-v3 — corrected prompt-plan with strict trusted-context
+isolation from untrusted VLM JSON, single validate-or-fallback entry
+point, correct DET_COMPONENT (pixel-count ranking), correct
+refinement semantics (no averaging), and full adversarial test surface.
 
-Per directive 5926624802. Stage 7A-v2 is a code/protocol/zero-write
-planning stage only. No real VLM call, no decoder training, no prior
-generation, no KEM execution.
-
-All functions here are PURE (deterministic, no I/O, no VLM, no GPU,
-no side effects). DET_COMPONENT operates on an in-memory MLEM-10
-array (no model loading, no frozen-metric inspection).
+Per directive 5927858004. Pure functions only (no I/O, no GPU,
+no VLM, no decoder). The agent JSON contract is enforced strictly;
+trusted identity (dataset, subject, slice, count, realization,
+arm) is held in an immutable PromptRequestContext and cannot be
+spoofed by VLM output.
 """
 from __future__ import annotations
 
+import hashlib
 import json
 from collections import OrderedDict
 from dataclasses import dataclass
-from typing import Optional
 
 import numpy as np
 
 
 # ============================================================================
-# Constants (per directive 5926624802)
+# Constants
 # ============================================================================
 
 SCHEMA_VERSION = 1
-
-# Arm name -> deterministic contract. The contract is a pure-data dict;
-# all numbers (boxes, points, counts) are integer in the strict parser.
-ARM_CONTRACT = {
-    "FULL_BOX": dict(
-        arm_kind="deterministic_full",
-        vlm_calls=0,
-        medsam_calls=0,
-        min_objects=1, max_objects=1,
-        min_positive_points=0, max_positive_points=0,
-        min_negative_points=0, max_negative_points=0,
-        allow_multi_round=False, max_calls_per_case=1,
-        deterministic_box_xyxy=(0, 0, 128, 128),  # exact full image
-    ),
-    "DET_COMPONENT": dict(
-        arm_kind="deterministic_components",
-        vlm_calls=0,
-        medsam_calls=0,
-        min_objects=1, max_objects=4,
-        min_positive_points=1, max_positive_points=1,  # 1 peak per object
-        min_negative_points=0, max_negative_points=3,
-        allow_multi_round=False, max_calls_per_case=1,
-        threshold_quantile=0.85,
-        padding_px=2,
-        component_order="original_area_descending",
-    ),
-    "VLM_SINGLE_BOX": dict(
-        arm_kind="vlm_only",
-        vlm_calls=1,
-        medsam_calls=0,
-        min_objects=1, max_objects=1,
-        min_positive_points=0, max_positive_points=0,
-        min_negative_points=0, max_negative_points=0,
-        allow_multi_round=False, max_calls_per_case=1,
-    ),
-    "VLM_MULTI_BOX": dict(
-        arm_kind="vlm_only",
-        vlm_calls=1,
-        medsam_calls=0,
-        min_objects=1, max_objects=4,
-        min_positive_points=0, max_positive_points=0,
-        min_negative_points=0, max_negative_points=0,
-        allow_multi_round=False, max_calls_per_case=1,
-    ),
-    "VLM_BOX_POINT": dict(
-        arm_kind="vlm_box_point",
-        vlm_calls=1,
-        medsam_calls=0,
-        min_objects=1, max_objects=4,
-        min_positive_points=1, max_positive_points=3,  # per object
-        min_negative_points=0, max_negative_points=3,  # per object
-        allow_multi_round=False, max_calls_per_case=1,
-    ),
-    "VLM_AGENT_REFINE": dict(
-        arm_kind="vlm_agent_refine",
-        vlm_calls=2,  # initial + 1 correction
-        medsam_calls=0,
-        min_objects=1, max_objects=4,
-        min_positive_points=1, max_positive_points=3,  # per object
-        min_negative_points=0, max_negative_points=3,  # per object
-        allow_multi_round=True, max_calls_per_case=2,
-        requires_mask_input=True,
-    ),
-}
-
-# Per-object image dim for the canonical 128x128 grid.
 IMAGE_DIM = 128
 
-# Forbidden top-level/object keys (any presence triggers fallback).
-FORBIDDEN_TOP_KEYS = (
-    "reference_mask", "metric", "mr_image", "ct_image", "frozen_target",
-    "label", "mask_input", "iou_logits", "multimask_output",
-)
-
-# Allowed top-level keys.
-ALLOWED_TOP_KEYS = (
-    "schema_version", "arm_name", "dataset", "subject_id", "slice_id",
-    "count_level", "realization_id", "objects", "abstain",
-    "fallback_reason", "mask_input_logit_shape",
-)
-
-# Allowed per-object keys.
+# Per-object ALLOWED keys (exact match; any other key raises).
 ALLOWED_OBJECT_KEYS = (
-    "object_id", "box", "positive_points", "negative_points",
+    "object_id", "box_xyxy", "positive_points_xy",
+    "negative_points_xy", "confidence",
 )
 
+# Top-level ALLOWED keys in the raw agent response.
+ALLOWED_TOP_KEYS = (
+    "schema_version", "objects", "abstain", "fallback_reason",
+)
+
+# Top-level REQUIRED keys in the raw agent response.
+REQUIRED_TOP_KEYS = ALLOWED_TOP_KEYS
+
 
 # ============================================================================
-# Strict schema classes (frozen)
+# Trusted execution context (immutable; NEVER derived from agent JSON)
 # ============================================================================
 
 @dataclass(frozen=True)
-class Box:
-    """Strict half-open XYXY integer box."""
-    x0: int
-    y0: int
-    x1: int
-    y1: int
-
-    def __post_init__(self):
-        for k, v in (("x0", self.x0), ("y0", self.y0),
-                     ("x1", self.x1), ("y1", self.y1)):
-            if not isinstance(v, int) or isinstance(v, bool):
-                raise ValueError(f"box coord {k} must be int, got {v!r}")
-            if v < 0 or v > IMAGE_DIM:
-                raise ValueError(f"box coord {k}={v} out of range [0, {IMAGE_DIM}]")
-        if not (self.x0 < self.x1):
-            raise ValueError(f"box must satisfy x0 < x1: {(self.x0, self.x1)}")
-        if not (self.y0 < self.y1):
-            raise ValueError(f"box must satisfy y0 < y1: {(self.y0, self.y1)}")
-
-    @property
-    def area(self) -> int:
-        return (self.x1 - self.x0) * (self.y1 - self.y0)
-
-    @classmethod
-    def from_dict(cls, d: dict) -> "Box":
-        if set(d.keys()) != {"x0", "y0", "x1", "y1"}:
-            raise PromptPlanSchemaError(
-                f"box dict must have exactly keys x0/y0/x1/y1; got {set(d.keys())}")
-        # STRICT: no int() coercion; reject bool, str, float.
-        for k in ("x0", "y0", "x1", "y1"):
-            v = d[k]
-            if isinstance(v, bool) or not isinstance(v, int):
-                raise PromptPlanSchemaError(
-                    f"box coord {k} must be int (no coercion); got {v!r}")
-        return cls(d["x0"], d["y0"], d["x1"], d["y1"])
-
-
-@dataclass(frozen=True)
-class Point:
-    """Strict integer point with label."""
-    x: int
-    y: int
-    label: str  # "positive" | "negative"
-
-    def __post_init__(self):
-        if not isinstance(self.x, int) or isinstance(self.x, bool):
-            raise ValueError(f"point x must be int, got {self.x!r}")
-        if not isinstance(self.y, int) or isinstance(self.y, bool):
-            raise ValueError(f"point y must be int, got {self.y!r}")
-        if self.label not in ("positive", "negative"):
-            raise ValueError(f"point label must be positive|negative; got {self.label!r}")
-        if self.x < 0 or self.x >= IMAGE_DIM:
-            raise ValueError(f"point x={self.x} out of range [0, {IMAGE_DIM})")
-        if self.y < 0 or self.y >= IMAGE_DIM:
-            raise ValueError(f"point y={self.y} out of range [0, {IMAGE_DIM})")
-
-    @classmethod
-    def from_dict(cls, d: dict) -> "Point":
-        if set(d.keys()) != {"x", "y", "label"}:
-            raise PromptPlanSchemaError(
-                f"point dict must have exactly x/y/label; got {set(d.keys())}")
-        for k in ("x", "y"):
-            v = d[k]
-            if isinstance(v, bool) or not isinstance(v, int):
-                raise PromptPlanSchemaError(
-                    f"point coord {k} must be int (no coercion); got {v!r}")
-        return cls(d["x"], d["y"], d["label"])
-
-
-@dataclass(frozen=True)
-class PromptObject:
-    """Per-object container: box + positive_points + negative_points."""
-    object_id: int
-    box: Box
-    positive_points: tuple[Point, ...]
-    negative_points: tuple[Point, ...]
-
-
-@dataclass(frozen=True)
-class PromptPlan:
-    """Validated prompt plan."""
-    arm_name: str
+class PromptRequestContext:
+    """Trusted execution identity. Built by the trusted caller; cannot
+    be set or modified by the VLM response. All validation routes
+    required to use this exact context."""
+    requested_arm: str            # FULL_BOX | DET_COMPONENT | VLM_SINGLE_BOX | VLM_MULTI_BOX | VLM_BOX_POINT | VLM_AGENT_REFINE
     dataset: str
     subject_id: str
     slice_id: str
     count_level: int
     realization_id: int
-    objects: tuple[PromptObject, ...]
-    abstain: bool
-    fallback_reason: str
-    mask_input_logit_shape: Optional[tuple[int, ...]]  # for VLM_AGENT_REFINE
+    call_index: int              # 1 for first call, 2 for refinement
 
-    @property
-    def num_objects(self) -> int:
-        return len(self.objects)
+    def __post_init__(self):
+        # Validate arm enum
+        valid_arms = ("FULL_BOX", "DET_COMPONENT", "VLM_SINGLE_BOX",
+                      "VLM_MULTI_BOX", "VLM_BOX_POINT", "VLM_AGENT_REFINE")
+        if self.requested_arm not in valid_arms:
+            raise ValueError(f"requested_arm must be one of {valid_arms}; "
+                              f"got {self.requested_arm!r}")
+        # arm + call_index consistency
+        if self.requested_arm != "VLM_AGENT_REFINE" and self.call_index > 1:
+            raise ValueError(
+                f"arm {self.requested_arm} cannot have call_index > 1")
+        if self.requested_arm == "VLM_AGENT_REFINE" and self.call_index > 2:
+            raise ValueError(
+                "VLM_AGENT_REFINE cannot have call_index > 2")
 
 
 # ============================================================================
-# Strict JSON parser
+# Object model (strict)
+# ============================================================================
+
+@dataclass(frozen=True)
+class PromptObject:
+    """One arm output object. Strict: only integer coords and finite
+    confidence in [0, 1]. Per-object, no per-arm special cases."""
+    object_id: int
+    box_xyxy: tuple[int, int, int, int]    # x0, y0, x1, y1
+    positive_points_xy: tuple[tuple[int, int], ...]
+    negative_points_xy: tuple[tuple[int, int], ...]
+    confidence: float
+
+    def __post_init__(self):
+        if isinstance(self.box_xyxy, bool) or not isinstance(
+                self.box_xyxy, (tuple, list)) or len(self.box_xyxy) != 4:
+            raise PromptPlanSchemaError(
+                f"box_xyxy must be tuple/list of 4 ints; got {self.box_xyxy!r}")
+        x0, y0, x1, y1 = self.box_xyxy
+        for k, v in (("x0", x0), ("y0", y0), ("x1", x1), ("y1", y1)):
+            if isinstance(v, bool) or not isinstance(v, int):
+                raise PromptPlanSchemaError(
+                    f"box_xyxy[{k}] must be int (no coercion); got {v!r}")
+        if not (0 <= x0 < x1 <= IMAGE_DIM):
+            raise PromptPlanSchemaError(
+                f"box_xyxy ({x0},{y0},{x1},{y1}) must satisfy "
+                f"0 <= x0 < x1 <= {IMAGE_DIM}")
+        if not (0 <= y0 < y1 <= IMAGE_DIM):
+            raise PromptPlanSchemaError(
+                f"box_xyxy ({x0},{y0},{x1},{y1}) must satisfy "
+                f"0 <= y0 < y1 <= {IMAGE_DIM}")
+        for pts, kind in ((self.positive_points_xy, "positive"),
+                          (self.negative_points_xy, "negative")):
+            for p in pts:
+                if (not isinstance(p, (tuple, list))) or len(p) != 2:
+                    raise PromptPlanSchemaError(
+                        f"{kind} point must be [x, y]; got {p!r}")
+                if isinstance(p[0], bool) or not isinstance(p[0], int):
+                    raise PromptPlanSchemaError(
+                        f"{kind} point x must be int; got {p[0]!r}")
+                if isinstance(p[1], bool) or not isinstance(p[1], int):
+                    raise PromptPlanSchemaError(
+                        f"{kind} point y must be int; got {p[1]!r}")
+                if not (0 <= p[0] < IMAGE_DIM):
+                    raise PromptPlanSchemaError(
+                        f"{kind} point x={p[0]} out of range [0, {IMAGE_DIM})")
+                if not (0 <= p[1] < IMAGE_DIM):
+                    raise PromptPlanSchemaError(
+                        f"{kind} point y={p[1]} out of range [0, {IMAGE_DIM})")
+        if not isinstance(self.confidence, (int, float)):
+            raise PromptPlanSchemaError(
+                f"confidence must be number; got {type(self.confidence).__name__}")
+        if isinstance(self.confidence, bool):
+            raise PromptPlanSchemaError(
+                f"confidence must not be bool; got {self.confidence!r}")
+        if not (0.0 <= self.confidence <= 1.0):
+            raise PromptPlanSchemaError(
+                f"confidence must be in [0, 1]; got {self.confidence}")
+        if self.confidence != self.confidence or self.confidence in (
+                float("inf"), float("-inf")):
+            raise PromptPlanSchemaError(
+                f"confidence must be finite; got {self.confidence}")
+
+
+@dataclass(frozen=True)
+class AgentResponse:
+    """Strict validated raw agent response."""
+    schema_version: int
+    objects: tuple[PromptObject, ...]
+    abstain: bool
+    fallback_reason: str  # "" if not abstaining
+    raw_response_sha256: str
+
+
+# ============================================================================
+# Errors
 # ============================================================================
 
 class PromptPlanSchemaError(ValueError):
     pass
 
 
-def parse_prompt_plan_json(raw: str | bytes) -> PromptPlan:
-    """Strict JSON parser. Accepts raw UTF-8 JSON string or bytes.
+class FatalCaseInputError(ValueError):
+    """Raised when the case input itself is invalid (nonfinite mlem,
+    wrong shape, etc.). NEVER silently replaced by a fallback."""
 
-    Raises PromptPlanSchemaError on any contract violation. Does NOT
-    coerce, clip, drop, or clean. Returns a typed PromptPlan or, on
-    invalid input, raises PromptPlanSchemaError.
-    """
-    if isinstance(raw, bytes):
-        try:
-            text = raw.decode("utf-8")
-        except UnicodeDecodeError as e:
-            raise PromptPlanSchemaError(f"raw bytes are not valid UTF-8: {e}") from e
-    elif isinstance(raw, str):
-        text = raw
-    else:
-        raise PromptPlanSchemaError(
-            f"raw must be str or bytes; got {type(raw).__name__}")
 
-    # Reject duplicate JSON keys via object_pairs_hook=OrderedDict.
-    try:
-        parsed = json.loads(text, object_pairs_hook=_check_no_duplicate_keys)
-    except json.JSONDecodeError as e:
-        raise PromptPlanSchemaError(f"malformed JSON: {e}") from e
-    if not isinstance(parsed, dict):
-        raise PromptPlanSchemaError(
-            f"top-level JSON must be an object; got {type(parsed).__name__}")
-
-    # Top-level key whitelist (forbid any unknown key).
-    extra_keys = set(parsed.keys()) - set(ALLOWED_TOP_KEYS)
-    if extra_keys:
-        raise PromptPlanSchemaError(
-            f"forbidden/unknown top-level keys: {sorted(extra_keys)}")
-
-    # Required fields.
-    for k in ("schema_version", "arm_name", "dataset", "subject_id",
-              "slice_id", "count_level", "realization_id", "objects",
-              "abstain"):
-        if k not in parsed:
-            raise PromptPlanSchemaError(f"missing required top-level field: {k}")
-
-    if parsed["schema_version"] != SCHEMA_VERSION:
-        raise PromptPlanSchemaError(
-            f"schema_version must be {SCHEMA_VERSION}; got {parsed['schema_version']}")
-
-    arm = parsed["arm_name"]
-    if arm not in ARM_CONTRACT:
-        raise PromptPlanSchemaError(
-            f"arm_name must be one of {list(ARM_CONTRACT.keys())}; got {arm!r}")
-    contract = ARM_CONTRACT[arm]
-
-    # Reject non-finite numbers and non-int/float leakage for numeric fields.
-    # `abstain` is allowed to be bool (per the schema). Strings are allowed
-    # only for the whitelisted string fields (dataset/subject_id/slice_id/
-    # arm_name/fallback_reason).
-    STRING_FIELDS = {"arm_name", "dataset", "subject_id", "slice_id",
-                     "fallback_reason"}
-    for k, v in parsed.items():
-        if k == "abstain":
-            if not isinstance(v, bool):
-                raise PromptPlanSchemaError(
-                    f"abstain must be bool, got {type(v).__name__}")
-            continue
-        if isinstance(v, bool):
-            raise PromptPlanSchemaError(
-                f"top-level field {k!r} must not be bool")
-        if isinstance(v, str):
-            if k not in STRING_FIELDS:
-                raise PromptPlanSchemaError(
-                    f"top-level field {k!r} must not be string; got {v!r}")
-            continue
-        if isinstance(v, float):
-            if not (v == v and v != float("inf") and v != float("-inf")):
-                raise PromptPlanSchemaError(
-                    f"top-level field {k!r} is non-finite; got {v!r}")
-        if k == "count_level" and not isinstance(v, int):
-            raise PromptPlanSchemaError(
-                f"count_level must be int, got {type(v).__name__}")
-        if k == "realization_id" and not isinstance(v, int):
-            raise PromptPlanSchemaError(
-                f"realization_id must be int, got {type(v).__name__}")
-        if k == "schema_version" and not isinstance(v, int):
-            raise PromptPlanSchemaError(
-                f"schema_version must be int, got {type(v).__name__}")
-        if k == "mask_input_logit_shape" and not (
-                isinstance(v, list) and all(isinstance(x, int) and not isinstance(x, bool)
-                                            for x in v)):
-            raise PromptPlanSchemaError(
-                f"mask_input_logit_shape must be list of int; got {v!r}")
-
-    objects_raw = parsed["objects"]
-    if not isinstance(objects_raw, list):
-        raise PromptPlanSchemaError("objects must be a list")
-    n_obj = len(objects_raw)
-    if n_obj < contract["min_objects"]:
-        raise PromptPlanSchemaError(
-            f"too few objects for arm {arm}: {n_obj} < min {contract['min_objects']}")
-    if n_obj > contract["max_objects"]:
-        raise PromptPlanSchemaError(
-            f"too many objects for arm {arm}: {n_obj} > max {contract['max_objects']}")
-
-    objects = []
-    seen_obj_ids = set()
-    seen_box_xyxy = []
-    for i, obj_raw in enumerate(objects_raw):
-        if not isinstance(obj_raw, dict):
-            raise PromptPlanSchemaError(f"objects[{i}] must be an object")
-        extra = set(obj_raw.keys()) - set(ALLOWED_OBJECT_KEYS)
-        if extra:
-            raise PromptPlanSchemaError(
-                f"objects[{i}] forbidden/unknown keys: {sorted(extra)}")
-        for k in ALLOWED_OBJECT_KEYS:
-            if k not in obj_raw:
-                raise PromptPlanSchemaError(
-                    f"objects[{i}] missing required field: {k}")
-        # object_id must be unique
-        oid = obj_raw["object_id"]
-        if not isinstance(oid, int) or isinstance(oid, bool):
-            raise PromptPlanSchemaError(
-                f"objects[{i}].object_id must be int; got {oid!r}")
-        if oid in seen_obj_ids:
-            raise PromptPlanSchemaError(
-                f"objects[{i}].object_id={oid} duplicates a previous object_id")
-        seen_obj_ids.add(oid)
-
-        # box is required for every object. FULL_BOX overrides the value
-        # to the deterministic exact full image, BUT user input must still
-        # pass strict validation (so fractional / non-int coords raise).
-        if "box" not in obj_raw:
-            raise PromptPlanSchemaError(
-                f"objects[{i}] missing required field: box")
-        # Validate the user-supplied box strictly (raises on bad input).
-        Box.from_dict(obj_raw["box"])
-        if arm == "FULL_BOX":
-            # Then override to deterministic full image.
-            box = Box(*contract["deterministic_box_xyxy"])
-        else:
-            box = Box.from_dict(obj_raw["box"])
-
-        # Duplicate boxes trigger fallback (per directive).
-        seen_box_xyxy.append((box.x0, box.y0, box.x1, box.y1))
-        dup_box = None
-        for prev_box in seen_box_xyxy[:-1]:
-            if prev_box == seen_box_xyxy[-1]:
-                dup_box = prev_box
-                break
-        if dup_box is not None:
-            raise PromptPlanSchemaError(
-                f"duplicate box {dup_box} in objects[{i}]; "
-                f"per-arm contract forbids silent deduplication; "
-                f"trigger DET_COMPONENT fallback instead")
-
-        # Positive points (per-object counts).
-        pos_raw = obj_raw["positive_points"]
-        neg_raw = obj_raw["negative_points"]
-        if not isinstance(pos_raw, list) or not isinstance(neg_raw, list):
-            raise PromptPlanSchemaError(
-                f"object {oid}: positive/negative_points must be lists")
-        if len(pos_raw) < contract["min_positive_points"]:
-            raise PromptPlanSchemaError(
-                f"object {oid}: too few positive_points "
-                f"({len(pos_raw)} < min {contract['min_positive_points']})")
-        if len(pos_raw) > contract["max_positive_points"]:
-            raise PromptPlanSchemaError(
-                f"object {oid}: too many positive_points "
-                f"({len(pos_raw)} > max {contract['max_positive_points']})")
-        if len(neg_raw) < contract["min_negative_points"]:
-            raise PromptPlanSchemaError(
-                f"object {oid}: too few negative_points")
-        if len(neg_raw) > contract["max_negative_points"]:
-            raise PromptPlanSchemaError(
-                f"object {oid}: too many negative_points")
-
-        positive = []
-        seen_pos = set()
-        for j, p in enumerate(pos_raw):
-            if not isinstance(p, dict):
-                raise PromptPlanSchemaError(
-                    f"object {oid} positive_points[{j}] must be an object")
-            pt = Point.from_dict(p)
-            if pt.label != "positive":
-                raise PromptPlanSchemaError(
-                    f"object {oid} positive_points[{j}] label must be 'positive'; "
-                    f"got {pt.label!r}")
-            if (pt.x, pt.y) in seen_pos:
-                raise PromptPlanSchemaError(
-                    f"object {oid} duplicate positive point {(pt.x, pt.y)}")
-            seen_pos.add((pt.x, pt.y))
-            positive.append(pt)
-        negative = []
-        seen_neg = set()
-        for j, p in enumerate(neg_raw):
-            if not isinstance(p, dict):
-                raise PromptPlanSchemaError(
-                    f"object {oid} negative_points[{j}] must be an object")
-            pt = Point.from_dict(p)
-            if pt.label != "negative":
-                raise PromptPlanSchemaError(
-                    f"object {oid} negative_points[{j}] label must be 'negative'; "
-                    f"got {pt.label!r}")
-            if (pt.x, pt.y) in seen_neg:
-                raise PromptPlanSchemaError(
-                    f"object {oid} duplicate negative point {(pt.x, pt.y)}")
-            seen_neg.add((pt.x, pt.y))
-            negative.append(pt)
-        objects.append(PromptObject(
-            object_id=oid, box=box,
-            positive_points=tuple(positive),
-            negative_points=tuple(negative),
-        ))
-
-    # mask_input shape (VLM_AGENT_REFINE only; required and must be non-empty)
-    mask_shape = parsed.get("mask_input_logit_shape")
-    if arm == "VLM_AGENT_REFINE":
-        if mask_shape is None:
-            raise PromptPlanSchemaError(
-                "VLM_AGENT_REFINE requires mask_input_logit_shape")
-        if not isinstance(mask_shape, list) or len(mask_shape) != 2:
-            raise PromptPlanSchemaError(
-                f"mask_input_logit_shape must be [h, w]; got {mask_shape!r}")
-        if not all(isinstance(x, int) and not isinstance(x, bool) and x > 0
-                   for x in mask_shape):
-            raise PromptPlanSchemaError(
-                f"mask_input_logit_shape entries must be positive int; got {mask_shape}")
-        mask_shape = (int(mask_shape[0]), int(mask_shape[1]))
-    else:
-        mask_shape = None
-
-    return PromptPlan(
-        arm_name=arm,
-        dataset=str(parsed["dataset"]),
-        subject_id=str(parsed["subject_id"]),
-        slice_id=str(parsed["slice_id"]),
-        count_level=int(parsed["count_level"]),
-        realization_id=int(parsed["realization_id"]),
-        objects=tuple(objects),
-        abstain=bool(parsed["abstain"]),
-        fallback_reason=str(parsed.get("fallback_reason") or ""),
-        mask_input_logit_shape=mask_shape,
-    )
-
+# ============================================================================
+# Strict raw-JSON validator
+# ============================================================================
 
 def _check_no_duplicate_keys(pairs):
-    """object_pairs_hook that rejects duplicate top-level / per-object keys."""
+    """object_pairs_hook for json.loads."""
     seen = {}
     out = OrderedDict()
     for k, v in pairs:
@@ -476,103 +178,336 @@ def _check_no_duplicate_keys(pairs):
     return out
 
 
+def _validate_xy(point_obj, label):
+    if not isinstance(point_obj, list) or len(point_obj) != 2:
+        raise PromptPlanSchemaError(
+            f"{label} must be a list of two ints [x, y]; got {point_obj!r}")
+    if (isinstance(point_obj[0], bool) or not isinstance(point_obj[0], int) or
+            isinstance(point_obj[1], bool) or not isinstance(point_obj[1], int)):
+        raise PromptPlanSchemaError(
+            f"{label} coords must be int (no coercion); got {point_obj!r}")
+    x, y = point_obj
+    if not (0 <= x < IMAGE_DIM):
+        raise PromptPlanSchemaError(
+            f"{label} x={x} out of range [0, {IMAGE_DIM})")
+    if not (0 <= y < IMAGE_DIM):
+        raise PromptPlanSchemaError(
+            f"{label} y={y} out of range [0, {IMAGE_DIM})")
+    return (x, y)
+
+
+def _parse_object(obj_raw, idx, seen_obj_ids):
+    """Parse one object from raw dict into a PromptObject."""
+    if not isinstance(obj_raw, dict):
+        raise PromptPlanSchemaError(f"objects[{idx}] must be an object")
+    extra = set(obj_raw.keys()) - set(ALLOWED_OBJECT_KEYS)
+    if extra:
+        raise PromptPlanSchemaError(
+            f"objects[{idx}] forbidden/unknown keys: {sorted(extra)}")
+    for k in ALLOWED_OBJECT_KEYS:
+        if k not in obj_raw:
+            raise PromptPlanSchemaError(
+                f"objects[{idx}] missing required field: {k}")
+    # object_id unique positive int
+    oid = obj_raw["object_id"]
+    if isinstance(oid, bool) or not isinstance(oid, int):
+        raise PromptPlanSchemaError(
+            f"objects[{idx}].object_id must be int; got {oid!r}")
+    if oid <= 0:
+        raise PromptPlanSchemaError(
+            f"objects[{idx}].object_id must be positive; got {oid}")
+    if oid in seen_obj_ids:
+        raise PromptPlanSchemaError(
+            f"objects[{idx}].object_id={oid} duplicates a previous object_id")
+    seen_obj_ids.add(oid)
+    # box_xyxy list of 4 ints
+    box_raw = obj_raw["box_xyxy"]
+    if not isinstance(box_raw, list) or len(box_raw) != 4:
+        raise PromptPlanSchemaError(
+            f"objects[{idx}].box_xyxy must be a list of 4 ints; got {box_raw!r}")
+    box = tuple(_validate_xy([box_raw[0], box_raw[1]], f"objects[{idx}].box_xyxy[0:2]") +
+               _validate_xy([box_raw[2], box_raw[3]], f"objects[{idx}].box_xyxy[2:4]"))
+    # points
+    pos = tuple(_validate_xy(p, f"objects[{idx}].positive_points_xy[{i}]")
+                for i, p in enumerate(obj_raw["positive_points_xy"]))
+    neg = tuple(_validate_xy(p, f"objects[{idx}].negative_points_xy[{i}]")
+                for i, p in enumerate(obj_raw["negative_points_xy"]))
+    # confidence
+    conf = obj_raw["confidence"]
+    if isinstance(conf, bool):
+        raise PromptPlanSchemaError(
+            f"objects[{idx}].confidence must not be bool; got {conf!r}")
+    if not isinstance(conf, (int, float)):
+        raise PromptPlanSchemaError(
+            f"objects[{idx}].confidence must be number; got {type(conf).__name__}")
+    if conf != conf or conf in (float("inf"), float("-inf")):
+        raise PromptPlanSchemaError(
+            f"objects[{idx}].confidence must be finite; got {conf!r}")
+    if not (0.0 <= float(conf) <= 1.0):
+        raise PromptPlanSchemaError(
+            f"objects[{idx}].confidence must be in [0, 1]; got {conf}")
+    return PromptObject(
+        object_id=oid,
+        box_xyxy=box,
+        positive_points_xy=pos,
+        negative_points_xy=neg,
+        confidence=float(conf),
+    )
+
+
+def parse_agent_response(raw: str | bytes, context: PromptRequestContext) -> AgentResponse:
+    """Strict raw-JSON validator. NEVER reads case identity from raw JSON
+    (it comes from context). NEVER silently repairs bad data."""
+    if isinstance(raw, bytes):
+        try:
+            text = raw.decode("utf-8")
+        except UnicodeDecodeError as e:
+            raise PromptPlanSchemaError(f"raw bytes not valid UTF-8: {e}") from e
+    elif isinstance(raw, str):
+        text = raw
+    else:
+        raise PromptPlanSchemaError(
+            f"raw must be str or bytes; got {type(raw).__name__}")
+    # raw response SHA (independent of validation outcome)
+    raw_sha = hashlib.sha256(raw if isinstance(raw, bytes)
+                              else raw.encode("utf-8")).hexdigest()
+    try:
+        parsed = json.loads(text, object_pairs_hook=_check_no_duplicate_keys)
+    except json.JSONDecodeError as e:
+        raise PromptPlanSchemaError(f"malformed JSON: {e}") from e
+    if not isinstance(parsed, dict):
+        raise PromptPlanSchemaError(
+            f"top-level JSON must be an object; got {type(parsed).__name__}")
+    extra = set(parsed.keys()) - set(ALLOWED_TOP_KEYS)
+    if extra:
+        raise PromptPlanSchemaError(
+            f"top-level forbidden/unknown keys: {sorted(extra)}")
+    missing = set(REQUIRED_TOP_KEYS) - set(parsed.keys())
+    if missing:
+        raise PromptPlanSchemaError(f"missing top-level keys: {sorted(missing)}")
+    # schema_version must be int (no coercion)
+    sv = parsed["schema_version"]
+    if isinstance(sv, bool) or not isinstance(sv, int):
+        raise PromptPlanSchemaError(
+            f"schema_version must be int; got {type(sv).__name__}")
+    if sv != SCHEMA_VERSION:
+        raise PromptPlanSchemaError(
+            f"schema_version must be {SCHEMA_VERSION}; got {sv}")
+    abstain_raw = parsed["abstain"]
+    if not isinstance(abstain_raw, bool):
+        raise PromptPlanSchemaError(
+            f"abstain must be bool; got {type(abstain_raw).__name__}")
+    abstain = bool(abstain_raw)
+    if abstain:
+        # abstention contract: objects must be empty, fallback_reason nonempty
+        objs_raw = parsed["objects"]
+        if not isinstance(objs_raw, list) or len(objs_raw) > 0:
+            raise PromptPlanSchemaError(
+                "abstain=true requires empty objects list")
+        fr_raw = parsed["fallback_reason"]
+        if not isinstance(fr_raw, str) or len(fr_raw.strip()) == 0:
+            raise PromptPlanSchemaError(
+                "abstain=true requires nonempty string fallback_reason")
+        return AgentResponse(
+            schema_version=sv,
+            objects=tuple(),
+            abstain=True,
+            fallback_reason=str(fr_raw),
+            raw_response_sha256=raw_sha,
+        )
+    # Non-abstain: fallback_reason must be JSON null (= None)
+    fr_raw = parsed["fallback_reason"]
+    if fr_raw is not None:
+        raise PromptPlanSchemaError(
+            f"non-abstain requires fallback_reason == null; got {fr_raw!r}")
+    objs_raw = parsed["objects"]
+    if not isinstance(objs_raw, list):
+        raise PromptPlanSchemaError("objects must be a list")
+    objects = []
+    seen = set()
+    for i, obj_raw in enumerate(objs_raw):
+        objects.append(_parse_object(obj_raw, i, seen))
+    return AgentResponse(
+        schema_version=sv,
+        objects=tuple(objects),
+        abstain=False,
+        fallback_reason="",
+        raw_response_sha256=raw_sha,
+    )
+
+
 # ============================================================================
-# Pure helpers (per directive)
+# Single executable validate-or-fallback entry point
 # ============================================================================
 
-def pixelwise_max_aggregation(logits_per_object):
-    """Validate per-object logits: same shape, floating, all finite,
-    nonempty. Return np.maximum.reduce(...).
+@dataclass(frozen=True)
+class ValidationOutcome:
+    requested_arm: str
+    executed_arm: str
+    trust_id: str                  # canonical hash of context identity
+    raw_response_sha256: str       # "" if not parsed
+    fallback_used: bool
+    fallback_reason: str
+    objects: tuple[PromptObject, ...]
 
-    NEVER min-max inside this helper. NO silent clipping.
-    Raises PromptPlanSchemaError on any contract violation.
+
+def validate_or_fallback(
+    raw: str | bytes | None,
+    context: PromptRequestContext,
+    same_realization_mlem10: np.ndarray | None,
+) -> ValidationOutcome:
+    """The single public entry point. Returns a typed outcome that binds
+    requested arm, executed arm, trust identity, fallback flag/reason,
+    raw-response SHA, and a valid plan.
+
+    abstention, invalid input, or non-finite mlem all flow through here.
+    The trusted case identity (dataset/subject/slice/count/realization)
+    comes from `context` only, never from raw JSON.
     """
-    arrays = [np.asarray(l) for l in logits_per_object]
-    if len(arrays) == 0:
-        raise PromptPlanSchemaError("pixelwise_max_aggregation requires >= 1 object")
-    ref_shape = arrays[0].shape
-    for i, a in enumerate(arrays):
-        if a.shape != ref_shape:
-            raise PromptPlanSchemaError(
-                f"logits[{i}].shape {a.shape} != reference {ref_shape}")
-        if not np.isfinite(a).all():
-            raise PromptPlanSchemaError(
-                f"logits[{i}] contains non-finite values")
-    return np.maximum.reduce(arrays)
+    trust_id = hashlib.sha256(
+        f"{context.dataset}|{context.subject_id}|{context.slice_id}|"
+        f"{context.count_level}|{context.realization_id}".encode()
+    ).hexdigest()
+
+    if same_realization_mlem10 is None or not isinstance(
+            same_realization_mlem10, np.ndarray):
+        raise FatalCaseInputError(
+            "same_realization_mlem10 is required and must be ndarray")
+    if same_realization_mlem10.shape != (IMAGE_DIM, IMAGE_DIM):
+        raise FatalCaseInputError(
+            f"same_realization_mlem10 must be {(IMAGE_DIM, IMAGE_DIM)}; "
+            f"got {same_realization_mlem10.shape}")
+    if not np.isfinite(same_realization_mlem10).all():
+        raise FatalCaseInputError(
+            "same_realization_mlem10 must be fully finite")
+    # Detect trivial (constant-zero / no-signal) input
+    if float(np.abs(same_realization_mlem10).max()) <= 0.0:
+        raise FatalCaseInputError(
+            "same_realization_mlem10 has no signal (all-zero); "
+            "DET_COMPONENT cannot produce a deterministic plan")
+    if same_realization_mlem10.dtype.kind != "f":
+        raise FatalCaseInputError(
+            f"same_realization_mlem10 must be floating dtype; got "
+            f"{same_realization_mlem10.dtype}")
+
+    raw_sha = hashlib.sha256(
+        raw.encode("utf-8") if isinstance(raw, str) else raw
+    ).hexdigest()
+
+    # Parse the raw response (may raise PromptPlanSchemaError)
+    try:
+        parsed = parse_agent_response(raw, context)
+    except PromptPlanSchemaError as e:
+        return _fallback_to_det(context, trust_id, raw, str(e),
+                                same_realization_mlem10,
+                                parsed_response_sha=raw_sha)
+
+    arm = context.requested_arm
+
+    # Deterministic arms: never parse a response; build directly.
+    if arm in ("FULL_BOX", "DET_COMPONENT"):
+        objs = (full_box_objects()
+                if arm == "FULL_BOX"
+                else tuple(det_component_objects(same_realization_mlem10)))
+        return ValidationOutcome(
+            requested_arm=arm, executed_arm=arm, trust_id=trust_id,
+            raw_response_sha256=raw_sha,
+            fallback_used=False, fallback_reason="",
+            objects=tuple(objs),
+        )
+
+    # VLM arms: abstention → fallback to DET (per directive §A.4).
+    if parsed.abstain:
+        return _fallback_to_det(
+            context, trust_id, raw,
+            f"abstain: {parsed.fallback_reason}",
+            same_realization_mlem10,
+            parsed_response_sha=raw_sha,
+        )
+
+    # Validate against the requested arm contract
+    ok = _validate_vlm_response(parsed, arm, context)
+    if ok is None:
+        return _fallback_to_det(context, trust_id, raw,
+                                f"{arm}_validation_failed",
+                                same_realization_mlem10,
+                                parsed_response_sha=raw_sha)
+    return ValidationOutcome(
+        requested_arm=arm, executed_arm=arm, trust_id=trust_id,
+        raw_response_sha256=raw_sha,
+        fallback_used=False, fallback_reason="",
+        objects=parsed.objects,
+    )
 
 
-def validate_mask_input_for_refine(mask_input, expected_shape):
-    """Validate that mask_input is a non-empty finite float array with
-    the expected shape. Raises PromptPlanSchemaError on any violation.
-    """
-    arr = np.asarray(mask_input)
-    if arr.shape != expected_shape:
-        raise PromptPlanSchemaError(
-            f"mask_input.shape {arr.shape} != expected {expected_shape}")
-    if arr.size == 0:
-        raise PromptPlanSchemaError("mask_input must be non-empty")
-    if not np.isfinite(arr).all():
-        raise PromptPlanSchemaError("mask_input contains non-finite values")
-    return arr
+def _fallback_to_det(
+    context: PromptRequestContext,
+    trust_id: str,
+    raw,
+    reason: str,
+    same_realization_mlem10: np.ndarray,
+    parsed_response_sha: str = "",
+) -> ValidationOutcome:
+    """abstention / invalid input -> deterministic DET_COMPONENT fallback."""
+    try:
+        det_objs = det_component_objects(same_realization_mlem10)
+    except FatalCaseInputError:
+        # Re-raise if even DET_COMPONENT cannot run (e.g. zero-all image).
+        raise
+    raw_sha = ""
+    if raw is not None:
+        try:
+            raw_sha = hashlib.sha256(raw if isinstance(raw, bytes)
+                                      else raw.encode("utf-8")).hexdigest()
+        except Exception:
+            raw_sha = ""
+    return ValidationOutcome(
+        requested_arm=context.requested_arm,
+        executed_arm="DET_COMPONENT",
+        trust_id=trust_id,
+        raw_response_sha256=raw_sha or parsed_response_sha,
+        fallback_used=True,
+        fallback_reason=reason,
+        objects=tuple(det_objs),
+    )
 
 
-def package_refinement(
-    first_round_plan, mask_input, mask_input_shape,
-    first_round_logits_per_object,
-    second_round_objects, second_round_logits_per_object,
-):
-    """Package a VLM_AGENT_REFINE second-round plan. Validates:
-    - mask_input shape matches declared shape;
-    - first_round logits and second_round logits per object match in shape;
-    - first_round objects must equal second_round objects in identity.
-
-    Returns (refined_plan, merged_logits_per_object). Raises
-    PromptPlanSchemaError on any violation. NO silent filtering.
-    """
-    mask = validate_mask_input_for_refine(mask_input, mask_input_shape)
-    if len(second_round_objects) != len(first_round_plan.objects):
-        raise PromptPlanSchemaError(
-            f"second round has {len(second_round_objects)} objects but "
-            f"first round has {len(first_round_plan.objects)}")
-    if len(second_round_logits_per_object) != len(second_round_objects):
-        raise PromptPlanSchemaError(
-            "second_round_logits_per_object length mismatch")
-    if len(first_round_logits_per_object) != len(first_round_plan.objects):
-        raise PromptPlanSchemaError(
-            "first_round_logits_per_object length mismatch")
-    for i, (prev_obj, new_obj) in enumerate(
-            zip(first_round_plan.objects, second_round_objects)):
-        if prev_obj.object_id != new_obj.object_id:
-            raise PromptPlanSchemaError(
-                f"object_id mismatch at index {i}: "
-                f"{prev_obj.object_id} != {new_obj.object_id}")
-    # Stack: combine per-object first + second logits
-    merged = []
-    for i in range(len(second_round_objects)):
-        prev = np.asarray(first_round_logits_per_object[i])
-        new = np.asarray(second_round_logits_per_object[i])
-        if prev.shape != new.shape:
-            raise PromptPlanSchemaError(
-                f"object {i}: prev shape {prev.shape} != new shape {new.shape}")
-        if not np.isfinite(prev).all() or not np.isfinite(new).all():
-            raise PromptPlanSchemaError(
-                f"object {i}: non-finite logits in prev or new")
-        merged.append((prev + new) / 2.0)  # simple averaging as fusion
-    return mask, merged
-
-
-def record_fallback(requested_arm, executed_arm, reason):
-    """Deterministic intention-to-treat fallback record."""
-    return {
-        "requested_arm": requested_arm,
-        "executed_arm": executed_arm,
-        "fallback_used": True,
-        "fallback_reason": reason,
+def _validate_vlm_response(parsed: AgentResponse, arm: str,
+                            context: PromptRequestContext):
+    """Enforce per-VLM-arm contract on the parsed response. Return None
+    if any contract is violated (caller should fallback to DET_COMPONENT)."""
+    rules = {
+        "VLM_SINGLE_BOX": dict(min_objects=1, max_objects=1,
+                               min_positive_points=0, max_positive_points=0,
+                               min_negative_points=0, max_negative_points=0),
+        "VLM_MULTI_BOX": dict(min_objects=1, max_objects=4,
+                              min_positive_points=0, max_positive_points=0,
+                              min_negative_points=0, max_negative_points=0),
+        "VLM_BOX_POINT": dict(min_objects=1, max_objects=4,
+                               min_positive_points=1, max_positive_points=3,
+                               min_negative_points=0, max_negative_points=3),
+        # VLM_AGENT_REFINE has its own refinement path; not validated here.
     }
+    if arm not in rules:
+        return None
+    r = rules[arm]
+    n = len(parsed.objects)
+    if not (r["min_objects"] <= n <= r["max_objects"]):
+        return None
+    for obj in parsed.objects:
+        if len(obj.positive_points_xy) > r["max_positive_points"]:
+            return None
+        if len(obj.positive_points_xy) < r["min_positive_points"]:
+            return None
+        if len(obj.negative_points_xy) > r["max_negative_points"]:
+            return None
+        if len(obj.negative_points_xy) < r["min_negative_points"]:
+            return None
+    return True
 
 
 # ============================================================================
-# DET_COMPONENT deterministic planner
+# DET_COMPONENT deterministic planner (corrected per directive §10)
 # ============================================================================
 
 def _flood_fill_components(mask: np.ndarray) -> np.ndarray:
@@ -595,141 +530,255 @@ def _flood_fill_components(mask: np.ndarray) -> np.ndarray:
     return labels
 
 
-def det_component_plan(
-    mlem10: np.ndarray,
-    image_dim: int = IMAGE_DIM,
-    threshold_quantile: float = 0.85,
-    padding_px: int = 2,
-    component_order: str = "original_area_descending",
-    max_objects: int = 4,
-):
-    """Deterministic DET_COMPONENT planner:
-      1. Threshold |mlem10| at its `threshold_quantile` quantile.
-      2. 4-connected flood-fill labeling of the foreground mask.
-      3. Per component:
-         - tight original-area XYXY bbox (no padding shrink),
-         - tight padded XYXY bbox (for the JSON-reported box; same dims),
-         - local-peak positive point (argmax of |mlem10| inside the bbox),
-         - background negative point (argmin of |mlem10| in a fixed band
-           outside the bbox, deterministic seed).
-      4. Sort by ORIGINAL area, largest first; cap to max_objects.
-      5. Deduplicate (no two same-object_id).
-      6. Output one PromptObject per kept component.
+def det_component_objects(mlem10: np.ndarray) -> list[PromptObject]:
+    """Corrected DET_COMPONENT planner:
+      - Ranks components by ACTUAL PIXEL COUNT (component area in pixels),
+        not bounding-box area.
+      - Local peak is INSIDE the component (not just bbox).
+      - Background negatives are OUTSIDE the bbox (1-px band ring).
+      - Reject non-finite / wrong-shaped / all-zero / all-NaN inputs via
+        FatalCaseInputError (no silent empty fallback for valid finite inputs).
+      - If no valid background location exists, emit zero negatives for
+        that component.
     """
-    if mlem10.ndim != 2 or mlem10.shape[0] != image_dim or mlem10.shape[1] != image_dim:
-        raise ValueError(f"mlem10 must be {image_dim}x{image_dim}")
-    abs_map = np.abs(np.asarray(mlem10, dtype=np.float32))
-    thr = float(np.quantile(abs_map, threshold_quantile))
+    if mlem10.ndim != 2 or mlem10.shape != (IMAGE_DIM, IMAGE_DIM):
+        raise FatalCaseInputError(
+            f"mlem10 must be {(IMAGE_DIM, IMAGE_DIM)}; got {mlem10.shape}")
+    if mlem10.dtype.kind != "f":
+        raise FatalCaseInputError(
+            f"mlem10 must be floating; got {mlem10.dtype}")
+    if not np.isfinite(mlem10).all():
+        raise FatalCaseInputError("mlem10 must be fully finite")
+    abs_map = np.abs(mlem10.astype(np.float32))
+    thr = float(np.quantile(abs_map, 0.85))
     mask = (abs_map >= thr).astype(np.uint8)
+    if mask.sum() == 0:
+        raise FatalCaseInputError(
+            "DET_COMPONENT: empty foreground mask after threshold; "
+            "no valid deterministic plan")
     labels = _flood_fill_components(mask)
     components = []
     for k in range(1, int(labels.max()) + 1):
         ys, xs = np.where(labels == k)
         if len(xs) == 0:
             continue
-        x0_orig = int(xs.min())
-        x1_orig = int(xs.max()) + 1
-        y0_orig = int(ys.min())
-        y1_orig = int(ys.max()) + 1
-        orig_area = (x1_orig - x0_orig) * (y1_orig - y0_orig)
-
-        # Padded bbox (for JSON reporting; does not shrink)
-        x0 = max(0, x0_orig - padding_px)
-        y0 = max(0, y0_orig - padding_px)
-        x1 = min(image_dim, x1_orig + padding_px)
-        y1 = min(image_dim, y1_orig + padding_px)
-        if x0 >= x1 or y0 >= y1:
+        pixel_count = int(len(xs))
+        x0 = int(xs.min()); x1 = int(xs.max()) + 1
+        y0 = int(ys.min()); y1 = int(ys.max()) + 1
+        # pad to bbox
+        xp0 = max(0, x0 - 2); yp0 = max(0, y0 - 2)
+        xp1 = min(IMAGE_DIM, x1 + 2); yp1 = min(IMAGE_DIM, y1 + 2)
+        if xp0 >= xp1 or yp0 >= yp1:
             continue
-
-        # Local peak (positive point): argmax inside original bbox
-        sub = abs_map[y0_orig:y1_orig, x0_orig:x1_orig]
+        # local peak INSIDE the component (not the bbox)
+        sub = abs_map[y0:y1, x0:x1]
         py, px = np.unravel_index(np.argmax(sub), sub.shape)
-        peak = Point(int(x0_orig + px), int(y0_orig + py), "positive")
-
-        # Background negative point: deterministic 1-px-band ring around
-        # the PADDED bbox (which is what the user-facing box reports).
-        # The negative is always OUTSIDE the padded bbox.
+        peak = (int(x0 + px), int(y0 + py))
+        # background negative: argmin outside padded bbox
+        bg_x0 = max(0, xp0 - 1); bg_x1 = min(IMAGE_DIM, xp1 + 1)
+        bg_y0 = max(0, yp0 - 1); bg_y1 = min(IMAGE_DIM, yp1 + 1)
         band_mask = np.zeros_like(abs_map, dtype=bool)
-        x0b = max(0, x0 - 1); x1b = min(image_dim, x1 + 1)
-        y0b = max(0, y0 - 1); y1b = min(image_dim, y1 + 1)
-        if y0 > 0:
-            band_mask[y0b:y0, x0b:x1b] = True
-        if y1 < image_dim:
-            band_mask[y1:y1b, x0b:x1b] = True
-        if x0 > 0:
-            band_mask[y0b:y1b, x0b:x0] = True
-        if x1 < image_dim:
-            band_mask[y0b:y1b, x1:x1b] = True
-        neg = Point(0, 0, "negative")  # default; replaced below
-        if band_mask.any():
+        if yp0 > 0:
+            band_mask[bg_y0:yp0, bg_x0:bg_x1] = True
+        if yp1 < IMAGE_DIM:
+            band_mask[yp1:bg_y1, bg_x0:bg_x1] = True
+        if xp0 > 0:
+            band_mask[bg_y0:bg_y1, bg_x0:xp0] = True
+        if xp1 < IMAGE_DIM:
+            band_mask[bg_y0:bg_y1, xp1:bg_x1] = True
+        if not band_mask.any():
+            # No valid background location; emit zero negatives (NOT
+            # an inside point). Per directive.
+            negs = ()
+        else:
             ys_b, xs_b = np.where(band_mask)
-            # deterministic: pick the (y, x) with the lowest |mlem10|
             abs_band = abs_map[ys_b, xs_b]
             i_min = int(np.argmin(abs_band))
-            neg = Point(int(xs_b[i_min]), int(ys_b[i_min]), "negative")
-        else:
-            # Fall back to image-corner (shouldn't normally happen)
-            neg = Point(0, 0, "negative")
-
-        components.append({
-            "original_area": orig_area,
-            "box": Box(x0, y0, x1, y1),
-            "positive_point": peak,
-            "negative_point": neg,
-        })
-    if component_order == "original_area_descending":
-        components.sort(key=lambda c: -c["original_area"])
-    components = components[:max_objects]
-    objects = []
-    for i, c in enumerate(components):
-        objects.append(PromptObject(
+            neg = (int(xs_b[i_min]), int(ys_b[i_min]))
+            negs = (neg,)
+        components.append((pixel_count, PromptObject(
+            object_id=len(components),
+            box_xyxy=(xp0, yp0, xp1, yp1),
+            positive_points_xy=(peak,),
+            negative_points_xy=negs,
+            confidence=1.0,
+        )))
+    if not components:
+        raise FatalCaseInputError(
+            "DET_COMPONENT: no valid components produced")
+    # Deterministic tie-break: rank by pixel_count desc, then by
+    # smaller x0+y0 asc, then by larger padded area desc.
+    components.sort(key=lambda t: (-t[0], t[1].box_xyxy[0] + t[1].box_xyxy[1],
+                                  -((t[1].box_xyxy[2] - t[1].box_xyxy[0]) *
+                                    (t[1].box_xyxy[3] - t[1].box_xyxy[1]))))
+    components = components[:4]
+    # Re-id after sorting/drop
+    return [
+        PromptObject(
             object_id=i,
-            box=c["box"],
-            positive_points=(c["positive_point"],),
-            negative_points=(c["negative_point"],),
-        ))
-    return tuple(objects)
-
-
-def det_component_plan_from_mlem10(mlem10, max_objects=4, **kw):
-    """Convenience wrapper."""
-    return det_component_plan(
-        mlem10, image_dim=IMAGE_DIM, max_objects=max_objects, **kw)
+            box_xyxy=o.box_xyxy,
+            positive_points_xy=o.positive_points_xy,
+            negative_points_xy=o.negative_points_xy,
+            confidence=o.confidence,
+        ) for i, (_, o) in enumerate(components)
+    ]
 
 
 # ============================================================================
-# Intention-to-treat fallback executor
+# Deterministic builders (no parse, no VLM)
 # ============================================================================
 
-def execute_with_fallback(parsed_plan, mlem10, original_arm, raw_json=None):
-    """If parsed_plan is None or invalid, run DET_COMPONENT on the same
-    mlem10 (zero VLM calls) and record fallback metadata. Otherwise return
-    the parsed plan unchanged.
+def full_box_objects() -> tuple[PromptObject, ...]:
+    """FULL_BOX: exact [0, 0, 128, 128] full image. No parse, no VLM."""
+    return (PromptObject(
+        object_id=0,
+        box_xyxy=(0, 0, IMAGE_DIM, IMAGE_DIM),
+        positive_points_xy=(),
+        negative_points_xy=(),
+        confidence=1.0,
+    ),)
 
-    Returns a dict with: requested_arm, executed_arm, fallback_used,
-    fallback_reason, plan (the PromptPlan or DET_COMPONENT-derived plan).
+
+# ============================================================================
+# Aggregation: pixelwise per-object max (NO numerical averaging)
+# ============================================================================
+
+def pixelwise_max_aggregation(logit_arrays: list[np.ndarray]) -> np.ndarray:
+    """Validate same shape, floating dtype, all finite, nonempty;
+    return np.maximum.reduce(...). NO min-max inside; NO averaging."""
+    if len(logit_arrays) == 0:
+        raise PromptPlanSchemaError(
+            "pixelwise_max_aggregation requires >= 1 logit array")
+    ref_shape = logit_arrays[0].shape
+    for i, a in enumerate(logit_arrays):
+        if a.shape != ref_shape:
+            raise PromptPlanSchemaError(
+                f"logits[{i}].shape {a.shape} != reference {ref_shape}")
+        if a.dtype.kind != "f":
+            raise PromptPlanSchemaError(
+                f"logits[{i}] must be floating; got {a.dtype}")
+        if not np.isfinite(a).all():
+            raise PromptPlanSchemaError(
+                f"logits[{i}] must be fully finite")
+    return np.maximum.reduce(logit_arrays)
+
+
+# ============================================================================
+# Refinement packaging: NO averaging, only second-pass objects
+# ============================================================================
+
+def package_refinement_inputs(
+    first_round_objects: tuple[PromptObject, ...],
+    first_round_logits: list[np.ndarray],
+    second_round_objects: tuple[PromptObject, ...],
+    second_round_logits: list[np.ndarray],
+    mask_input: np.ndarray,
+    mask_input_shape: tuple[int, int],
+) -> list[PromptObject]:
+    """Package the decoder-call inputs for VLM_AGENT_REFINE's correction
+    pass. NO numerical averaging, no logit blending, no min-max.
+
+    Returns one decoder-call object per first-round object_id: the
+    second-round corrected box and its corrected points, plus the
+    verified mask_input.
+
+    The final multi-object prior is computed separately via
+    pixelwise_max_aggregation(second_round_object_logits).
     """
-    if parsed_plan is None or raw_json is None:
-        det_objects = det_component_plan_from_mlem10(mlem10)
-        return {
-            "requested_arm": original_arm,
-            "executed_arm": "DET_COMPONENT",
-            "fallback_used": True,
-            "fallback_reason": "invalid_or_missing_input",
-            "plan": PromptPlan(
-                arm_name="DET_COMPONENT",
-                dataset="", subject_id="", slice_id="",
-                count_level=0, realization_id=0,
-                objects=det_objects,
-                abstain=False,
-                fallback_reason="invalid_or_missing_input",
-                mask_input_logit_shape=None,
-            ),
-        }
-    return {
-        "requested_arm": parsed_plan.arm_name,
-        "executed_arm": parsed_plan.arm_name,
-        "fallback_used": parsed_plan.abstain,
-        "fallback_reason": parsed_plan.fallback_reason,
-        "plan": parsed_plan,
-    }
+    if len(first_round_objects) != len(second_round_objects):
+        raise PromptPlanSchemaError(
+            f"first_round_objects ({len(first_round_objects)}) != "
+            f"second_round_objects ({len(second_round_objects)})")
+    if len(first_round_logits) != len(first_round_objects):
+        raise PromptPlanSchemaError("first_round_logits length mismatch")
+    if len(second_round_logits) != len(second_round_objects):
+        raise PromptPlanSchemaError("second_round_logits length mismatch")
+    # Validate mask_input strictly
+    if not isinstance(mask_input, np.ndarray):
+        raise PromptPlanSchemaError(
+            f"mask_input must be ndarray; got {type(mask_input).__name__}")
+    if mask_input.shape != mask_input_shape:
+        raise PromptPlanSchemaError(
+            f"mask_input.shape {mask_input.shape} != expected {mask_input_shape}")
+    if mask_input.dtype.kind != "f":
+        raise PromptPlanSchemaError(
+            f"mask_input must be floating; got {mask_input.dtype}")
+    if not np.isfinite(mask_input).all():
+        raise PromptPlanSchemaError("mask_input must be fully finite")
+    # Verify identity alignment (object_id matched by index, not averaged)
+    out = []
+    for i, (fr, sr, fl, sl) in enumerate(
+            zip(first_round_objects, second_round_objects,
+                first_round_logits, second_round_logits)):
+        if fr.object_id != sr.object_id:
+            raise PromptPlanSchemaError(
+                f"object_id mismatch at index {i}: "
+                f"first={fr.object_id} second={sr.object_id}")
+        if fl.shape != sl.shape:
+            raise PromptPlanSchemaError(
+                f"object {fr.object_id}: first-round logits shape "
+                f"{fl.shape} != second-round shape {sl.shape}")
+        # DO NOT AVERAGE; the second-pass object's logits REPLACE the
+        # first-pass logits per MedSAM2 mask_input semantics.
+        # Return the second-round object as-is (validated).
+        out.append(sr)
+    return out
+
+
+# ============================================================================
+# Per-arm transaction budget enforcement
+# ============================================================================
+
+ARM_TRANSACTION_BUDGET = {
+    "FULL_BOX":        dict(max_vlm_calls=0, max_medsam_calls=0,
+                              max_rounds=0),
+    "DET_COMPONENT":   dict(max_vlm_calls=0, max_medsam_calls=0,
+                              max_rounds=0),
+    "VLM_SINGLE_BOX":  dict(max_vlm_calls=1, max_medsam_calls=1,
+                              max_rounds=1),
+    "VLM_MULTI_BOX":   dict(max_vlm_calls=1, max_medsam_calls=1,
+                              max_rounds=1),
+    "VLM_BOX_POINT":   dict(max_vlm_calls=1, max_medsam_calls=1,
+                              max_rounds=1),
+    "VLM_AGENT_REFINE": dict(max_vlm_calls=2, max_medsam_calls=2,
+                              max_rounds=2),
+}
+
+
+class TransactionBudget:
+    """Trusted-side enforcement; called by the executor (NOT by the VLM)."""
+    def __init__(self, context: PromptRequestContext):
+        self.context = context
+        self.vlm_calls = 0
+        self.medsam_calls = 0
+        self.budget = ARM_TRANSACTION_BUDGET[context.requested_arm]
+        self.max_rounds = context.call_index  # enforced externally
+
+    def check_call(self, kind: str) -> None:
+        """kind: 'vlm' or 'medsam'. Raises if budget exceeded."""
+        if kind == "vlm":
+            if self.vlm_calls + 1 > self.budget["max_vlm_calls"]:
+                raise PromptPlanSchemaError(
+                    f"{self.context.requested_arm} exceeds max_vlm_calls="
+                    f"{self.budget['max_vlm_calls']} (call "
+                    f"{self.vlm_calls + 1})")
+            self.vlm_calls += 1
+        elif kind == "medsam":
+            if self.medsam_calls + 1 > self.budget["max_medsam_calls"]:
+                raise PromptPlanSchemaError(
+                    f"{self.context.requested_arm} exceeds max_medsam_calls="
+                    f"{self.budget['max_medsam_calls']} (call "
+                    f"{self.medsam_calls + 1})")
+            self.medsam_calls += 1
+        else:
+            raise ValueError(f"unknown call kind: {kind}")
+
+
+# ============================================================================
+# FULL_BOX strict (reject external boxes)
+# ============================================================================
+
+def full_box_strict_objects() -> tuple[PromptObject, ...]:
+    """FULL_BOX must NOT accept any external box. Always emits the
+    deterministic exact full image."""
+    return full_box_objects()

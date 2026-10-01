@@ -1,0 +1,141 @@
+# Stage 7A v3 protocol — six preregistered prompt-plan arms (corrected)
+# Per directive 5927858004 + master protocol 5924162430. Code/protocol/
+# zero-write planning stage only; no real VLM call, no decoder training,
+# no prior generation, no KEM execution.
+name: stage7a_v3_prompt_planning
+kind: stage7a_v3_prompt_planning
+version: "3.0"
+split: validation
+methods: [STAGE7A_PLANNING]
+datasets: [brainweb, hecktor]
+# Required arms (corrected semantics per directive §A).
+arms:
+  - name: FULL_BOX
+    arm_kind: deterministic_full
+    vlm_calls: 0
+    medsam_calls: 0
+    min_objects: 1
+    max_objects: 1
+    min_positive_points: 0
+    max_positive_points: 0
+    min_negative_points: 0
+    max_negative_points: 0
+    allow_multi_round: false
+    max_calls_per_case: 1
+    deterministic_box_xyxy: [0, 0, 128, 128]
+  - name: DET_COMPONENT
+    arm_kind: deterministic_components
+    vlm_calls: 0
+    medsam_calls: 0
+    min_objects: 1
+    max_objects: 4
+    min_positive_points: 1
+    max_positive_points: 1
+    min_negative_points: 0
+    max_negative_points: 3
+    allow_multi_round: false
+    max_calls_per_case: 1
+    threshold_quantile: 0.85
+    padding_px: 2
+    component_order: pixel_count_desc
+  - name: VLM_SINGLE_BOX
+    arm_kind: vlm_only
+    vlm_calls: 1
+    medsam_calls: 1
+    min_objects: 1
+    max_objects: 1
+    min_positive_points: 0
+    max_positive_points: 0
+    min_negative_points: 0
+    max_negative_points: 0
+    allow_multi_round: false
+    max_calls_per_case: 1
+  - name: VLM_MULTI_BOX
+    arm_kind: vlm_only
+    vlm_calls: 1
+    medsam_calls: 1
+    min_objects: 1
+    max_objects: 4
+    min_positive_points: 0
+    max_positive_points: 0
+    min_negative_points: 0
+    max_negative_points: 0
+    allow_multi_round: false
+    max_calls_per_case: 1
+  - name: VLM_BOX_POINT
+    arm_kind: vlm_box_point
+    vlm_calls: 1
+    medsam_calls: 1
+    min_objects: 1
+    max_objects: 4
+    min_positive_points: 1
+    max_positive_points: 3
+    min_negative_points: 0
+    max_negative_points: 3
+    allow_multi_round: false
+    max_calls_per_case: 1
+  - name: VLM_AGENT_REFINE
+    arm_kind: vlm_agent_refine
+    vlm_calls: 2
+    medsam_calls: 2
+    min_objects: 1
+    max_objects: 4
+    min_positive_points: 1
+    max_positive_points: 3
+    min_negative_points: 0
+    max_negative_points: 3
+    allow_multi_round: true
+    max_calls_per_case: 2
+    requires_mask_input: true
+# Raw agent response contract (per directive §A).
+agent_response_required_top_level_keys:
+  - schema_version
+  - objects
+  - abstain
+  - fallback_reason
+agent_response_allowed_top_level_keys:
+  - schema_version
+  - objects
+  - abstain
+  - fallback_reason
+agent_response_required_per_object_keys:
+  - object_id
+  - box_xyxy
+  - positive_points_xy
+  - negative_points_xy
+  - confidence
+agent_response_allowed_per_object_keys:
+  - object_id
+  - box_xyxy
+  - positive_points_xy
+  - negative_points_xy
+  - confidence
+# Strict contract enforcement
+xyxy_strict: true        # 0 <= x0 < x1 <= 128; 0 <= y0 < y1 <= 128
+point_strict: true       # 0 <= x < 128, 0 <= y < 128
+confidence_strict: true   # finite number, 0 <= c <= 1, no bool/str coercion
+no_silent_clipping: true
+no_coercion: true
+duplicate_top_level_keys_forbidden: true
+duplicate_object_ids_forbidden: true
+duplicate_boxes_trigger_fallback: true
+# Stages: separate scopes (per directive §E)
+stage_7d_internal_development_screen:
+  counts: [100000, 200000]
+  realizations: [0]
+  expected_n_cases: pending_stage7b_subject_split
+stage_7e_full_historical_validation:
+  counts: [100000, 200000, 500000, 1000000]
+  realizations: [0, 1, 2]
+  expected_n_cases: 8892
+  expected_total_calls_full_validation: 62244  # 8,892 * 7 (avg across arms)
+# Pure KEM, no post-fusion
+post_fusion_forbidden: true
+alpha_blend_forbidden: true
+multimask_output: false
+# Same-realization identity
+same_realization_only: true
+# DET_COMPONENT: rank by actual component pixel count
+det_component_threshold_quantile: 0.85
+det_component_padding_px: 2
+det_component_component_order: pixel_count_desc

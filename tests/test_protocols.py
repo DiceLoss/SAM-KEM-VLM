@@ -3,14 +3,15 @@ from pathlib import Path
 from sam_kem.protocols import load_protocol
 
 
-# Allow-list of protocol kinds. Stage 7A-v2 planning protocol is
-# added as `stage7a_v2_prompt_planning`.
+# Allow-list of protocol kinds. Stage 7A-v3 planning protocol is
+# added as `stage7a_v3_prompt_planning`.
 KNOWN_PROTOCOL_KINDS = {
     "training", "hyperparameter_sweep", "primary", "comparison",
     "ablation", "convergence", "cross_count",
     "runtime", "normalization_calibration",
     "stage7a_prompt_planning",
     "stage7a_v2_prompt_planning",
+    "stage7a_v3_prompt_planning",
 }
 
 
