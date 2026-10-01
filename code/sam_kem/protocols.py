@@ -13,6 +13,7 @@ EXPERIMENT_KINDS = {
   "training", "hyperparameter_sweep", "primary", "comparison",
   "ablation", "convergence", "cross_count",
   "runtime", "normalization_calibration",
+  "stage7a_prompt_planning",
 }
 
 

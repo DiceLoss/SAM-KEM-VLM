@@ -1,0 +1,109 @@
+# Stage 7A v1 protocol — six preregistered prompt-plan arms
+# Per directive 5924162430 + 5925510360. Code/protocol/zero-write
+# planning only; no real VLM call, no decoder training, no prior
+# generation, no KEM execution. All frozen Stage C / Stage E / fixed
+# case artifacts remain untouched.
+name: stage7a_v1_prompt_planning
+kind: stage7a_prompt_planning
+version: "1.0"
+split: validation
+methods: [STAGE7A_PLANNING]
+datasets: [brainweb, hecktor]
+count_levels: [200000]
+realizations: [0, 1, 2]
+# Six preregistered arms (deterministic, zero-write).
+arms:
+  - name: FULL_BOX
+    arm_kind: qwen_only
+    # ONE call per case. Up to 4 bounding boxes. No point cloud.
+    max_objects: 4
+    min_positive_points: 0
+    max_positive_points: 0
+    min_negative_points: 0
+    max_negative_points: 0
+    allow_multi_round: false
+  - name: DET_COMPONENT
+    arm_kind: det_component
+    # Deterministic planner using only the same-realization MLEM-10 image.
+    # ONE call per case. Up to 4 boxes derived from connected components
+    # of the thresholded |mlem10| map.
+    max_objects: 4
+    min_positive_points: 0
+    max_positive_points: 0
+    min_negative_points: 0
+    max_negative_points: 0
+    allow_multi_round: false
+    threshold_quantile: 0.85     # |mlem10| >= q-th quantile becomes foreground
+    padding_px: 2               # box inflation before clipping to image
+    component_order: area_descending
+  - name: VLM_SINGLE_BOX
+    arm_kind: vlm_only
+    min_positive_points: 1
+    max_positive_points: 1
+    min_negative_points: 0
+    max_negative_points: 1
+    max_objects: 1
+    allow_multi_round: false
+    max_calls_per_case: 1
+  - name: VLM_MULTI_BOX
+    arm_kind: vlm_only
+    min_positive_points: 1
+    max_positive_points: 3
+    min_negative_points: 0
+    max_negative_points: 3
+    max_objects: 4
+    allow_multi_round: false
+    max_calls_per_case: 1
+  - name: VLM_BOX_POINT
+    arm_kind: vlm_box_point
+    min_positive_points: 1
+    max_positive_points: 3
+    min_negative_points: 0
+    max_negative_points: 3
+    max_objects: 1
+    # 1 box from VLM, 1-3 positive points from same VLM call.
+    require_box_plus_points: true
+    allow_multi_round: false
+    max_calls_per_case: 1
+  - name: VLM_AGENT_REFINE
+    arm_kind: vlm_agent_refine
+    min_positive_points: 1
+    max_positive_points: 3
+    min_negative_points: 0
+    max_negative_points: 3
+    max_objects: 4
+    allow_multi_round: true
+    max_calls_per_case: 2      # exactly two calls: initial + refine
+# Required contracts:
+requires_box_xyxy: true
+xy_min_less_than_xy_max: true
+xy_in_image_bounds: true
+xyxy_min_lt_max_strict: true
+# All coordinates must be finite, integer, 0 <= xy < image_dim
+finite_coords_required: true
+no_silent_clipping: true
+# Duplicate box rejection
+duplicate_xyxy_rejection: true
+duplicate_iou_threshold: 1.0      # exact duplicate
+# Confidence must be finite [0, 1]
+finite_confidence_required: true
+confidence_range: [0.0, 1.0]
+# Intention-to-treat fallback: any rejection -> deterministic fallback
+intention_to_treat_fallback: true
+fallback_record_required: true
+# Pure KEM, no post-fusion
+post_fusion_forbidden: true
+alpha_blend_forbidden: true
+# Same-realization identity
+same_realization_only: true
+# Reference / mask / MR / CT / metric leakage fields are FORBIDDEN
+forbidden_response_fields:
+  - reference_mask
+  - metric
+  - mr_image
+  - ct_image
+  - frozen_target
+# Multimask output must remain disabled
+multimask_output: false
+# No historical metric inspection for thresholds
+no_historical_metric_inspection: true
