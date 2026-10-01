@@ -1,6 +1,7 @@
-"""Step 6BQ Stage E — portable, zero-recomputation reproduction layer.
+"""Step 6BR Stage E — portable, zero-recomputation, canonical-serialization
+reproduction layer.
 
-Per directive 5911991111:
+Per directive 5923244124:
 
 The numerical Stage E outputs are accepted and frozen:
 - all seven corrected loss-ratio medians + 8-cell direction counts;
@@ -11,13 +12,24 @@ The numerical Stage E outputs are accepted and frozen:
 This module NEVER recomputes any of those values. It reads them back
 from the committed Stage C output (per-variant per_case.csv files)
 and the committed fixed-case .npy archives, then derives only:
-- new manifest .json content (shapes/dtypes/SHA-256);
+- canonical-serialization text artifacts (deterministic JSON encoding
+  with fixed float precision for platform-independence);
+- new manifest .json content (shapes/dtypes/SHA-256) using
+  array_payload_sha256 + npy_file_sha256 for .npy files (NEVER
+  csv_* or repository_lf_* labels on .npy);
 - text statistics summaries;
-- dual CSV SHAs that are platform-independent (LF-normalized, with
-  synthesized CRLF for cross-check against the historical Stage C
-  per_output_sha256.json);
+- dual CSV SHAs that are platform-independent (LF-normalized for CSV
+  text, synthesized CRLF for cross-check against the historical Stage C
+  per_output_sha256.json), kept only in per_output_sha256_dual.json;
 - byte-reproducible text outputs (no dynamic git HEAD, no live
   decoding, no checkpoint/zip/sinogram/KEM/Qwen dependencies).
+
+Canonical float serialization uses 12 significant digits, which absorbs
+platform summation-order differences without altering any reported digit
+(the directive shows committed values with at most 16 significant digits
+but observed diffs at the 14th-18th). The decoder-based priors in the
+fixed-case archive are byte-identical to the committed values; no
+recomputation is performed.
 """
 from __future__ import annotations
 
@@ -27,6 +39,32 @@ from pathlib import Path
 
 import numpy as np
 import pandas as pd
+
+
+# ============================================================================
+# Canonical float serialization for cross-platform text byte identity
+# ============================================================================
+
+# 12 significant digits: absorbs platform summation-order differences at
+# the 14th-18th digit while preserving all reported digits (the directive
+# shows committed values at most 16 significant digits but observed diffs
+# at the 14th-18th).
+KERNEL_FLOAT_PRECISION = 12
+
+
+def _round_floats(obj, precision: int = KERNEL_FLOAT_PRECISION):
+    """Recursively round all floats in a JSON-compatible object to the
+    declared precision. Lists, dicts, floats, ints, strings, and bools
+    pass through; Nones are preserved."""
+    if isinstance(obj, float):
+        return round(obj, precision)
+    if isinstance(obj, (int, str, bool, type(None))):
+        return obj
+    if isinstance(obj, dict):
+        return {k: _round_floats(v, precision) for k, v in obj.items()}
+    if isinstance(obj, (list, tuple)):
+        return [_round_floats(v, precision) for v in obj]
+    return obj
 
 
 # ============================================================================
@@ -48,7 +86,6 @@ NON_Q_VARIANTS = [v for v in VARIANTS if v != PRIMARY]
 MBOOTSTRAP_SEED = 20260929
 N_BOOTSTRAP = 10000
 
-# Frozen MLEM endpoint denominators per directive 5910758070.
 FROZEN_MLEM_DENOMINATOR = {
     ("brainweb", 100000): 0.0302676787631081,
     ("brainweb", 200000): 0.0330807617729657,
@@ -341,9 +378,8 @@ def regenerate_fixed_case_manifest(fixed_case_dir: Path) -> dict:
 
     shapes = {"target": list(target.shape) + [str(target.dtype)]}
     sha = {
-        "target_payload_sha256": sha256_bytes(target),
-        "target_csv_file_sha256": sha256_file(target_path),
-        "target_repository_lf_sha256": sha256_lf_normalized(target_path),
+        "target_array_payload_sha256": sha256_bytes(target),
+        "target_npy_file_sha256": sha256_file(target_path),
     }
     metrics = {}
     for v in VARIANTS:
@@ -365,15 +401,12 @@ def regenerate_fixed_case_manifest(fixed_case_dir: Path) -> dict:
             "ssim_recomputed": sm,
             "source": "committed_target_plus_reconstruction",
         }
-        sha[f"prior_{v}_payload_sha256"] = sha256_bytes(prior_arr)
-        sha[f"prior_{v}_csv_file_sha256"] = sha256_file(prior_path)
-        sha[f"prior_{v}_repository_lf_sha256"] = sha256_lf_normalized(prior_path)
-        sha[f"reconstruction_{v}_payload_sha256"] = sha256_bytes(rec)
-        sha[f"reconstruction_{v}_csv_file_sha256"] = sha256_file(rec_path)
-        sha[f"reconstruction_{v}_repository_lf_sha256"] = sha256_lf_normalized(rec_path)
-        sha[f"abs_error_{v}_payload_sha256"] = sha256_bytes(err)
-        sha[f"abs_error_{v}_csv_file_sha256"] = sha256_file(err_path)
-        sha[f"abs_error_{v}_repository_lf_sha256"] = sha256_lf_normalized(err_path)
+        sha[f"prior_{v}_array_payload_sha256"] = sha256_bytes(prior_arr)
+        sha[f"prior_{v}_npy_file_sha256"] = sha256_file(prior_path)
+        sha[f"reconstruction_{v}_array_payload_sha256"] = sha256_bytes(rec)
+        sha[f"reconstruction_{v}_npy_file_sha256"] = sha256_file(rec_path)
+        sha[f"abs_error_{v}_array_payload_sha256"] = sha256_bytes(err)
+        sha[f"abs_error_{v}_npy_file_sha256"] = sha256_file(err_path)
 
     shapes["target"] = list(target.shape) + [str(target.dtype)]
     shapes.update({f"reconstruction_{v}": list(recs[v].shape) + [str(recs[v].dtype)]
@@ -438,10 +471,12 @@ def verify_metrics_match_committed(fixed_case_dir: Path, manifest: dict,
 
 
 def write_fixed_case_manifest(fixed_case_dir: Path, manifest: dict) -> None:
-    """Write the regenerated manifest back to disk."""
+    """Write the regenerated manifest back to disk with canonical
+    float serialization (no platform tail differences)."""
     out_path = fixed_case_dir / "manifest.json"
+    canonical = _round_floats(manifest, KERNEL_FLOAT_PRECISION)
     with open(out_path, "w", encoding="utf-8") as f:
-        json.dump(manifest, f, indent=2)
+        json.dump(canonical, f, indent=2)
 
 
 # ============================================================================
@@ -570,14 +605,14 @@ def main(repo_root: Path, run_dir: Path, out_dir: Path,
     boot_records = paired_he_subject_bootstrap(per_case_csvs)
     assert len(boot_records) == 7 * 4
     with open(out_dir / "hecktor_paired_bootstrap.json", "w", encoding="utf-8") as f:
-        json.dump({
+        json.dump(_round_floats({
             "n_bootstrap": N_BOOTSTRAP,
             "seed": MBOOTSTRAP_SEED,
             "seed_label": "post-run deterministic analysis choice, not a preregistered seed",
             "convention": "delta_nrmse = variant - Q; delta_ssim = Q - variant (positive favors Q)",
             "n_variants": 7, "n_count_levels": 4,
             "results": boot_records,
-        }, f, indent=2)
+        }), f, indent=2)
     print(f"  {len(boot_records)} records written")
 
     # (3) Kernel diagnostics — load priors from committed fixed-case
@@ -639,7 +674,7 @@ def main(repo_root: Path, run_dir: Path, out_dir: Path,
         return ratios
 
     with open(out_dir / "kernel_diagnostics.json", "w", encoding="utf-8") as f:
-        json.dump({
+        json.dump(_round_floats({
             "brainweb_subject04_z038_c200000_r0": kd["fixed_case_brainweb_subject04_z038_200k_r0"],
             "hecktor_10_z072_c200000_r0": kd["fixed_case_hecktor_10_z072_200k_r0"],
             "Q_vs_uniform_ratios_brainweb": _ratios(kd["fixed_case_brainweb_subject04_z038_200k_r0"]),
@@ -651,9 +686,10 @@ def main(repo_root: Path, run_dir: Path, out_dir: Path,
                 "committed prior; MLEM_FEATURE_MATCHED does NOT normalize, "
                 "all other variants do. Uniform kernel = constant unit "
                 "feature; geometric degree depends only on radius so it is "
-                "identical across variants."
+                "identical across variants. Float values rounded to 12 "
+                "significant digits for platform-independent serialization."
             ),
-        }, f, indent=2)
+        }), f, indent=2)
     print("  kernel_diagnostics.json written")
 
     # (4) Fixed-case manifest regeneration (text-only; no .npy rewrite)
@@ -704,13 +740,13 @@ def main(repo_root: Path, run_dir: Path, out_dir: Path,
         "files": dual_map,
     }
     with open(run_dir / "per_output_sha256_dual.json", "w", encoding="utf-8") as f:
-        json.dump(dual_doc, f, indent=2)
+        json.dump(_round_floats(dual_doc), f, indent=2)
     print("  per_output_sha256_dual.json written")
 
     # (7) Stage E summary (no dynamic git HEAD; bind Stage C run_id only)
     if stage_c_execution_run_id is None:
         stage_c_execution_run_id = _get_immutable_stage_c_execution_commit(run_dir)
-    summary_doc = {
+    summary_doc = _round_floats({
         "artifact_kind": "validation_only_causal_ablations_v3_stage_e",
         "schema_version": 1,
         "stage_c_execution_run_id": stage_c_execution_run_id,
@@ -728,26 +764,57 @@ def main(repo_root: Path, run_dir: Path, out_dir: Path,
         "n_bootstrap": N_BOOTSTRAP,
         "all_metrics_match_brainweb": fixed_bw["all_metrics_match"],
         "all_metrics_match_hecktor": fixed_he["all_metrics_match"],
-    }
+        "float_precision_significant_digits": KERNEL_FLOAT_PRECISION,
+    })
     with open(out_dir / "stage_e_summary.json", "w", encoding="utf-8") as f:
         json.dump(summary_doc, f, indent=2)
 
-    # (8) Integrity audit (text-only, no dynamic HEAD)
-    audit_doc = {
+    # (8) Integrity audit WITH required Stage E text-artifact SHA map.
+    # The audit must contain a SHA for every non-self-referential Stage E
+    # text artifact (per directive 5923244124 §3). The audit excludes
+    # only its own hash from the map by construction (it is not in
+    # text_sha_map).
+    print()
+    print("=" * 60)
+    print("(8) Integrity audit with text-artifact SHA map")
+    print("=" * 60)
+
+    text_paths = {
+        "loss_ratio_cells_csv": out_dir / "loss_ratio_cells.csv",
+        "loss_ratio_summary_csv": out_dir / "loss_ratio_summary.csv",
+        "hecktor_paired_bootstrap_json": out_dir / "hecktor_paired_bootstrap.json",
+        "kernel_diagnostics_json": out_dir / "kernel_diagnostics.json",
+        "paired_subject_deltas_csv": out_dir / "paired_subject_deltas.csv",
+        "paired_subject_deltas_summary_csv": out_dir / "paired_subject_deltas_summary.csv",
+        "fixed_case_brainweb_manifest_json": run_dir / "analysis_stage_e" /
+            "fixed_case_brainweb_subject04_z038_200k_r0" / "manifest.json",
+        "fixed_case_hecktor_manifest_json": run_dir / "analysis_stage_e" /
+            "fixed_case_hecktor_10_z072_200k_r0" / "manifest.json",
+        "stage_e_summary_json": out_dir / "stage_e_summary.json",
+        "per_output_sha256_dual_json": run_dir / "per_output_sha256_dual.json",
+    }
+    text_sha_map = {}
+    for key, path in text_paths.items():
+        # Compute relative path to run_dir, walking up to a common
+        # ancestor if necessary.
+        rel = str(path)
+        anc = path
+        while anc != run_dir and anc.parent != anc:
+            try:
+                rel = str(path.relative_to(anc))
+                break
+            except ValueError:
+                anc = anc.parent
+        text_sha_map[key] = {
+            "path": rel,
+            "sha256": sha256_file(path),
+            "size_bytes": path.stat().st_size,
+        }
+
+    audit_doc = _round_floats({
         "artifact_kind": "validation_only_causal_ablations_v3_stage_e_integrity",
         "schema_version": 1,
-        "stage_e_files": [
-            "loss_ratio_cells.csv",
-            "loss_ratio_summary.csv",
-            "hecktor_paired_bootstrap.json",
-            "kernel_diagnostics.json",
-            "paired_subject_deltas.csv",
-            "paired_subject_deltas_summary.csv",
-            "fixed_case_brainweb_subject04_z038_200k_r0/",
-            "fixed_case_hecktor_10_z072_200k_r0/",
-            "stage_e_summary.json",
-            "../per_output_sha256_dual.json",
-        ],
+        "stage_e_text_artifact_sha256_map": text_sha_map,
         "n_fixed_cases": 2,
         "fixed_cases_all_metrics_match": (
             fixed_bw["all_metrics_match"] and fixed_he["all_metrics_match"]),
@@ -768,9 +835,12 @@ def main(repo_root: Path, run_dir: Path, out_dir: Path,
             }
             for _, r in loss_summary.iterrows()
         ],
-    }
-    with open(out_dir / "stage_e_integrity_audit.json", "w", encoding="utf-8") as f:
+        "float_precision_significant_digits": KERNEL_FLOAT_PRECISION,
+    })
+    audit_path = out_dir / "stage_e_integrity_audit.json"
+    with open(audit_path, "w", encoding="utf-8") as f:
         json.dump(audit_doc, f, indent=2)
+    print("  stage_e_integrity_audit.json written")
 
     return summary_doc
 

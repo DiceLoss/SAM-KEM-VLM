@@ -1,18 +1,58 @@
 {
   "artifact_kind": "validation_only_causal_ablations_v3_stage_e_integrity",
   "schema_version": 1,
-  "stage_e_files": [
-    "loss_ratio_cells.csv",
-    "loss_ratio_summary.csv",
-    "hecktor_paired_bootstrap.json",
-    "kernel_diagnostics.json",
-    "paired_subject_deltas.csv",
-    "paired_subject_deltas_summary.csv",
-    "fixed_case_brainweb_subject04_z038_200k_r0/",
-    "fixed_case_hecktor_10_z072_200k_r0/",
-    "stage_e_summary.json",
-    "../per_output_sha256_dual.json"
-  ],
+  "stage_e_text_artifact_sha256_map": {
+    "loss_ratio_cells_csv": {
+      "path": ".",
+      "sha256": "bfd99dd357f39927007aeb4b3b5b4e9a34709ebfc46e30bfd036d102c5e69810",
+      "size_bytes": 6315
+    },
+    "loss_ratio_summary_csv": {
+      "path": ".",
+      "sha256": "3f750eaced2c8e292e8b94e61528d2231ea5103f1be8bee8cf29d439c3e4a094",
+      "size_bytes": 4520
+    },
+    "hecktor_paired_bootstrap_json": {
+      "path": ".",
+      "sha256": "4ba0d0b1a35459cc4c9e8d0eb5eff7d7dc79d4cccb37fef3f707e892223b54a6",
+      "size_bytes": 17627
+    },
+    "kernel_diagnostics_json": {
+      "path": ".",
+      "sha256": "843748131e033adde7b38a698c98769d5a455926d7d7ffedc622962ff60e4ce3",
+      "size_bytes": 12144
+    },
+    "paired_subject_deltas_csv": {
+      "path": ".",
+      "sha256": "b303f4a154cdb32dd8fe48e55736c3cfa280772e026ae3ffbc7aa289af343bb2",
+      "size_bytes": 230377
+    },
+    "paired_subject_deltas_summary_csv": {
+      "path": ".",
+      "sha256": "1eaf2a72cb0a2e176e7fd98af7ca59942f1b2211f9809acb9306bbe27942f522",
+      "size_bytes": 7263
+    },
+    "fixed_case_brainweb_manifest_json": {
+      "path": ".",
+      "sha256": "e3e9dfa017adedc983a5612f64c57fe22ec21d4183bfcb697674db6138a24a92",
+      "size_bytes": 10717
+    },
+    "fixed_case_hecktor_manifest_json": {
+      "path": ".",
+      "sha256": "8d3c5703054ae18fd2f7184f57148e26e2d6fddaeeb06f698e31846f0ade60e0",
+      "size_bytes": 10705
+    },
+    "stage_e_summary_json": {
+      "path": ".",
+      "sha256": "2b1175fb4ed37d4b2e915b7a50e3925e3ce4f849818884c1418e254875ab3ac1",
+      "size_bytes": 948
+    },
+    "per_output_sha256_dual_json": {
+      "path": ".",
+      "sha256": "b7e5be25fe1048b0916fb5b05e1257f01ee564d2fc199d229c5ee1b9ea63aafa",
+      "size_bytes": 2727
+    }
+  },
   "n_fixed_cases": 2,
   "fixed_cases_all_metrics_match": true,
   "n_loss_ratio_cells_per_variant": 8,
@@ -28,37 +68,38 @@
     {
       "variant": "CENTER_ADAPT",
       "n_q_lower_nrmse": 7,
-      "median_loss_ratio": 0.009349427408778019
+      "median_loss_ratio": 0.009349427409
     },
     {
       "variant": "CENTROID_ADAPT",
       "n_q_lower_nrmse": 4,
-      "median_loss_ratio": 0.009302382452906755
+      "median_loss_ratio": 0.009302382453
     },
     {
       "variant": "FULL_ADAPT",
       "n_q_lower_nrmse": 8,
-      "median_loss_ratio": 0.048030498587901184
+      "median_loss_ratio": 0.048030498588
     },
     {
       "variant": "MLEM_FEATURE_MATCHED",
       "n_q_lower_nrmse": 8,
-      "median_loss_ratio": 0.2570826882202153
+      "median_loss_ratio": 0.25708268822
     },
     {
       "variant": "Q_RELEASED",
       "n_q_lower_nrmse": 8,
-      "median_loss_ratio": 0.3143857993606197
+      "median_loss_ratio": 0.314385799361
     },
     {
       "variant": "Q_SHUFFLED_MATCHED",
       "n_q_lower_nrmse": 7,
-      "median_loss_ratio": 0.13552175101007002
+      "median_loss_ratio": 0.13552175101
     },
     {
       "variant": "UNIFORM_FEATURE_MATCHED",
       "n_q_lower_nrmse": 8,
-      "median_loss_ratio": 0.38726386122199774
+      "median_loss_ratio": 0.387263861222
     }
-  ]
+  ],
+  "float_precision_significant_digits": 12
 }

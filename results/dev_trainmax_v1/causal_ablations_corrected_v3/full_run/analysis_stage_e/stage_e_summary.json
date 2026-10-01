@@ -15,5 +15,6 @@
   "mbootstrap_seed": 20260929,
   "n_bootstrap": 10000,
   "all_metrics_match_brainweb": true,
-  "all_metrics_match_hecktor": true
+  "all_metrics_match_hecktor": true,
+  "float_precision_significant_digits": 12
 }

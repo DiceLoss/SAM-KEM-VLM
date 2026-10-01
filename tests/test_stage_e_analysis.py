@@ -304,26 +304,33 @@ def test_byte_reproduction_of_stage_e_text_artifacts(tmp_path):
     stage_e_main(REPO_ROOT, tmp_run, tmp_out)
 
     # Compare every text artifact byte-for-byte with committed.
-    # NOTE: fixed-case manifests are at tmp_run/analysis_stage_e/fixed_case_*/
-    #       Other text artifacts are at tmp_out/ (which is tmp_path/analysis_stage_e/).
-    in_out_dir = [
-        ("tmp_out", "analysis_stage_e/loss_ratio_cells.csv"),
-        ("tmp_out", "analysis_stage_e/loss_ratio_summary.csv"),
-        ("tmp_out", "analysis_stage_e/hecktor_paired_bootstrap.json"),
-        ("tmp_out", "analysis_stage_e/kernel_diagnostics.json"),
-        ("tmp_out", "analysis_stage_e/paired_subject_deltas.csv"),
-        ("tmp_out", "analysis_stage_e/paired_subject_deltas_summary.csv"),
-        ("tmp_out", "analysis_stage_e/stage_e_summary.json"),
-        ("tmp_out", "analysis_stage_e/stage_e_integrity_audit.json"),
-        ("tmp_run", "analysis_stage_e/fixed_case_brainweb_subject04_z038_200k_r0/manifest.json"),
-        ("tmp_run", "analysis_stage_e/fixed_case_hecktor_10_z072_200k_r0/manifest.json"),
+    # main() writes most text artifacts under tmp_out = tmp_path/analysis_stage_e/.
+    # The fixed-case manifests are written under
+    # tmp_run/analysis_stage_e/fixed_case_*/ (because the fixed-case dir is
+    # under run_dir, not out_dir). The dual SHA lives at
+    # tmp_run/per_output_sha256_dual.json.
+    out_artifacts = [
+        "loss_ratio_cells.csv",
+        "loss_ratio_summary.csv",
+        "hecktor_paired_bootstrap.json",
+        "kernel_diagnostics.json",
+        "paired_subject_deltas.csv",
+        "paired_subject_deltas_summary.csv",
+        "stage_e_summary.json",
+        "stage_e_integrity_audit.json",
     ]
-    for which, rel in in_out_dir:
-        committed = (RUN_DIR / rel).read_bytes()
-        if which == "tmp_out":
-            regenerated = (tmp_path / rel).read_bytes()
-        else:
-            regenerated = (tmp_run / rel).read_bytes()
+    for rel in out_artifacts:
+        committed = (RUN_DIR / "analysis_stage_e" / rel).read_bytes()
+        regenerated = (tmp_out / rel).read_bytes()
+        assert committed == regenerated, f"byte mismatch in {rel}"
+
+    fixed_artifacts = [
+        "fixed_case_brainweb_subject04_z038_200k_r0/manifest.json",
+        "fixed_case_hecktor_10_z072_200k_r0/manifest.json",
+    ]
+    for rel in fixed_artifacts:
+        committed = (RUN_DIR / "analysis_stage_e" / rel).read_bytes()
+        regenerated = (tmp_run / "analysis_stage_e" / rel).read_bytes()
         assert committed == regenerated, f"byte mismatch in {rel}"
 
     # Dual CSV SHA lives at run_dir/per_output_sha256_dual.json
@@ -358,17 +365,80 @@ def test_csv_dual_sha_platform_independent():
                 f"CRLF mismatch on {path}: {info['csv_execution_crlf_sha256']} != {hist}")
 
 
-def test_fixed_case_manifests_use_csv_field_names():
-    """Fixed-case manifests must use csv_* field names for the per-case
-    .npy files (target, prior, reconstruction, abs_error) — never
-    npy_* (per directive §3)."""
+def test_fixed_case_manifests_use_npy_field_names():
+    """Fixed-case manifests must use *_array_payload_sha256 and
+    *_npy_file_sha256 for the .npy files (target, prior,
+    reconstruction, abs_error) — never csv_* or repository_lf_*
+    (per directive 5923244124 §2)."""
     bw = json.load(open(RUN_DIR / "analysis_stage_e" /
                         "fixed_case_brainweb_subject04_z038_200k_r0/manifest.json",
                         encoding="utf-8"))
-    for v, info in bw["sha256"].items():
-        # Each key ends with _sha256; the prefix must be csv_* not npy_*
-        for key in info:
-            assert not key.startswith("npy_"), f"{v}.{key} uses npy_* prefix"
+    for key in bw["sha256"].keys():
+        assert not key.startswith("csv_"), f"{key} uses csv_* prefix on .npy"
+        assert not key.startswith("repository_lf_"), f"{key} uses repository_lf_* prefix on .npy"
+        assert key.endswith("_array_payload_sha256") or key.endswith("_npy_file_sha256"), (
+            f"{key} must end with _array_payload_sha256 or _npy_file_sha256")
+
+
+def test_kernel_diagnostics_byte_identity_after_two_runs():
+    """Regenerate kernel_diagnostics.json twice into tmp_path; the two
+    files must be byte-identical (canonical float serialization)."""
+    import tempfile
+    from pathlib import Path as _P
+    from sam_kem.stage_e_analysis import (
+        load_priors_from_fixed_case_archive, kernel_diagnostics_from_priors,
+    )
+    import pandas as _pd
+    fpath = REPO_ROOT / "results/dev_trainmax_v1/frozen_hyperparameters.csv"
+    fdf = _pd.read_csv(fpath)
+    fdf = fdf[fdf.method == "SAM-KEM-MedSAM2-Qwen3-full"]
+    support = np.ones((128, 128), dtype=bool)
+
+    out1 = _P(tempfile.mkdtemp()) / "k1.json"
+    out2 = _P(tempfile.mkdtemp()) / "k2.json"
+    for out in (out1, out2):
+        for case_id, dir_name, count in [
+            ("brainweb", "fixed_case_brainweb_subject04_z038_200k_r0", 200000),
+            ("hecktor", "fixed_case_hecktor_10_z072_200k_r0", 200000),
+        ]:
+            fixed_dir = RUN_DIR / "analysis_stage_e" / dir_name
+            priors = load_priors_from_fixed_case_archive(fixed_dir)
+            hp = fdf[(fdf.dataset == case_id) & (fdf.count_level == count)].iloc[0]
+            kd = kernel_diagnostics_from_priors(
+                priors, hp, sigma=float(hp.sigma), radius=int(hp.radius),
+                operator_support_fn=lambda: support)
+        with open(out, "w", encoding="utf-8") as f:
+            json.dump(kd, f, indent=2)
+    assert out1.read_bytes() == out2.read_bytes(), (
+        f"kernel_diagnostics.json not byte-identical across runs:\n"
+        f"  run1 size={out1.stat().st_size}, run2 size={out2.stat().st_size}")
+
+
+def test_stage_e_text_artifact_sha_map_has_expected_keys():
+    """stage_e_integrity_audit.json must contain a stage_e_text_artifact_sha256_map
+    with the expected key set per directive 5923244124 §3."""
+    a = json.load(open(RUN_DIR / "analysis_stage_e" / "stage_e_integrity_audit.json",
+                        encoding="utf-8"))
+    expected_keys = {
+        "loss_ratio_cells_csv",
+        "loss_ratio_summary_csv",
+        "hecktor_paired_bootstrap_json",
+        "kernel_diagnostics_json",
+        "paired_subject_deltas_csv",
+        "paired_subject_deltas_summary_csv",
+        "fixed_case_brainweb_manifest_json",
+        "fixed_case_hecktor_manifest_json",
+        "stage_e_summary_json",
+        "per_output_sha256_dual_json",
+    }
+    assert "stage_e_text_artifact_sha256_map" in a, "missing SHA map"
+    actual = set(a["stage_e_text_artifact_sha256_map"].keys())
+    assert actual == expected_keys, (
+        f"SHA map key mismatch: missing={expected_keys - actual}, extra={actual - expected_keys}")
+    # Each entry must have sha256 + path + size_bytes
+    for k, v in a["stage_e_text_artifact_sha256_map"].items():
+        assert "sha256" in v and "path" in v and "size_bytes" in v
+        assert len(v["sha256"]) == 64
 
 
 def test_load_priors_from_fixed_case_archive():
