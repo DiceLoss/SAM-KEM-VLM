@@ -123,6 +123,12 @@ def sha256_lf_normalized(p: Path) -> str:
     return hashlib.sha256(data.replace(b"\r\n", b"\n")).hexdigest()
 
 
+def canonical_lf_bytes(p: Path) -> bytes:
+    """Read file bytes and normalize CRLF -> LF (the canonical
+    repository-byte representation)."""
+    return p.read_bytes().replace(b"\r\n", b"\n")
+
+
 def canonical_crlf_from_lf(lf_bytes: bytes) -> bytes:
     """Synthesize CRLF bytes from LF bytes (the Windows execution-time
     representation). Only LF -> CRLF transformation; never modifies
@@ -795,20 +801,18 @@ def main(repo_root: Path, run_dir: Path, out_dir: Path,
     }
     text_sha_map = {}
     for key, path in text_paths.items():
-        # Compute relative path to run_dir, walking up to a common
-        # ancestor if necessary.
-        rel = str(path)
-        anc = path
-        while anc != run_dir and anc.parent != anc:
-            try:
-                rel = str(path.relative_to(anc))
-                break
-            except ValueError:
-                anc = anc.parent
+        # Per directive 5924450556: paths must be POSIX-relative to
+        # run_dir; fail if outside run_dir; never "." or absolute.
+        rel = path.relative_to(run_dir).as_posix()
+        if rel == "." or Path(rel).is_absolute():
+            raise ValueError(f"text_sha_map path outside run_dir: {path}")
+        # Hash/size are canonical-LF (CRLF-normalized) so the audit is
+        # platform-independent (per directive 5924450556).
+        lf_bytes = canonical_lf_bytes(path)
         text_sha_map[key] = {
             "path": rel,
-            "sha256": sha256_file(path),
-            "size_bytes": path.stat().st_size,
+            "repository_lf_sha256": hashlib.sha256(lf_bytes).hexdigest(),
+            "repository_lf_size_bytes": len(lf_bytes),
         }
 
     audit_doc = _round_floats({

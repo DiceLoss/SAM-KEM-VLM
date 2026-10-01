@@ -10,6 +10,7 @@ fallback; no machine-specific absolute paths.
 """
 from __future__ import annotations
 
+import hashlib
 import json
 import os
 import sys
@@ -280,8 +281,10 @@ def test_byte_reproduction_of_stage_e_text_artifacts(tmp_path):
     committed inputs and compare byte-for-byte with the committed
     artifacts. NO .npy arrays are rewritten."""
     from sam_kem.stage_e_analysis import main as stage_e_main
-    tmp_out = tmp_path / "analysis_stage_e"
+    # analysis_stage_e/ MUST be under run_dir/ for the path.relative_to
+    # invariant in stage_e_integrity_audit.json (per directive 5924450556).
     tmp_run = tmp_path / "run"
+    tmp_out = tmp_run / "analysis_stage_e"
     # Mirror the committed run_dir and fixed-case archives into tmp_path
     tmp_run.mkdir(parents=True, exist_ok=True)
     for v in VARIANTS:
@@ -304,11 +307,9 @@ def test_byte_reproduction_of_stage_e_text_artifacts(tmp_path):
     stage_e_main(REPO_ROOT, tmp_run, tmp_out)
 
     # Compare every text artifact byte-for-byte with committed.
-    # main() writes most text artifacts under tmp_out = tmp_path/analysis_stage_e/.
-    # The fixed-case manifests are written under
-    # tmp_run/analysis_stage_e/fixed_case_*/ (because the fixed-case dir is
-    # under run_dir, not out_dir). The dual SHA lives at
-    # tmp_run/per_output_sha256_dual.json.
+    # main() writes all text artifacts under tmp_out = tmp_run/analysis_stage_e/
+    # (since out_dir is now tmp_run/analysis_stage_e per directive 5924450556).
+    # The dual SHA lives at tmp_run/per_output_sha256_dual.json.
     out_artifacts = [
         "loss_ratio_cells.csv",
         "loss_ratio_summary.csv",
@@ -318,19 +319,12 @@ def test_byte_reproduction_of_stage_e_text_artifacts(tmp_path):
         "paired_subject_deltas_summary.csv",
         "stage_e_summary.json",
         "stage_e_integrity_audit.json",
+        "fixed_case_brainweb_subject04_z038_200k_r0/manifest.json",
+        "fixed_case_hecktor_10_z072_200k_r0/manifest.json",
     ]
     for rel in out_artifacts:
         committed = (RUN_DIR / "analysis_stage_e" / rel).read_bytes()
         regenerated = (tmp_out / rel).read_bytes()
-        assert committed == regenerated, f"byte mismatch in {rel}"
-
-    fixed_artifacts = [
-        "fixed_case_brainweb_subject04_z038_200k_r0/manifest.json",
-        "fixed_case_hecktor_10_z072_200k_r0/manifest.json",
-    ]
-    for rel in fixed_artifacts:
-        committed = (RUN_DIR / "analysis_stage_e" / rel).read_bytes()
-        regenerated = (tmp_run / "analysis_stage_e" / rel).read_bytes()
         assert committed == regenerated, f"byte mismatch in {rel}"
 
     # Dual CSV SHA lives at run_dir/per_output_sha256_dual.json
@@ -416,29 +410,49 @@ def test_kernel_diagnostics_byte_identity_after_two_runs():
 
 def test_stage_e_text_artifact_sha_map_has_expected_keys():
     """stage_e_integrity_audit.json must contain a stage_e_text_artifact_sha256_map
-    with the expected key set per directive 5923244124 §3."""
+    with the expected key set per directive 5923244124 §3. The map uses
+    canonical-LF SHAs/sizes and POSIX-relative-to-run_dir paths."""
+    from sam_kem.stage_e_analysis import canonical_lf_bytes
     a = json.load(open(RUN_DIR / "analysis_stage_e" / "stage_e_integrity_audit.json",
                         encoding="utf-8"))
-    expected_keys = {
-        "loss_ratio_cells_csv",
-        "loss_ratio_summary_csv",
-        "hecktor_paired_bootstrap_json",
-        "kernel_diagnostics_json",
-        "paired_subject_deltas_csv",
-        "paired_subject_deltas_summary_csv",
-        "fixed_case_brainweb_manifest_json",
-        "fixed_case_hecktor_manifest_json",
-        "stage_e_summary_json",
-        "per_output_sha256_dual_json",
+    expected_keys_to_paths = {
+        "loss_ratio_cells_csv": "analysis_stage_e/loss_ratio_cells.csv",
+        "loss_ratio_summary_csv": "analysis_stage_e/loss_ratio_summary.csv",
+        "hecktor_paired_bootstrap_json": "analysis_stage_e/hecktor_paired_bootstrap.json",
+        "kernel_diagnostics_json": "analysis_stage_e/kernel_diagnostics.json",
+        "paired_subject_deltas_csv": "analysis_stage_e/paired_subject_deltas.csv",
+        "paired_subject_deltas_summary_csv": "analysis_stage_e/paired_subject_deltas_summary.csv",
+        "fixed_case_brainweb_manifest_json": "analysis_stage_e/fixed_case_brainweb_subject04_z038_200k_r0/manifest.json",
+        "fixed_case_hecktor_manifest_json": "analysis_stage_e/fixed_case_hecktor_10_z072_200k_r0/manifest.json",
+        "stage_e_summary_json": "analysis_stage_e/stage_e_summary.json",
+        "per_output_sha256_dual_json": "per_output_sha256_dual.json",
     }
     assert "stage_e_text_artifact_sha256_map" in a, "missing SHA map"
-    actual = set(a["stage_e_text_artifact_sha256_map"].keys())
-    assert actual == expected_keys, (
-        f"SHA map key mismatch: missing={expected_keys - actual}, extra={actual - expected_keys}")
-    # Each entry must have sha256 + path + size_bytes
-    for k, v in a["stage_e_text_artifact_sha256_map"].items():
-        assert "sha256" in v and "path" in v and "size_bytes" in v
-        assert len(v["sha256"]) == 64
+    m = a["stage_e_text_artifact_sha256_map"]
+    assert set(m.keys()) == set(expected_keys_to_paths.keys()), (
+        f"SHA map key mismatch: missing={set(expected_keys_to_paths.keys()) - set(m.keys())}, "
+        f"extra={set(m.keys()) - set(expected_keys_to_paths.keys())}")
+    for k, expected_path in expected_keys_to_paths.items():
+        v = m[k]
+        # Per directive 5924450556 §3: no path is "." or absolute.
+        assert v["path"] == expected_path, f"{k} path: expected {expected_path!r}, got {v['path']!r}"
+        assert v["path"] != ".", f"{k} path is '.'"
+        assert not Path(v["path"]).is_absolute(), f"{k} path is absolute"
+        # Resolve path under run_dir, require is_file(), and recompute
+        # the canonical-LF SHA/size (must match map exactly).
+        resolved = RUN_DIR / v["path"]
+        assert resolved.is_file(), f"{k} path does not exist: {resolved}"
+        lf_bytes = canonical_lf_bytes(resolved)
+        expected_sha = hashlib.sha256(lf_bytes).hexdigest()
+        expected_size = len(lf_bytes)
+        assert v["repository_lf_sha256"] == expected_sha, (
+            f"{k} SHA mismatch: committed={v['repository_lf_sha256']}, recomputed={expected_sha}")
+        assert v["repository_lf_size_bytes"] == expected_size, (
+            f"{k} size mismatch: committed={v['repository_lf_size_bytes']}, recomputed={expected_size}")
+        assert len(v["repository_lf_sha256"]) == 64
+        # Verify no execution-platform bytes are recorded here
+        assert "sha256" not in v, f"{k} must not include execution sha256"
+        assert "size_bytes" not in v, f"{k} must not include execution size_bytes"
 
 
 def test_load_priors_from_fixed_case_archive():
