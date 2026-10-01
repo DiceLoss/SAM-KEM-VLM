@@ -1,0 +1,151 @@
+# Stage 7A v2 protocol — six preregistered prompt-plan arms (corrected)
+# Per directive 5926624802 + master protocol 5924162430. Code/protocol/
+# zero-write planning stage only; no real VLM call, no decoder training,
+# no prior generation, no KEM execution.
+name: stage7a_v2_prompt_planning
+kind: stage7a_prompt_planning
+version: "2.0"
+split: validation
+methods: [STAGE7A_PLANNING]
+datasets: [brainweb, hecktor]
+count_levels: [200000]
+realizations: [0, 1, 2]
+# Six preregistered arms (corrected semantics per directive §1).
+arms:
+  - name: FULL_BOX
+    arm_kind: deterministic_full
+    vlm_calls: 0
+    medsam_calls: 0
+    min_objects: 1
+    max_objects: 1
+    min_positive_points: 0
+    max_positive_points: 0
+    min_negative_points: 0
+    max_negative_points: 0
+    allow_multi_round: false
+    max_calls_per_case: 1
+    deterministic_box_xyxy: [0, 0, 128, 128]
+  - name: DET_COMPONENT
+    arm_kind: deterministic_components
+    vlm_calls: 0
+    medsam_calls: 0
+    min_objects: 1
+    max_objects: 4
+    min_positive_points: 1
+    max_positive_points: 1
+    min_negative_points: 0
+    max_negative_points: 3
+    allow_multi_round: false
+    max_calls_per_case: 1
+    threshold_quantile: 0.85
+    padding_px: 2
+    component_order: original_area_descending
+  - name: VLM_SINGLE_BOX
+    arm_kind: vlm_only
+    vlm_calls: 1
+    medsam_calls: 0
+    min_objects: 1
+    max_objects: 1
+    min_positive_points: 0
+    max_positive_points: 0
+    min_negative_points: 0
+    max_negative_points: 0
+    allow_multi_round: false
+    max_calls_per_case: 1
+  - name: VLM_MULTI_BOX
+    arm_kind: vlm_only
+    vlm_calls: 1
+    medsam_calls: 0
+    min_objects: 1
+    max_objects: 4
+    min_positive_points: 0
+    max_positive_points: 0
+    min_negative_points: 0
+    max_negative_points: 0
+    allow_multi_round: false
+    max_calls_per_case: 1
+  - name: VLM_BOX_POINT
+    arm_kind: vlm_box_point
+    vlm_calls: 1
+    medsam_calls: 0
+    min_objects: 1
+    max_objects: 4
+    min_positive_points: 1
+    max_positive_points: 3
+    min_negative_points: 0
+    max_negative_points: 3
+    allow_multi_round: false
+    max_calls_per_case: 1
+  - name: VLM_AGENT_REFINE
+    arm_kind: vlm_agent_refine
+    vlm_calls: 2
+    medsam_calls: 0
+    min_objects: 1
+    max_objects: 4
+    min_positive_points: 1
+    max_positive_points: 3
+    min_negative_points: 0
+    max_negative_points: 3
+    allow_multi_round: true
+    max_calls_per_case: 2
+    requires_mask_input: true
+# Required contracts:
+schema_version: 1
+requires_exact_top_level_keys: true
+allowed_top_level_keys:
+  - schema_version
+  - arm_name
+  - dataset
+  - subject_id
+  - slice_id
+  - count_level
+  - realization_id
+  - objects
+  - abstain
+  - fallback_reason
+  - mask_input_logit_shape
+allowed_object_keys:
+  - object_id
+  - box
+  - positive_points
+  - negative_points
+forbidden_top_keys:
+  - reference_mask
+  - metric
+  - mr_image
+  - ct_image
+  - frozen_target
+  - label
+  - mask_input
+  - iou_logits
+  - multimask_output
+xyxy_strict: true        # x0 < x1, y0 < y1, all in [0, 128]
+point_strict: true       # x in [0, 128), y in [0, 128)
+no_silent_clipping: true
+no_coercion: true          # no int()/float() coercion from bool/str/fractional
+duplicate_box_triggers_fallback: true
+unique_object_ids: true
+# DET_COMPONENT frozen rules (NO historical-metric inspection)
+det_component_threshold_quantile: 0.85
+det_component_padding_px: 2
+det_component_component_order: original_area_descending
+det_component_negative_band_px: 1
+# Pure KEM, no post-fusion
+post_fusion_forbidden: true
+alpha_blend_forbidden: true
+multimask_output: false
+# Same-realization identity
+same_realization_only: true
+# Counters (separated; arm-correct attribution)
+vlm_calls_in_stage7: 0
+medsam_object_decode_calls_in_stage7: 0
+# Stages: 7D internal-development screen + 7E full historical validation
+# (separately reported; NOT claimed as a single "validation 8,892").
+stage_7d_internal_screen:
+  count_levels: [100000, 200000]
+  realizations: [0]
+  subject_split: "to_be_resolved_after_Stage_7B_authorization"
+stage_7e_full_validation:
+  count_levels: [100000, 200000, 500000, 1000000]
+  realizations: [0, 1, 2]
+  expected_n_cases: 8892
