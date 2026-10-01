@@ -3,54 +3,54 @@
   "schema_version": 1,
   "stage_e_text_artifact_sha256_map": {
     "loss_ratio_cells_csv": {
-      "path": ".",
-      "sha256": "bfd99dd357f39927007aeb4b3b5b4e9a34709ebfc46e30bfd036d102c5e69810",
-      "size_bytes": 6315
+      "path": "analysis_stage_e/loss_ratio_cells.csv",
+      "repository_lf_sha256": "f565629754098154dfeba4134fb1f18fdd35ebd9626e158ce173f6692c3ddb90",
+      "repository_lf_size_bytes": 6258
     },
     "loss_ratio_summary_csv": {
-      "path": ".",
-      "sha256": "3f750eaced2c8e292e8b94e61528d2231ea5103f1be8bee8cf29d439c3e4a094",
-      "size_bytes": 4520
+      "path": "analysis_stage_e/loss_ratio_summary.csv",
+      "repository_lf_sha256": "31c6dfb5e3f998a63a3b97710cc1096638b031b1afded609ff72fe05589edac6",
+      "repository_lf_size_bytes": 4512
     },
     "hecktor_paired_bootstrap_json": {
-      "path": ".",
-      "sha256": "4ba0d0b1a35459cc4c9e8d0eb5eff7d7dc79d4cccb37fef3f707e892223b54a6",
-      "size_bytes": 17627
+      "path": "analysis_stage_e/hecktor_paired_bootstrap.json",
+      "repository_lf_sha256": "33cb3fa2e5cae1c12c23781bcd11b30509d60e0fa938542e16a5709352a76369",
+      "repository_lf_size_bytes": 17198
     },
     "kernel_diagnostics_json": {
-      "path": ".",
-      "sha256": "843748131e033adde7b38a698c98769d5a455926d7d7ffedc622962ff60e4ce3",
-      "size_bytes": 12144
+      "path": "analysis_stage_e/kernel_diagnostics.json",
+      "repository_lf_sha256": "b5925d1e05f5204aaecdcf5f5a683f11fd3db9308989436c2e51418ef2b654d9",
+      "repository_lf_size_bytes": 11854
     },
     "paired_subject_deltas_csv": {
-      "path": ".",
-      "sha256": "b303f4a154cdb32dd8fe48e55736c3cfa280772e026ae3ffbc7aa289af343bb2",
-      "size_bytes": 230377
+      "path": "analysis_stage_e/paired_subject_deltas.csv",
+      "repository_lf_sha256": "a3358706c0f0bc08f2c2adb11c481ba97647161b54374a8f4997c8e21e1c77cf",
+      "repository_lf_size_bytes": 229004
     },
     "paired_subject_deltas_summary_csv": {
-      "path": ".",
-      "sha256": "1eaf2a72cb0a2e176e7fd98af7ca59942f1b2211f9809acb9306bbe27942f522",
-      "size_bytes": 7263
+      "path": "analysis_stage_e/paired_subject_deltas_summary.csv",
+      "repository_lf_sha256": "8225b5693d6ceb0a42ca55ad4c19119f636082f5b6a8fd27a0bc7a14040e242e",
+      "repository_lf_size_bytes": 7206
     },
     "fixed_case_brainweb_manifest_json": {
-      "path": ".",
-      "sha256": "e3e9dfa017adedc983a5612f64c57fe22ec21d4183bfcb697674db6138a24a92",
-      "size_bytes": 10717
+      "path": "analysis_stage_e/fixed_case_brainweb_subject04_z038_200k_r0/manifest.json",
+      "repository_lf_sha256": "02c6e897cfedc6f24917ed2d0d3610e3785bcc972650c0a3eeea88dd5daac7dc",
+      "repository_lf_size_bytes": 10461
     },
     "fixed_case_hecktor_manifest_json": {
-      "path": ".",
-      "sha256": "8d3c5703054ae18fd2f7184f57148e26e2d6fddaeeb06f698e31846f0ade60e0",
-      "size_bytes": 10705
+      "path": "analysis_stage_e/fixed_case_hecktor_10_z072_200k_r0/manifest.json",
+      "repository_lf_sha256": "4a69fc2bd7f4c157cc4449038ce8df5ad5258c1ff909e02fa5056e7104523014",
+      "repository_lf_size_bytes": 10449
     },
     "stage_e_summary_json": {
-      "path": ".",
-      "sha256": "2b1175fb4ed37d4b2e915b7a50e3925e3ce4f849818884c1418e254875ab3ac1",
-      "size_bytes": 948
+      "path": "analysis_stage_e/stage_e_summary.json",
+      "repository_lf_sha256": "345a503fc1f751cb267b01c59bf120323f5874d2c538f35e5849fcefcc5c26fc",
+      "repository_lf_size_bytes": 929
     },
     "per_output_sha256_dual_json": {
-      "path": ".",
-      "sha256": "b7e5be25fe1048b0916fb5b05e1257f01ee564d2fc199d229c5ee1b9ea63aafa",
-      "size_bytes": 2727
+      "path": "per_output_sha256_dual.json",
+      "repository_lf_sha256": "bab2a4c0334e2309e727212b98f20affa4589c8bb7202438c396a3ec18d8dbf7",
+      "repository_lf_size_bytes": 2681
     }
   },
   "n_fixed_cases": 2,
