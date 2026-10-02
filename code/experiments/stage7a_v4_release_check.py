@@ -169,8 +169,13 @@ def main():
                                "path_present": p.exists(),
                                "match": bool(actual and expected) and actual == expected}
     for v in variants:
-        expected = proto.get("hash_pins", {}).get(f"causal_ablations_corrected_v3/full_run/{v}/per_case.csv", "")
-        pinned_hashes[f"causal_ablations_corrected_v3/full_run/{v}/per_case.csv"] = {
+        # Allow pins to be stored either with or without the
+        # results/dev_trainmax_v1/ prefix.
+        key1 = f"causal_ablations_corrected_v3/full_run/{v}/per_case.csv"
+        key2 = f"results/dev_trainmax_v1/{key1}"
+        expected = proto.get("hash_pins", {}).get(key1, "") or \
+                   proto.get("hash_pins", {}).get(key2, "")
+        pinned_hashes[key1] = {
             "actual": source_sha.get(v, ""),
             "expected": expected,
             "path_present": bool(source_sha.get(v)),
@@ -178,7 +183,9 @@ def main():
         }
     for kind in ("summary.json", "integrity_audit.json"):
         rel = f"causal_ablations_corrected_v3/full_run/{kind}"
-        expected = proto.get("hash_pins", {}).get(rel, "")
+        rel2 = f"results/dev_trainmax_v1/{rel}"
+        expected = proto.get("hash_pins", {}).get(rel, "") or \
+                   proto.get("hash_pins", {}).get(rel2, "")
         p = run_dir / kind
         actual = sha256_file(p) if p.is_file() else ""
         pinned_hashes[rel] = {
