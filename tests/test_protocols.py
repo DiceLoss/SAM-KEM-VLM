@@ -14,6 +14,7 @@ KNOWN_PROTOCOL_KINDS = {
     "stage7a_v2_prompt_planning",
     "stage7a_v3_prompt_planning",
     "stage7a_v4_prompt_planning",
+    "stage7a_v4_3_prompt_planning",
 }
 
 

@@ -1,9 +1,17 @@
-"""Stage 7A-v4.2 closure patch — corrected prompt-plan module.
+"""Stage 7A-v4.3 closure patch — corrected prompt-plan module.
 
-Per directive 5945647996. Pure functions only. No VLM call, no
+Per directive 5950637029. Pure functions only. No VLM call, no
 decoder training, no prior generation, no KEM execution.
 
 Stage 7B remains unauthorized.
+
+v4.3 changes vs v4.2:
+- LedgerKey includes input_image_sha256 + parser_schema_version.
+- Primary MedSAM budget uses requested-arm value only (no DET expansion).
+- Separate fallback_medsam_objects counter with DET ceiling.
+- Outcome serialization captures full event/call history losslessly.
+- Finalize() locks the record against further consume/record.
+- SCHEMA_VERSION bumped to 4.3.
 """
 from __future__ import annotations
 
@@ -19,7 +27,7 @@ import numpy as np
 # Constants
 # ============================================================================
 
-SCHEMA_VERSION = 1
+SCHEMA_VERSION = 4  # bumped to 4.3 contract (parser uses int 4)
 IMAGE_DIM = 128
 
 ARM_MAXES = {
@@ -79,10 +87,8 @@ FULL_VAL_MAX_MEDSAM_PER_CASE = {
     arm: ARM_MAXES[arm]["medsam_calls"] for arm in ARM_MAXES
 }
 
-# The maximum MedSAM count the ledger allows for a single (case, arm)
-# record: this must accommodate the arm's normal maximum AND the
-# DET_COMPONENT fallback maximum (since fallback can produce up to 4
-# MedSAM objects regardless of the requested arm).
+# Per-directive §B: requested-arm primary budget must be enforced
+# exactly. Fallback MedSAM is tracked in a separate counter.
 DET_MAX_MEDSAM = ARM_MAXES["DET_COMPONENT"]["medsam_calls"]
 
 ALLOWED_DATASETS = frozenset({"brainweb", "hecktor"})
@@ -95,6 +101,39 @@ ALLOWED_OBJECT_KEYS = (
 ALLOWED_TOP_KEYS = (
     "schema_version", "objects", "abstain", "fallback_reason",
 )
+
+
+# ============================================================================
+# Canonical hashing
+# ============================================================================
+
+def canonical_lf_sha256_file(path) -> str:
+    """Compute canonical-LF SHA-256: normalize CRLF→LF, reject lone CR.
+    This is the cross-platform acceptance pin for text inputs."""
+    if isinstance(path, str):
+        path = type(path)
+    raw = path.read_bytes()
+    if b"\r" in raw:
+        # Reject lone CR before normalizing.
+        if b"\r\n" not in raw:
+            raise ValueError(
+                f"lone CR byte in {path}; refusing canonical LF hash")
+        normalized = raw.replace(b"\r\n", b"\n")
+        if b"\r" in normalized:
+            raise ValueError(
+                f"lone CR byte remains in {path} after CRLF→LF normalization")
+        return hashlib.sha256(normalized).hexdigest()
+    return hashlib.sha256(raw).hexdigest()
+
+
+def execution_file_sha256(path) -> str:
+    """Compute the raw execution-file SHA-256 (platform-dependent).
+    For forensic identity only; NOT the cross-platform acceptance pin."""
+    return hashlib.sha256(path.read_bytes()).hexdigest()
+
+
+def sha256_bytes(b: bytes) -> str:
+    return hashlib.sha256(b).hexdigest()
 
 
 # ============================================================================
@@ -184,8 +223,7 @@ def _validate_box_xyxy(box, label):
 
 def _check_duplicate_points(seen_pos, seen_neg, label, p, obj_id, idx):
     """Returns the validated tuple. Adds to the appropriate seen set based
-    on label. Rejects duplicates within a sign and pos/neg overlap.
-    Stores only validated tuples in the seen set (no raw lists)."""
+    on label. Rejects duplicates within a sign and pos/neg overlap."""
     pt = _validate_point_xy(p, f"object {obj_id} {label}[{idx}]")
     is_positive = "positive" in label
     target = seen_pos if is_positive else seen_neg
@@ -228,17 +266,27 @@ class PromptRequestContext:
             f"{self.parser_schema_version}")
         return hashlib.sha256(canonical.encode()).hexdigest()
 
+    def ledger_key(self) -> "LedgerKey":
+        """The case+arm ledger key (call_index is event field, not key)."""
+        return LedgerKey(
+            dataset=self.dataset,
+            subject_id=self.subject_id,
+            slice_id=self.slice_id,
+            count_level=self.count_level,
+            realization_id=self.realization_id,
+            requested_arm=self.requested_arm,
+            input_image_sha256=self.input_image_sha256,
+            parser_schema_version=self.parser_schema_version,
+        )
+
     def __post_init__(self):
-        # requested_arm
         valid = tuple(ARM_MAXES.keys())
         if self.requested_arm not in valid:
             raise ValueError(f"requested_arm must be one of {valid}")
-        # dataset
         if self.dataset not in ALLOWED_DATASETS:
             raise ValueError(
                 f"dataset must be one of {sorted(ALLOWED_DATASETS)}; "
                 f"got {self.dataset!r}")
-        # count_level, realization_id: positive int, no bool coercion
         if isinstance(self.count_level, bool) or not isinstance(self.count_level, int):
             raise ValueError(
                 f"count_level must be int (no bool); got {type(self.count_level).__name__}")
@@ -250,7 +298,6 @@ class PromptRequestContext:
         if self.realization_id < 0:
             raise ValueError(
                 f"realization_id must be non-negative; got {self.realization_id}")
-        # call_index: non-bool int in [1, max_calls_per_case]
         if isinstance(self.call_index, bool) or not isinstance(self.call_index, int):
             raise ValueError(
                 f"call_index must be int (no bool); got {type(self.call_index).__name__}")
@@ -259,10 +306,15 @@ class PromptRequestContext:
             raise ValueError(
                 f"call_index must be in [1, {max_calls}] for {self.requested_arm}; "
                 f"got {self.call_index}")
-        # input_image_sha256: 64 lowercase hex chars
         _validate_lowercase_sha256(
             self.input_image_sha256, "input_image_sha256")
-        # subject_id, slice_id: non-empty strings
+        if isinstance(self.parser_schema_version, bool) or not isinstance(
+                self.parser_schema_version, int):
+            raise ValueError(
+                f"parser_schema_version must be int (no bool); got {type(self.parser_schema_version).__name__}")
+        if self.parser_schema_version != SCHEMA_VERSION:
+            raise ValueError(
+                f"parser_schema_version must be {SCHEMA_VERSION}; got {self.parser_schema_version}")
         if not isinstance(self.subject_id, str) or len(self.subject_id) == 0:
             raise ValueError("subject_id must be non-empty string")
         if not isinstance(self.slice_id, str) or len(self.slice_id) == 0:
@@ -293,7 +345,7 @@ class DecoderCallSpec:
     box_xyxy: tuple
     positive_points_xy: tuple
     negative_points_xy: tuple
-    mask_input: np.ndarray
+    mask_input_sha256: str  # reference to external artifact, not inline ndarray
 
 
 @dataclass(frozen=True)
@@ -308,25 +360,54 @@ class ValidationOutcome:
     decoder_call_specs: tuple
     vlm_calls_used: int = 0
     medsam_calls_used: int = 0
+    fallback_medsam_calls_used: int = 0
+    call_index: int = 0
+    event_index: int = 0
 
 
 # ============================================================================
-# Ledger (per directive 5945647996 §2)
+# Ledger (per directive 5950637029 §B)
 # ============================================================================
 
 @dataclass(frozen=True)
 class LedgerKey:
-    """Full trusted case identity + arm (call_index is event field)."""
+    """Full trusted case identity (including input_image_sha256 +
+    parser_schema_version). call_index is NOT a key field; it is an
+    event field on the consumed record."""
     dataset: str
     subject_id: str
     slice_id: str
     count_level: int
     realization_id: int
     requested_arm: str
+    input_image_sha256: str
+    parser_schema_version: int
 
     def to_tuple(self):
         return (self.dataset, self.subject_id, self.slice_id,
-                self.count_level, self.realization_id, self.requested_arm)
+                self.count_level, self.realization_id, self.requested_arm,
+                self.input_image_sha256, self.parser_schema_version)
+
+    def to_string(self):
+        return "|".join(str(x) for x in self.to_tuple())
+
+
+@dataclass
+class OutcomeRecord:
+    """Single outcome captured in the ledger. Persisted losslessly."""
+    event_index: int
+    call_index: int
+    trust_id: str
+    requested_arm: str
+    executed_arm: str
+    fallback_used: bool
+    fallback_reason: str
+    raw_response_sha256: str
+    vlm_delta: int
+    medsam_delta: int
+    fallback_medsam_delta: int
+    objects: list  # list of dicts
+    decoder_specs: list  # list of dicts (with mask_input_sha256 only)
 
 
 @dataclass
@@ -335,10 +416,9 @@ class LedgerRecord:
     key: LedgerKey
     vlm_count: int = 0
     medsam_count: int = 0
-    outcomes: list = field(default_factory=list)
-    decoder_call_specs: list = field(default_factory=list)
-    fallback_reasons: list = field(default_factory=list)
-    final_objects: tuple = field(default_factory=tuple)
+    fallback_medsam_count: int = 0
+    outcomes: list = field(default_factory=list)  # list[OutcomeRecord]
+    next_event_index: int = 0
     finalized: bool = False
 
 
@@ -352,7 +432,7 @@ class LedgerStore:
 
     def get_or_create(self, key: LedgerKey) -> LedgerRecord:
         if key not in self._records:
-            self._records[key] = LedgerRecord(key)
+            self._records[key] = LedgerRecord(key=key)
         return self._records[key]
 
     def get(self, key: LedgerKey):
@@ -361,39 +441,100 @@ class LedgerStore:
     def records(self):
         return list(self._records.values())
 
+    def _outcome_to_dict(self, o):
+        # Accept dict or OutcomeRecord (legacy); canonicalize to dict.
+        if isinstance(o, dict):
+            return {
+                "event_index": int(o["event_index"]),
+                "call_index": int(o["call_index"]),
+                "trust_id": str(o["trust_id"]),
+                "requested_arm": str(o["requested_arm"]),
+                "executed_arm": str(o["executed_arm"]),
+                "fallback_used": bool(o["fallback_used"]),
+                "fallback_reason": str(o["fallback_reason"]),
+                "raw_response_sha256": str(o["raw_response_sha256"]),
+                "vlm_delta": int(o["vlm_delta"]),
+                "medsam_delta": int(o["medsam_delta"]),
+                "fallback_medsam_delta": int(o["fallback_medsam_delta"]),
+                "objects": list(o["objects"]),
+                "decoder_specs": list(o["decoder_specs"]),
+            }
+        return {
+            "event_index": o.event_index,
+            "call_index": o.call_index,
+            "trust_id": o.trust_id,
+            "requested_arm": o.requested_arm,
+            "executed_arm": o.executed_arm,
+            "fallback_used": o.fallback_used,
+            "fallback_reason": o.fallback_reason,
+            "raw_response_sha256": o.raw_response_sha256,
+            "vlm_delta": o.vlm_delta,
+            "medsam_delta": o.medsam_delta,
+            "fallback_medsam_delta": o.fallback_medsam_delta,
+            "objects": o.objects,
+            "decoder_specs": o.decoder_specs,
+        }
+
+    def _outcome_from_dict(self, d):
+        # Outcomes are stored as plain dicts in record.outcomes; we
+        # re-hydrate them as a plain dict on restore (no OutcomeRecord
+        # wrapper needed; the dict is the canonical form).
+        return {
+            "event_index": int(d["event_index"]),
+            "call_index": int(d["call_index"]),
+            "trust_id": str(d["trust_id"]),
+            "requested_arm": str(d["requested_arm"]),
+            "executed_arm": str(d["executed_arm"]),
+            "fallback_used": bool(d["fallback_used"]),
+            "fallback_reason": str(d["fallback_reason"]),
+            "raw_response_sha256": str(d["raw_response_sha256"]),
+            "vlm_delta": int(d["vlm_delta"]),
+            "medsam_delta": int(d["medsam_delta"]),
+            "fallback_medsam_delta": int(d["fallback_medsam_delta"]),
+            "objects": list(d["objects"]),
+            "decoder_specs": list(d["decoder_specs"]),
+        }
+
     def to_dict(self):
         out = {}
         for k, r in self._records.items():
-            out["|".join(str(x) for x in k.to_tuple())] = {
+            out[k.to_string()] = {
+                "key": str(k.to_string()),
                 "vlm_count": r.vlm_count,
                 "medsam_count": r.medsam_count,
-                "outcomes_count": len(r.outcomes),
-                "decoder_call_specs_count": len(r.decoder_call_specs),
-                "fallback_reasons": list(r.fallback_reasons),
-                "final_objects_count": len(r.final_objects),
+                "fallback_medsam_count": r.fallback_medsam_count,
+                "next_event_index": r.next_event_index,
                 "finalized": r.finalized,
+                "outcomes": [self._outcome_to_dict(o) for o in r.outcomes],
             }
         return out
 
     @classmethod
     def from_dict(cls, d):
         store = cls()
-        for ks, rd in d.items():
+        for key_str, rd in d.items():
+            ks = rd.get("key", key_str)
             parts = ks.split("|")
-            if len(parts) != 6:
+            if len(parts) != 8:
                 raise ValueError(f"bad ledger key: {ks!r}")
-            dataset, subject_id, slice_id, count_level, realization_id, arm = parts
+            (dataset, subject_id, slice_id, count_level, realization_id,
+             requested_arm, input_image_sha256, parser_schema_version) = parts
             key = LedgerKey(
                 dataset=dataset, subject_id=subject_id, slice_id=slice_id,
                 count_level=int(count_level),
                 realization_id=int(realization_id),
-                requested_arm=arm,
+                requested_arm=requested_arm,
+                input_image_sha256=input_image_sha256,
+                parser_schema_version=int(parser_schema_version),
             )
             rec = LedgerRecord(key=key)
             rec.vlm_count = int(rd["vlm_count"])
             rec.medsam_count = int(rd["medsam_count"])
-            rec.fallback_reasons = list(rd.get("fallback_reasons", []))
-            rec.finalized = bool(rd.get("finalized", False))
+            rec.fallback_medsam_count = int(rd["fallback_medsam_count"])
+            rec.next_event_index = int(rd["next_event_index"])
+            rec.finalized = bool(rd["finalized"])
+            rec.outcomes = [store._outcome_from_dict(o)
+                            for o in rd.get("outcomes", [])]
             store._records[key] = rec
         return store
 
@@ -401,11 +542,9 @@ class LedgerStore:
 class TransactionLedger:
     """Per-case per-arm view bound to an explicit LedgerStore.
 
-    NOT a class-global. State lives in the store; this object is a
-    view. The same record supports round-1 / round-2 continuity for
-    multi-round arms.
-
-    Atomic consume: validates the new total before mutating it.
+    Atomic consume: validate new total before mutating it. The requested
+    arm's primary MedSAM budget is enforced exactly (no DET expansion).
+    Fallback MedSAM is tracked separately and bounded by the DET ceiling.
     """
 
     def __init__(self, store: LedgerStore, key: LedgerKey):
@@ -423,11 +562,25 @@ class TransactionLedger:
         return self._rec.medsam_count
 
     @property
+    def fallback_medsam_count(self):
+        return self._rec.fallback_medsam_count
+
+    @property
     def record(self) -> LedgerRecord:
         return self._rec
 
+    @property
+    def finalized(self) -> bool:
+        return self._rec.finalized
+
+    def _check_finalized(self):
+        if self._rec.finalized:
+            raise PromptPlanSchemaError(
+                f"case {self._key} is finalized; cannot consume or record")
+
     def consume_vlm(self):
         """Atomic: validate total before mutation."""
+        self._check_finalized()
         new_total = self._rec.vlm_count + 1
         if new_total > self._rules["vlm_calls"]:
             raise PromptPlanSchemaError(
@@ -436,40 +589,84 @@ class TransactionLedger:
         self._rec.vlm_count = new_total
 
     def consume_medsam_objects(self, n):
-        """Atomic: validate total before mutation. Budget is the maximum
-        of the requested arm's medsam_calls and the DET_COMPONENT fallback
-        max, since fallback can produce up to DET_COMPONENT objects."""
+        """Primary MedSAM budget is the REQUESTED ARM's medsam_calls,
+        exactly. No DET expansion."""
+        self._check_finalized()
         if not isinstance(n, int) or n < 0:
             raise ValueError(f"medsam count must be non-negative int; got {n!r}")
         new_total = self._rec.medsam_count + n
-        budget = max(self._rules["medsam_calls"], DET_MAX_MEDSAM)
+        budget = self._rules["medsam_calls"]
         if new_total > budget:
             raise PromptPlanSchemaError(
-                f"{self._key.requested_arm} exceeds max_medsam_calls="
+                f"{self._key.requested_arm} exceeds primary max_medsam_calls="
                 f"{budget} (would be {new_total})")
         self._rec.medsam_count = new_total
 
+    def consume_fallback_medsam_objects(self, n):
+        """Separate counter for DET fallback MedSAM, bounded by DET
+        ceiling. NEVER expands the requested arm budget."""
+        self._check_finalized()
+        if not isinstance(n, int) or n < 0:
+            raise ValueError(f"fallback count must be non-negative int; got {n!r}")
+        new_total = self._rec.fallback_medsam_count + n
+        if new_total > DET_MAX_MEDSAM:
+            raise PromptPlanSchemaError(
+                f"fallback_medsam_objects exceeds DET ceiling {DET_MAX_MEDSAM} "
+                f"(would be {new_total})")
+        self._rec.fallback_medsam_count = new_total
+
     def record_outcome(self, outcome: ValidationOutcome):
-        self._rec.outcomes.append(outcome)
-        if outcome.fallback_used:
-            self._rec.fallback_reasons.append(outcome.fallback_reason)
-        self._rec.decoder_call_specs = list(outcome.decoder_call_specs)
-        self._rec.final_objects = outcome.objects
+        """Append an outcome record. AFTER FINALIZE this raises."""
+        self._check_finalized()
+        event_idx = self._rec.next_event_index
+        self._rec.next_event_index += 1
+        outcome_dict = {
+            "event_index": event_idx,
+            "call_index": outcome.call_index,
+            "trust_id": outcome.trust_id,
+            "requested_arm": outcome.requested_arm,
+            "executed_arm": outcome.executed_arm,
+            "fallback_used": outcome.fallback_used,
+            "fallback_reason": outcome.fallback_reason,
+            "raw_response_sha256": outcome.raw_response_sha256,
+            "vlm_delta": outcome.vlm_calls_used,
+            "medsam_delta": outcome.medsam_calls_used,
+            "fallback_medsam_delta": outcome.fallback_medsam_calls_used,
+            "objects": [
+                {"object_id": o.object_id,
+                 "box_xyxy": list(o.box_xyxy),
+                 "positive_points_xy": [list(p) for p in o.positive_points_xy],
+                 "negative_points_xy": [list(p) for p in o.negative_points_xy],
+                 "confidence": float(o.confidence)}
+                for o in outcome.objects
+            ],
+            "decoder_specs": [
+                {"object_id": s.object_id,
+                 "box_xyxy": list(s.box_xyxy),
+                 "positive_points_xy": [list(p) for p in s.positive_points_xy],
+                 "negative_points_xy": [list(p) for p in s.negative_points_xy],
+                 "mask_input_sha256": s.mask_input_sha256}
+                for s in outcome.decoder_call_specs
+            ],
+        }
+        self._rec.outcomes.append(outcome_dict)
 
     def finalize(self):
-        """Mark this case+arm finalized. Subsequent consume calls would
-        still increment counters but the runner should not call finalize
-        twice for the same (case, arm)."""
+        """Mark this case+arm finalized. Subsequent consume/record will
+        raise. Idempotent."""
         self._rec.finalized = True
 
     def reset(self):
-        """Explicit reset for re-running a case in tests."""
+        """Explicit reset for re-running a case in tests. NOT for use
+        on finalized records."""
+        if self._rec.finalized:
+            raise PromptPlanSchemaError(
+                f"case {self._key} is finalized; cannot reset finalized evidence")
         self._rec.vlm_count = 0
         self._rec.medsam_count = 0
+        self._rec.fallback_medsam_count = 0
         self._rec.outcomes = []
-        self._rec.decoder_call_specs = []
-        self._rec.fallback_reasons = []
-        self._rec.final_objects = ()
+        self._rec.next_event_index = 0
         self._rec.finalized = False
 
 
@@ -491,13 +688,10 @@ def _check_no_duplicate_keys(pairs):
 def _compute_raw_sha(raw):
     """Defensive: returns a deterministic SHA even for unsupported types.
     For valid types (str/bytes) returns the real bytes hash; for invalid
-    types raises a schema error using a sentinel hash so callers can
-    classify the error as schema failure rather than crash."""
+    types raises a schema error."""
     if isinstance(raw, (str, bytes)):
         b = raw.encode("utf-8") if isinstance(raw, str) else raw
         return hashlib.sha256(b).hexdigest()
-    # For invalid types, raise so the caller treats this as a schema
-    # fallback (PromptPlanSchemaError) rather than crashing.
     raise PromptPlanSchemaError(
         f"raw must be str or bytes; got {type(raw).__name__}")
 
@@ -524,7 +718,6 @@ def _parse_object(obj_raw, idx, seen_obj_ids, boxes_seen,
             f"objects[{idx}].object_id={oid} duplicates a previous object_id")
     seen_obj_ids.add(oid)
     box = _validate_box_xyxy(obj_raw["box_xyxy"], f"objects[{idx}].box_xyxy")
-    # Duplicate box across objects
     for prev_oid, prev_box in boxes_seen:
         if prev_box == box:
             raise PromptPlanSchemaError(
@@ -545,12 +738,10 @@ def _parse_object(obj_raw, idx, seen_obj_ids, boxes_seen,
     for j, p in enumerate(pos_raw):
         pt = _check_duplicate_points(seen_pos, seen_neg, "positive_points_xy",
                                     p, oid, j)
-        # Cross-object duplicate of a positive point
         if pt in seen_pos_across:
             raise PromptPlanSchemaError(
                 f"object {oid} positive_points_xy[{j}]={p} duplicates a "
                 f"positive point in another object")
-        # Cross-object cross-sign overlap (neg in another object)
         if pt in seen_neg_across:
             raise PromptPlanSchemaError(
                 f"object {oid} positive_points_xy[{j}]={p} duplicates a "
@@ -560,12 +751,10 @@ def _parse_object(obj_raw, idx, seen_obj_ids, boxes_seen,
     for j, p in enumerate(neg_raw):
         pt = _check_duplicate_points(seen_pos, seen_neg, "negative_points_xy",
                                     p, oid, j)
-        # Cross-object duplicate of a negative point
         if pt in seen_neg_across:
             raise PromptPlanSchemaError(
                 f"object {oid} negative_points_xy[{j}]={p} duplicates a "
                 f"negative point in another object")
-        # Cross-object cross-sign overlap (pos in another object)
         if pt in seen_pos_across:
             raise PromptPlanSchemaError(
                 f"object {oid} negative_points_xy[{j}]={p} duplicates a "
@@ -595,23 +784,20 @@ def _parse_object(obj_raw, idx, seen_obj_ids, boxes_seen,
 
 def parse_agent_response(raw, context, seen_obj_ids=None,
                          seen_boxes=None, seen_pos=None, seen_neg=None):
-    """Strict parser. Reject any non-conforming raw response.
-    Raises PromptPlanSchemaError on any violation."""
-    raw_sha = _compute_raw_sha(raw)  # validates str/bytes
+    raw_sha = _compute_raw_sha(raw)
     if isinstance(raw, bytes):
         try:
             text = raw.decode("utf-8")
         except UnicodeDecodeError as e:
             raise PromptPlanSchemaError(f"raw bytes not valid UTF-8: {e}") from e
     else:
-        text = raw  # str already
+        text = raw
     try:
         parsed = json.loads(text, object_pairs_hook=_check_no_duplicate_keys)
     except json.JSONDecodeError as e:
         raise PromptPlanSchemaError(f"malformed JSON: {e}") from e
     if not isinstance(parsed, dict):
-        raise PromptPlanSchemaError(
-            "top-level JSON must be an object")
+        raise PromptPlanSchemaError("top-level JSON must be an object")
     extra = set(parsed.keys()) - set(ALLOWED_TOP_KEYS)
     if extra:
         raise PromptPlanSchemaError(
@@ -632,7 +818,6 @@ def parse_agent_response(raw, context, seen_obj_ids=None,
     if sv != context.parser_schema_version:
         raise PromptPlanSchemaError(
             f"schema_version {sv} != context {context.parser_schema_version}")
-    # Strict bool: never coerce
     abst = parsed["abstain"]
     if type(abst) is not bool:
         raise PromptPlanSchemaError(
@@ -686,7 +871,6 @@ def _validate_case_input(mlem10, context):
 
 
 def _validate_vlm_response(parsed, arm):
-    """Pure: arm-specific object/point constraints (no ledger access)."""
     n = len(parsed.objects)
     rules = ARM_MAXES[arm]
     if not (rules["min_objects"] <= n <= rules["max_objects"]):
@@ -713,9 +897,6 @@ def package_refinement_inputs(
     first_objects, first_round_logits,
     correction_objects, context,
 ):
-    """Per-object DecoderCallSpec; mask_input is that object's first-round
-    logit. Permits new correction points (not constrained to first-round
-    subset)."""
     if len(first_objects) != len(first_round_logits):
         raise PromptPlanSchemaError("first_round_objects vs logits mismatch")
     if len(first_objects) != len(correction_objects):
@@ -741,47 +922,31 @@ def package_refinement_inputs(
         if fo.box_xyxy != co.box_xyxy:
             raise PromptPlanSchemaError(
                 f"object_id {co.object_id}: box changed across rounds")
+        # Reference the mask by SHA-256, not inline ndarray
+        mask_sha = sha256_bytes(fl.tobytes())
         specs.append(DecoderCallSpec(
             object_id=co.object_id,
             box_xyxy=co.box_xyxy,
             positive_points_xy=co.positive_points_xy,
             negative_points_xy=co.negative_points_xy,
-            mask_input=fl,
+            mask_input_sha256=mask_sha,
         ))
     return specs
-
-
-def _make_ledger_key(context: PromptRequestContext) -> LedgerKey:
-    return LedgerKey(
-        dataset=context.dataset,
-        subject_id=context.subject_id,
-        slice_id=context.slice_id,
-        count_level=context.count_level,
-        realization_id=context.realization_id,
-        requested_arm=context.requested_arm,
-    )
 
 
 def validate_or_fallback(
     raw, context, same_realization_mlem10,
     store, first_round_objects=None, first_round_logits=None,
 ):
-    """Single executable entry point. Caller owns the LedgerStore.
-
-    Per directive §2:
-    - Counts VLM at response-consumption (incl. malformed/abstained).
-    - Counts MedSAM by actual decoder objects (normal/refinement/det/fallback).
-    - Records every returned outcome via `record_outcome()`.
-    """
+    """Single executable entry point. Caller owns the LedgerStore."""
     _validate_case_input(same_realization_mlem10, context)
     arm = context.requested_arm
-    ledger = TransactionLedger(store, _make_ledger_key(context))
+    ledger = TransactionLedger(store, context.ledger_key())
     raw_sha = ""
     if raw is not None:
         try:
             raw_sha = _compute_raw_sha(raw)
         except PromptPlanSchemaError:
-            # Unsupported type → treat as schema fallback, no VLM credit
             raw_sha = ""
 
     if arm in ("FULL_BOX", "DET_COMPONENT"):
@@ -800,18 +965,16 @@ def validate_or_fallback(
             fallback_used=False, fallback_reason="",
             objects=tuple(objs), decoder_call_specs=tuple(),
             vlm_calls_used=0, medsam_calls_used=len(objs),
+            fallback_medsam_calls_used=0,
+            call_index=context.call_index,
         )
         ledger.record_outcome(outcome)
         return outcome
 
-    # VLM arm: must have a raw response
     if raw is None:
         raise FatalCaseInputError(f"{arm}: VLM arm requires raw response")
-
-    # Count the VLM transaction (incl. malformed/abstained)
     ledger.consume_vlm()
 
-    # Try to parse; treat unsupported raw types as fallback
     try:
         parsed = parse_agent_response(raw, context)
     except PromptPlanSchemaError as e:
@@ -830,21 +993,23 @@ def validate_or_fallback(
                         same_realization_mlem10, ledger)
 
     decoder_specs = tuple()
-    medsam_objects = 0
+    primary_medsam = 0
     if arm == "VLM_AGENT_REFINE" and first_round_objects is not None:
         decoder_specs = tuple(package_refinement_inputs(
             first_round_objects, first_round_logits,
             parsed.objects, context))
-        medsam_objects = len(decoder_specs)
+        primary_medsam = len(decoder_specs)
     else:
-        medsam_objects = len(parsed.objects)
-    ledger.consume_medsam_objects(medsam_objects)
+        primary_medsam = len(parsed.objects)
+    ledger.consume_medsam_objects(primary_medsam)
     outcome = ValidationOutcome(
         requested_arm=arm, executed_arm=arm, trust_id=context.trust_id(),
         raw_response_sha256=raw_sha, fallback_used=False,
         fallback_reason="", objects=parsed.objects,
         decoder_call_specs=decoder_specs,
-        vlm_calls_used=1, medsam_calls_used=medsam_objects,
+        vlm_calls_used=1, medsam_calls_used=primary_medsam,
+        fallback_medsam_calls_used=0,
+        call_index=context.call_index,
     )
     ledger.record_outcome(outcome)
     return outcome
@@ -856,7 +1021,9 @@ def rules_medsam(arm):
 
 def _fallback(context, raw_sha, reason, mlem10, ledger: TransactionLedger):
     det_objs = det_component_objects(mlem10)
-    ledger.consume_medsam_objects(len(det_objs))
+    n_det = len(det_objs)
+    ledger.consume_medsam_objects(0)  # no-op primary
+    ledger.consume_fallback_medsam_objects(n_det)
     outcome = ValidationOutcome(
         requested_arm=context.requested_arm,
         executed_arm="DET_COMPONENT",
@@ -865,8 +1032,11 @@ def _fallback(context, raw_sha, reason, mlem10, ledger: TransactionLedger):
         fallback_used=True, fallback_reason=reason,
         objects=tuple(det_objs),
         decoder_call_specs=tuple(),
-        vlm_calls_used=1 if ledger.vlm_count > 0 else 0,
-        medsam_calls_used=len(det_objs),
+        vlm_calls_used=ledger.vlm_count if context.requested_arm
+            not in ("FULL_BOX", "DET_COMPONENT") else 0,
+        medsam_calls_used=0,  # primary NOT enlarged
+        fallback_medsam_calls_used=n_det,
+        call_index=context.call_index,
     )
     ledger.record_outcome(outcome)
     return outcome
@@ -956,8 +1126,6 @@ def det_component_objects(mlem10):
         i_max = int(np.argmax(sub))
         px = int(c["xs"][i_max])
         py = int(c["ys"][i_max])
-        # Background candidate: 1-px band outside padded box,
-        # masked to labels == 0 (background only).
         bg_x0 = max(0, c["xp0"] - 1); bg_x1 = min(IMAGE_DIM, c["xp1"] + 1)
         bg_y0 = max(0, c["yp0"] - 1); bg_y1 = min(IMAGE_DIM, c["yp1"] + 1)
         band_mask = np.zeros_like(abs_map, dtype=bool)
@@ -969,7 +1137,6 @@ def det_component_objects(mlem10):
             band_mask[bg_y0:bg_y1, bg_x0:c["xp0"]] = True
         if c["xp1"] < IMAGE_DIM:
             band_mask[bg_y0:bg_y1, c["xp1"]:bg_x1] = True
-        # CRITICAL: mask to background (labels == 0)
         band_mask &= (labels == 0)
         negs = ()
         if band_mask.any():
