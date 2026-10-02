@@ -87,3 +87,8 @@ v3_repo_complete.bundle
 # ZIP/checkpoint files remain ignored and belong to external artifact storage.
 !delivery/dev_trainmax_v1_decoder_bundle.zip
 !delivery/dev_trainmax_v1_validation_priors.zip
+
+# Stage 7A planning audits are untracked by design.
+results/dev_trainmax_v1/stage7a_*_plan_audit_untracked.json
+results/dev_trainmax_v1/stage7a_*_release_check_untracked.json
+results/dev_trainmax_v1/quarantine/
