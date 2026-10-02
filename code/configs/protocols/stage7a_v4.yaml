@@ -87,13 +87,15 @@ arms:
 # Max VLM transactions across full historical validation
 # Sum per case: 0+0+1+1+1+2 = 5; per 8,892 cases = 44,460
 full_validation_max_vlm_transactions: 44460
+# Authoritative MedSAM maximum per case (must byte-equal ARM_MAXES)
+# Matches arm records: 1,4,1,4,4,8
 full_validation_max_medsam_per_case:
   FULL_BOX: 1
-  DET_COMPONENT: 1
+  DET_COMPONENT: 4
   VLM_SINGLE_BOX: 1
-  VLM_MULTI_BOX: 1
-  VLM_BOX_POINT: 1
-  VLM_AGENT_REFINE: 2
+  VLM_MULTI_BOX: 4
+  VLM_BOX_POINT: 4
+  VLM_AGENT_REFINE: 8
 # Max MedSAM object-decode calls per case (object-dependent actual counts)
 # Use maxima as upper-bound for audit
 # Stage 7D count always pending
