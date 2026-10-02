@@ -1,94 +1,88 @@
-# Stage 7A v4 protocol — closure patch
-# Per directive 5932124321. Code/protocol/zero-write planning only;
-# no VLM call, no decoder training, no prior generation, no KEM
-# execution. Stage 7B remains unauthorized.
 name: stage7a_v4_prompt_planning
 kind: stage7a_v4_prompt_planning
-version: "4.1"
+version: '4.1'
 split: validation
-methods: [STAGE7A_PLANNING]
-datasets: [brainweb, hecktor]
-# Per-arm corrected budgets (with per-arm vlm_calls / medsam_calls).
+methods:
+- STAGE7A_PLANNING
+datasets:
+- brainweb
+- hecktor
 arms:
-  - name: FULL_BOX
-    arm_kind: deterministic_full
-    vlm_calls: 0
-    medsam_calls: 1
-    min_objects: 1
-    max_objects: 1
-    min_positive_points: 0
-    max_positive_points: 0
-    min_negative_points: 0
-    max_negative_points: 0
-    allow_multi_round: false
-    max_calls_per_case: 1
-  - name: DET_COMPONENT
-    arm_kind: deterministic_components
-    vlm_calls: 0
-    medsam_calls: 4
-    min_objects: 1
-    max_objects: 4
-    min_positive_points: 1
-    max_positive_points: 1
-    min_negative_points: 0
-    max_negative_points: 3
-    allow_multi_round: false
-    max_calls_per_case: 1
-    threshold_quantile: 0.85
-    padding_px: 2
-  - name: VLM_SINGLE_BOX
-    arm_kind: vlm_only
-    vlm_calls: 1
-    medsam_calls: 1
-    min_objects: 1
-    max_objects: 1
-    min_positive_points: 0
-    max_positive_points: 0
-    min_negative_points: 0
-    max_negative_points: 0
-    allow_multi_round: false
-    max_calls_per_case: 1
-  - name: VLM_MULTI_BOX
-    arm_kind: vlm_only
-    vlm_calls: 1
-    medsam_calls: 4
-    min_objects: 1
-    max_objects: 4
-    min_positive_points: 0
-    max_positive_points: 0
-    min_negative_points: 0
-    max_negative_points: 0
-    allow_multi_round: false
-    max_calls_per_case: 1
-  - name: VLM_BOX_POINT
-    arm_kind: vlm_box_point
-    vlm_calls: 1
-    medsam_calls: 4
-    min_objects: 1
-    max_objects: 4
-    min_positive_points: 1
-    max_positive_points: 3
-    min_negative_points: 0
-    max_negative_points: 3
-    allow_multi_round: false
-    max_calls_per_case: 1
-  - name: VLM_AGENT_REFINE
-    arm_kind: vlm_agent_refine
-    vlm_calls: 2
-    medsam_calls: 8
-    min_objects: 1
-    max_objects: 4
-    min_positive_points: 1
-    max_positive_points: 3
-    min_negative_points: 0
-    max_negative_points: 3
-    allow_multi_round: true
-    max_calls_per_case: 2
-# Max VLM transactions across full historical validation
-# Sum per case: 0+0+1+1+1+2 = 5; per 8,892 cases = 44,460
+- name: FULL_BOX
+  arm_kind: deterministic_full
+  vlm_calls: 0
+  medsam_calls: 1
+  min_objects: 1
+  max_objects: 1
+  min_positive_points: 0
+  max_positive_points: 0
+  min_negative_points: 0
+  max_negative_points: 0
+  allow_multi_round: false
+  max_calls_per_case: 1
+- name: DET_COMPONENT
+  arm_kind: deterministic_components
+  vlm_calls: 0
+  medsam_calls: 4
+  min_objects: 1
+  max_objects: 4
+  min_positive_points: 1
+  max_positive_points: 1
+  min_negative_points: 0
+  max_negative_points: 3
+  allow_multi_round: false
+  max_calls_per_case: 1
+  threshold_quantile: 0.85
+  padding_px: 2
+- name: VLM_SINGLE_BOX
+  arm_kind: vlm_only
+  vlm_calls: 1
+  medsam_calls: 1
+  min_objects: 1
+  max_objects: 1
+  min_positive_points: 0
+  max_positive_points: 0
+  min_negative_points: 0
+  max_negative_points: 0
+  allow_multi_round: false
+  max_calls_per_case: 1
+- name: VLM_MULTI_BOX
+  arm_kind: vlm_only
+  vlm_calls: 1
+  medsam_calls: 4
+  min_objects: 1
+  max_objects: 4
+  min_positive_points: 0
+  max_positive_points: 0
+  min_negative_points: 0
+  max_negative_points: 0
+  allow_multi_round: false
+  max_calls_per_case: 1
+- name: VLM_BOX_POINT
+  arm_kind: vlm_box_point
+  vlm_calls: 1
+  medsam_calls: 4
+  min_objects: 1
+  max_objects: 4
+  min_positive_points: 1
+  max_positive_points: 3
+  min_negative_points: 0
+  max_negative_points: 3
+  allow_multi_round: false
+  max_calls_per_case: 1
+- name: VLM_AGENT_REFINE
+  arm_kind: vlm_agent_refine
+  vlm_calls: 2
+  medsam_calls: 8
+  min_objects: 1
+  max_objects: 4
+  min_positive_points: 1
+  max_positive_points: 3
+  min_negative_points: 0
+  max_negative_points: 3
+  allow_multi_round: true
+  max_calls_per_case: 2
 full_validation_max_vlm_transactions: 44460
-# Authoritative MedSAM maximum per case (must byte-equal ARM_MAXES)
-# Matches arm records: 1,4,1,4,4,8
 full_validation_max_medsam_per_case:
   FULL_BOX: 1
   DET_COMPONENT: 4
@@ -96,24 +90,41 @@ full_validation_max_medsam_per_case:
   VLM_MULTI_BOX: 4
   VLM_BOX_POINT: 4
   VLM_AGENT_REFINE: 8
-# Max MedSAM object-decode calls per case (object-dependent actual counts)
-# Use maxima as upper-bound for audit
-# Stage 7D count always pending
 stage_7d_internal_development_screen:
-  counts: [100000, 200000]
-  realizations: [0]
+  counts:
+  - 100000
+  - 200000
+  realizations:
+  - 0
   expected_n_cases: pending_stage7b_subject_split
 stage_7e_full_historical_validation:
-  counts: [100000, 200000, 500000, 1000000]
-  realizations: [0, 1, 2]
+  counts:
+  - 100000
+  - 200000
+  - 500000
+  - 1000000
+  realizations:
+  - 0
+  - 1
+  - 2
   expected_n_cases: 8892
-# Strict contracts
 xyxy_strict: true
 no_silent_clipping: true
 duplicate_boxes_rejected: true
 duplicate_points_rejected: true
 pos_neg_overlap_rejected: true
-# Formal-namespace absence check before/after
 formal_namespace_absence_check: true
-# Pure KEM, no post-fusion
 post_fusion_forbidden: true
+hash_pins:
+  frozen_hyperparameters.csv: 4b7624c0339b4e387a7c7a1e52ed359f757a89516de437a6a8f73871f12c204e
+  validation_case_manifest.csv: 3059c981751f3156fd2fdfe3df2c177a58460b2fd8c455004a1e4bad35ed47b8
+  results/dev_trainmax_v1/causal_ablations_corrected_v3/full_run/Q_ADAPT/per_case.csv: 4649554ba4644499f0ec40928fb177aa8e8538011de2140ae61c7374c3f659ed
+  results/dev_trainmax_v1/causal_ablations_corrected_v3/full_run/FULL_ADAPT/per_case.csv: d52198ebae9b4d0ef57b1025824ea6f0bf70d8cf7fb9ba2285cd6c6e6168800f
+  results/dev_trainmax_v1/causal_ablations_corrected_v3/full_run/CENTER_ADAPT/per_case.csv: 6283b97d723fc948aee69f17bf88a3eb2ab335371f04ea85e1f047690d05331d
+  results/dev_trainmax_v1/causal_ablations_corrected_v3/full_run/CENTROID_ADAPT/per_case.csv: 56ea0ec2057621c00ab3fa8eab0ad8df9695ab02b9d1f176ddcacf8860ff4984
+  results/dev_trainmax_v1/causal_ablations_corrected_v3/full_run/Q_RELEASED/per_case.csv: 6bc89b0a6defa4cdcc53b53dcbb24e0af47ee93e2ca1d88ea14d7ad4258d57df
+  results/dev_trainmax_v1/causal_ablations_corrected_v3/full_run/MLEM_FEATURE_MATCHED/per_case.csv: be173f72a3144637f9bfeebe91dea968370f4d9bb5a9bf2adc0815e919cfeb01
+  results/dev_trainmax_v1/causal_ablations_corrected_v3/full_run/Q_SHUFFLED_MATCHED/per_case.csv: 84ea5e17131356c73d00f7a0102d0a966ede63af8dde2e75810e7e33035065e0
+  results/dev_trainmax_v1/causal_ablations_corrected_v3/full_run/UNIFORM_FEATURE_MATCHED/per_case.csv: 0f90a7532a942e23ada155fcb22b1c10c1821b484d3062782d121cd1b0ec2fed
+  results/dev_trainmax_v1/causal_ablations_corrected_v3/full_run/summary.json: 81411615f54819d3012164d295a1fc21a275845ec4611daf732eebf1b5487331
+  results/dev_trainmax_v1/causal_ablations_corrected_v3/full_run/integrity_audit.json: 553a45b41fa6f97d44d71b5f0c1d74b44d4daff42a3f43c0c29792b134118439
