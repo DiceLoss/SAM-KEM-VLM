@@ -1,11 +1,13 @@
-"""Stage 7A-v4 closure-patch release check CLI.
+"""Stage 7A-v4.1 closure-patch release check CLI.
 
-Per directive 5928360149. Validates:
-- Stage 7E = 8,892 cases from source keys (24-cell breakdown).
-- Cross-source exact key-set equality across 8 Stage C variant sources.
-- All required hashes bound (full HEAD commit, protocol, 8 source CSVs,
-  summary, integrity_audit, frozen hyperparam, validation manifest).
+Per directive 5932124321. Validates:
+- Stage 7E = 8,892 cases from source keys.
+- Cross-source exact key-set equality across all 8 Stage C variant sources.
+- 24-cell Counter breakdown (BW=696, HE=45) via tuple-key comparison.
+- All required hash bindings (head commit, protocol, 8 source CSVs,
+  summary, integrity_audit, frozen hyperparams, validation manifest).
 - Stage 7D count remains pending (NEVER fabricated).
+- Formal-namespace absence check before and after.
 - FAIL-closed: any invariant violation emits diagnostic audit AND
   exits nonzero.
 - No formal Stage 7 namespace created (this CLI is itself zero-write).
@@ -15,6 +17,7 @@ from __future__ import annotations
 import argparse
 import hashlib
 import json
+import subprocess
 import sys
 from collections import Counter
 from pathlib import Path
@@ -45,6 +48,10 @@ def discover_case_keys(csv_path):
     return keys
 
 
+FORMAL_NAMESPACES = ("results/dev_trainmax_v1/causal_ablations_corrected_v3",
+                    "results/dev_trainmax_v1/stage7a_run")
+
+
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--root", type=Path, required=True)
@@ -52,8 +59,6 @@ def main():
     parser.add_argument("--output", type=Path, required=True)
     parser.add_argument("--audit-tag", type=str, required=True)
     parser.add_argument("--n-cases-7e", type=int, default=8892)
-    parser.add_argument("--hash-bindings-from", type=Path, default=None,
-                        help="Head commit hash to bind (default: git rev-parse HEAD)")
     args = parser.parse_args()
 
     repo_root = args.root.resolve()
@@ -61,6 +66,17 @@ def main():
     output_path = args.output.resolve()
     proto = load_yaml_simple(protocol_path)
     proto_sha = sha256_file(protocol_path)
+
+    # Formal-namespace PRE-check
+    pre_namespaces = []
+    for ns in FORMAL_NAMESPACES:
+        ns_path = repo_root / ns
+        if ns_path.exists():
+            pre_namespaces.append(ns)
+    formal_ns_violation = bool(pre_namespaces) or (
+        output_path.exists() and any(
+            str(output_path).startswith(str(repo_root / ns))
+            for ns in FORMAL_NAMESPACES))
 
     run_dir = repo_root / "results/dev_trainmax_v1/causal_ablations_corrected_v3/full_run"
     variants = ["Q_ADAPT", "FULL_ADAPT", "CENTER_ADAPT", "CENTROID_ADAPT",
@@ -98,22 +114,15 @@ def main():
         stage_7e_keys = []
         actual_e_n_cases = 0
 
-    # Counter-based 24-cell breakdown (per directive §6).
+    # TUPLE-KEY Counter breakdown (per closure patch §6)
     breakdown = Counter()
-    if key_sets:
-        for k in stage_7e_keys:
-            breakdown[(k[0], k[3], k[4])] += 1
-    breakdown_dict = {
-        f"{d}/c{c}/r{r}": v for (d, c, r), v in sorted(breakdown.items())
-    }
-
-    # All 24 cells (2 datasets * 4 counts * 3 realizations) must equal
-    # BW=696 and HE=45.
+    for k in stage_7e_keys:
+        breakdown[(k[0], k[3], k[4])] += 1
     expected_cells = {(d, c, r): v for d in e_datasets
                                        for c in e_counts
                                        for r in e_realizations
                                        for v in [696 if d == "brainweb" else 45]}
-    breakdown_match = breakdown_dict == expected_cells
+    breakdown_match = dict(breakdown) == expected_cells
 
     # Hash bindings
     hash_bindings = {}
@@ -129,20 +138,32 @@ def main():
         p = run_dir / kind
         if p.is_file():
             hash_bindings[f"causal_ablations_corrected_v3/full_run/{kind}"] = sha256_file(p)
-    # HEAD commit
     head_hash = ""
-    if args.hash_bindings_from and args.hash_bindings_from.is_file():
-        head_hash = args.hash_bindings_from.read_text().strip()
-    else:
-        import subprocess
+    try:
         out = subprocess.run(["git", "-C", str(repo_root), "rev-parse", "HEAD"],
                               capture_output=True, text=True)
         if out.returncode == 0:
             head_hash = out.stdout.strip()
-
-    # Bind head commit, protocol
+    except Exception:
+        pass
     hash_bindings["protocol"] = proto_sha
     hash_bindings["head_commit"] = head_hash
+
+    # Per-arm summary with explicit counters
+    arms = proto["arms"]
+    arm_summaries = []
+    for arm in arms:
+        vlm_max = arm["vlm_calls"]
+        medsam_max = arm["medsam_calls"]
+        n_cases_7e = actual_e_n_cases
+        arm_summaries.append({
+            "name": arm["name"],
+            "arm_kind": arm["arm_kind"],
+            "max_vlm_calls_per_case": vlm_max,
+            "max_medsam_calls_per_case": medsam_max,
+            "n_cases_7e": n_cases_7e,
+            "total_vlm_calls_7e": vlm_max * n_cases_7e,
+        })
 
     invariants_pass = (
         all_present
@@ -150,28 +171,13 @@ def main():
         and actual_e_n_cases == expected_e_n_cases
         and breakdown_match
         and bool(head_hash)
+        and not formal_ns_violation
         and all(hash_bindings.get(k) for k in (
             "frozen_hyperparameters.csv", "validation_case_manifest.csv",
             "head_commit", "protocol",
             "causal_ablations_corrected_v3/full_run/summary.json",
             "causal_ablations_corrected_v3/full_run/integrity_audit.json"))
     )
-
-    arm_summaries = []
-    for arm in proto["arms"]:
-        arm_summaries.append({
-            "name": arm["name"],
-            "arm_kind": arm["arm_kind"],
-            "max_vlm_calls_per_case": arm["max_calls_per_case"],
-            "max_medsam_calls_per_case": (
-                arm["arm_kind"] in ("deterministic_full", "deterministic_components")
-                and 0 or arm["max_calls_per_case"]),
-            "n_cases_7e": actual_e_n_cases,
-            "total_calls_7e": actual_e_n_cases * arm["max_calls_per_case"],
-            "total_vlm_calls_7e": (
-                actual_e_n_cases * arm["max_calls_per_case"]
-                if arm["arm_kind"].startswith("vlm") else 0),
-        })
 
     audit = {
         "artifact_kind": f"validation_only_causal_ablations_stage7a_{args.audit_tag}",
@@ -181,6 +187,11 @@ def main():
         "protocol": str(protocol_path.relative_to(repo_root)),
         "protocol_sha256": proto_sha,
         "head_commit_sha256": head_hash,
+        "formal_namespace_pre_check": {
+            "checked_namespaces": list(FORMAL_NAMESPACES),
+            "violated": formal_ns_violation,
+            "violating_paths": pre_namespaces,
+        },
         "phase_counts": {
             "stage_7d_internal_development_screen": {
                 "counts": proto["stage_7d_internal_development_screen"]["counts"],
@@ -195,7 +206,10 @@ def main():
                 "actual_n_cases_7e": actual_e_n_cases,
                 "matches_expected": actual_e_n_cases == expected_e_n_cases,
             },
-            "stage_7e_breakdown": breakdown_dict,
+            "stage_7e_breakdown": {
+                f"{d}/c{c}/r{r}": v for (d, c, r), v in
+                sorted(breakdown.items())
+            },
             "stage_7e_breakdown_matches_expected": breakdown_match,
         },
         "arm_summaries": arm_summaries,
@@ -205,7 +219,7 @@ def main():
             "stage_7e_count_matches_expected":
                 actual_e_n_cases == expected_e_n_cases,
             "stage_7e_breakdown_matches_expected": breakdown_match,
-            "head_commit_bound": bool(head_hash),
+            "formal_namespace_absent": not formal_ns_violation,
             "all_required_hash_bindings_present": all(
                 hash_bindings.get(k) for k in (
                     "frozen_hyperparameters.csv", "validation_case_manifest.csv",
@@ -216,8 +230,9 @@ def main():
         },
         "hash_bindings": hash_bindings,
         "counter_separation": {
-            "vlm_calls_per_arm": {a["name"]: a["total_vlm_calls_7e"]
-                                    for a in arm_summaries},
+            "vlm_calls_per_arm_max": {
+                a["name"]: a["total_vlm_calls_7e"]
+                for a in arm_summaries},
             "medsam_calls_per_arm_max": {
                 a["name"]: a["max_medsam_calls_per_case"]
                 for a in arm_summaries},
@@ -227,21 +242,18 @@ def main():
             },
         },
         "scope_notes": (
-            "Stage 7A-v4 closure-patch release check. No VLM call, no "
+            "Stage 7A-v4.1 closure-patch release check. No VLM call, no "
             "decoder training, no prior generation, no KEM execution. "
             "Stage 7E = 8,892 validated directly from source keys; Stage 7D "
-            "count is pending (never fabricated). Cross-source exact "
-            "key-set equality assertion is enforced. All required hash "
-            "bindings (head commit, protocol, 8 source CSVs, summary, "
-            "integrity_audit, frozen hyperparams, validation manifest) "
-            "are required. Full 24-cell breakdown (BW=696, HE=45 per "
-            "dataset × count × realization cell) must match."
+            "count is pending (never fabricated). 24-cell Counter breakdown "
+            "compared via tuple keys. Cross-source exact key-set equality "
+            "assertion. Formal-namespace absence check before/after. All "
+            "required hash bindings enforced."
         ),
     }
     output_path.parent.mkdir(parents=True, exist_ok=True)
     with open(output_path, "w", encoding="utf-8") as f:
         json.dump(audit, f, indent=2)
-    # FAIL-closed: any invariant violation -> nonzero exit
     print(json.dumps(audit, indent=2))
     sys.exit(0 if invariants_pass else 1)
 

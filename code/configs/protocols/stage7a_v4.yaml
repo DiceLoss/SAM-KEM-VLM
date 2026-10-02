@@ -1,0 +1,117 @@
+# Stage 7A v4 protocol — closure patch
+# Per directive 5932124321. Code/protocol/zero-write planning only;
+# no VLM call, no decoder training, no prior generation, no KEM
+# execution. Stage 7B remains unauthorized.
+name: stage7a_v4_prompt_planning
+kind: stage7a_v4_prompt_planning
+version: "4.1"
+split: validation
+methods: [STAGE7A_PLANNING]
+datasets: [brainweb, hecktor]
+# Per-arm corrected budgets (with per-arm vlm_calls / medsam_calls).
+arms:
+  - name: FULL_BOX
+    arm_kind: deterministic_full
+    vlm_calls: 0
+    medsam_calls: 1
+    min_objects: 1
+    max_objects: 1
+    min_positive_points: 0
+    max_positive_points: 0
+    min_negative_points: 0
+    max_negative_points: 0
+    allow_multi_round: false
+    max_calls_per_case: 1
+  - name: DET_COMPONENT
+    arm_kind: deterministic_components
+    vlm_calls: 0
+    medsam_calls: 4
+    min_objects: 1
+    max_objects: 4
+    min_positive_points: 1
+    max_positive_points: 1
+    min_negative_points: 0
+    max_negative_points: 3
+    allow_multi_round: false
+    max_calls_per_case: 1
+    threshold_quantile: 0.85
+    padding_px: 2
+  - name: VLM_SINGLE_BOX
+    arm_kind: vlm_only
+    vlm_calls: 1
+    medsam_calls: 1
+    min_objects: 1
+    max_objects: 1
+    min_positive_points: 0
+    max_positive_points: 0
+    min_negative_points: 0
+    max_negative_points: 0
+    allow_multi_round: false
+    max_calls_per_case: 1
+  - name: VLM_MULTI_BOX
+    arm_kind: vlm_only
+    vlm_calls: 1
+    medsam_calls: 4
+    min_objects: 1
+    max_objects: 4
+    min_positive_points: 0
+    max_positive_points: 0
+    min_negative_points: 0
+    max_negative_points: 0
+    allow_multi_round: false
+    max_calls_per_case: 1
+  - name: VLM_BOX_POINT
+    arm_kind: vlm_box_point
+    vlm_calls: 1
+    medsam_calls: 4
+    min_objects: 1
+    max_objects: 4
+    min_positive_points: 1
+    max_positive_points: 3
+    min_negative_points: 0
+    max_negative_points: 3
+    allow_multi_round: false
+    max_calls_per_case: 1
+  - name: VLM_AGENT_REFINE
+    arm_kind: vlm_agent_refine
+    vlm_calls: 2
+    medsam_calls: 8
+    min_objects: 1
+    max_objects: 4
+    min_positive_points: 1
+    max_positive_points: 3
+    min_negative_points: 0
+    max_negative_points: 3
+    allow_multi_round: true
+    max_calls_per_case: 2
+# Max VLM transactions across full historical validation
+# Sum per case: 0+0+1+1+1+2 = 5; per 8,892 cases = 44,460
+full_validation_max_vlm_transactions: 44460
+full_validation_max_medsam_per_case:
+  FULL_BOX: 1
+  DET_COMPONENT: 1
+  VLM_SINGLE_BOX: 1
+  VLM_MULTI_BOX: 1
+  VLM_BOX_POINT: 1
+  VLM_AGENT_REFINE: 2
+# Max MedSAM object-decode calls per case (object-dependent actual counts)
+# Use maxima as upper-bound for audit
+# Stage 7D count always pending
+stage_7d_internal_development_screen:
+  counts: [100000, 200000]
+  realizations: [0]
+  expected_n_cases: pending_stage7b_subject_split
+stage_7e_full_historical_validation:
+  counts: [100000, 200000, 500000, 1000000]
+  realizations: [0, 1, 2]
+  expected_n_cases: 8892
+# Strict contracts
+xyxy_strict: true
+no_silent_clipping: true
+duplicate_boxes_rejected: true
+duplicate_points_rejected: true
+pos_neg_overlap_rejected: true
+# Formal-namespace absence check before/after
+formal_namespace_absence_check: true
+# Pure KEM, no post-fusion
+post_fusion_forbidden: true
