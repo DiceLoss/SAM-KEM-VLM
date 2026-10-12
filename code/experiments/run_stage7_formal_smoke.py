@@ -62,7 +62,7 @@ def _api_call(*, token: str, prompt: str, png: bytes) -> tuple[dict, dict, float
     request_payload = {
         "model": MODEL,
         "temperature": 0,
-        "max_tokens": 500,
+        "max_tokens": 8192,
         "messages": [{
             "role": "user",
             "content": [

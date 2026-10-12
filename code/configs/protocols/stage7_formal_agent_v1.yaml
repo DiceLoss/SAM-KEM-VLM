@@ -118,6 +118,7 @@ api_receipt:
   provider_base_url: https://api.x5m5x.com/v1
   requested_model: qwen3.8-max
   temperature: 0
+  max_completion_tokens: 8192
   raw_request_required: true
   raw_response_required: true
   returned_model_required: true

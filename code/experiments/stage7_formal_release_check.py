@@ -196,6 +196,8 @@ def build_audit(repo: Path, protocol_path: Path, output: Path,
         "no_retries": budget.get("retries_per_case_max") == 0,
         "secret_excluded": protocol["api_receipt"].get(
             "authorization_secret_forbidden_in_artifacts") is True,
+        "completion_budget_avoids_reasoning_truncation":
+            protocol["api_receipt"].get("max_completion_tokens") == 8192,
     }
     checks["safety_contract"] = required_flags
     if not all(required_flags.values()):
