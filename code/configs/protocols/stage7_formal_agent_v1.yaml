@@ -111,6 +111,11 @@ formal_statistics:
     samples: 10000
     seed: 20261012
     interval: percentile_95
+  hypothesis_test:
+    method: two_sided_subject_mean_sign_flip
+    exact_when_subject_count_at_most: 20
+    monte_carlo_samples_otherwise: 100000
+    seed: 20261012
   multiplicity: holm_across_10_cell_metric_hypotheses
   report_regardless_of_direction: true
 
