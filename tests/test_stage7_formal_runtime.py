@@ -6,6 +6,7 @@ from sam_kem.stage7_formal_runtime import (
     FormalPromptError,
     aggregate_logits,
     parse_formal_prompt,
+    render_pet_display,
     render_pet_views,
 )
 
@@ -63,3 +64,7 @@ def test_render_is_deterministic_and_view_sensitive():
     assert first == second
     assert first_sha == second_sha
     assert first.startswith(b"\x89PNG")
+    assert render_pet_display(image, view_mode="grayscale_only")[1] != first_sha
+    assert render_pet_display(image, view_mode="jet_only")[1] != first_sha
+    with pytest.raises(ValueError):
+        render_pet_display(image, view_mode="unknown")

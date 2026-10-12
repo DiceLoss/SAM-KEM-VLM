@@ -134,8 +134,8 @@ def aggregate_logits(logits: tuple[np.ndarray, ...]) -> np.ndarray:
     return np.maximum.reduce(arrays).astype(np.float32)
 
 
-def render_pet_views(pet: np.ndarray) -> tuple[bytes, str]:
-    """Render deterministic side-by-side grayscale and jet PNG views."""
+def render_pet_display(pet: np.ndarray, *, view_mode: str) -> tuple[bytes, str]:
+    """Render a deterministic grayscale, jet, or side-by-side PET PNG."""
     from PIL import Image, ImageDraw
 
     array = np.asarray(pet, dtype=np.float64)
@@ -148,16 +148,35 @@ def render_pet_views(pet: np.ndarray) -> tuple[bytes, str]:
     green = np.clip(1.5 - np.abs(4 * scaled - 2), 0, 1)
     blue = np.clip(1.5 - np.abs(4 * scaled - 1), 0, 1)
     jet = np.rint(np.stack((red, green, blue), axis=-1) * 255).astype(np.uint8)
-    canvas = Image.new("RGB", (1056, 560), "white")
-    canvas.paste(Image.fromarray(gray, mode="L").convert("RGB").resize((512, 512)), (0, 48))
-    canvas.paste(Image.fromarray(jet, mode="RGB").resize((512, 512)), (544, 48))
+    gray_image = Image.fromarray(gray, mode="L").convert("RGB").resize((512, 512))
+    jet_image = Image.fromarray(jet, mode="RGB").resize((512, 512))
+    if view_mode == "grayscale_plus_jet":
+        canvas = Image.new("RGB", (1056, 560), "white")
+        canvas.paste(gray_image, (0, 48))
+        canvas.paste(jet_image, (544, 48))
+        titles = ((8, "grayscale MLEM-10"), (552, "jet MLEM-10"))
+    elif view_mode == "grayscale_only":
+        canvas = Image.new("RGB", (512, 560), "white")
+        canvas.paste(gray_image, (0, 48))
+        titles = ((8, "grayscale MLEM-10"),)
+    elif view_mode == "jet_only":
+        canvas = Image.new("RGB", (512, 560), "white")
+        canvas.paste(jet_image, (0, 48))
+        titles = ((8, "jet MLEM-10"),)
+    else:
+        raise ValueError(f"unknown view mode: {view_mode}")
     draw = ImageDraw.Draw(canvas)
-    draw.text((8, 16), "grayscale MLEM-10", fill="black")
-    draw.text((552, 16), "jet MLEM-10", fill="black")
+    for x, title in titles:
+        draw.text((x, 16), title, fill="black")
     buffer = io.BytesIO()
     canvas.save(buffer, format="PNG", optimize=False)
     payload = buffer.getvalue()
     return payload, hashlib.sha256(payload).hexdigest()
+
+
+def render_pet_views(pet: np.ndarray) -> tuple[bytes, str]:
+    """Backward-compatible name for the frozen dual-view formal rendering."""
+    return render_pet_display(pet, view_mode="grayscale_plus_jet")
 
 
 def prompt_objects_json(objects: tuple[PromptObject, ...]) -> list[dict[str, Any]]:
