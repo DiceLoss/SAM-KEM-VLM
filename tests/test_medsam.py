@@ -1,8 +1,13 @@
 import numpy as np
 from sam_kem.boxes import Box
-from sam_kem.medsam import freeze_except_mask_decoder, predict_continuous_prior
+from sam_kem.medsam import (
+  freeze_except_mask_decoder,
+  predict_continuous_prior,
+  predict_prompt_object_logits,
+)
 from sam_kem.medsam_backend import MODEL_CONFIGS
 from sam_kem.medsam_training import _box_coordinates_on_model_grid
+from sam_kem.stage7a_prompt_plan import PromptObject
 
 
 class FakePredictor:
@@ -22,6 +27,18 @@ def test_continuous_logits_are_requested_and_preserved():
   )
   assert prior.min() < 0 < prior.max()
   assert len(np.unique(prior)) > 2
+
+
+def test_prompt_object_decoder_preserves_points_and_continuous_logits():
+  predictor = FakePredictor()
+  obj = PromptObject(1, (1, 1, 7, 7), ((3, 3),), ((0, 0),), 1.0)
+  decoded = predict_prompt_object_logits(
+    predictor, np.arange(64, dtype=float).reshape(8, 8), (obj,),
+    output_shape=(8, 8), display_size=8,
+  )
+  assert decoded[0].shape == (8, 8)
+  assert decoded[0].dtype == np.float32
+  assert len(np.unique(decoded[0])) > 2
 
 
 def test_only_exact_sam_mask_decoder_namespace_is_trainable():

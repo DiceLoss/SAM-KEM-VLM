@@ -122,6 +122,73 @@ def predict_continuous_prior(
   ).astype(np.float32)
 
 
+def resize_continuous_logits(
+  logits: np.ndarray, *, output_shape: tuple[int, int],
+) -> np.ndarray:
+  """Resize one finite continuous decoder-logit plane."""
+  raw = np.asarray(logits, dtype=np.float32)
+  if raw.ndim != 2 or not np.all(np.isfinite(raw)):
+    raise ValueError("decoder logits must be one finite 2-D plane")
+  if np.all((raw == 0.0) | (raw == 1.0)):
+    raise RuntimeError("MedSAM2 returned a binary mask; continuous logits required")
+  from scipy.ndimage import map_coordinates
+  output_y = (np.arange(output_shape[0]) + 0.5) * raw.shape[0] / output_shape[0] - 0.5
+  output_x = (np.arange(output_shape[1]) + 0.5) * raw.shape[1] / output_shape[1] - 0.5
+  yy, xx = np.meshgrid(
+    np.clip(output_y, 0, raw.shape[0] - 1),
+    np.clip(output_x, 0, raw.shape[1] - 1), indexing="ij",
+  )
+  return map_coordinates(
+    raw, [yy, xx], order=1, mode="nearest", prefilter=False,
+  ).astype(np.float32)
+
+
+def predict_prompt_object_logits(
+  predictor: Any,
+  pet: np.ndarray,
+  objects: tuple[Any, ...] | list[Any],
+  *,
+  output_shape: tuple[int, int],
+  display_size: int = 1024,
+) -> tuple[np.ndarray, ...]:
+  """Decode strict per-object box/point prompts as continuous logit planes."""
+  if not objects:
+    raise ValueError("at least one prompt object is required")
+  image = pet_to_rgb(pet, display_size=display_size)
+  predictor.set_image(image)
+  height, width = np.asarray(pet).shape
+  scale_x, scale_y = display_size / width, display_size / height
+  decoded = []
+  for obj in objects:
+    x0, y0, x1, y1 = obj.box_xyxy
+    box = np.array(
+      [x0 * scale_x, y0 * scale_y, x1 * scale_x, y1 * scale_y],
+      dtype=np.float32,
+    )
+    positive = tuple(obj.positive_points_xy)
+    negative = tuple(obj.negative_points_xy)
+    points = positive + negative
+    point_coords = None
+    point_labels = None
+    if points:
+      point_coords = np.array(
+        [[x * scale_x, y * scale_y] for x, y in points], dtype=np.float32,
+      )
+      point_labels = np.array(
+        [1] * len(positive) + [0] * len(negative), dtype=np.int32,
+      )
+    _, _, low_resolution_logits = predictor.predict(
+      point_coords=point_coords,
+      point_labels=point_labels,
+      box=box,
+      multimask_output=False,
+      return_logits=True,
+    )
+    raw = np.asarray(low_resolution_logits[0], dtype=np.float32)
+    decoded.append(resize_continuous_logits(raw, output_shape=output_shape))
+  return tuple(decoded)
+
+
 def freeze_except_mask_decoder(model: Any) -> None:
   """Train the single-mask L1 path; freeze encoders and disconnected decoder heads."""
   trainable = 0
