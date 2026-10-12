@@ -85,6 +85,10 @@ def build_audit(repo: Path, protocol_path: Path, output: Path,
             "path": protocol["fixed_case_smoke"]["manifest_path"],
             "canonical_lf_sha256": protocol["fixed_case_smoke"][
                 "manifest_canonical_lf_sha256"],
+        }, "accepted_audit": {
+            "path": protocol["fixed_case_smoke"]["accepted_audit_path"],
+            "canonical_lf_sha256": protocol["fixed_case_smoke"][
+                "accepted_audit_sha256"],
         }}),
     ):
         for name, record in records.items():
@@ -100,6 +104,31 @@ def build_audit(repo: Path, protocol_path: Path, output: Path,
             if not match:
                 failures.append(f"hash mismatch: {section}.{name}")
     checks["immutable_inputs"] = input_records
+
+    smoke_path = repo / protocol["fixed_case_smoke"]["accepted_audit_path"]
+    try:
+        smoke = json.loads(smoke_path.read_text(encoding="utf-8"))
+        smoke_ok = (
+            smoke.get("status") == protocol["fixed_case_smoke"]["accepted_status"]
+            and smoke.get("case_count") == 4
+            and smoke.get("endpoint_count") == 8
+            and smoke.get("api_calls") == 4
+            and smoke.get("api_retries") == 0
+            and smoke.get("fallback_responses") == 0
+            and smoke.get("valid_agent_responses_by_dataset")
+            == {"brainweb": 2, "hecktor": 2}
+            and smoke.get("all_metrics_finite") is True
+        )
+    except (OSError, ValueError, TypeError) as exc:
+        smoke, smoke_ok = {"read_error": str(exc)}, False
+    checks["accepted_smoke"] = {
+        "match": smoke_ok,
+        "status": smoke.get("status"),
+        "valid_agent_responses_by_dataset": smoke.get(
+            "valid_agent_responses_by_dataset"),
+    }
+    if not smoke_ok:
+        failures.append("accepted fixed-case smoke evidence is invalid")
 
     manifest_path = repo / protocol["case_manifest"]["path"]
     try:
@@ -139,6 +168,11 @@ def build_audit(repo: Path, protocol_path: Path, output: Path,
         and budget["brainweb_agent_cases"] == 2088
         and budget["hecktor_agent_cases"] == 540
         and budget["routed_endpoint_cases"] == n_cases
+        and budget["paired_det_comparator_cases"] == expected_agent_cases
+        and budget["total_endpoint_rows"] == n_cases + expected_agent_cases
+        and budget["routed_medsam_calls_max_including_det"] == 33948
+        and budget["comparator_medsam_calls_max"] == 10512
+        and budget["total_medsam_calls_max"] == 44460
         and budget["retries_per_case_max"] == 0
     )
     checks["budgets"] = {"expected_agent_cases": expected_agent_cases,
@@ -182,7 +216,7 @@ def build_audit(repo: Path, protocol_path: Path, output: Path,
 
     return {
         "artifact_kind": "stage7_formal_agent_zero_write_release_check",
-        "status": "PASS_ready_for_fixed_case_smoke" if not failures
+        "status": "PASS_ready_for_formal_execution" if not failures
                   else "BLOCKED_release_invariants_failed",
         "read_only": True,
         "formal_output_created": False,

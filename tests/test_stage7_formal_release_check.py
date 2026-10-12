@@ -16,6 +16,7 @@ INPUTS = (
     "code/configs/prompts/stage7_formal_brainweb_v1.txt",
     "code/configs/prompts/stage7_formal_hecktor_v1.txt",
     "code/configs/stage7_formal_smoke_cases.csv",
+    "logs/stage7_formal_fixed_case_smoke_audit.json",
     "code/configs/protocols/stage7_formal_agent_v1.yaml",
     "code/experiments/stage7_formal_release_check.py",
 )
@@ -60,7 +61,7 @@ def test_formal_release_check_passes_without_creating_outputs(tmp_path):
     proc = _run(root, head, output)
     assert proc.returncode == 0, proc.stderr + proc.stdout
     audit = json.loads(output.read_text(encoding="utf-8"))
-    assert audit["status"] == "PASS_ready_for_fixed_case_smoke"
+    assert audit["status"] == "PASS_ready_for_formal_execution"
     assert audit["vlm_calls"] == 0
     assert audit["medsam_calls"] == 0
     assert audit["kem_endpoints"] == 0
@@ -70,6 +71,7 @@ def test_formal_release_check_passes_without_creating_outputs(tmp_path):
         "unique_cases": 8892,
     }
     assert audit["checks"]["budgets"]["vlm_calls_max"] == 2628
+    assert audit["checks"]["accepted_smoke"]["match"] is True
     for relative in (
         "results/dev_trainmax_v1/stage7_formal_agent_v1",
         "runs/dev_trainmax_v1/stage7_formal_agent_v1",

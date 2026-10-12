@@ -1,0 +1,50 @@
+{
+  "all_metrics_finite": true,
+  "anatomical_inputs_used": false,
+  "api_calls": 4,
+  "api_retries": 0,
+  "artifact_kind": "stage7_formal_four_case_smoke",
+  "authorization_secret_recorded": false,
+  "base_checkpoint_sha256": "c92743b99f00d078bf32a3afcc38aaa9faf1c1692dffe3eaa7a90938c1991060",
+  "case_count": 4,
+  "checkpoint_sha256": {
+    "brainweb": "5b3fad3469079c0c3c9738dada5548077e36f8878351f2616a1cb6b368cfb605",
+    "hecktor": "c264789fd0a084d6d0b4a9423ab83575911d3b50228873f6f91dbf6f8c3df7c1"
+  },
+  "deltas": [
+    {
+      "case": "brainweb/subject04/z038",
+      "delta_nrmse_policy_minus_det": 0.029621391148268728,
+      "delta_ssim_policy_minus_det": -0.03497152283438543
+    },
+    {
+      "case": "brainweb/subject42/z155",
+      "delta_nrmse_policy_minus_det": 0.0036844779593340204,
+      "delta_ssim_policy_minus_det": -0.004612087814606203
+    },
+    {
+      "case": "hecktor/10/z072",
+      "delta_nrmse_policy_minus_det": -0.0017082526648962426,
+      "delta_ssim_policy_minus_det": 0.0007866067765610607
+    },
+    {
+      "case": "hecktor/98/z072",
+      "delta_nrmse_policy_minus_det": -0.000193466590111796,
+      "delta_ssim_policy_minus_det": 0.0005418688322640364
+    }
+  ],
+  "elapsed_seconds": 160.046237019822,
+  "endpoint_count": 8,
+  "fallback_responses": 0,
+  "locked_test_access": "prohibited",
+  "manifest_sha256": "5d393609ed1091d982699db21e1873a146206dcc9b3da5ee0ba67dd5534d8c1d",
+  "manual_or_ground_truth_prompts_used": false,
+  "per_case_csv_sha256": "d1035455e559661a026800a79755e2d45349a7a789f0fa4bbaed361367187391",
+  "post_fusion_used": false,
+  "status": "PASS",
+  "valid_agent_responses": 4,
+  "valid_agent_responses_by_dataset": {
+    "brainweb": 2,
+    "hecktor": 2
+  }
+}

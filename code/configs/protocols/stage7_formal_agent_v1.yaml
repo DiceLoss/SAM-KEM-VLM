@@ -32,6 +32,9 @@ fixed_case_smoke:
   count_level: 100000
   realization_id: 0
   formal_namespace_forbidden: true
+  accepted_audit_path: logs/stage7_formal_fixed_case_smoke_audit.json
+  accepted_audit_sha256: dcb785e920d5282fea524456d26fd334576dbc6d79059eee077af46107497ad1
+  accepted_status: PASS
 
 prompt_templates:
   brainweb:
@@ -77,12 +80,39 @@ agent_contracts:
 
 formal_budgets:
   routed_endpoint_cases: 8892
+  paired_det_comparator_cases: 2628
+  total_endpoint_rows: 11520
   brainweb_agent_cases: 2088
   hecktor_agent_cases: 540
   vlm_calls_max: 2628
   retries_per_case_max: 0
   agent_medsam_calls_max: 8892
   routed_medsam_calls_max_including_det: 33948
+  comparator_medsam_calls_max: 10512
+  total_medsam_calls_max: 44460
+
+formal_statistics:
+  comparison: agent_policy_minus_paired_det_component
+  intention_to_treat: true
+  unit_of_inference: subject
+  within_subject_aggregation: mean_over_slices_and_realizations
+  primary_cells:
+    - [brainweb, 100000]
+    - [hecktor, 100000]
+    - [hecktor, 200000]
+    - [hecktor, 500000]
+    - [hecktor, 1000000]
+  co_primary_metrics: [nrmse, ssim]
+  favourable_directions:
+    nrmse: negative
+    ssim: positive
+  bootstrap:
+    resampling_unit: subject
+    samples: 10000
+    seed: 20261012
+    interval: percentile_95
+  multiplicity: holm_across_10_cell_metric_hypotheses
+  report_regardless_of_direction: true
 
 api_receipt:
   provider_base_url: https://api.x5m5x.com/v1
