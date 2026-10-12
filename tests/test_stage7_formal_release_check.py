@@ -28,8 +28,9 @@ def _fixture(tmp_path: Path) -> tuple[Path, str]:
         target = root / relative
         target.parent.mkdir(parents=True, exist_ok=True)
         shutil.copyfile(source, target)
-    subprocess.run(["git", "init", "--initial-branch=main"], cwd=root,
-                   check=True, capture_output=True)
+    subprocess.run(["git", "init"], cwd=root, check=True, capture_output=True)
+    subprocess.run(["git", "symbolic-ref", "HEAD", "refs/heads/main"],
+                   cwd=root, check=True, capture_output=True)
     subprocess.run(["git", "config", "user.name", "test"], cwd=root,
                    check=True)
     subprocess.run(["git", "config", "user.email", "test@example.invalid"],
