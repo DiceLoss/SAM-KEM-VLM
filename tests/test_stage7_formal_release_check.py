@@ -15,6 +15,7 @@ INPUTS = (
     "results/dev_trainmax_v1/frozen_hyperparameters.csv",
     "code/configs/prompts/stage7_formal_brainweb_v1.txt",
     "code/configs/prompts/stage7_formal_hecktor_v1.txt",
+    "code/configs/stage7_formal_smoke_cases.csv",
     "code/configs/protocols/stage7_formal_agent_v1.yaml",
     "code/experiments/stage7_formal_release_check.py",
 )

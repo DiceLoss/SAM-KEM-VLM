@@ -23,6 +23,16 @@ frozen_hyperparameters:
   path: results/dev_trainmax_v1/frozen_hyperparameters.csv
   canonical_lf_sha256: 4b7624c0339b4e387a7c7a1e52ed359f757a89516de437a6a8f73871f12c204e
 
+fixed_case_smoke:
+  manifest_path: code/configs/stage7_formal_smoke_cases.csv
+  manifest_canonical_lf_sha256: 5d393609ed1091d982699db21e1873a146206dcc9b3da5ee0ba67dd5534d8c1d
+  expected_cases: 4
+  brainweb_cases: 2
+  hecktor_cases: 2
+  count_level: 100000
+  realization_id: 0
+  formal_namespace_forbidden: true
+
 prompt_templates:
   brainweb:
     path: code/configs/prompts/stage7_formal_brainweb_v1.txt

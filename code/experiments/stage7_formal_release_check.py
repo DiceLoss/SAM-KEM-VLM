@@ -81,6 +81,11 @@ def build_audit(repo: Path, protocol_path: Path, output: Path,
         ("frozen_hyperparameters", {
             "frozen_hyperparameters": protocol["frozen_hyperparameters"]}),
         ("prompt_templates", protocol["prompt_templates"]),
+        ("fixed_case_smoke", {"manifest": {
+            "path": protocol["fixed_case_smoke"]["manifest_path"],
+            "canonical_lf_sha256": protocol["fixed_case_smoke"][
+                "manifest_canonical_lf_sha256"],
+        }}),
     ):
         for name, record in records.items():
             path = repo / record["path"]
