@@ -51,6 +51,12 @@ display_ablation:
   arms: [grayscale_only, jet_only, grayscale_plus_jet]
   api_calls: 60
   same_prompt_text: true
+  prompt_templates:
+    brainweb: code/configs/prompts/stage7_formal_brainweb_display_ablation_v1.txt
+    hecktor: code/configs/prompts/stage7_formal_hecktor_display_ablation_v1.txt
+  prompt_template_sha256:
+    brainweb: 8acda0dea0f8b86339419d3ca531612b1efe48dac74f5e09c0f79197f558f4bc
+    hecktor: 6d56c9d6adc5ddd863d594d4095608778a048cb2728b2d85d128cefe842642ac
   same_coordinate_frame: true
 
 api_repeatability:
