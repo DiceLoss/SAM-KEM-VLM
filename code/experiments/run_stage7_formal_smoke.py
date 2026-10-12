@@ -58,9 +58,10 @@ def _sha(path: Path) -> str:
     return hashlib.sha256(path.read_bytes()).hexdigest()
 
 
-def _api_call(*, token: str, prompt: str, png: bytes) -> tuple[dict, dict, float]:
+def _api_call(*, token: str, prompt: str, png: bytes,
+              model: str = MODEL) -> tuple[dict, dict, float]:
     request_payload = {
-        "model": MODEL,
+        "model": model,
         "temperature": 0,
         "max_tokens": 8192,
         "messages": [{

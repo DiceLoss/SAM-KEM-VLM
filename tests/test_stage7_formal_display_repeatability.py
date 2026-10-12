@@ -7,7 +7,11 @@ import pytest
 EXPERIMENTS = Path(__file__).resolve().parents[1] / "code" / "experiments"
 sys.path.insert(0, str(EXPERIMENTS))
 
-from run_stage7_formal_display_repeatability import _rows, call_plan
+from run_stage7_formal_display_repeatability import (
+    _api_call_with_403_retry,
+    _rows,
+    call_plan,
+)
 
 
 def test_call_plan_freezes_exact_budget_and_families():
@@ -37,3 +41,30 @@ def test_selection_requires_twenty_unique_cases(tmp_path):
         stream.write("brainweb,s0,z001,100000,0\n")
     with pytest.raises(ValueError, match="20 unique"):
         _rows(path)
+
+
+def test_retry_is_limited_to_403_and_uses_exponential_backoff():
+    responses = iter((
+        ({}, {"transport_error": "HTTPError: HTTP Error 403: Forbidden"}, 1.0),
+        ({}, {"transport_error": "HTTPError: HTTP Error 403: Forbidden"}, 2.0),
+        ({}, {"choices": []}, 3.0),
+    ))
+    sleeps = []
+    attempts, retries = _api_call_with_403_retry(
+        token="x", prompt="p", png=b"x", model="m", max_attempts=4,
+        backoff_seconds=5, call=lambda **_: next(responses), sleep=sleeps.append,
+    )
+    assert len(attempts) == 3
+    assert retries == 2
+    assert sleeps == [5, 10]
+
+
+def test_non_403_transport_error_is_not_retried():
+    attempts, retries = _api_call_with_403_retry(
+        token="x", prompt="p", png=b"x", model="m", max_attempts=4,
+        backoff_seconds=5,
+        call=lambda **_: ({}, {"transport_error": "TimeoutError"}, 1.0),
+        sleep=lambda _: pytest.fail("must not sleep"),
+    )
+    assert len(attempts) == 1
+    assert retries == 0

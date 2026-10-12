@@ -36,6 +36,7 @@ DISPLAY_ARMS = ("grayscale_only", "jet_only", "grayscale_plus_jet")
 EXPECTED_CASES = 20
 EXPECTED_CALLS_PER_CASE = 5
 EXPECTED_CALLS = EXPECTED_CASES * EXPECTED_CALLS_PER_CASE
+RETRYABLE_403_PREFIX = "HTTPError: HTTP Error 403:"
 
 
 def _rows(path: Path) -> list[dict[str, str]]:
@@ -63,6 +64,25 @@ def call_plan() -> tuple[tuple[str, str, int], ...]:
     return display + repeats
 
 
+def _api_call_with_403_retry(*, token: str, prompt: str, png: bytes,
+                             model: str,
+                             max_attempts: int, backoff_seconds: float,
+                             call=_api_call, sleep=time.sleep) -> tuple[list[tuple[dict, dict, float]], int]:
+    """Retry only provider HTTP 403 responses with deterministic exponential backoff."""
+    if max_attempts < 1 or backoff_seconds < 0:
+        raise ValueError("retry settings must use >=1 attempts and non-negative backoff")
+    attempts = []
+    for index in range(max_attempts):
+        attempt = call(token=token, prompt=prompt, png=png, model=model)
+        attempts.append(attempt)
+        error = attempt[1].get("transport_error", "")
+        if not (isinstance(error, str) and error.startswith(RETRYABLE_403_PREFIX)):
+            break
+        if index + 1 < max_attempts:
+            sleep(backoff_seconds * (2 ** index))
+    return attempts, len(attempts) - 1
+
+
 def initialize(args: argparse.Namespace) -> None:
     if args.output.exists():
         raise SystemExit(f"refusing to overwrite secondary namespace: {args.output}")
@@ -82,8 +102,12 @@ def initialize(args: argparse.Namespace) -> None:
         "case_count": EXPECTED_CASES,
         "new_api_calls_per_case": EXPECTED_CALLS_PER_CASE,
         "expected_new_api_calls": EXPECTED_CALLS,
+        "max_transport_attempts_per_call": args.max_transport_attempts,
+        "retryable_transport_status": 403,
+        "retry_backoff_seconds": args.retry_backoff_seconds,
+        "inter_call_seconds": args.inter_call_seconds,
         "worker_count": args.worker_count,
-        "api_model": MODEL,
+        "api_model": args.api_model,
         "api_retries_per_call": 0,
     }
     _write_json(args.output / "execution_record.json", record)
@@ -144,11 +168,23 @@ def worker(args: argparse.Namespace) -> None:
                 png, image_sha = render_pet_display(mlem10, view_mode=view_mode)
                 (call_dir / "vlm_input.png").write_bytes(png)
                 prompt_path = _prompt_path(args, dataset, family)
-                request, response, api_seconds = _api_call(
+                attempts, retries = _api_call_with_403_retry(
                     token=token, prompt=prompt_path.read_text(encoding="utf-8"), png=png,
+                    model=args.api_model,
+                    max_attempts=args.max_transport_attempts,
+                    backoff_seconds=args.retry_backoff_seconds,
                 )
+                request, response, _ = attempts[-1]
+                api_seconds = sum(item[2] for item in attempts)
                 _write_json(call_dir / "raw_request.json", request)
                 _write_json(call_dir / "raw_response.json", response)
+                for attempt_index, (_, attempt_response, attempt_seconds) in enumerate(
+                    attempts, start=1
+                ):
+                    _write_json(call_dir / f"raw_response_attempt_{attempt_index:02d}.json", {
+                        "latency_seconds": attempt_seconds,
+                        "response": attempt_response,
+                    })
                 fallback_reason = ""
                 try:
                     objects = parse_formal_prompt(_response_content(response), dataset=dataset)
@@ -174,7 +210,9 @@ def worker(args: argparse.Namespace) -> None:
                     "call_index": call_index, "family": family,
                     "view_mode": view_mode, "replicate": replicate,
                     "prompt_sha256": sha256_file(prompt_path), "image_sha256": image_sha,
-                    "requested_model": MODEL, "returned_model": response.get("model"),
+                    "requested_model": args.api_model,
+                    "returned_model": response.get("model"),
+                    "attempt_count": len(attempts), "api_retries": retries,
                     "usage": response.get("usage"), "api_seconds": api_seconds,
                     "decode_seconds": decode_seconds, "fallback_reason": fallback_reason,
                     "objects": prompt_objects_json(objects), "object_count": len(objects),
@@ -183,6 +221,8 @@ def worker(args: argparse.Namespace) -> None:
                     "raw_request_sha256": _sha(call_dir / "raw_request.json"),
                     "raw_response_sha256": _sha(call_dir / "raw_response.json"),
                 })
+                if args.inter_call_seconds:
+                    time.sleep(args.inter_call_seconds)
             source_path = _case_dir(args.source_output, row) / "result.json"
             source = json.loads(source_path.read_text(encoding="utf-8"))
             result = {
@@ -193,7 +233,10 @@ def worker(args: argparse.Namespace) -> None:
                 "source_result_sha256": sha256_file(source_path),
                 "source_main_objects": source["policy_objects"],
                 "source_main_fallback_reason": source["fallback_reason"],
-                "new_api_calls": len(calls), "api_retries": 0, "calls": calls,
+                "new_api_calls": len(calls),
+                "api_attempts": sum(call["attempt_count"] for call in calls),
+                "api_retries": sum(call["api_retries"] for call in calls),
+                "calls": calls,
             }
             _write_json(temporary / "result.json", result)
             _write_json(temporary / "_SUCCESS.json", {
@@ -219,7 +262,7 @@ def worker(args: argparse.Namespace) -> None:
 def finalize(args: argparse.Namespace) -> None:
     failures: list[str] = []
     rows_out = []
-    fallbacks = calls = 0
+    fallbacks = calls = attempts = retries = 0
     for row in _rows(args.selection):
         path = _case_dir(args.output, row)
         if not _completed(path):
@@ -227,6 +270,8 @@ def finalize(args: argparse.Namespace) -> None:
             continue
         result = json.loads((path / "result.json").read_text(encoding="utf-8"))
         calls += result["new_api_calls"]
+        attempts += result.get("api_attempts", result["new_api_calls"])
+        retries += result["api_retries"]
         for call in result["calls"]:
             fallbacks += bool(call["fallback_reason"])
             rows_out.append({
@@ -254,7 +299,8 @@ def finalize(args: argparse.Namespace) -> None:
         "artifact_kind": "stage7_formal_display_repeatability_integrity",
         "status": "PASS_complete" if not failures else "FAIL_integrity",
         "case_count": EXPECTED_CASES, "new_api_calls": calls,
-        "api_retries": 0, "endpoint_count": len(rows_out),
+        "api_attempts": attempts, "api_retries": retries,
+        "endpoint_count": len(rows_out),
         "fallback_responses": fallbacks,
         "all_metrics_finite": not any("non-finite" in item for item in failures),
         "endpoint_csv_sha256": _sha(csv_path) if csv_path.is_file() else "",
@@ -291,6 +337,10 @@ def main() -> None:
     parser.add_argument("--worker-count", type=int, default=8)
     parser.add_argument("--worker-index", type=int)
     parser.add_argument("--gpu-index", type=int)
+    parser.add_argument("--max-transport-attempts", type=int, default=1)
+    parser.add_argument("--retry-backoff-seconds", type=float, default=15.0)
+    parser.add_argument("--inter-call-seconds", type=float, default=0.0)
+    parser.add_argument("--api-model", default=MODEL)
     args = parser.parse_args()
     if args.mode == "initialize":
         initialize(args)
