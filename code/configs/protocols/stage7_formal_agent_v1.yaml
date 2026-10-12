@@ -33,7 +33,7 @@ fixed_case_smoke:
   realization_id: 0
   formal_namespace_forbidden: true
   accepted_audit_path: logs/stage7_formal_fixed_case_smoke_audit.json
-  accepted_audit_sha256: dcb785e920d5282fea524456d26fd334576dbc6d79059eee077af46107497ad1
+  accepted_audit_sha256: f5a66b4ffb2725d918dbc1605ca4ed1d61d0c3a39e1e1ecfbc70d78c5d034183
   accepted_status: PASS
 
 prompt_templates:

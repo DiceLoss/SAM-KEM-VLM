@@ -14,32 +14,32 @@
   "deltas": [
     {
       "case": "brainweb/subject04/z038",
-      "delta_nrmse_policy_minus_det": 0.029621391148268728,
-      "delta_ssim_policy_minus_det": -0.03497152283438543
+      "delta_nrmse_policy_minus_det": -0.002642675085511803,
+      "delta_ssim_policy_minus_det": 0.0033580826226566884
     },
     {
       "case": "brainweb/subject42/z155",
-      "delta_nrmse_policy_minus_det": 0.0036844779593340204,
-      "delta_ssim_policy_minus_det": -0.004612087814606203
+      "delta_nrmse_policy_minus_det": 0.0024901390482228725,
+      "delta_ssim_policy_minus_det": -0.0033261361670136047
     },
     {
       "case": "hecktor/10/z072",
-      "delta_nrmse_policy_minus_det": -0.0017082526648962426,
-      "delta_ssim_policy_minus_det": 0.0007866067765610607
+      "delta_nrmse_policy_minus_det": -0.0013737355196319079,
+      "delta_ssim_policy_minus_det": 0.0006136745341955852
     },
     {
       "case": "hecktor/98/z072",
-      "delta_nrmse_policy_minus_det": -0.000193466590111796,
-      "delta_ssim_policy_minus_det": 0.0005418688322640364
+      "delta_nrmse_policy_minus_det": 0.0007481531033035893,
+      "delta_ssim_policy_minus_det": 0.00021994835513616806
     }
   ],
-  "elapsed_seconds": 160.046237019822,
+  "elapsed_seconds": 56.65939943678677,
   "endpoint_count": 8,
   "fallback_responses": 0,
   "locked_test_access": "prohibited",
   "manifest_sha256": "5d393609ed1091d982699db21e1873a146206dcc9b3da5ee0ba67dd5534d8c1d",
   "manual_or_ground_truth_prompts_used": false,
-  "per_case_csv_sha256": "d1035455e559661a026800a79755e2d45349a7a789f0fa4bbaed361367187391",
+  "per_case_csv_sha256": "7cb0a78ddec0bb850fdb28c1bda63cdb10658cccfedfe650eab0627b2d8bcaef",
   "post_fusion_used": false,
   "status": "PASS",
   "valid_agent_responses": 4,
