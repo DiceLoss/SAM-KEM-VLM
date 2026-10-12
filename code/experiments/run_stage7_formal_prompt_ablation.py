@@ -81,7 +81,10 @@ def initialize(args: argparse.Namespace) -> None:
 
 
 def worker(args: argparse.Namespace) -> None:
-    os.environ["CUDA_VISIBLE_DEVICES"] = str(args.worker_index)
+    gpu_index = args.worker_index if args.gpu_index is None else args.gpu_index
+    if gpu_index < 0:
+        raise ValueError("GPU index must be non-negative")
+    os.environ["CUDA_VISIBLE_DEVICES"] = str(gpu_index)
     rows = [row for row in _rows(args.manifest) if (
         row["dataset"] == "hecktor" or (
             row["dataset"] == "brainweb" and int(row["count_level"]) == 100000
@@ -182,6 +185,7 @@ def worker(args: argparse.Namespace) -> None:
             raise
     record = {
         "worker_index": args.worker_index, "assigned_cases": len(assigned),
+        "physical_gpu_index": gpu_index,
         "written_cases": written, "reused_verified_cases": reused,
         "elapsed_seconds": time.perf_counter() - started, "status": "complete",
     }
@@ -251,6 +255,7 @@ def main() -> None:
     parser.add_argument("--output", required=True, type=Path)
     parser.add_argument("--worker-count", type=int, default=8)
     parser.add_argument("--worker-index", type=int)
+    parser.add_argument("--gpu-index", type=int)
     args = parser.parse_args()
     if args.mode == "initialize":
         initialize(args)
