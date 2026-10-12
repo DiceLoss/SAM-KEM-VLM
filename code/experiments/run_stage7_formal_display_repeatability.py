@@ -108,7 +108,7 @@ def initialize(args: argparse.Namespace) -> None:
         "inter_call_seconds": args.inter_call_seconds,
         "worker_count": args.worker_count,
         "api_model": args.api_model,
-        "api_retries_per_call": 0,
+        "maximum_api_retries_per_call": args.max_transport_attempts - 1,
     }
     _write_json(args.output / "execution_record.json", record)
     print(json.dumps(record, indent=2, sort_keys=True))
