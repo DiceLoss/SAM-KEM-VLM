@@ -11,11 +11,13 @@ compile:
 
 protocols:
 	@for protocol in code/configs/protocols/*.yaml; do \
-		sam-kem check-protocol --protocol "$$protocol" >/dev/null || exit 1; \
+		PYTHONPATH=code python -m sam_kem.cli check-protocol \
+			--protocol "$$protocol" >/dev/null || exit 1; \
 	done
 	@echo "PASS: all protocol YAML files are valid"
 
 quality: lint compile test protocols
 
 audit:
-	sam-kem validate --root . --config code/configs/experiment.yaml
+	PYTHONPATH=code python -m sam_kem.cli validate \
+		--root . --config code/configs/experiment.yaml

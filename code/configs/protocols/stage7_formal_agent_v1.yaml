@@ -1,0 +1,106 @@
+name: stage7_formal_dataset_aware_agent_v1
+kind: stage7_formal_dataset_aware_agent
+version: '1.0'
+split: validation
+datasets: [brainweb, hecktor]
+methods: [DET_COMPONENT, BW_AGENT_LOCAL_POS, HE_AGENT_LESION_BPN]
+locked_test_access: prohibited
+post_fusion_forbidden: true
+manual_annotations_forbidden: true
+anatomical_inputs_forbidden: true
+
+case_manifest:
+  path: results/dev_trainmax_v1/validation_case_manifest.csv
+  canonical_lf_sha256: 3059c981751f3156fd2fdfe3df2c177a58460b2fd8c455004a1e4bad35ed47b8
+  expected_cases: 8892
+  expected_cells: 24
+  brainweb_rows_per_cell: 696
+  hecktor_rows_per_cell: 45
+  counts: [100000, 200000, 500000, 1000000]
+  realizations: [0, 1, 2]
+
+frozen_hyperparameters:
+  path: results/dev_trainmax_v1/frozen_hyperparameters.csv
+  canonical_lf_sha256: 4b7624c0339b4e387a7c7a1e52ed359f757a89516de437a6a8f73871f12c204e
+
+prompt_templates:
+  brainweb:
+    path: code/configs/prompts/stage7_formal_brainweb_v1.txt
+    canonical_lf_sha256: 7fb47d0ab382d4645f4de86f82aa4f2580cb7ab3ee1a421021496ec3c5bf1e71
+  hecktor:
+    path: code/configs/prompts/stage7_formal_hecktor_v1.txt
+    canonical_lf_sha256: f5d12437c8e01dbbbc655fa358f998443ecb6a48da4c28a0bcd4a4caa54e6be3
+
+routing:
+  brainweb:
+    '100000': BW_AGENT_LOCAL_POS
+    '200000': DET_COMPONENT
+    '500000': DET_COMPONENT
+    '1000000': DET_COMPONENT
+  hecktor:
+    '100000': HE_AGENT_LESION_BPN
+    '200000': HE_AGENT_LESION_BPN
+    '500000': HE_AGENT_LESION_BPN
+    '1000000': HE_AGENT_LESION_BPN
+
+agent_contracts:
+  BW_AGENT_LOCAL_POS:
+    min_objects: 3
+    max_objects: 4
+    positive_points_per_object: 1
+    min_negative_points_per_object: 0
+    max_negative_points_per_object: 0
+    vlm_calls_per_case: 1
+    medsam_calls_per_case_max: 4
+    aggregation: pixelwise_max_continuous_logits
+    fallback: DET_COMPONENT
+  HE_AGENT_LESION_BPN:
+    min_objects: 1
+    max_objects: 1
+    positive_points_per_object: 1
+    min_negative_points_per_object: 1
+    max_negative_points_per_object: 3
+    vlm_calls_per_case: 1
+    medsam_calls_per_case_max: 1
+    aggregation: single_object_continuous_logits
+    fallback: DET_COMPONENT
+
+formal_budgets:
+  routed_endpoint_cases: 8892
+  brainweb_agent_cases: 2088
+  hecktor_agent_cases: 540
+  vlm_calls_max: 2628
+  retries_per_case_max: 0
+  agent_medsam_calls_max: 8892
+  routed_medsam_calls_max_including_det: 33948
+
+api_receipt:
+  provider_base_url: https://api.x5m5x.com/v1
+  requested_model: qwen3.8-max
+  temperature: 0
+  raw_request_required: true
+  raw_response_required: true
+  returned_model_required: true
+  usage_required: true
+  latency_required: true
+  authorization_secret_forbidden_in_artifacts: true
+
+rendering:
+  source: mlem10
+  image_shape: [128, 128]
+  normalization: per_image_finite_minmax
+  views: [grayscale, jet]
+  output_format: png
+  coordinate_convention: half_open_xyxy
+  image_sha256_required: true
+
+transaction:
+  atomic_per_case_publish: true
+  explicit_resumable_ledger: true
+  silent_repair_forbidden: true
+  intention_to_treat: true
+  fallback_outcome: DET_COMPONENT
+
+formal_namespaces:
+  - results/dev_trainmax_v1/stage7_formal_agent_v1
+  - runs/dev_trainmax_v1/stage7_formal_agent_v1

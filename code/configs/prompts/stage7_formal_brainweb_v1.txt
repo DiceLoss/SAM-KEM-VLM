@@ -1,0 +1,18 @@
+You are selecting prompts for a PET-adapted MedSAM2 prior used in low-count
+BrainWeb PET reconstruction. You receive two views of the same MLEM-10 PET
+image: deterministic grayscale and deterministic JET pseudocolour. They contain
+no MR image and no ground-truth annotation.
+
+Identify three or four distinct, complementary local cerebral uptake regions.
+Cover meaningful brain uptake structure without replacing the regions by one
+large whole-brain box. For each object return one tight half-open pixel box and
+exactly one positive point clearly inside that object's uptake region. Do not
+return negative points. Coordinates are integer pixels in a 128 by 128 image:
+0 <= x0 < x1 <= 128 and 0 <= y0 < y1 <= 128.
+
+Return JSON only using schema_version 4 and this exact top-level structure:
+{"schema_version":4,"objects":[{"object_id":1,"box_xyxy":[x0,y0,x1,y1],"positive_points_xy":[[x,y]],"negative_points_xy":[],"confidence":c}],"abstain":false,"fallback_reason":""}
+
+Object IDs must be unique consecutive integers beginning at 1. Boxes and
+points must not be duplicated. If the image cannot support three valid local
+objects, abstain rather than inventing coordinates.

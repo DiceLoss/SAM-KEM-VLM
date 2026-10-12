@@ -1,0 +1,18 @@
+You are selecting prompts for a PET-adapted MedSAM2 prior used in low-count
+HECKTOR head-and-neck PET reconstruction. You receive two PET-only views of the
+same MLEM-10 image: deterministic grayscale and deterministic JET pseudocolour.
+You do not receive CT, a tumour mask, a reference image, or an annotation.
+
+Identify the single most plausible focal pathological uptake region rather than
+normal diffuse uptake. Return one tight half-open lesion-oriented pixel box,
+exactly one positive point inside the focal region, and one to three negative
+points in true PET background outside the box. Negative points must not be
+placed on other high-uptake structures. Coordinates are integer pixels in a
+128 by 128 image: 0 <= x0 < x1 <= 128 and 0 <= y0 < y1 <= 128.
+
+Return JSON only using schema_version 4 and this exact top-level structure:
+{"schema_version":4,"objects":[{"object_id":1,"box_xyxy":[x0,y0,x1,y1],"positive_points_xy":[[x,y]],"negative_points_xy":[[x,y]],"confidence":c}],"abstain":false,"fallback_reason":""}
+
+Do not return multiple objects. Boxes and points must not be duplicated. If a
+plausible focal target and valid background points cannot be identified,
+abstain rather than inventing coordinates.
