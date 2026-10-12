@@ -116,7 +116,8 @@ formal_statistics:
 
 api_receipt:
   provider_base_url: https://api.x5m5x.com/v1
-  requested_model: qwen3.8-max
+  requested_model: qwen3.7-max
+  selection_reason: strongest_currently_available_max_tier_after_qwen3_8_max_daily_quota_block
   temperature: 0
   max_completion_tokens: 8192
   raw_request_required: true

@@ -39,7 +39,7 @@ from sam_kem.stage7_formal_runtime import (
 from sam_kem.stage7a_prompt_plan import det_component_objects
 
 API_URL = "https://api.x5m5x.com/v1/chat/completions"
-MODEL = "qwen3.8-max"
+MODEL = "qwen3.7-max"
 HYPERPARAMETERS = {
     "brainweb": {"sigma": 0.1, "radius": 2, "iterations": 20},
     "hecktor": {"sigma": 0.1, "radius": 5, "iterations": 20},
