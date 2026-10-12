@@ -104,7 +104,10 @@ def worker(args: argparse.Namespace) -> None:
     token = args.api_token_file.read_text(encoding="utf-8").strip()
     if not token:
         raise ValueError("API token file is empty")
-    os.environ["CUDA_VISIBLE_DEVICES"] = str(args.worker_index)
+    gpu_index = args.worker_index if args.gpu_index is None else args.gpu_index
+    if gpu_index < 0:
+        raise ValueError("GPU index must be non-negative")
+    os.environ["CUDA_VISIBLE_DEVICES"] = str(gpu_index)
     rows = [row for index, row in enumerate(_rows(args.selection))
             if index % args.worker_count == args.worker_index]
     operator = build_discrete_radon(repo_root=args.asset_project, size=128, angles=180)
@@ -204,6 +207,7 @@ def worker(args: argparse.Namespace) -> None:
             raise
     worker_record = {
         "status": "complete", "worker_index": args.worker_index,
+        "physical_gpu_index": gpu_index,
         "assigned_cases": len(rows), "written_cases": written,
         "reused_verified_cases": reused,
         "elapsed_seconds": time.perf_counter() - started,
@@ -286,6 +290,7 @@ def main() -> None:
     parser.add_argument("--api-token-file", type=Path)
     parser.add_argument("--worker-count", type=int, default=8)
     parser.add_argument("--worker-index", type=int)
+    parser.add_argument("--gpu-index", type=int)
     args = parser.parse_args()
     if args.mode == "initialize":
         initialize(args)
