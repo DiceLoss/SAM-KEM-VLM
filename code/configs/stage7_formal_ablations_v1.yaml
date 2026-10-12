@@ -1,0 +1,109 @@
+name: stage7_formal_agent_ablations_v1
+kind: stage7_formal_secondary_ablations
+version: '1.0'
+scope: validation_only_secondary
+primary_claim_effect: none
+locked_test_access: prohibited
+pet_only: true
+manual_or_ground_truth_prompts_forbidden: true
+anatomical_inputs_forbidden: true
+post_fusion_forbidden: true
+
+source_execution:
+  protocol: code/configs/protocols/stage7_formal_agent_v1.yaml
+  required_status: PASS_complete_pending_preregistered_analysis
+  required_agent_cases: 2628
+  required_model: qwen3.7-max
+
+prompt_ablation:
+  scope: all_2628_agent_routed_cases
+  reuse_exact_api_objects: true
+  new_api_calls: 0
+  brainweb_arms:
+    - multi_box_only
+    - multi_box_positive
+    - det_component
+  hecktor_arms:
+    - lesion_box_only
+    - lesion_box_positive
+    - lesion_box_positive_negative
+    - det_component
+  aggregation: pixelwise_max_continuous_logits
+  same_frozen_kem_hyperparameters: true
+
+fixed_secondary_subset:
+  source_manifest: results/dev_trainmax_v1/validation_case_manifest.csv
+  selection_file: code/configs/stage7_formal_ablation_cases.csv
+  selection_sha256: 9d9b3d78e878eb33de8fb9e02227ef1443f8570320263c5b69bac51aabde3056
+  selection_seed: 20261012
+  cells:
+    - [brainweb, 100000]
+    - [hecktor, 100000]
+    - [hecktor, 200000]
+    - [hecktor, 500000]
+    - [hecktor, 1000000]
+  subjects_per_cell: 4
+  cases_per_subject: 1
+  expected_cases: 20
+
+display_ablation:
+  subset_cases: 20
+  arms: [grayscale_only, jet_only, grayscale_plus_jet]
+  api_calls: 60
+  same_prompt_text: true
+  same_coordinate_frame: true
+
+api_repeatability:
+  subset_cases: 20
+  display_arm: grayscale_plus_jet
+  independent_calls_per_case: 3
+  existing_main_call_counts_as_replicate_zero: true
+  additional_api_calls: 40
+  temperature: 0
+  max_completion_tokens: 8192
+  endpoints_recomputed_for_each_repeat: true
+  outputs:
+    - exact_json_match_rate
+    - object_count_agreement
+    - matched_box_iou
+    - positive_point_distance
+    - negative_point_set_distance
+    - nrmse_range
+    - ssim_range
+
+robustness:
+  noise_realizations: inherited_three_realizations_in_primary_execution
+  invalid_or_abstain_policy: intention_to_treat_det_component_fallback
+  report_fallback_rate_by_dataset_and_count: true
+
+efficiency:
+  subset_cases: 20
+  report_components:
+    - render_seconds
+    - api_seconds
+    - decoder_seconds
+    - kernel_seconds
+    - kem_seconds
+    - total_seconds
+  report_gpu_peak_memory: true
+  report_api_token_usage: true
+
+qualitative_evidence:
+  fixed_cases_only: true
+  cases: code/configs/stage7_formal_ablation_cases.csv
+  panels:
+    - mlem10_grayscale
+    - mlem10_jet
+    - agent_prompts
+    - det_prompts
+    - continuous_prior
+    - reconstruction
+    - absolute_error
+  outcome_based_case_selection_forbidden: true
+
+secondary_statistics:
+  unit: subject
+  report_effects_regardless_of_direction: true
+  bootstrap_samples: 10000
+  bootstrap_seed: 20261012
+  multiplicity: holm_within_each_ablation_family
