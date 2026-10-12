@@ -51,8 +51,8 @@ def parse_formal_prompt(raw: str, *, dataset: str) -> tuple[PromptObject, ...]:
         "schema_version", "objects", "abstain", "fallback_reason",
     }:
         raise FormalPromptError("top-level keys do not match the frozen schema")
-    if value["schema_version"] != 1 or isinstance(value["schema_version"], bool):
-        raise FormalPromptError("schema_version must equal integer 1")
+    if value["schema_version"] != 4 or isinstance(value["schema_version"], bool):
+        raise FormalPromptError("schema_version must equal integer 4")
     if not isinstance(value["abstain"], bool):
         raise FormalPromptError("abstain must be a boolean")
     if not isinstance(value["fallback_reason"], str):

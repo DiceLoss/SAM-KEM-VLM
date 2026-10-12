@@ -15,7 +15,6 @@ import uuid
 from pathlib import Path
 
 import numpy as np
-
 from sam_kem.medsam import (
     CheckpointSpec,
     predict_prompt_object_logits,
@@ -80,7 +79,7 @@ def _api_call(*, token: str, prompt: str, png: bytes) -> tuple[dict, dict, float
     )
     started = time.perf_counter()
     try:
-        with urllib.request.urlopen(http_request, timeout=90) as response:
+        with urllib.request.urlopen(http_request, timeout=300) as response:
             response_payload = json.loads(response.read())
     except (urllib.error.URLError, TimeoutError, json.JSONDecodeError) as error:
         response_payload = {"transport_error": f"{type(error).__name__}: {error}"}
@@ -272,12 +271,24 @@ def main() -> None:
                 "delta_nrmse_policy_minus_det": row["nrmse"] - det["nrmse"],
                 "delta_ssim_policy_minus_det": row["ssim"] - det["ssim"],
             })
+        valid_by_dataset = {
+            dataset: sum(
+                row["dataset"] == dataset and not row["fallback_used"]
+                for row in policy_rows
+            )
+            for dataset in ("brainweb", "hecktor")
+        }
+        smoke_pass = (
+            len(result_rows) == 8
+            and all(valid_by_dataset[dataset] >= 1 for dataset in valid_by_dataset)
+        )
         audit = {
             "artifact_kind": "stage7_formal_four_case_smoke",
-            "status": "PASS" if len(result_rows) == 8 else "FAIL",
+            "status": "PASS" if smoke_pass else "FAIL_agent_path_not_exercised",
             "case_count": 4, "endpoint_count": len(result_rows),
             "api_calls": total_api_calls, "api_retries": 0,
             "valid_agent_responses": sum(not row["fallback_used"] for row in policy_rows),
+            "valid_agent_responses_by_dataset": valid_by_dataset,
             "fallback_responses": sum(row["fallback_used"] for row in policy_rows),
             "all_metrics_finite": all(
                 np.isfinite(row["nrmse"]) and np.isfinite(row["ssim"]) for row in result_rows

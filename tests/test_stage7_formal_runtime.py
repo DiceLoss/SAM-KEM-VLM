@@ -2,7 +2,6 @@ import json
 
 import numpy as np
 import pytest
-
 from sam_kem.stage7_formal_runtime import (
     FormalPromptError,
     aggregate_logits,
@@ -13,7 +12,7 @@ from sam_kem.stage7_formal_runtime import (
 
 def response(objects, *, abstain=False, reason=""):
     return json.dumps({
-        "schema_version": 1, "objects": objects,
+        "schema_version": 4, "objects": objects,
         "abstain": abstain, "fallback_reason": reason,
     })
 
@@ -36,7 +35,7 @@ def test_hecktor_contract_accepts_background_negative():
 
 
 @pytest.mark.parametrize("raw", [
-    '{"schema_version":1,"schema_version":1,"objects":[],"abstain":false,"fallback_reason":""}',
+    '{"schema_version":4,"schema_version":4,"objects":[],"abstain":false,"fallback_reason":""}',
     response([], abstain=True, reason="uncertain"),
     response([obj(1, (0, 0, 129, 2), ((1, 1),))] * 3),
 ])
