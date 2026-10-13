@@ -29,3 +29,11 @@ def test_prompt_contrasts_exclude_source_fallback_and_preserve_component_order()
     assert [row["contrast"] for row in rows] == [
         "box_only_vs_det", "positive_added", "negative_added"]
     assert [row["delta_nrmse"] for row in rows] == [-1, -1, -1]
+
+
+def test_non_agent_policy_without_paired_comparator_is_excluded():
+    identity = {"dataset": "brainweb", "subject_id": "1", "slice_id": "z1",
+                "count_level": "200000", "realization_id": "0"}
+    main = [{**identity, "role": "policy", "fallback_used": "False",
+             "nrmse": "4", "ssim": "8"}]
+    assert prompt_case_contrasts(main, []) == []

@@ -57,7 +57,8 @@ def prompt_case_contrasts(main_rows: list[dict], ablation_rows: list[dict]) -> l
         grouped[case_key(row)][row["arm"]] = row
     output = []
     for key, arms in sorted(grouped.items()):
-        if "source_fallback" in arms or "full_agent" not in arms:
+        if ("source_fallback" in arms or "full_agent" not in arms
+                or "det_component" not in arms):
             continue
         if key[0] == "brainweb":
             contrasts = (
