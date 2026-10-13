@@ -36,7 +36,10 @@ DISPLAY_ARMS = ("grayscale_only", "jet_only", "grayscale_plus_jet")
 EXPECTED_CASES = 20
 EXPECTED_CALLS_PER_CASE = 5
 EXPECTED_CALLS = EXPECTED_CASES * EXPECTED_CALLS_PER_CASE
-RETRYABLE_403_PREFIX = "HTTPError: HTTP Error 403:"
+RETRYABLE_HTTP_PREFIXES = (
+    "HTTPError: HTTP Error 403:",
+    "HTTPError: HTTP Error 429:",
+)
 
 
 def _rows(path: Path) -> list[dict[str, str]]:
@@ -76,7 +79,7 @@ def _api_call_with_403_retry(*, token: str, prompt: str, png: bytes,
         attempt = call(token=token, prompt=prompt, png=png, model=model)
         attempts.append(attempt)
         error = attempt[1].get("transport_error", "")
-        if not (isinstance(error, str) and error.startswith(RETRYABLE_403_PREFIX)):
+        if not (isinstance(error, str) and error.startswith(RETRYABLE_HTTP_PREFIXES)):
             break
         if index + 1 < max_attempts:
             sleep(backoff_seconds * (2 ** index))
@@ -103,7 +106,7 @@ def initialize(args: argparse.Namespace) -> None:
         "new_api_calls_per_case": EXPECTED_CALLS_PER_CASE,
         "expected_new_api_calls": EXPECTED_CALLS,
         "max_transport_attempts_per_call": args.max_transport_attempts,
-        "retryable_transport_status": 403,
+        "retryable_transport_statuses": [403, 429],
         "retry_backoff_seconds": args.retry_backoff_seconds,
         "inter_call_seconds": args.inter_call_seconds,
         "worker_count": args.worker_count,

@@ -68,3 +68,16 @@ def test_non_403_transport_error_is_not_retried():
     )
     assert len(attempts) == 1
     assert retries == 0
+
+
+def test_429_is_retried_once_when_two_attempts_are_allowed():
+    responses = iter((
+        ({}, {"transport_error": "HTTPError: HTTP Error 429: Too Many Requests"}, 1.0),
+        ({}, {"choices": []}, 2.0),
+    ))
+    attempts, retries = _api_call_with_403_retry(
+        token="x", prompt="p", png=b"x", model="m", max_attempts=2,
+        backoff_seconds=5, call=lambda **_: next(responses), sleep=lambda _: None,
+    )
+    assert len(attempts) == 2
+    assert retries == 1
