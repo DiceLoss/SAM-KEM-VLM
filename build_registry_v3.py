@@ -181,34 +181,27 @@ def build_cnnbpnet():
     }
 
 
-# --- NeuralKEM (BLOCKED_LICENSE_REDISTRIBUTION_RESTRICTED) ---
-# Per directive 6159621060 item 5: repo is real, but license is
-# UC-proprietary (not OSI-approved open source). Set
-# BLOCKED_LICENSE_REDISTRIBUTION_RESTRICTED until researcher provides
-# proof that redistribution is permitted.
+# --- NeuralKEM (EXCLUDED_FROM_HANDFOFF) ---
+# Per directive 6160055346: researcher has "refused to transfer restricted
+# NeuralKEM proprietary source". We retain ONLY provenance (URL, commit,
+# license file SHA, acquisition note) for archival purposes; the
+# proprietary source bytes are EXCLUDED from the distributable branch
+# and bundle.
 
 def build_neuralkem():
-    path = REPO / "upstream_official" / "NeuralKEM"
-    files = []
-    for root, dirs, fs in os.walk(path):
-        dirs[:] = sorted(dirs)
-        for f in sorted(fs):
-            full = Path(root) / f
-            rel = str(full.relative_to(path)).replace("\\", "/")
-            files.append({"path": rel, "size_bytes": full.stat().st_size,
-                           "sha256": file_sha256(full)})
     return {
         "method_id": "NeuralKEM",
-        "status": "BLOCKED_LICENSE_REDISTRIBUTION_RESTRICTED",
+        "status": "EXCLUDED_FROM_HANDFOFF",
         "blocking_reason": (
-            "Repo is real and verified (SiqiLi1020/Neural-kernel-EM-neural"
-            "-KEM-for-dynamic-PET-image-reconstruction @ a527a652a5fe, "
-            "Feb 2023). License is UC-Davis-proprietary, NOT OSI-approved "
-            "open source. Per directive 6159621060 item 5, this must be "
-            "BLOCKED_LICENSE_REDISTRIBUTION_RESTRICTED until the "
-            "researcher provides proof that private transfer to the "
-            "controlled research server and internal experimental use "
-            "are explicitly permitted (e.g. written license addendum)."
+            "Per directive 6160055346, the researcher has explicitly "
+            "\"refused to transfer restricted NeuralKEM proprietary "
+            "source\". UC-Davis-proprietary license is NOT OSI-approved "
+            "open source; distribution beyond UC requires written "
+            "permission. The NeuralKEM source bytes are EXCLUDED from "
+            "the distributable branch handoff/baselines-source-v3 and "
+            "from the transport bundle. Only provenance (URL, commit, "
+            "license, hashes, acquisition note) is retained for "
+            "archival purposes in this registry."
         ),
         "paper": {
             "title": "Neural KEM: A Kernel Method with Deep Coefficient Prior for PET Image Reconstruction",
@@ -223,43 +216,34 @@ def build_neuralkem():
             "pinned_commit": "a527a652a5fe",
             "default_branch": "main",
             "acquired_at_utc": ACQUISITION_TS,
-            "acquisition_method": "GitHub tarball API (api.github.com)",
+            "acquisition_method": "GitHub tarball API (api.github.com); "
+                                     "EXCLUDED FROM DISTRIBUTABLE",
         },
         "license": {
             "spdx": "NOASSERTION (UC-Davis-proprietary)",
-            "file": "LICENSE",
+            "file": "(NOT INCLUDED — see blocking_reason)",
             "conclusion": ("Copyright UC Regents 2019. Internal research "
                              "use only. NOT OSI-approved open source. "
                              "Distribution beyond UC requires written "
-                             "permission. Per directive §C, this is "
-                             "acceptable for private transfer to a "
-                             "controlled research server only with explicit "
-                             "license confirmation; otherwise BLOCKED."),
+                             "permission. EXCLUDED from this handoff "
+                             "per researcher decision 2026-10-14."),
         },
-        "source_dir": "upstream_official/NeuralKEM/",
-        "source_sha256": dir_sha(path),
-        "source_file_count": len(files),
-        "source_total_bytes": sum(f["size_bytes"] for f in files),
-        "file_listing": files,
+        "source_dir": "(EXCLUDED — was upstream_official/NeuralKEM/, removed)",
+        "source_sha256": "(EXCLUDED)",
+        "source_file_count": 0,
+        "source_total_bytes": 0,
+        "file_listing": [],
         "input_output_tensor_contract": {
-            "input": "dynamic PET sinograms (T frames) + KEM data terms",
-            "output": "4D PET volume (T frames × 3D)",
+            "input": "(EXCLUDED — see blocking_reason)",
+            "output": "(EXCLUDED — see blocking_reason)",
         },
         "reproduction_command": (
-            "cd upstream_official/NeuralKEM && python DIP_OT.py "
-            "# requires MATLAB R2021a for demo_Neural_KEM.m and the KER_v0.11 "
-            "package from wanglab.faculty.ucdavis.edu/code. NOT compatible "
-            "with our env (no MATLAB, no UC license confirmation)."
+            "(EXCLUDED — not redistributable; researcher obtains from "
+            "UC-Davis authors under private license addendum)"
         ),
-        "smoke_command": "python -c \"import sys; sys.path.insert(0, '.'); "
-                          "from models.Unet2D_simulation import UNet; net = UNet(1, 32, 1); "
-                          "import torch, numpy as np; x = torch.from_numpy(np.random.default_rng(0).standard_normal((1, 1, 128, 128)).astype('float32')); "
-                          "y = net(x); print(tuple(y.shape))\"",
-        "smoke_result": "PASS: importable 2D U-Net submodel; forward on 1x1x128x128 random input "
-                         "produces (1, 1, 128, 128) tensor (smoke of the deep "
-                         "coefficient prior subnetwork only; full pipeline "
-                         "requires MATLAB + UC license confirmation).",
-        "smoke_exit_code": 0,
+        "smoke_command": "(EXCLUDED from this handoff)",
+        "smoke_result": "N/A — excluded",
+        "smoke_exit_code": None,
     }
 
 
@@ -503,7 +487,7 @@ REGISTRY = {
         "OFFICIAL_READY_CODE_ONLY_PENDING_ALIAS_CONFIRMATION": ["CNNBPNet"],
         "OFFICIAL_READY_WITH_SMOKE": [],
         "BLOCKED_WRONG_UPSTREAM": ["ADMMNet"],
-        "BLOCKED_LICENSE_REDISTRIBUTION_RESTRICTED": ["NeuralKEM"],
+        "EXCLUDED_FROM_HANDFOFF": ["NeuralKEM"],
         "REIMPLEMENTATION_REVIEW_REQUIRED": [
             "FBPNet_reimplementation",
             "DirectPET_reimplementation",
@@ -511,6 +495,16 @@ REGISTRY = {
         ],
         "TRAINED_OR_HEAVY_TEST_RUN": [],
         "MODIFIED_MAIN_REPO_FILES": 0,
+        "exclusion_audit": (
+            "NeuralKEM proprietary source bytes REMOVED from the "
+            "distributable branch per directive 6160055346. Only "
+            "provenance metadata (paper title, DOI, upstream URL, "
+            "pinned commit a527a652a5fe, license type NOASSERTION "
+            "UC-Davis-proprietary, acquisition note) is retained in "
+            "the registry for archival purposes. No NeuralKEM source "
+            "file, no model weights, no caches, no generated outputs "
+            "from NeuralKEM are present in the handoff."
+        ),
     },
     "methods": [
         build_admmnet_blocked(),

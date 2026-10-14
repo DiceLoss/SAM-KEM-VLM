@@ -5,7 +5,7 @@
     "v1": 5965411338,
     "v2": 6159508596
   },
-  "generated_at_utc": "2026-10-14T02:43:25.406020+00:00",
+  "generated_at_utc": "2026-10-14T03:17:01.064449+00:00",
   "tree_status_clean": true,
   "branch": "handoff/baselines-source-v3",
   "summary": {
@@ -17,7 +17,7 @@
     "BLOCKED_WRONG_UPSTREAM": [
       "ADMMNet"
     ],
-    "BLOCKED_LICENSE_REDISTRIBUTION_RESTRICTED": [
+    "EXCLUDED_FROM_HANDFOFF": [
       "NeuralKEM"
     ],
     "REIMPLEMENTATION_REVIEW_REQUIRED": [
@@ -26,7 +26,8 @@
       "FastPET_reimplementation"
     ],
     "TRAINED_OR_HEAVY_TEST_RUN": [],
-    "MODIFIED_MAIN_REPO_FILES": 0
+    "MODIFIED_MAIN_REPO_FILES": 0,
+    "exclusion_audit": "NeuralKEM proprietary source bytes REMOVED from the distributable branch per directive 6160055346. Only provenance metadata (paper title, DOI, upstream URL, pinned commit a527a652a5fe, license type NOASSERTION UC-Davis-proprietary, acquisition note) is retained in the registry for archival purposes. No NeuralKEM source file, no model weights, no caches, no generated outputs from NeuralKEM are present in the handoff."
   },
   "methods": [
     {
@@ -2104,8 +2105,8 @@
     },
     {
       "method_id": "NeuralKEM",
-      "status": "BLOCKED_LICENSE_REDISTRIBUTION_RESTRICTED",
-      "blocking_reason": "Repo is real and verified (SiqiLi1020/Neural-kernel-EM-neural-KEM-for-dynamic-PET-image-reconstruction @ a527a652a5fe, Feb 2023). License is UC-Davis-proprietary, NOT OSI-approved open source. Per directive 6159621060 item 5, this must be BLOCKED_LICENSE_REDISTRIBUTION_RESTRICTED until the researcher provides proof that private transfer to the controlled research server and internal experimental use are explicitly permitted (e.g. written license addendum).",
+      "status": "EXCLUDED_FROM_HANDFOFF",
+      "blocking_reason": "Per directive 6160055346, the researcher has explicitly \"refused to transfer restricted NeuralKEM proprietary source\". UC-Davis-proprietary license is NOT OSI-approved open source; distribution beyond UC requires written permission. The NeuralKEM source bytes are EXCLUDED from the distributable branch handoff/baselines-source-v3 and from the transport bundle. Only provenance (URL, commit, license, hashes, acquisition note) is retained for archival purposes in this registry.",
       "paper": {
         "title": "Neural KEM: A Kernel Method with Deep Coefficient Prior for PET Image Reconstruction",
         "authors": [
@@ -2123,227 +2124,26 @@
         "pinned_commit": "a527a652a5fe",
         "default_branch": "main",
         "acquired_at_utc": "2026-10-14T02:30:00Z",
-        "acquisition_method": "GitHub tarball API (api.github.com)"
+        "acquisition_method": "GitHub tarball API (api.github.com); EXCLUDED FROM DISTRIBUTABLE"
       },
       "license": {
         "spdx": "NOASSERTION (UC-Davis-proprietary)",
-        "file": "LICENSE",
-        "conclusion": "Copyright UC Regents 2019. Internal research use only. NOT OSI-approved open source. Distribution beyond UC requires written permission. Per directive \u00a7C, this is acceptable for private transfer to a controlled research server only with explicit license confirmation; otherwise BLOCKED."
+        "file": "(NOT INCLUDED \u2014 see blocking_reason)",
+        "conclusion": "Copyright UC Regents 2019. Internal research use only. NOT OSI-approved open source. Distribution beyond UC requires written permission. EXCLUDED from this handoff per researcher decision 2026-10-14."
       },
-      "source_dir": "upstream_official/NeuralKEM/",
-      "source_sha256": "11403f62b0db673600006b5b8bdbc06c6f62d89c349c29c735321f4b08375a87",
-      "source_file_count": 40,
-      "source_total_bytes": 634281,
-      "file_listing": [
-        {
-          "path": "DIP_OT.py",
-          "size_bytes": 4206,
-          "sha256": "d08a3a43df632822c0fc70b2d02eb39bc2cf935194a0d6bfb2532bd76ef5b7d3"
-        },
-        {
-          "path": "LICENSE",
-          "size_bytes": 1296,
-          "sha256": "d8092a1d63322e8de05956c23cbad0a30d5a29f54eee1cf3d7b8ec8fb394458f"
-        },
-        {
-          "path": "README.md",
-          "size_bytes": 3324,
-          "sha256": "05b0a79f18427b48661191ca4fbf6946103f65a868ba27cc915f4a221e92fe96"
-        },
-        {
-          "path": "README.txt",
-          "size_bytes": 3279,
-          "sha256": "28f431d1340fbe729fbcd0517ee357f3f14c195a64a0ccd1684b906767b07e1e"
-        },
-        {
-          "path": "demo_Neural_KEM.m",
-          "size_bytes": 4936,
-          "sha256": "6b7c36fd8681f9884d16eb97683373288bc109c093df0863f69813783444da70"
-        },
-        {
-          "path": "Rec_functions/eml_knem.m",
-          "size_bytes": 4594,
-          "sha256": "a5c3dd4a91b39821b64f4c2ea150247d2f938dec1a4c386606da061b23fd8229"
-        },
-        {
-          "path": "functions/dump.m",
-          "size_bytes": 179,
-          "sha256": "88b4a87692fd2d3510c2e1d3cb897a461eee928ff279faea15e50c0ac397eb5a"
-        },
-        {
-          "path": "functions/touch.m",
-          "size_bytes": 208,
-          "sha256": "2a5686b6b7d77b762322cdf58edea8b2a1b89ba272bea53da42b0094ff150b43"
-        },
-        {
-          "path": "models/Unet2D_simulation.py",
-          "size_bytes": 4765,
-          "sha256": "fc3d241251ec0f0708c45261c0e77ab7b74acf46c176f4f2b260f8c37446fde5"
-        },
-        {
-          "path": "models/__pycache__/Unet2D_auto_v2.cpython-37.pyc",
-          "size_bytes": 4376,
-          "sha256": "e41965710551cda6ecb4510b981ecba200ec72e8432392861298d2f099341fb1"
-        },
-        {
-          "path": "models/__pycache__/Unet2D_simulation.cpython-313.pyc",
-          "size_bytes": 7449,
-          "sha256": "2455e0fbee3d9d7f0fa1614105cec89cba398bf5bec444c1ca10472fc94283f9"
-        },
-        {
-          "path": "models/__pycache__/Unet2D_simulation.cpython-37.pyc",
-          "size_bytes": 4308,
-          "sha256": "7a6138a3c1276d5f95c208bb892ad444883d3d427c8e2c36dac1c245857d1253"
-        },
-        {
-          "path": "models/__pycache__/Unet2D_simulation_v1.cpython-37.pyc",
-          "size_bytes": 4167,
-          "sha256": "b41da4728f5ab4df858f17ce3ce8bbe3d5ab20dca5f68b3fd84c72d666b4c825"
-        },
-        {
-          "path": "models/__pycache__/Unet2D_simulation_v1_auto.cpython-37.pyc",
-          "size_bytes": 4139,
-          "sha256": "af860f1e359418572c3822fe68553135b50116a727aaa9c6fae54e3fe44479b4"
-        },
-        {
-          "path": "models/__pycache__/Unet2D_simulation_v2.cpython-37.pyc",
-          "size_bytes": 4153,
-          "sha256": "e3306ae91fe3c120bb7983a63a816dc273c876961ad38bc5a50d8a0a19bccc12"
-        },
-        {
-          "path": "models/__pycache__/Unet2D_simulation_v3.cpython-37.pyc",
-          "size_bytes": 4159,
-          "sha256": "c86d156c35e3a76a2504f66f771e740d8eabc563d8d0ada48e1502ca61794b37"
-        },
-        {
-          "path": "models/__pycache__/Unet2D_simulation_v4.cpython-37.pyc",
-          "size_bytes": 4325,
-          "sha256": "77014ba334da26c1c0352ff41a4954726de4a1fb23575a061c9656f66e8e0fb4"
-        },
-        {
-          "path": "models/__pycache__/Unet2D_simulation_v5.cpython-37.pyc",
-          "size_bytes": 4289,
-          "sha256": "71570b10ef3f04fc2f358bd7258f2c8007e8b47edf55f8637a1dc0b88bf72889"
-        },
-        {
-          "path": "models/__pycache__/Unet3D_simulation.cpython-37.pyc",
-          "size_bytes": 4175,
-          "sha256": "82cbab9c3445507a57d66d0c3d97a733f8c663a50dba53873278dfe58f9ec4be"
-        },
-        {
-          "path": "models/__pycache__/Unet3D_simulation_v1.cpython-37.pyc",
-          "size_bytes": 4195,
-          "sha256": "4a91b6a36677f1ba73c6619e5e78ea086d06ee9819278239ea43117c92c06e45"
-        },
-        {
-          "path": "models/__pycache__/goon_networks1.cpython-37.pyc",
-          "size_bytes": 2570,
-          "sha256": "f19757bb01450c17585818b6011fe06b642da698a70199c59fe501a6bfd86d1e"
-        },
-        {
-          "path": "models/__pycache__/modified_Unet2D.cpython-37.pyc",
-          "size_bytes": 4193,
-          "sha256": "a0979354e3689724a4f010b1556031e73d3c7aee5a8fd5f47a79070e6be7087d"
-        },
-        {
-          "path": "models/__pycache__/modified_non_local_Unet2D.cpython-37.pyc",
-          "size_bytes": 4453,
-          "sha256": "a477d83d59d25ba4ebf2203123553050fffd5293bc612dad24e37641665ea3f5"
-        },
-        {
-          "path": "models/__pycache__/new_networks.cpython-37.pyc",
-          "size_bytes": 1767,
-          "sha256": "abddd1ae7fdc3a4b234c2fa79d7e196749ca846b534a5d2a50c144659b6d8a60"
-        },
-        {
-          "path": "models/__pycache__/non_local_DIP_f.cpython-37.pyc",
-          "size_bytes": 4465,
-          "sha256": "bac060e95bd41d92e8ab5024c2469c76ad56dbad821e2779432ccb04a93c0314"
-        },
-        {
-          "path": "realizations/y1.mat",
-          "size_bytes": 503276,
-          "sha256": "cde24feb87d4505ea9eb0bcd155189006e78dd655f568699a0ecb7c4de07ed67"
-        },
-        {
-          "path": "utils/__init__.py",
-          "size_bytes": 0,
-          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
-        },
-        {
-          "path": "utils/common_utils.py",
-          "size_bytes": 7440,
-          "sha256": "8d10a0d9bfd6151dd2f1a541d22a495efd2ef29af926c493df9a93725460a980"
-        },
-        {
-          "path": "utils/denoising_utils.py",
-          "size_bytes": 431,
-          "sha256": "aa1729b598d9041e90b2ce11b91de3a0280d5afeeebddd48b0a9bc4beb173625"
-        },
-        {
-          "path": "utils/feature_inversion_utils.py",
-          "size_bytes": 3107,
-          "sha256": "f442cc9f29a2d7be4516e3615a5b49cacf6e4aaeabe8bedcc4d05ff04327406f"
-        },
-        {
-          "path": "utils/inpainting_utils.py",
-          "size_bytes": 729,
-          "sha256": "8e77818f6e03d3b0223818a58aab9c035eb81144d395ea5739938d8f8f9bea1f"
-        },
-        {
-          "path": "utils/matcher.py",
-          "size_bytes": 1240,
-          "sha256": "ebbf340615de9a50025fc154b2dc7893457406dc82689a026f79200a63d08b92"
-        },
-        {
-          "path": "utils/sr_utils.py",
-          "size_bytes": 3137,
-          "sha256": "2b400791a2d1a718aab2be7e6edca94614667796adf872a99f4065c264bb5973"
-        },
-        {
-          "path": "utils/__pycache__/__init__.cpython-37.pyc",
-          "size_bytes": 136,
-          "sha256": "cc2cd1fd0113d87ed9eaae036fb277e95c7489c50062484dc866ed3453ac97c2"
-        },
-        {
-          "path": "utils/__pycache__/common_utils.cpython-37.pyc",
-          "size_bytes": 7571,
-          "sha256": "74c0b51a98cee036971d77ca96c355abf304cbf0c40b97b36ad4fbc01573e95a"
-        },
-        {
-          "path": "utils/__pycache__/denoising_utils.cpython-37.pyc",
-          "size_bytes": 619,
-          "sha256": "e464a65169aefee0a3f8d75b1c36d8bf0c67e71b914f071a9b33e5bdb0f9927d"
-        },
-        {
-          "path": "utils/perceptual_loss/__init__.py",
-          "size_bytes": 0,
-          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
-        },
-        {
-          "path": "utils/perceptual_loss/matcher.py",
-          "size_bytes": 2176,
-          "sha256": "bd4d768c8f54df70d73fb84aeebe3a41cdb45372decde089b722a6361750f4ab"
-        },
-        {
-          "path": "utils/perceptual_loss/perceptual_loss.py",
-          "size_bytes": 7117,
-          "sha256": "e2ed57e3378e64140c141bcb67bf9056a4a214427f620ffac29a00ff08f942b7"
-        },
-        {
-          "path": "utils/perceptual_loss/vgg_modified.py",
-          "size_bytes": 3332,
-          "sha256": "3f8b1b7142ce39f47ca5d67d46ce43f47ab993d0e569cd5b19f800229d98fefe"
-        }
-      ],
+      "source_dir": "(EXCLUDED \u2014 was upstream_official/NeuralKEM/, removed)",
+      "source_sha256": "(EXCLUDED)",
+      "source_file_count": 0,
+      "source_total_bytes": 0,
+      "file_listing": [],
       "input_output_tensor_contract": {
-        "input": "dynamic PET sinograms (T frames) + KEM data terms",
-        "output": "4D PET volume (T frames \u00d7 3D)"
+        "input": "(EXCLUDED \u2014 see blocking_reason)",
+        "output": "(EXCLUDED \u2014 see blocking_reason)"
       },
-      "reproduction_command": "cd upstream_official/NeuralKEM && python DIP_OT.py # requires MATLAB R2021a for demo_Neural_KEM.m and the KER_v0.11 package from wanglab.faculty.ucdavis.edu/code. NOT compatible with our env (no MATLAB, no UC license confirmation).",
-      "smoke_command": "python -c \"import sys; sys.path.insert(0, '.'); from models.Unet2D_simulation import UNet; net = UNet(1, 32, 1); import torch, numpy as np; x = torch.from_numpy(np.random.default_rng(0).standard_normal((1, 1, 128, 128)).astype('float32')); y = net(x); print(tuple(y.shape))\"",
-      "smoke_result": "PASS: importable 2D U-Net submodel; forward on 1x1x128x128 random input produces (1, 1, 128, 128) tensor (smoke of the deep coefficient prior subnetwork only; full pipeline requires MATLAB + UC license confirmation).",
-      "smoke_exit_code": 0
+      "reproduction_command": "(EXCLUDED \u2014 not redistributable; researcher obtains from UC-Davis authors under private license addendum)",
+      "smoke_command": "(EXCLUDED from this handoff)",
+      "smoke_result": "N/A \u2014 excluded",
+      "smoke_exit_code": null
     },
     {
       "method_id": "FBPNet_reimplementation",
