@@ -1,0 +1,2527 @@
+{
+  "schema_version": 3,
+  "directive_comment_id": 6159621060,
+  "previous_reports": {
+    "v1": 5965411338,
+    "v2": 6159508596
+  },
+  "generated_at_utc": "2026-10-14T02:43:25.406020+00:00",
+  "tree_status_clean": true,
+  "branch": "handoff/baselines-source-v3",
+  "summary": {
+    "OFFICIAL_READY_CODE_ONLY": [],
+    "OFFICIAL_READY_CODE_ONLY_PENDING_ALIAS_CONFIRMATION": [
+      "CNNBPNet"
+    ],
+    "OFFICIAL_READY_WITH_SMOKE": [],
+    "BLOCKED_WRONG_UPSTREAM": [
+      "ADMMNet"
+    ],
+    "BLOCKED_LICENSE_REDISTRIBUTION_RESTRICTED": [
+      "NeuralKEM"
+    ],
+    "REIMPLEMENTATION_REVIEW_REQUIRED": [
+      "FBPNet_reimplementation",
+      "DirectPET_reimplementation",
+      "FastPET_reimplementation"
+    ],
+    "TRAINED_OR_HEAVY_TEST_RUN": [],
+    "MODIFIED_MAIN_REPO_FILES": 0
+  },
+  "methods": [
+    {
+      "method_id": "ADMMNet",
+      "status": "BLOCKED_WRONG_UPSTREAM",
+      "blocking_reason": "yangyan92/Deep-ADMM-Net is an MRI Compressed-Sensing implementation (Yang et al. 2016/2018), NOT a PET reconstruction. Cannot prove it is the exact implementation of the PET comparison named in our manuscript without the manuscript text. Per directive 6159621060 item 3, this must NOT be labeled PET-ready.",
+      "paper": {
+        "title": "ADMM-Net: A Deep Learning Approach for Compressive Sensing MRI",
+        "authors": [
+          "Yan Yang",
+          "Jian Sun",
+          "Huibin Li",
+          "Zongben Xu"
+        ],
+        "institution": "Xi'an Jiaotong University",
+        "year": 2018,
+        "venue": "IEEE T-PAMI / NIPS 2016",
+        "doi": "10.1109/TPAMI.2018.2876280",
+        "arxiv": "1705.06869",
+        "domain": "MRI Compressed Sensing (NOT PET)"
+      },
+      "official_repo": {
+        "url": "https://github.com/yangyan92/Deep-ADMM-Net",
+        "pinned_commit": "f95738c66293",
+        "default_branch": "master",
+        "acquired_at_utc": "2026-10-14T02:30:00Z",
+        "acquisition_method": "GitHub tarball API (api.github.com)"
+      },
+      "license": {
+        "spdx": "MIT",
+        "file": "LICENSE",
+        "conclusion": "Permits research use with copyright notice."
+      },
+      "source_dir": "upstream_official/ADMMNet/",
+      "source_sha256": "bfddf1ea2827586717494eb24efc611e124d5d9b4ef8f1d3966ba8139b87f4e6",
+      "source_file_count": 363,
+      "source_total_bytes": 86913826,
+      "file_listing": [
+        {
+          "path": "Gen_traindata.m",
+          "size_bytes": 444,
+          "sha256": "b892f61bdb648fcc1ac3bb11554c1a16db2389e2fe5e1e69d2621a1022302376"
+        },
+        {
+          "path": "LICENSE",
+          "size_bytes": 1065,
+          "sha256": "3fbcbe496674e90b2ba5338cd461a596cd5db5c970a6b499590e9446302be2a3"
+        },
+        {
+          "path": "README.md",
+          "size_bytes": 2781,
+          "sha256": "df4ef8f786bbc3e693188f154ca97bbe0f25087425e6e312c0cb8a31a9bebf4b"
+        },
+        {
+          "path": "config.m",
+          "size_bytes": 475,
+          "sha256": "d9172c6c0fec6cd9e26f33044643ad9aa52ead6a3552416f5e4ab78c9923d9f4"
+        },
+        {
+          "path": "main_ADMM_Net_test.m",
+          "size_bytes": 962,
+          "sha256": "88834be1110f5ad6e50f35976a0975b5a153850438cf0835ac415da2466bc49f"
+        },
+        {
+          "path": "main_netTrain.m",
+          "size_bytes": 981,
+          "sha256": "abf84d0200b4740b394ba6cb7d95408fcc1db73bfd8d66c9f200f3fef4d19223"
+        },
+        {
+          "path": "mask.mat",
+          "size_bytes": 19237,
+          "sha256": "652edd47101be015b07f3e74eb7f1a81b289e5091a83f78ae290bae355d12c0e"
+        },
+        {
+          "path": "rec_image.png",
+          "size_bytes": 29116,
+          "sha256": "299b9baace2d3f514e05f1bc98d1b2befa8172215b4582a74cc863fb6897235c"
+        },
+        {
+          "path": "Train_LBFGS/InitNet.m",
+          "size_bytes": 3285,
+          "sha256": "097dc2c8169928883225b6ffc69909448e98827cd7fb97c5935a86075c6b9d94"
+        },
+        {
+          "path": "Train_LBFGS/loss_with_gradient_single.m",
+          "size_bytes": 3674,
+          "sha256": "d5f832705ac35a5122f0fb2cb3a15275b60c93fb69d1518872511282debfffee"
+        },
+        {
+          "path": "Train_LBFGS/loss_with_gradient_total.m",
+          "size_bytes": 818,
+          "sha256": "7f68970ac6d47d8a38262e733c09e0fe99b10aa13082dd7733285bec134325cf"
+        },
+        {
+          "path": "Train_LBFGS/Matlab/Makefile",
+          "size_bytes": 917,
+          "sha256": "78ee0c1859011d0cb1065c9414bdd37660ce40527c39c2fdf058cbe4e9abe31d"
+        },
+        {
+          "path": "Train_LBFGS/Matlab/compile_mex.m",
+          "size_bytes": 3942,
+          "sha256": "2878ede2df13395724fe695e4988f5ea1bd49da892d4601fe127197643c1f40e"
+        },
+        {
+          "path": "Train_LBFGS/Matlab/driver1.m",
+          "size_bytes": 385,
+          "sha256": "f7cdd4b8c516c3754e8a227f76cf3ab765a2be34f80af244506ff0646e1e93df"
+        },
+        {
+          "path": "Train_LBFGS/Matlab/example_NNLS.m",
+          "size_bytes": 7903,
+          "sha256": "441b62a6bbe7cf137d9f1ad70cf389014d984eeebb137fc7033ab0747dd2dc43"
+        },
+        {
+          "path": "Train_LBFGS/Matlab/fminunc_wrapper.m",
+          "size_bytes": 224,
+          "sha256": "7cc0da91ed330d535ce0d8e745039f118415ba86f03ec2883c9793030bc1b493"
+        },
+        {
+          "path": "Train_LBFGS/Matlab/lbfgsb_wrapper.c",
+          "size_bytes": 11811,
+          "sha256": "74b41b74bd3bdb1ce51f4432deb97e30058539d120dd8db07c503043fe363328"
+        },
+        {
+          "path": "Train_LBFGS/Matlab/lbfgsb_wrapper.mexa64",
+          "size_bytes": 60892,
+          "sha256": "2229210dcf1dd41abc16f9e6490c1868711582663d88ee59d2262945cd6dd3d1"
+        },
+        {
+          "path": "Train_LBFGS/Matlab/lbfgsb_wrapper.mexmaci64",
+          "size_bytes": 101444,
+          "sha256": "fa4a4bf816e7a63ca8829aef808cdbc7587866e53ba3dce49252da3fa41e6065"
+        },
+        {
+          "path": "Train_LBFGS/Matlab/lbfgsb_wrapper.mexw64",
+          "size_bytes": 53248,
+          "sha256": "f9e295e92e943635a3518b3435e1acc4dc8245d89bd6496b9e38120bf852b239"
+        },
+        {
+          "path": "Train_LBFGS/lb/lbfgsb.m",
+          "size_bytes": 10498,
+          "sha256": "0e557f63a99c4c12a7354463285e4e0cfdf28cf04de695401049c7dd6c8c92dd"
+        },
+        {
+          "path": "Train_LBFGS/lb/netTOwei.m",
+          "size_bytes": 336,
+          "sha256": "85ff3b46447f3ae2c52fb493270219f972c0c16ec5b011be3f131d24a362144e"
+        },
+        {
+          "path": "Train_LBFGS/lb/weiTOnet.m",
+          "size_bytes": 449,
+          "sha256": "e2cebd49ccf2e43a9c451aaf871ce71be4a4164951285b455026f77cb47a35ce"
+        },
+        {
+          "path": "Train_output/error/error-001.mat",
+          "size_bytes": 1920,
+          "sha256": "e81989fdc40f18501318f58e22be07888525417ca1905652544413562570da8a"
+        },
+        {
+          "path": "Train_output/net/net-001.mat",
+          "size_bytes": 127608,
+          "sha256": "954de7cd7c4b5d5e80f70d5b78ec873d6b3ad77bf90d6e7b9c636650830a92d5"
+        },
+        {
+          "path": "data/Brain_data/Brain_data1.mat",
+          "size_bytes": 376122,
+          "sha256": "6f5b60b80785385cb30f7315d2e3c980a24a184a3118a45cf870f7bea23cde63"
+        },
+        {
+          "path": "data/Brain_data/Brain_data2.mat",
+          "size_bytes": 498584,
+          "sha256": "d98f7c810dda69a185834e3e30a4dd1531dda47d48bfe2ed0c487f09fe1f3e45"
+        },
+        {
+          "path": "data/ChestTrain/im-01.mat",
+          "size_bytes": 94331,
+          "sha256": "d9d09e5347cd5c180c84abf6b680722ce2b4a5746cb8c14a5ea014e16cf93c38"
+        },
+        {
+          "path": "data/ChestTrain/im-02.mat",
+          "size_bytes": 86540,
+          "sha256": "19a4ae7b785f186024322438dffde20aa23db23afb77d9504b227477d495560e"
+        },
+        {
+          "path": "data/ChestTrain/im-03.mat",
+          "size_bytes": 104789,
+          "sha256": "f590800be0315d96463a8ee0965feae71cb923230f7bee2070adfdab993ae138"
+        },
+        {
+          "path": "data/ChestTrain/im-04.mat",
+          "size_bytes": 85597,
+          "sha256": "990bb604348ec99a974e84dca7331a7a74b4d575e25e1509895bf0aac128d008"
+        },
+        {
+          "path": "data/ChestTrain/im-05.mat",
+          "size_bytes": 96970,
+          "sha256": "10c7cea301883b9c416f05725697ea927f00f2ae894a2da36cc29721e61fcc8f"
+        },
+        {
+          "path": "data/ChestTrain/im-06.mat",
+          "size_bytes": 100607,
+          "sha256": "755fd568a7973be6a78616a6d45edba62121ecb71df47a9f8b0f03b817d38ba0"
+        },
+        {
+          "path": "data/ChestTrain/im-07.mat",
+          "size_bytes": 108057,
+          "sha256": "b13c0ae4ddae9a1c2830702ed17ff6df9aa8128a3682c8665009defbc6188d76"
+        },
+        {
+          "path": "data/ChestTrain/im-08.mat",
+          "size_bytes": 106140,
+          "sha256": "39613003bc892b0b35c464bcafa98646001dac74bafdb94638d6f002acd2ff5d"
+        },
+        {
+          "path": "data/ChestTrain/im-09.mat",
+          "size_bytes": 117854,
+          "sha256": "7ece85ccbab8c5526819394fbaf3be3d3ff16a7abcd4a0f7b23a3b56aeeb4bca"
+        },
+        {
+          "path": "data/ChestTrain/im-10.mat",
+          "size_bytes": 74679,
+          "sha256": "ee7b908dfca7cc71c0ba97450e0c386372ee8786227a4fc646fab9db6f2bebc7"
+        },
+        {
+          "path": "data/ChestTrain/im-100.mat",
+          "size_bytes": 135014,
+          "sha256": "1ad625998a52ff7653cb746dcf1ea80679c05fada220bdc5bec3b7cdf4644456"
+        },
+        {
+          "path": "data/ChestTrain/im-11.mat",
+          "size_bytes": 163242,
+          "sha256": "33a8212c2aa3a59f48cd974a7f658f9d85777d024d5a0b26f342f97564281aee"
+        },
+        {
+          "path": "data/ChestTrain/im-12.mat",
+          "size_bytes": 143600,
+          "sha256": "e5d6356d6e9afcd9f8eda60693fa4bb4b83c29592b1db432f12b95066588ee01"
+        },
+        {
+          "path": "data/ChestTrain/im-13.mat",
+          "size_bytes": 131237,
+          "sha256": "2f178948a40e99328b20904b3ddafeb7ba78da93aea52f35190399a913c1a2e9"
+        },
+        {
+          "path": "data/ChestTrain/im-14.mat",
+          "size_bytes": 112500,
+          "sha256": "32f59cedfa08a59b5f96692f5b7de11a4f91052d0e0cd82606e308fb26df223c"
+        },
+        {
+          "path": "data/ChestTrain/im-15.mat",
+          "size_bytes": 99133,
+          "sha256": "bf9846fe4238f3673ad92154c746d563c432410d158807e0471eaf34e9cb72d5"
+        },
+        {
+          "path": "data/ChestTrain/im-16.mat",
+          "size_bytes": 98307,
+          "sha256": "6477915bfe0bf58729be3b44dd399ba16db0c2aff09ee4b0037858065456e402"
+        },
+        {
+          "path": "data/ChestTrain/im-17.mat",
+          "size_bytes": 106314,
+          "sha256": "bddbcfae20c47be89ecf65b1feec0e16b649df7cc6b94c64ab581f6823e5b31c"
+        },
+        {
+          "path": "data/ChestTrain/im-18.mat",
+          "size_bytes": 82722,
+          "sha256": "5e38f8d971b37c0528fa308c2470be119be4140010572a51079835716f26a512"
+        },
+        {
+          "path": "data/ChestTrain/im-19.mat",
+          "size_bytes": 93774,
+          "sha256": "56d513dfe08cbd08db680b19e2959ce66c2990bec35f15ddaca8c227be35f23b"
+        },
+        {
+          "path": "data/ChestTrain/im-20.mat",
+          "size_bytes": 103252,
+          "sha256": "b9fee77c99d3a9c983254c7459ebe304dae452536f01553004a6b981cfd00b2e"
+        },
+        {
+          "path": "data/ChestTrain/im-21.mat",
+          "size_bytes": 96922,
+          "sha256": "80b05fe18432bba35bea84be44efd45c5280e18c26b73a2ddda10ab5c568edb2"
+        },
+        {
+          "path": "data/ChestTrain/im-22.mat",
+          "size_bytes": 108829,
+          "sha256": "1b8da5d8f1e4e33c3cfa1f5cb848440a59c9014c34ab71ba6696ae0f928f843f"
+        },
+        {
+          "path": "data/ChestTrain/im-23.mat",
+          "size_bytes": 70440,
+          "sha256": "0868dd8e1266d6fc8c94b6b81392539a5c1f0f1e1a89f731079478bdcc89af10"
+        },
+        {
+          "path": "data/ChestTrain/im-24.mat",
+          "size_bytes": 131130,
+          "sha256": "ed7b8d26038ea1ff1ce50571c97c16bb2ec25fdf9a48780c6ff579ad0fa3fff1"
+        },
+        {
+          "path": "data/ChestTrain/im-25.mat",
+          "size_bytes": 86703,
+          "sha256": "6005b5d25f035a5a65b4457b8ef7068d9087afe5470cf8de909a92a57477634c"
+        },
+        {
+          "path": "data/ChestTrain/im-26.mat",
+          "size_bytes": 106207,
+          "sha256": "a6b92e3cab08251581c816c4a2fd824036e9c810799377a849f003ddb8b396e8"
+        },
+        {
+          "path": "data/ChestTrain/im-27.mat",
+          "size_bytes": 136561,
+          "sha256": "8c3ceddfb2c9eb49d31d86c4387fabfc294a522953afeb2e536e70504bacaedb"
+        },
+        {
+          "path": "data/ChestTrain/im-28.mat",
+          "size_bytes": 118289,
+          "sha256": "d6e29c73c2c25671e440ecf16b3aac11704754bbd901165dd984627af8344325"
+        },
+        {
+          "path": "data/ChestTrain/im-29.mat",
+          "size_bytes": 101033,
+          "sha256": "6979dd1c9ba6d1e126b20e398f4cc68bd877c34e55da0c186054153c12797b74"
+        },
+        {
+          "path": "data/ChestTrain/im-30.mat",
+          "size_bytes": 125706,
+          "sha256": "0b679a78fc8f4359762e5f53ca6769f3f9ade4e181db450d4d5863cd765de9ad"
+        },
+        {
+          "path": "data/ChestTrain/im-31.mat",
+          "size_bytes": 106771,
+          "sha256": "07c6ef39b91a159c4231d16b6b8ddb86c777bebfe3bf678359b79cc11dd05d1b"
+        },
+        {
+          "path": "data/ChestTrain/im-32.mat",
+          "size_bytes": 124899,
+          "sha256": "948bb0d7c2f156dc7c79f5b8a3b0f7fd8338677747029300f3d5d4fc6f8c4afe"
+        },
+        {
+          "path": "data/ChestTrain/im-33.mat",
+          "size_bytes": 112519,
+          "sha256": "dfe8abb8b00d9f142279914db29917f24317d6cc454fcf23b87da4318e52549c"
+        },
+        {
+          "path": "data/ChestTrain/im-34.mat",
+          "size_bytes": 128363,
+          "sha256": "decfce821b7bc2e305e2485eb7f7d1613a9a143ac76b4190a3a02d58b4d65ff2"
+        },
+        {
+          "path": "data/ChestTrain/im-35.mat",
+          "size_bytes": 104665,
+          "sha256": "9441809f43a9cae2e2e7a775f56ed133ecb4b6a75dd90702f95cac783ad0a403"
+        },
+        {
+          "path": "data/ChestTrain/im-36.mat",
+          "size_bytes": 157430,
+          "sha256": "daf3ea41269debb7b0f86939649d94f893ab77e709b48d73e91fa9c8047e8468"
+        },
+        {
+          "path": "data/ChestTrain/im-37.mat",
+          "size_bytes": 114634,
+          "sha256": "0a8afa1633eb9386ec676e454017e9d6c3aae5f6ebc34652331a232b9a110c3a"
+        },
+        {
+          "path": "data/ChestTrain/im-38.mat",
+          "size_bytes": 98543,
+          "sha256": "336092a3da9142489a7878bd682c97640d4ba4fca487e7ea6e32edd68a6ab11d"
+        },
+        {
+          "path": "data/ChestTrain/im-39.mat",
+          "size_bytes": 163120,
+          "sha256": "6ee250e23b93584a86d2079ef8a713c6693e55ee2ecfbdab7bed2f7239dc5473"
+        },
+        {
+          "path": "data/ChestTrain/im-40.mat",
+          "size_bytes": 108833,
+          "sha256": "b3ef74b9d1e887fc2b990c6a3fedb2154b85f2ef778c237c599cf4e33db3a3fb"
+        },
+        {
+          "path": "data/ChestTrain/im-41.mat",
+          "size_bytes": 111590,
+          "sha256": "16539001c9ade3dbc3a1268ab90befce89ad6591b64d8ca82ac1db54d32747e5"
+        },
+        {
+          "path": "data/ChestTrain/im-42.mat",
+          "size_bytes": 76707,
+          "sha256": "dd2f24c84dab7149f20177d97299404bdfc0ad4a92583cbd9d5e74dcee9c45bc"
+        },
+        {
+          "path": "data/ChestTrain/im-43.mat",
+          "size_bytes": 120763,
+          "sha256": "dfdafc2b8463d6789c40f3976d972f77a63b30520610a225883379106911ccba"
+        },
+        {
+          "path": "data/ChestTrain/im-44.mat",
+          "size_bytes": 96134,
+          "sha256": "ea12d2b5906b2b2f4a9221b41b1d992b466fe888f265a958768d581975f5ece5"
+        },
+        {
+          "path": "data/ChestTrain/im-45.mat",
+          "size_bytes": 80896,
+          "sha256": "4a0b2d740a2df8968e5c52d970303ea8873952933818538d7544217d9b0e7536"
+        },
+        {
+          "path": "data/ChestTrain/im-46.mat",
+          "size_bytes": 139335,
+          "sha256": "3dace58d0007297de3fd56b24e8130940daec37becc8b0c006b41a1105ee3600"
+        },
+        {
+          "path": "data/ChestTrain/im-47.mat",
+          "size_bytes": 85240,
+          "sha256": "e3f275228296ba0d6f8b339544803415b1f50345bd95e7af5010d7f9670e1724"
+        },
+        {
+          "path": "data/ChestTrain/im-48.mat",
+          "size_bytes": 104971,
+          "sha256": "4f6ff148b96c37121300a77fb146503e1367474cb1aad82995addf65f2997c6c"
+        },
+        {
+          "path": "data/ChestTrain/im-49.mat",
+          "size_bytes": 124000,
+          "sha256": "cbeee7bb6f8c70b2e1c4ae543ea68b485d9221a74331d18a727524688cf03ec8"
+        },
+        {
+          "path": "data/ChestTrain/im-50.mat",
+          "size_bytes": 101020,
+          "sha256": "a6594b520b4a649777392a0d8597ad5002074fa612c7e9180c10b46700f72d16"
+        },
+        {
+          "path": "data/ChestTrain/im-51.mat",
+          "size_bytes": 98717,
+          "sha256": "71c0c610bf423368344be4f5765ca60986b692e85de29d39cef136e15add00db"
+        },
+        {
+          "path": "data/ChestTrain/im-52.mat",
+          "size_bytes": 125528,
+          "sha256": "c7cdaf49460f820d6d0579e5308afc859e8541a6b46db5e967f2c072c82af041"
+        },
+        {
+          "path": "data/ChestTrain/im-53.mat",
+          "size_bytes": 99178,
+          "sha256": "a6767da0f56568468e287046acd713920d28aaf4f5004b269dd943b322987a8a"
+        },
+        {
+          "path": "data/ChestTrain/im-54.mat",
+          "size_bytes": 108251,
+          "sha256": "ebeb43492ae1d4c10c5b4c1e12fe7ede1f8ea2c7cc896843b6286ee40ccf992d"
+        },
+        {
+          "path": "data/ChestTrain/im-55.mat",
+          "size_bytes": 143663,
+          "sha256": "ef49d8f6545b3e2b8aa11789f73a6a2ad39ab6f34df8f6f3f6083d1d3050b53c"
+        },
+        {
+          "path": "data/ChestTrain/im-56.mat",
+          "size_bytes": 135876,
+          "sha256": "55ee3fd4e11d29c97f89a3f402625f52bc84e1baebd8f638a3c25c66691d5f50"
+        },
+        {
+          "path": "data/ChestTrain/im-57.mat",
+          "size_bytes": 95294,
+          "sha256": "dc5957f8c6fc97f0f9617c24846d89876206752e24e9b25b97fecb3a72921baf"
+        },
+        {
+          "path": "data/ChestTrain/im-58.mat",
+          "size_bytes": 157820,
+          "sha256": "7131bfe5e6578d22ed1151f4987d889cd4b6437f48173a8f5ad79e11f2a01e30"
+        },
+        {
+          "path": "data/ChestTrain/im-59.mat",
+          "size_bytes": 105176,
+          "sha256": "7ca103b34a574c4985bf5cd17e2a574a8f177de18949589f33a29b3f6636473e"
+        },
+        {
+          "path": "data/ChestTrain/im-60.mat",
+          "size_bytes": 94121,
+          "sha256": "d429ea3a57c75d2398602c1e4530ed2d183feef5380e9d1672cfd496385d8d99"
+        },
+        {
+          "path": "data/ChestTrain/im-61.mat",
+          "size_bytes": 159074,
+          "sha256": "57292dcd9c8175ca7e1a89720bab073c07fa374644dc8954f9d27c4c23496765"
+        },
+        {
+          "path": "data/ChestTrain/im-62.mat",
+          "size_bytes": 103494,
+          "sha256": "073a45c976914848febdd1d7c420e9e392146f703798995a69fa4ef3f48f6ae7"
+        },
+        {
+          "path": "data/ChestTrain/im-63.mat",
+          "size_bytes": 105147,
+          "sha256": "0fd5cf87874910a1f7ad9b69dd704fd4f0772364911fa7cc8f2ccdcd6c4bba4d"
+        },
+        {
+          "path": "data/ChestTrain/im-64.mat",
+          "size_bytes": 66881,
+          "sha256": "a600964921385930268ebb040a000cacecccfc4dd88241a65024c457177ecbd1"
+        },
+        {
+          "path": "data/ChestTrain/im-65.mat",
+          "size_bytes": 119545,
+          "sha256": "bc925da1c08a85862d2832bdf3dbcd8dc09acaa663272ea55bd79e2ebd10a1e7"
+        },
+        {
+          "path": "data/ChestTrain/im-66.mat",
+          "size_bytes": 92007,
+          "sha256": "34f4e9a4b08c8fe4cc37da99b83e9b68aabab16073eee2f5c0874de32137941f"
+        },
+        {
+          "path": "data/ChestTrain/im-67.mat",
+          "size_bytes": 74425,
+          "sha256": "61f7b462ca9c4d73bd52a8d01e0b8da982235139382566150f2dc2ae5fafe829"
+        },
+        {
+          "path": "data/ChestTrain/im-68.mat",
+          "size_bytes": 115442,
+          "sha256": "dbae3e3fecc654ae06e375c165e39d0b3e209203d1b36a9d9e61175ce71f66f5"
+        },
+        {
+          "path": "data/ChestTrain/im-69.mat",
+          "size_bytes": 106243,
+          "sha256": "dd023d8f627fadb6c8729aeedf43dc713af4615b64f36204bcfe94d18a3842ec"
+        },
+        {
+          "path": "data/ChestTrain/im-70.mat",
+          "size_bytes": 87597,
+          "sha256": "dbc09538f22db305c30f7f24c6d35f9303e3de3141628ca1426c83f55f506f2f"
+        },
+        {
+          "path": "data/ChestTrain/im-71.mat",
+          "size_bytes": 70512,
+          "sha256": "0cdff6298ba957c667b5edc20676d0f603b5a3bf3ccd52c72007ef914547a0ad"
+        },
+        {
+          "path": "data/ChestTrain/im-72.mat",
+          "size_bytes": 114432,
+          "sha256": "4e4206d1a4e9a23e04daabeb749462c8b0c59b0a0b63d80c33ca753dcd7d9f0b"
+        },
+        {
+          "path": "data/ChestTrain/im-73.mat",
+          "size_bytes": 88916,
+          "sha256": "0f3daacb23ef6e796f916ec077cb3eeb04cbd60556650fcfb85871ffbc830a72"
+        },
+        {
+          "path": "data/ChestTrain/im-74.mat",
+          "size_bytes": 86242,
+          "sha256": "c3021dc45c7ed7a100940e869978910c1416fe922a2c9549c08f028b6a62dbfe"
+        },
+        {
+          "path": "data/ChestTrain/im-75.mat",
+          "size_bytes": 70168,
+          "sha256": "1cbc9b6cfeac149643dfcbf5f78fe36fe89cde9ff6864c30af130a0c9d932c9b"
+        },
+        {
+          "path": "data/ChestTrain/im-76.mat",
+          "size_bytes": 78368,
+          "sha256": "ebc9fb412b9d801adddf3403c389bb1eccb1d226849a9e8c91757ffd4980d4a5"
+        },
+        {
+          "path": "data/ChestTrain/im-77.mat",
+          "size_bytes": 84463,
+          "sha256": "541ff64786726a37582081f37de2b4aa1277173e2695645b46acc24ea636ded4"
+        },
+        {
+          "path": "data/ChestTrain/im-78.mat",
+          "size_bytes": 88521,
+          "sha256": "140d3c1b16f43cce34ea012e71f4016064cc1a16be6482549437871c003383a3"
+        },
+        {
+          "path": "data/ChestTrain/im-79.mat",
+          "size_bytes": 79830,
+          "sha256": "5a7f36ac6e5da9f7efa74e262fdf4af187052322aaa13baa6fa704a22ee9b675"
+        },
+        {
+          "path": "data/ChestTrain/im-80.mat",
+          "size_bytes": 72610,
+          "sha256": "f66cdf9f1871c8b3fe66d0e85ef0425118d83b59cf335118d7bad4d091250d4f"
+        },
+        {
+          "path": "data/ChestTrain/im-81.mat",
+          "size_bytes": 91444,
+          "sha256": "6bfa3ddd83319e8b9c483c5062a92805e640e10785b5a4bbbf1bd1cc6379bb24"
+        },
+        {
+          "path": "data/ChestTrain/im-82.mat",
+          "size_bytes": 117711,
+          "sha256": "0323e9d4df7b0020e2c28e9e0151a6d474ebecc4c0a95879982f256e36439cc0"
+        },
+        {
+          "path": "data/ChestTrain/im-83.mat",
+          "size_bytes": 72893,
+          "sha256": "beab107fe2ac95f43687ec31d3d726e7f09435af674d42e7845af7ff8a064127"
+        },
+        {
+          "path": "data/ChestTrain/im-84.mat",
+          "size_bytes": 89115,
+          "sha256": "bf6e11d7a4fa7bc2441587d774dde1505a105db6d8e66d086c1599bc9d226298"
+        },
+        {
+          "path": "data/ChestTrain/im-85.mat",
+          "size_bytes": 111272,
+          "sha256": "09ba626ee6b92acdfcf76056d8c3c8c78f8fdede4c9cb5508b8c4c1c71298e55"
+        },
+        {
+          "path": "data/ChestTrain/im-86.mat",
+          "size_bytes": 118935,
+          "sha256": "dcd41988ef66da3125ba857754c98b178ed6ad1c12d6dc48675c2fd921b42551"
+        },
+        {
+          "path": "data/ChestTrain/im-87.mat",
+          "size_bytes": 92287,
+          "sha256": "2a664acc4f81ad15f547dba9d9f1c8d6d4acd77bdf9762840878c31a3094dac7"
+        },
+        {
+          "path": "data/ChestTrain/im-88.mat",
+          "size_bytes": 122871,
+          "sha256": "b3e48393fc2f2fad51db6bf6d6cbb3d0a17e101717f2d40a7994024c94240f9e"
+        },
+        {
+          "path": "data/ChestTrain/im-89.mat",
+          "size_bytes": 106520,
+          "sha256": "ea457e3b4fe33f5578165af782e301b95d444e70836c84ec3918a9a700b40812"
+        },
+        {
+          "path": "data/ChestTrain/im-90.mat",
+          "size_bytes": 80728,
+          "sha256": "f898cf3e3567333572472b4009201325cb9369abea2ffdafe6cbafe387518916"
+        },
+        {
+          "path": "data/ChestTrain/im-91.mat",
+          "size_bytes": 107030,
+          "sha256": "6f64c4bb25d132e78292d5bdaa2299b79ce17802f90fac5b975fd988e7a07a39"
+        },
+        {
+          "path": "data/ChestTrain/im-92.mat",
+          "size_bytes": 100490,
+          "sha256": "05a3eb45376bac24839739fdd4c722f931230ea003836af92e13af0cc24d711a"
+        },
+        {
+          "path": "data/ChestTrain/im-93.mat",
+          "size_bytes": 108704,
+          "sha256": "b418a9bd04bb80919b7e6ab8aaf1602b913d8b8f7bb5782fcca2a583ceff4916"
+        },
+        {
+          "path": "data/ChestTrain/im-94.mat",
+          "size_bytes": 148988,
+          "sha256": "ba690d5db1eac190e80abca610b1ebc81c5fa8e388dd742d5e204ebf3dddddcc"
+        },
+        {
+          "path": "data/ChestTrain/im-95.mat",
+          "size_bytes": 139139,
+          "sha256": "eb076a10701116304cefc3c5692a92f72e018f29cf4cca46db4a945fdf0780f5"
+        },
+        {
+          "path": "data/ChestTrain/im-96.mat",
+          "size_bytes": 121122,
+          "sha256": "56dbac5f9926f55e482993aaa3f0e6fbec488bffd7ab662a57c8a8ec24009938"
+        },
+        {
+          "path": "data/ChestTrain/im-97.mat",
+          "size_bytes": 116944,
+          "sha256": "2fd698da8f568dd73838b78bbcaf0f16f9add4f63d44135848f5404eac007917"
+        },
+        {
+          "path": "data/ChestTrain/im-98.mat",
+          "size_bytes": 133167,
+          "sha256": "6d3cc7ecc653b138e8ced20d057ef503860bb2d4c14089c286b577accfbbc460"
+        },
+        {
+          "path": "data/ChestTrain/im-99.mat",
+          "size_bytes": 118167,
+          "sha256": "949c640f027f854aab8be9926d8e8daaba003142d2f2f428627b8c657da26eeb"
+        },
+        {
+          "path": "data/ChestTrain_20/01.mat",
+          "size_bytes": 335190,
+          "sha256": "55f28f0bafbcff9153f580f08b18ad956207ebc4199f700ff23278094b6bfe5d"
+        },
+        {
+          "path": "data/ChestTrain_20/02.mat",
+          "size_bytes": 327287,
+          "sha256": "ba60f160f9370ab91836c304fa941674ecfc12d687f2fd99a7496009eff9d819"
+        },
+        {
+          "path": "data/ChestTrain_20/03.mat",
+          "size_bytes": 345604,
+          "sha256": "b1131dbe769f84bac6d4c073ec8fa04131c9a0b664c141e99ac51b5bac6cc466"
+        },
+        {
+          "path": "data/ChestTrain_20/04.mat",
+          "size_bytes": 326272,
+          "sha256": "b2f81bc1f82436517309615d4084944010fbd134a984051a998f4087d748c028"
+        },
+        {
+          "path": "data/ChestTrain_20/05.mat",
+          "size_bytes": 337903,
+          "sha256": "fbfbf675bbd96bdc05fd1467930d453c71d851fda6e3c059ba54d6bf792e4a34"
+        },
+        {
+          "path": "data/ChestTrain_20/06.mat",
+          "size_bytes": 341611,
+          "sha256": "982cfe6e9cde39718e2915beb831508c157f4aa6245a65a9af7295bb5d5fec47"
+        },
+        {
+          "path": "data/ChestTrain_20/07.mat",
+          "size_bytes": 348749,
+          "sha256": "cb8eef4c6e1331052abd9c312a6ffe39dabaafe5683368894a46d0ab16d62136"
+        },
+        {
+          "path": "data/ChestTrain_20/08.mat",
+          "size_bytes": 347070,
+          "sha256": "5fca52a39c1753df532b3edcfdf603e9606444753dea364dba3bbb6890acc75c"
+        },
+        {
+          "path": "data/ChestTrain_20/09.mat",
+          "size_bytes": 358815,
+          "sha256": "72f7b66cf9a569095e7e4db20712a0ed4223d1935d1b0f3f99b96c26e7603a81"
+        },
+        {
+          "path": "data/ChestTrain_20/10.mat",
+          "size_bytes": 316715,
+          "sha256": "a4fe6eae7feef48ab2d10655d7b0a4c4488fe388d5440ba722e5006971555d06"
+        },
+        {
+          "path": "data/ChestTrain_20/100.mat",
+          "size_bytes": 375756,
+          "sha256": "1c2f307b58f2126cbbf29fc03dfa968d4a21ab28f52a3bb115db52524fd66ad1"
+        },
+        {
+          "path": "data/ChestTrain_20/11.mat",
+          "size_bytes": 404227,
+          "sha256": "eda3cb73f3067eacf0b89d6d07539c352943173765f623f98bc51f508871d21b"
+        },
+        {
+          "path": "data/ChestTrain_20/12.mat",
+          "size_bytes": 384558,
+          "sha256": "a8661096dcbb7e3e491ae883326700774c87019864cad173f1c065c1924f8340"
+        },
+        {
+          "path": "data/ChestTrain_20/13.mat",
+          "size_bytes": 371883,
+          "sha256": "4810913e99b8082c9c21c2a80561d02bac77d5cfa0ebab2c6ecad04745f94e85"
+        },
+        {
+          "path": "data/ChestTrain_20/14.mat",
+          "size_bytes": 353284,
+          "sha256": "a8d8c6cfa8f090e1a93d2d79e8f4be13e8283e1e578d0e8a7d2fa87a459354a3"
+        },
+        {
+          "path": "data/ChestTrain_20/15.mat",
+          "size_bytes": 339920,
+          "sha256": "bd7823f56ca5c0be4f88370535decdb096aa4f8ff099be0fa680691016378b76"
+        },
+        {
+          "path": "data/ChestTrain_20/16.mat",
+          "size_bytes": 339403,
+          "sha256": "ae2105329428e84b0b95752aa4e2689831ddc37e548755bd5acc1e3c118cdfe9"
+        },
+        {
+          "path": "data/ChestTrain_20/17.mat",
+          "size_bytes": 347011,
+          "sha256": "03d56d641968f14b04f58a054d5887e7920b5adad3ff19c8c0e55e658dcbdd8c"
+        },
+        {
+          "path": "data/ChestTrain_20/18.mat",
+          "size_bytes": 323522,
+          "sha256": "73df51bf7ada338993b1f2f66f4fe68bd7622601e82003596a4d99f9f26e098e"
+        },
+        {
+          "path": "data/ChestTrain_20/19.mat",
+          "size_bytes": 334559,
+          "sha256": "318764977ee24c944e6a02f6f7bb07d09c2cbbeeeffde68e8b9af486e75e4ded"
+        },
+        {
+          "path": "data/ChestTrain_20/20.mat",
+          "size_bytes": 344289,
+          "sha256": "803cd54dc6ab2bfbbd676746549b5a73eba42f0aa76e3234e0ceee8aaa2e310a"
+        },
+        {
+          "path": "data/ChestTrain_20/21.mat",
+          "size_bytes": 337846,
+          "sha256": "087e4726c485dd60c96051b4a591424796f7bf6dc9bacb39084458e98e92215f"
+        },
+        {
+          "path": "data/ChestTrain_20/22.mat",
+          "size_bytes": 349595,
+          "sha256": "f3f4bcbbd7d6aa1c7d0b21ffb9326c494fe9fe1933dbb27c0bd2970f607d04d8"
+        },
+        {
+          "path": "data/ChestTrain_20/23.mat",
+          "size_bytes": 312691,
+          "sha256": "8bf7a78dd770402901fd843589961a8d26618f30076894cc9b18afccb4076793"
+        },
+        {
+          "path": "data/ChestTrain_20/24.mat",
+          "size_bytes": 372121,
+          "sha256": "55bc577292109eb56472b6801563a9b0e9fd8b0db7a0896d548ad2f1b2bf6e0b"
+        },
+        {
+          "path": "data/ChestTrain_20/25.mat",
+          "size_bytes": 327583,
+          "sha256": "0bf79dfddc72365190406f2affb0358656db0077daa4f154c82428b0f56c6da0"
+        },
+        {
+          "path": "data/ChestTrain_20/26.mat",
+          "size_bytes": 347001,
+          "sha256": "e2f34525ced9ac8fe93070a6c994f2873111c8fc25034465bb62c78685875443"
+        },
+        {
+          "path": "data/ChestTrain_20/27.mat",
+          "size_bytes": 377417,
+          "sha256": "7e1e784f3f81895b342e77f8c8fdb804b415bf019265327d82def188e3244e1e"
+        },
+        {
+          "path": "data/ChestTrain_20/28.mat",
+          "size_bytes": 358900,
+          "sha256": "b5eeae7490948b7f454309ffbc0f8b08587c1a23007a04b190bf7a7c4bbcf1aa"
+        },
+        {
+          "path": "data/ChestTrain_20/29.mat",
+          "size_bytes": 341982,
+          "sha256": "cb8eea0f949de85733971a4355d72a465abc33f6d08d18ba31029315dfb445f5"
+        },
+        {
+          "path": "data/ChestTrain_20/30.mat",
+          "size_bytes": 366419,
+          "sha256": "15ec02bf93e71936bd9aac508a7da91067b3758883e1b756a79cce678e27e67e"
+        },
+        {
+          "path": "data/ChestTrain_20/31.mat",
+          "size_bytes": 347446,
+          "sha256": "d8ed1173d27bec6d19eba1e3923162d0094514d3e7448a9353a2cbc2ae9bc7b9"
+        },
+        {
+          "path": "data/ChestTrain_20/32.mat",
+          "size_bytes": 365480,
+          "sha256": "91b1046c04bf48fdb29a484741902ba872e4a11976a680774393d20ae2c50170"
+        },
+        {
+          "path": "data/ChestTrain_20/33.mat",
+          "size_bytes": 353415,
+          "sha256": "ee65f0e9742222f237f0ddceba78ba4bf770f428540dffc32fff4fa2e4b7172c"
+        },
+        {
+          "path": "data/ChestTrain_20/34.mat",
+          "size_bytes": 368946,
+          "sha256": "1e49dcc21ce3217e77b017788a2e0743c559228d5f4fdc2f855caaac3c7f9030"
+        },
+        {
+          "path": "data/ChestTrain_20/35.mat",
+          "size_bytes": 347062,
+          "sha256": "6e3c0e504b48344499e26ff3189432bf0dee29cb7f044a857d4869fb2c12782a"
+        },
+        {
+          "path": "data/ChestTrain_20/36.mat",
+          "size_bytes": 398221,
+          "sha256": "563b52d3e66a84f4e8ed61d1e0faf51a238b5f4341a77082d906c17f4c5f3069"
+        },
+        {
+          "path": "data/ChestTrain_20/37.mat",
+          "size_bytes": 355277,
+          "sha256": "424ebe2a1f7a64cf1943613fc7004002b9a1c75999d09d032cde3b76a02c187d"
+        },
+        {
+          "path": "data/ChestTrain_20/38.mat",
+          "size_bytes": 339077,
+          "sha256": "bfbf43b8c33fd9cc6386908a4bf70f11c67d603ed03776aea6399cbd1681a3fc"
+        },
+        {
+          "path": "data/ChestTrain_20/39.mat",
+          "size_bytes": 403883,
+          "sha256": "59a3e2cad7515ce9379837f3b2566060b283ca60cecd73051179b8026338f364"
+        },
+        {
+          "path": "data/ChestTrain_20/40.mat",
+          "size_bytes": 349248,
+          "sha256": "14695c70645b3a4e7bf70758fec2efc5ec334db280057b851891c066a2c16f46"
+        },
+        {
+          "path": "data/ChestTrain_20/41.mat",
+          "size_bytes": 351982,
+          "sha256": "595ae943c24315f8696f6dc0d9997de06628b8544ae2c33e771ec5c85f553c1c"
+        },
+        {
+          "path": "data/ChestTrain_20/42.mat",
+          "size_bytes": 319193,
+          "sha256": "64cc4017931a5e2ce1cdee6a2a461f66da4520c51411f117c6db5dc57b4bd577"
+        },
+        {
+          "path": "data/ChestTrain_20/43.mat",
+          "size_bytes": 361245,
+          "sha256": "56f5b5e9b042504b1ef85cd6a391e040d6e248b7badd443a090b449be6638d99"
+        },
+        {
+          "path": "data/ChestTrain_20/44.mat",
+          "size_bytes": 336714,
+          "sha256": "42530f3bbc4e21e99aef1e2d4ccfd1920f6809f047c59e911b34496dc2847151"
+        },
+        {
+          "path": "data/ChestTrain_20/45.mat",
+          "size_bytes": 321783,
+          "sha256": "f7e80d7d9b873c19887b7d3e453cbf669541d0bbaa2876977bf5ae0b19f0287e"
+        },
+        {
+          "path": "data/ChestTrain_20/46.mat",
+          "size_bytes": 380254,
+          "sha256": "1b1af9501b6c8341543c7e6dbfd2d1a6a216d6cc03a5ae53e925948f068434e6"
+        },
+        {
+          "path": "data/ChestTrain_20/47.mat",
+          "size_bytes": 326063,
+          "sha256": "a270c40aef81941e9823ce819c51022d01995f8dde8bbde4c7d724fd2f798adc"
+        },
+        {
+          "path": "data/ChestTrain_20/48.mat",
+          "size_bytes": 345885,
+          "sha256": "fc6bc88ff044a6d04be61c095994a44a84bb6a8925ca565c4541b1a73ff92e3f"
+        },
+        {
+          "path": "data/ChestTrain_20/49.mat",
+          "size_bytes": 364683,
+          "sha256": "40734fd442e209eba3a1bc5a2c85efd9ba6a7c3058db54750b14315e366703cc"
+        },
+        {
+          "path": "data/ChestTrain_20/50.mat",
+          "size_bytes": 341776,
+          "sha256": "08c42e070cbfc33e7e21e12dd6396afb2246a174c3a1e237e125fb376a53e785"
+        },
+        {
+          "path": "data/ChestTrain_20/51.mat",
+          "size_bytes": 339713,
+          "sha256": "a93ba08af98fd248ee14eb5b230931b480e0ee79d37e5fddb306e2d7f402efe3"
+        },
+        {
+          "path": "data/ChestTrain_20/52.mat",
+          "size_bytes": 366263,
+          "sha256": "115fb62684dc1894a031aa9436afcc0eabf7547fa0c80fce32c331355f42ec06"
+        },
+        {
+          "path": "data/ChestTrain_20/53.mat",
+          "size_bytes": 339879,
+          "sha256": "3d367e2451fbefb1e23ef2655b5c594ee8d2cea9c6350fb2bef22e4d7a2ab3e6"
+        },
+        {
+          "path": "data/ChestTrain_20/54.mat",
+          "size_bytes": 349100,
+          "sha256": "9bca848404a6a4fcda8aa48eb4024ee062561a8eeb9d612783e769c08f15c14d"
+        },
+        {
+          "path": "data/ChestTrain_20/55.mat",
+          "size_bytes": 384309,
+          "sha256": "fd1489a55fb755955c7991342291d27318edc11530c0e23b8c57d10ae7bcd44b"
+        },
+        {
+          "path": "data/ChestTrain_20/56.mat",
+          "size_bytes": 376622,
+          "sha256": "6f09d1c83502c45e1c9a3a4a6cf06686f820fb93469d508b4b6b05b1ac33a4da"
+        },
+        {
+          "path": "data/ChestTrain_20/57.mat",
+          "size_bytes": 337844,
+          "sha256": "3f876dee3330f63b60a9a342ca06d049d4840d0d6d54a4ff0dcbbbae8451c0c5"
+        },
+        {
+          "path": "data/ChestTrain_20/58.mat",
+          "size_bytes": 398702,
+          "sha256": "ca69467d0cacd9b8ddad508038f1f8551f68ce2432a27f0a12ce7894177bd221"
+        },
+        {
+          "path": "data/ChestTrain_20/59.mat",
+          "size_bytes": 345683,
+          "sha256": "a5a582aa231cdeda91f38282fb71a75f18572ac571e27e5825ad223b0438588c"
+        },
+        {
+          "path": "data/ChestTrain_20/60.mat",
+          "size_bytes": 334684,
+          "sha256": "ab07d148035530ad8c3329bb66fdfdffe57ce62e5abfa3e23b507f485468a212"
+        },
+        {
+          "path": "data/ChestTrain_20/61.mat",
+          "size_bytes": 399791,
+          "sha256": "3a6f84682a80240c44216383563fb9df81c3417e3e28315269c77d0b864be3f9"
+        },
+        {
+          "path": "data/ChestTrain_20/62.mat",
+          "size_bytes": 344018,
+          "sha256": "e387dd1d061d3e1be2271f24755e2e1b7ca370c3368bd8522495a84085de15e2"
+        },
+        {
+          "path": "data/ChestTrain_20/63.mat",
+          "size_bytes": 345616,
+          "sha256": "31ccfa3bd8f8e75cfb2992235f9cca697aa7f68abf203881059dd5b293ca5ea8"
+        },
+        {
+          "path": "data/ChestTrain_20/64.mat",
+          "size_bytes": 307772,
+          "sha256": "8fcebc8328e9dff27ee0ba7b480d70b8f28a5dfd5de61c756d3c9bbb906d8cfd"
+        },
+        {
+          "path": "data/ChestTrain_20/65.mat",
+          "size_bytes": 360229,
+          "sha256": "86c0d30a0e318cdbddc5a84118293de9e7e390c4988733c650ae0ade7d647c77"
+        },
+        {
+          "path": "data/ChestTrain_20/66.mat",
+          "size_bytes": 332686,
+          "sha256": "99f67b3a74ef2635a9405dc02a5491220b843df845200438aa20f42d5fae1456"
+        },
+        {
+          "path": "data/ChestTrain_20/67.mat",
+          "size_bytes": 316192,
+          "sha256": "734df45db6966b32041305f80e2b3a510c333fb03d9fa24046656573a1901d54"
+        },
+        {
+          "path": "data/ChestTrain_20/68.mat",
+          "size_bytes": 356348,
+          "sha256": "109d6d0fe6a35f5d297b539b7566f30b442d3757d66ecff01169e3a8ebd8b693"
+        },
+        {
+          "path": "data/ChestTrain_20/69.mat",
+          "size_bytes": 347094,
+          "sha256": "059ca509c97ad6dfe70dce4eb460036783966238e0a7a49f1b7ba76b788750c3"
+        },
+        {
+          "path": "data/ChestTrain_20/70.mat",
+          "size_bytes": 328384,
+          "sha256": "c834c31da31795f8c36f4aa7f864db861afe4129b1461f71e3b824d9beb3fd18"
+        },
+        {
+          "path": "data/ChestTrain_20/71.mat",
+          "size_bytes": 311342,
+          "sha256": "8953a53f1ababbbee6f15ba51c3cff1fbec1134f7261e1b0c59cde0ff6770ba7"
+        },
+        {
+          "path": "data/ChestTrain_20/72.mat",
+          "size_bytes": 355257,
+          "sha256": "7dad52e33157254350653856008a845ab5fcdd31b562140194164f40b64e3394"
+        },
+        {
+          "path": "data/ChestTrain_20/73.mat",
+          "size_bytes": 329518,
+          "sha256": "daf0f65e92480d392b22b6302a07f07e8c8f2042f242e6b49657fcbf9192f580"
+        },
+        {
+          "path": "data/ChestTrain_20/74.mat",
+          "size_bytes": 326954,
+          "sha256": "90379ae5f38dfec8a574795bb634ddfdf7f31c5f1f7bd8bdb51ef6eb8358cdfe"
+        },
+        {
+          "path": "data/ChestTrain_20/75.mat",
+          "size_bytes": 311012,
+          "sha256": "56ae2b316c5c4f09f5733c6b6458961de70b87e3575208bc3e8138ac9709ef63"
+        },
+        {
+          "path": "data/ChestTrain_20/76.mat",
+          "size_bytes": 319222,
+          "sha256": "4cbda9d1f21b5f9b4a09a290ca078ccaa9a4be17cb311cd4e6171b5adabd5a34"
+        },
+        {
+          "path": "data/ChestTrain_20/77.mat",
+          "size_bytes": 325017,
+          "sha256": "44a49b4a10e4130887eba2bd8a681b324bb9cc5e751bfe3e5eee8ec1e6067c3b"
+        },
+        {
+          "path": "data/ChestTrain_20/78.mat",
+          "size_bytes": 329340,
+          "sha256": "bea461785627925d43d442f6b86a4f0da292814ef1e4e12aa9039be983acc506"
+        },
+        {
+          "path": "data/ChestTrain_20/79.mat",
+          "size_bytes": 320539,
+          "sha256": "a526de3e7cd4f7cac26a386f3f1586e4a9c1f69e8e07d42bd5f5195d81b0aa59"
+        },
+        {
+          "path": "data/ChestTrain_20/80.mat",
+          "size_bytes": 313147,
+          "sha256": "3da3cc403369733df50f2e37b3938fa08529cfbc3dc56c3a42ab9feec4728dda"
+        },
+        {
+          "path": "data/ChestTrain_20/81.mat",
+          "size_bytes": 331991,
+          "sha256": "4e580e4e6ac73725dd92213cff0b2e38ae864ae20117394067e97f80d8cb2097"
+        },
+        {
+          "path": "data/ChestTrain_20/82.mat",
+          "size_bytes": 358356,
+          "sha256": "2d53e69aab7379f2359e5149e17efde3e268238e8b78f2207e39f9ac0268f309"
+        },
+        {
+          "path": "data/ChestTrain_20/83.mat",
+          "size_bytes": 313691,
+          "sha256": "d26115c415e57c02ad38b9c5ef2aad72ac3b8eb2bf2faeed50d14a417cdd6dd9"
+        },
+        {
+          "path": "data/ChestTrain_20/84.mat",
+          "size_bytes": 329892,
+          "sha256": "4d5cad6d50dca9c7202e1209e7c2b403c05fa04dc055bbff70bc515546b65815"
+        },
+        {
+          "path": "data/ChestTrain_20/85.mat",
+          "size_bytes": 352170,
+          "sha256": "4f55415aa1f00a6ffac46e50d0c5b30dc38dd98bcc19316ba446f5b203aad882"
+        },
+        {
+          "path": "data/ChestTrain_20/86.mat",
+          "size_bytes": 359940,
+          "sha256": "cac89cc37ca44a9ac37ffb7e81a8d973525119c4c95f9291528ce029122a0c75"
+        },
+        {
+          "path": "data/ChestTrain_20/87.mat",
+          "size_bytes": 333001,
+          "sha256": "2d7a73d1796fb8ab0713ff9d7f4a753a07b9a46d06cbf79057f01c0b1caeb51b"
+        },
+        {
+          "path": "data/ChestTrain_20/88.mat",
+          "size_bytes": 363453,
+          "sha256": "80b74e67bedacc0c2f77258c0a1080f9fd916554ae758153afa272e349e8e759"
+        },
+        {
+          "path": "data/ChestTrain_20/89.mat",
+          "size_bytes": 347453,
+          "sha256": "f966b801575c91ad59ab33fdd251aeb300f54fbbc5ad3b611cd11a9d1b8febd9"
+        },
+        {
+          "path": "data/ChestTrain_20/90.mat",
+          "size_bytes": 321655,
+          "sha256": "0bbcf949f3d74e08821fa5021210c2e0cbfa5667301f4b8ba51ee9a19a391993"
+        },
+        {
+          "path": "data/ChestTrain_20/91.mat",
+          "size_bytes": 347825,
+          "sha256": "0c3950659d47b1ee0094e72e09280e92de0f24eee1f63a3e582fb5f45fe8bde9"
+        },
+        {
+          "path": "data/ChestTrain_20/92.mat",
+          "size_bytes": 341331,
+          "sha256": "4159621560f8bd9928e61d869d83071892153353f2cd359431e79dcc1b8d6d51"
+        },
+        {
+          "path": "data/ChestTrain_20/93.mat",
+          "size_bytes": 349439,
+          "sha256": "39321f3b7c643f5a814ee2ad5302a40ea4b59d0175757af41d2fb0d7341159e2"
+        },
+        {
+          "path": "data/ChestTrain_20/94.mat",
+          "size_bytes": 389862,
+          "sha256": "af6bb85c3384fe1424bfe8613427b6698d9b0d7545ca102a5c51452459ad4c0e"
+        },
+        {
+          "path": "data/ChestTrain_20/95.mat",
+          "size_bytes": 379843,
+          "sha256": "1779e184a170dccc5167cad91c8107ca65f0d8236f7d692f7c48480e8797bfce"
+        },
+        {
+          "path": "data/ChestTrain_20/96.mat",
+          "size_bytes": 361799,
+          "sha256": "21bc28ea57767234bf017b260c478b679844b1dac58a2ce68552061975cb084a"
+        },
+        {
+          "path": "data/ChestTrain_20/97.mat",
+          "size_bytes": 357755,
+          "sha256": "11de4b98663856262a4402b0809e0fddece51085baf25f2607c9bdec541b44f2"
+        },
+        {
+          "path": "data/ChestTrain_20/98.mat",
+          "size_bytes": 373860,
+          "sha256": "80bfb536345a46759837fcdba5226983d847f6682c8e01219d0dfdab69432217"
+        },
+        {
+          "path": "data/ChestTrain_20/99.mat",
+          "size_bytes": 358895,
+          "sha256": "2bdfeabf2ba98924308224a9a0a15dccb5d28f8d8a37a17c2357b3cb386a5cc0"
+        },
+        {
+          "path": "data/ChestTrain_sampling/01.mat",
+          "size_bytes": 373302,
+          "sha256": "d9d2ce17aa97f6ee7683e33f7ee150925d553b5364b45ac459802640c5c11e38"
+        },
+        {
+          "path": "data/ChestTrain_sampling/02.mat",
+          "size_bytes": 365607,
+          "sha256": "4484373e4289bbe694c51a75ee4fc624d7077d406cf6fe7515f29588d0a2c169"
+        },
+        {
+          "path": "data/ChestTrain_sampling/03.mat",
+          "size_bytes": 383321,
+          "sha256": "caa2bc10bdc83d7a886a377407605beac5cbb1cb3a921e1937e9a04a6ec667d2"
+        },
+        {
+          "path": "data/ChestTrain_sampling/04.mat",
+          "size_bytes": 364447,
+          "sha256": "776c35afe9b0cc682bd32d6317c5bd642b77e4932013b51503de500729c56ffa"
+        },
+        {
+          "path": "data/ChestTrain_sampling/05.mat",
+          "size_bytes": 375577,
+          "sha256": "68cd9b4566e8d057704e3f0aba93a2650c52bdf825a3997a8a8c3c7da786f82b"
+        },
+        {
+          "path": "data/ChestTrain_sampling/06.mat",
+          "size_bytes": 379904,
+          "sha256": "a176bbcc3065ae90fc1926a06ab366c63171f89b37af232ff8a6dd1fbd9c78ca"
+        },
+        {
+          "path": "data/ChestTrain_sampling/07.mat",
+          "size_bytes": 386410,
+          "sha256": "0dd5ee3527a39300e52b630173c018648969054e4215410feab91a0b22d1b657"
+        },
+        {
+          "path": "data/ChestTrain_sampling/08.mat",
+          "size_bytes": 385099,
+          "sha256": "85b039f49e4c902c2bbda10d4b6dfe6fb117ea3c88db14b66fc1aba23697576f"
+        },
+        {
+          "path": "data/ChestTrain_sampling/09.mat",
+          "size_bytes": 396419,
+          "sha256": "a033d692773e1dfcf573d26e320d169cda47220ce83707e72d991c34bf6650bf"
+        },
+        {
+          "path": "data/ChestTrain_sampling/10.mat",
+          "size_bytes": 354537,
+          "sha256": "0e53ed76b1e8f9d447df8801326868f6c0adadd2deb69fc8192ba05a52f0077b"
+        },
+        {
+          "path": "data/ChestTrain_sampling/100.mat",
+          "size_bytes": 414253,
+          "sha256": "f7d348d8efcfaeb5e1937f28f39dd0b96428d03504e3d820eb5c4b749da1258d"
+        },
+        {
+          "path": "data/ChestTrain_sampling/11.mat",
+          "size_bytes": 442026,
+          "sha256": "d9e78d538dcaa87b027b610cdff1d9d347f1aaf708e201673863667dfcaa401a"
+        },
+        {
+          "path": "data/ChestTrain_sampling/12.mat",
+          "size_bytes": 422626,
+          "sha256": "16f37d4f0c3936b5f3f39921576fe59280082b965a46d5d094d21e5e949ae5df"
+        },
+        {
+          "path": "data/ChestTrain_sampling/13.mat",
+          "size_bytes": 409245,
+          "sha256": "e31cab54afbc43590bd10f1820132d9363bbd09c844706e6b5846089bf6c74c4"
+        },
+        {
+          "path": "data/ChestTrain_sampling/14.mat",
+          "size_bytes": 390800,
+          "sha256": "88c2d3e929d47d79b650eda2f53e92accba5ca20c74430c5560c329b54af49ba"
+        },
+        {
+          "path": "data/ChestTrain_sampling/15.mat",
+          "size_bytes": 377990,
+          "sha256": "ad689e9060c0c21b9b2b92443f50197b9fa80ce9ed05fd1ee8522fa4dba14731"
+        },
+        {
+          "path": "data/ChestTrain_sampling/16.mat",
+          "size_bytes": 377500,
+          "sha256": "e20da164e308fa0c0caec593a6c56ac4e7c14c4f42cbec0b487ba5bccb992362"
+        },
+        {
+          "path": "data/ChestTrain_sampling/17.mat",
+          "size_bytes": 384746,
+          "sha256": "4e0e5b02dc300c3af80be974922dac6f148c3df8638631a22d4357450f645dcc"
+        },
+        {
+          "path": "data/ChestTrain_sampling/18.mat",
+          "size_bytes": 361537,
+          "sha256": "23ef596d7e3f93bca0e6dfbfc016691efb73b2d6ea183ddda926ca2dc1b73a1e"
+        },
+        {
+          "path": "data/ChestTrain_sampling/19.mat",
+          "size_bytes": 372382,
+          "sha256": "729acac80724679e969dd803aabeea6b8dd43d64f2d4f8a48a1bb6b814493df6"
+        },
+        {
+          "path": "data/ChestTrain_sampling/20.mat",
+          "size_bytes": 380600,
+          "sha256": "f9e9bc6fe8065b77ce84653bb6166de5f786b42cd8df7595ad0aea0403930c58"
+        },
+        {
+          "path": "data/ChestTrain_sampling/21.mat",
+          "size_bytes": 375780,
+          "sha256": "b0dad8643217530a438f59cfa0c68d7ffa7e26367aedfb3f946b78c54062558a"
+        },
+        {
+          "path": "data/ChestTrain_sampling/22.mat",
+          "size_bytes": 387693,
+          "sha256": "53dc998add35a4fd4d5e61ac1ff071f6ca48839247d237081a378d422fc29206"
+        },
+        {
+          "path": "data/ChestTrain_sampling/23.mat",
+          "size_bytes": 350873,
+          "sha256": "d8e64314e0ed5cda80384d5e0d813f4cd505f21f906e1484eb4285c4256a901e"
+        },
+        {
+          "path": "data/ChestTrain_sampling/24.mat",
+          "size_bytes": 408623,
+          "sha256": "8bf1c5159bef870a2f80a89fcdea11cb6c62ad31371c82d35859986f38dd6047"
+        },
+        {
+          "path": "data/ChestTrain_sampling/25.mat",
+          "size_bytes": 364720,
+          "sha256": "97b3003fc1978a63484e12b21b9d20b93c9d8da1729561c93303773f93486c06"
+        },
+        {
+          "path": "data/ChestTrain_sampling/26.mat",
+          "size_bytes": 383301,
+          "sha256": "430b29d2f28c653d17bbb9ef69e2edb59d65b0aa20d1a1e3ce0ebe11e6e98f22"
+        },
+        {
+          "path": "data/ChestTrain_sampling/27.mat",
+          "size_bytes": 414090,
+          "sha256": "88cec4c9f3124c0526027ef3d354eb4efb95325f918d5d9bfc11ab6b54af2930"
+        },
+        {
+          "path": "data/ChestTrain_sampling/28.mat",
+          "size_bytes": 397158,
+          "sha256": "de17ae4e4ae16a2a0cc3e8e68b54fd337156e958aaad81f85b7251acbec98526"
+        },
+        {
+          "path": "data/ChestTrain_sampling/29.mat",
+          "size_bytes": 379477,
+          "sha256": "f11e2f36120cbc7444549c1442d846773cb0f825e93a8be5c6578146092193c0"
+        },
+        {
+          "path": "data/ChestTrain_sampling/30.mat",
+          "size_bytes": 404888,
+          "sha256": "acb94ab50372a48646efafdaf33e0d432a60d97a478c690bb210e2a824348dcc"
+        },
+        {
+          "path": "data/ChestTrain_sampling/31.mat",
+          "size_bytes": 385800,
+          "sha256": "442a28e454252056eec91329fa89ffb5816f81cfebd030fa4c9aa6fe74380d94"
+        },
+        {
+          "path": "data/ChestTrain_sampling/32.mat",
+          "size_bytes": 403590,
+          "sha256": "c048d1d181696b0111f504265260cfeebcf203fc1110c385861c320cd6576a3f"
+        },
+        {
+          "path": "data/ChestTrain_sampling/33.mat",
+          "size_bytes": 391178,
+          "sha256": "bf63677cebd6fdbfa44e67a9de141fa0edbf79d137b4dca63208111a21d6f90f"
+        },
+        {
+          "path": "data/ChestTrain_sampling/34.mat",
+          "size_bytes": 407019,
+          "sha256": "5e99af740b7a0a92d8af8a9f6a4c7456d3b93aac09cbccc981211ac913b34245"
+        },
+        {
+          "path": "data/ChestTrain_sampling/35.mat",
+          "size_bytes": 383315,
+          "sha256": "6dbceaebb5a0595502c802593bf699b7a7d0794fab05185a78f73a222af3a0de"
+        },
+        {
+          "path": "data/ChestTrain_sampling/36.mat",
+          "size_bytes": 431501,
+          "sha256": "078f1fea71c3e13458ccfa28194f421d6c234241cbb8c0e7a44d578266daa4e2"
+        },
+        {
+          "path": "data/ChestTrain_sampling/37.mat",
+          "size_bytes": 391850,
+          "sha256": "a63bc11fa3e2119d227c308d8c6ed2cafd500a1143a6cd961f8774a7234ac088"
+        },
+        {
+          "path": "data/ChestTrain_sampling/38.mat",
+          "size_bytes": 376259,
+          "sha256": "0219104ce5572e10970717457cb3fabe0e46174a00fdbd23b93ea17b9254fc0f"
+        },
+        {
+          "path": "data/ChestTrain_sampling/39.mat",
+          "size_bytes": 441473,
+          "sha256": "bdc9bd38708b3fc0ca05425b4c5479dc0d2eec2ed51efb12f5a22c51b42bb7e8"
+        },
+        {
+          "path": "data/ChestTrain_sampling/40.mat",
+          "size_bytes": 387267,
+          "sha256": "6ee9c6b19f6d879bf02c4d327a86c6c6ad0e971dd053766933d75b4a2dd7de54"
+        },
+        {
+          "path": "data/ChestTrain_sampling/41.mat",
+          "size_bytes": 386510,
+          "sha256": "937fa08f836577a1f9d14e4b590b265a84b976088c715a0eefb69a37a2a7ddd1"
+        },
+        {
+          "path": "data/ChestTrain_sampling/42.mat",
+          "size_bytes": 356687,
+          "sha256": "3ab078bce4cd3f88e6699ef438e84a80be111186aa22282d797169c3d3755464"
+        },
+        {
+          "path": "data/ChestTrain_sampling/43.mat",
+          "size_bytes": 397502,
+          "sha256": "90e29f5788cdcb0bd2f0b420be25a8baa31eeacc50153a67799f42c5844311ea"
+        },
+        {
+          "path": "data/ChestTrain_sampling/44.mat",
+          "size_bytes": 373969,
+          "sha256": "04af148f12c17e4446fe1aa8520d93b310106bb2708212c950e2a251ce0e3d01"
+        },
+        {
+          "path": "data/ChestTrain_sampling/45.mat",
+          "size_bytes": 359936,
+          "sha256": "6daaea7b9922624c9bd5cc427406d2204f5eecf82c217c5d43650ede5e36d59d"
+        },
+        {
+          "path": "data/ChestTrain_sampling/46.mat",
+          "size_bytes": 416603,
+          "sha256": "11d9a38d6ff8fbf2f6fbf524f488eac8295b37204223966f53c272080bade9ca"
+        },
+        {
+          "path": "data/ChestTrain_sampling/47.mat",
+          "size_bytes": 363535,
+          "sha256": "eff6b243e4224acf4862606e41f5642dd6f6bed69bf8f2f1798ed576c84b0ef4"
+        },
+        {
+          "path": "data/ChestTrain_sampling/48.mat",
+          "size_bytes": 381846,
+          "sha256": "8f6212af8a51e7467aee12fa32a3221304c68a7995926f09644ca00c424904ff"
+        },
+        {
+          "path": "data/ChestTrain_sampling/49.mat",
+          "size_bytes": 402125,
+          "sha256": "1e076b9c6368e0ff3ba052fe1f586b068251100adc020b3bf7fb08e1486320a6"
+        },
+        {
+          "path": "data/ChestTrain_sampling/50.mat",
+          "size_bytes": 380098,
+          "sha256": "f9710895bd3db9719031a7be76ed19ac703b2c89c1efcfb3516f9c3c785e2823"
+        },
+        {
+          "path": "data/ChestTrain_sampling/51.mat",
+          "size_bytes": 377070,
+          "sha256": "f1c46c2ea1c0052392a98b792a0d88ea143316250005d06acaefd6d799d72875"
+        },
+        {
+          "path": "data/ChestTrain_sampling/52.mat",
+          "size_bytes": 404497,
+          "sha256": "3a61870feb2ea921a6300415a6b0d56396c20bb19a019776340bdefe67bb83bf"
+        },
+        {
+          "path": "data/ChestTrain_sampling/53.mat",
+          "size_bytes": 378014,
+          "sha256": "756225d97e16b194bf47a6d4569b3494e4f1c4ced0544a2314b57efd201476ae"
+        },
+        {
+          "path": "data/ChestTrain_sampling/54.mat",
+          "size_bytes": 386492,
+          "sha256": "efd3a896d6c0b5a3e59daa4c38c1fa8048952bb05c050c587bb580a7ac1fe015"
+        },
+        {
+          "path": "data/ChestTrain_sampling/55.mat",
+          "size_bytes": 422903,
+          "sha256": "06816d551e45fc3b45a7a22800603a0de8ceb5c91b60db0f58842040df548f1b"
+        },
+        {
+          "path": "data/ChestTrain_sampling/56.mat",
+          "size_bytes": 414195,
+          "sha256": "b207e13eb9299ce060b70bf26c8140f2e83f30d503f753da83887451dee16034"
+        },
+        {
+          "path": "data/ChestTrain_sampling/57.mat",
+          "size_bytes": 374992,
+          "sha256": "80a67715b57cbe6d0992fc644f67413668dce86470c322969e2f9b159dd31329"
+        },
+        {
+          "path": "data/ChestTrain_sampling/58.mat",
+          "size_bytes": 431512,
+          "sha256": "665cec998d7fa640172a6742701256ef664b7f7f7071fd323c4cbb50b950161e"
+        },
+        {
+          "path": "data/ChestTrain_sampling/59.mat",
+          "size_bytes": 381734,
+          "sha256": "8845b0dc99c0133aaca3435c5e64bbac5c2908a43cb0a7aea5e648c29054e399"
+        },
+        {
+          "path": "data/ChestTrain_sampling/60.mat",
+          "size_bytes": 371214,
+          "sha256": "e7433a91ecb0c7ccfb6e93b82595af6530ce941d0d4d064a8c9515458535dfea"
+        },
+        {
+          "path": "data/ChestTrain_sampling/61.mat",
+          "size_bytes": 437205,
+          "sha256": "2095c600d0547dde670d8cfd77f08b01c0f500289584138469d3d35326c4ffd9"
+        },
+        {
+          "path": "data/ChestTrain_sampling/62.mat",
+          "size_bytes": 381823,
+          "sha256": "ca028388370fd65d2bba1b2d6d0fbeefbf8a838d569cb551ee1ae0c2471303ed"
+        },
+        {
+          "path": "data/ChestTrain_sampling/63.mat",
+          "size_bytes": 380595,
+          "sha256": "751bd35934e3ece956952cdf9653a4b77534f6b81266f3e6c78b14c7326177cd"
+        },
+        {
+          "path": "data/ChestTrain_sampling/64.mat",
+          "size_bytes": 345492,
+          "sha256": "0c3629099127f584104c6a375e464ae462023c32f417fd2fe25e3ebae907dc23"
+        },
+        {
+          "path": "data/ChestTrain_sampling/65.mat",
+          "size_bytes": 396414,
+          "sha256": "d7f0627babd5d936033df4377bf59d80e1a29d7c1f61c47122048fc9bca2595f"
+        },
+        {
+          "path": "data/ChestTrain_sampling/66.mat",
+          "size_bytes": 368074,
+          "sha256": "5deeb34b810e2031d271a16e8d425814890f21a49fbe138d6b5b6487242dc914"
+        },
+        {
+          "path": "data/ChestTrain_sampling/67.mat",
+          "size_bytes": 354521,
+          "sha256": "19e48bc7378d3f14e8ba695afaa514bf4dc201c82371aa3a661fe6290550f5e0"
+        },
+        {
+          "path": "data/ChestTrain_sampling/68.mat",
+          "size_bytes": 393764,
+          "sha256": "b801b2100996907cc86d8a6b581cdc1a3ecc44e9c6e014d7265a0b4420d20be2"
+        },
+        {
+          "path": "data/ChestTrain_sampling/69.mat",
+          "size_bytes": 385186,
+          "sha256": "f01afd260ffd1f9098651e38ce9b7e7a155a1722de507b548016762b3a958b43"
+        },
+        {
+          "path": "data/ChestTrain_sampling/70.mat",
+          "size_bytes": 365978,
+          "sha256": "807a86ba93eae17f904ea81c2080c89c9a2d6981e2d0d48bb95fdd599a2d95c0"
+        },
+        {
+          "path": "data/ChestTrain_sampling/71.mat",
+          "size_bytes": 349247,
+          "sha256": "6159c11de24f1c8e608f14c5f1dfb14a06dfbdbfa562e6174f03e0be983b4d35"
+        },
+        {
+          "path": "data/ChestTrain_sampling/72.mat",
+          "size_bytes": 392427,
+          "sha256": "0d6cb89b729f83299be5bb0f4a6b11abaa375f15fc6a4be0b61f1647a26bf257"
+        },
+        {
+          "path": "data/ChestTrain_sampling/73.mat",
+          "size_bytes": 366177,
+          "sha256": "5e6c7c8f91c7796a6d7a6b398aec40b91722023a964221ba8d4abf313debe413"
+        },
+        {
+          "path": "data/ChestTrain_sampling/74.mat",
+          "size_bytes": 364487,
+          "sha256": "973c23a932b9bd53168ecc68db6776dce980ea98f2b0e62da71e020e4f4996d2"
+        },
+        {
+          "path": "data/ChestTrain_sampling/75.mat",
+          "size_bytes": 348362,
+          "sha256": "ac89c0481e4497917a3c3efa868438745c926db1215a626dce83cba759eb7d8b"
+        },
+        {
+          "path": "data/ChestTrain_sampling/76.mat",
+          "size_bytes": 357484,
+          "sha256": "fed186fd083e5d17707d49cacb4b8430d8ef125558907445868be8ef6c99dc8c"
+        },
+        {
+          "path": "data/ChestTrain_sampling/77.mat",
+          "size_bytes": 362704,
+          "sha256": "518e792c10133615cc1d39717d3c1480616f1ae2dc94a44f99601327bc2efc29"
+        },
+        {
+          "path": "data/ChestTrain_sampling/78.mat",
+          "size_bytes": 367149,
+          "sha256": "dad403fececa0fc08be10259d8d41b515da938170fcae4d89655f5bd5c740318"
+        },
+        {
+          "path": "data/ChestTrain_sampling/79.mat",
+          "size_bytes": 359071,
+          "sha256": "c54a62b799debf36c2103fa561fb7cc6786d7b02a7f208f640c17ce01fcd92ba"
+        },
+        {
+          "path": "data/ChestTrain_sampling/80.mat",
+          "size_bytes": 351749,
+          "sha256": "3d7c158abb5c6674e4e89ea25a731e418bcf7b0bcdd1a2a0ac754e4577f4cbab"
+        },
+        {
+          "path": "data/ChestTrain_sampling/81.mat",
+          "size_bytes": 369043,
+          "sha256": "1599ec8da1d9e131ce8f3a939100cb784d738f4b3f4adcd44a8d13cc29e2dea3"
+        },
+        {
+          "path": "data/ChestTrain_sampling/82.mat",
+          "size_bytes": 395640,
+          "sha256": "27555634f9f6bcc6713ae6729edbf0c4794e691f672b6792fa847fb3b2754f64"
+        },
+        {
+          "path": "data/ChestTrain_sampling/83.mat",
+          "size_bytes": 352103,
+          "sha256": "2cf10b21f9ddda57c465ffcd3837bf6a5b156c6e606eb97d8dabcff27b31299f"
+        },
+        {
+          "path": "data/ChestTrain_sampling/84.mat",
+          "size_bytes": 367692,
+          "sha256": "48cf953ca289f1f72c495e7ad46bad48da3e607cf5bf8b1196f39d2f9bfdda2d"
+        },
+        {
+          "path": "data/ChestTrain_sampling/85.mat",
+          "size_bytes": 390650,
+          "sha256": "89724d95e0ede0dbfce5de78be579b3de58581aece37478b5746bbbbba9d21dd"
+        },
+        {
+          "path": "data/ChestTrain_sampling/86.mat",
+          "size_bytes": 397503,
+          "sha256": "28e6accaf261d59670e0da6537148b17dc265fec022a10a6ffa4103d4b07f004"
+        },
+        {
+          "path": "data/ChestTrain_sampling/87.mat",
+          "size_bytes": 371057,
+          "sha256": "37d30019ecd08a3a36df7bf938d96b6740c3ef80959530ff867690571f8aff1f"
+        },
+        {
+          "path": "data/ChestTrain_sampling/88.mat",
+          "size_bytes": 400945,
+          "sha256": "6fffcc008e2c876aad0652af020a20d06b56ea4d13ba7dfc62bd4b6a0ad727f6"
+        },
+        {
+          "path": "data/ChestTrain_sampling/89.mat",
+          "size_bytes": 386004,
+          "sha256": "c2bddb518d66d05fad23817ad221588e275e750370e2fed71500d4ccb4faabb4"
+        },
+        {
+          "path": "data/ChestTrain_sampling/90.mat",
+          "size_bytes": 359567,
+          "sha256": "a69265cf6cb48cbd8f833bc4958c74f94ea4467b6f35cf9d784ffaede54c5cbb"
+        },
+        {
+          "path": "data/ChestTrain_sampling/91.mat",
+          "size_bytes": 386254,
+          "sha256": "efed5564b67f74b57ed79b2c1de8fd1ba2772205173c26a6b164e0a0363f0748"
+        },
+        {
+          "path": "data/ChestTrain_sampling/92.mat",
+          "size_bytes": 378895,
+          "sha256": "3dd77369079ff790652ea428832407cb25cd8d4947e80e998a556a2aef05825a"
+        },
+        {
+          "path": "data/ChestTrain_sampling/93.mat",
+          "size_bytes": 388577,
+          "sha256": "4f576ae5eaefe437a9e7731490630fe91715e586f758774ed1b45356615460f2"
+        },
+        {
+          "path": "data/ChestTrain_sampling/94.mat",
+          "size_bytes": 428375,
+          "sha256": "253b395fbdd735a72da60eba122d1d42c36db9bb2dc00aea33242c7c02b0dee6"
+        },
+        {
+          "path": "data/ChestTrain_sampling/95.mat",
+          "size_bytes": 418068,
+          "sha256": "b9eb545649d5a0a4c1dc074ba6213ab81ba871c668be5813f9c75c6c99926a41"
+        },
+        {
+          "path": "data/ChestTrain_sampling/96.mat",
+          "size_bytes": 400646,
+          "sha256": "697cb0f3c564c857f811909d06019b357a1cde3cd5bb1d29cb6c123d13ba9d3f"
+        },
+        {
+          "path": "data/ChestTrain_sampling/97.mat",
+          "size_bytes": 395974,
+          "sha256": "dcff37aa3f0698555137d3b18d3eb3e5968a5803b1bce7fe190fcf49c19c6bf3"
+        },
+        {
+          "path": "data/ChestTrain_sampling/98.mat",
+          "size_bytes": 410478,
+          "sha256": "07b5eb7ddce4e63bd4bf44e96c9400727ba0fe6d3f566b1bf3b9805a49d32b99"
+        },
+        {
+          "path": "data/ChestTrain_sampling/99.mat",
+          "size_bytes": 396928,
+          "sha256": "d0f997d8c9cc97f9eb34914f099859742d94eea95b894299649e3e3ef4eda880"
+        },
+        {
+          "path": "layersfunction/betafinal.m",
+          "size_bytes": 643,
+          "sha256": "be6e70639d978009efc9f7009f53477e9d7111670748a1276ee30a6d7cc804f7"
+        },
+        {
+          "path": "layersfunction/betamid.m",
+          "size_bytes": 686,
+          "sha256": "4ca282f4a1ac5e16894ec30d1bb7226408b3318d071d2045a07cb6af5e2076f9"
+        },
+        {
+          "path": "layersfunction/betaorg.m",
+          "size_bytes": 636,
+          "sha256": "a2fc9d147b377e4060372f6bbf06a5f5d85f4fd2da9b2c790b5c6ffdd507bdf3"
+        },
+        {
+          "path": "layersfunction/convo.m",
+          "size_bytes": 2156,
+          "sha256": "10124f511194d92e55965af7b4d70b4e4b5186b473bb7b624be62bcaecced167"
+        },
+        {
+          "path": "layersfunction/imfilter22.m",
+          "size_bytes": 12006,
+          "sha256": "7796ffa6b218afb59f647b858a0c70b391dfd8112884a14c3300329815cb7063"
+        },
+        {
+          "path": "layersfunction/nnlinecu.mexa64",
+          "size_bytes": 98170,
+          "sha256": "e5d6342e04cd72482cea5df6f1747a434d987a1187c302cb686cc9c3d8e58aa0"
+        },
+        {
+          "path": "layersfunction/nnlinecu.mexw64",
+          "size_bytes": 71680,
+          "sha256": "5d1cdf7397aa53e87c027e830f1f1e401ac2863d428f903c215f501d5b9bc949"
+        },
+        {
+          "path": "layersfunction/nnlinecu_double.mexa64",
+          "size_bytes": 98184,
+          "sha256": "5c22279f7e8687c3896989c413e651f826085149710975f904d88dcc5e9f0144"
+        },
+        {
+          "path": "layersfunction/nnlinecu_double.mexw64",
+          "size_bytes": 70656,
+          "sha256": "104c8b7199d663b2648ad40086f299c4fa2fed65ad5819d100d73b482e569a3c"
+        },
+        {
+          "path": "layersfunction/nnlinemex.mexa64",
+          "size_bytes": 12639,
+          "sha256": "558a0bbd8bb0b7a9a54d50a73de3e153eba72ea3859dc904519325e49028d3be"
+        },
+        {
+          "path": "layersfunction/nnlinemex.mexw64",
+          "size_bytes": 8704,
+          "sha256": "5447cb49aa7bf61cb34dc1a7197fcb976618aae2ac8bba1e1d21ac45111e9343"
+        },
+        {
+          "path": "layersfunction/nnsoft.m",
+          "size_bytes": 205,
+          "sha256": "55c966acee8b5a1a445104bf065624bdb3a258ec5e56c331d6588bf0690d5492"
+        },
+        {
+          "path": "layersfunction/rnnloss.m",
+          "size_bytes": 434,
+          "sha256": "603cebdca2a791da2690a5223764b767a45f4e3ecc59a7aa4356d213f3a8d246"
+        },
+        {
+          "path": "layersfunction/xmid.m",
+          "size_bytes": 4793,
+          "sha256": "5c579b04cce7a03e1fafc259851ceec81f703a04f0e533677cbd4728192a4d6f"
+        },
+        {
+          "path": "layersfunction/xorg.m",
+          "size_bytes": 2602,
+          "sha256": "8536724192d3f2e8c0b271ad818af6840906b68d6ac8ce40faf02c67ebcadbc4"
+        },
+        {
+          "path": "layersfunction/zmid.m",
+          "size_bytes": 1132,
+          "sha256": "621c693958de0bde8349e260c053a30d7402a07d18533f69931ad13adb64ca5a"
+        },
+        {
+          "path": "layersfunction/zorg.m",
+          "size_bytes": 1033,
+          "sha256": "c55b31b742b87b5ba544c94e3cf31ff91bb266521be298eb91a0294f9958d5af"
+        },
+        {
+          "path": "mask/mask_10.mat",
+          "size_bytes": 15812,
+          "sha256": "4272960f59831f0767545c4b58bc28f2d46e582f9275f5e744549ba1ae1233c6"
+        },
+        {
+          "path": "mask/mask_20.mat",
+          "size_bytes": 19237,
+          "sha256": "6b5fbec39bcd936382b6a67fb4ba1bffa9167d10324d5288ab1e4b3f3dfc03ac"
+        },
+        {
+          "path": "mask/mask_30.mat",
+          "size_bytes": 20696,
+          "sha256": "995920973a6068bb53d02145873e5130b66701a78f7297db314050003351cf56"
+        },
+        {
+          "path": "mask/mask_40.mat",
+          "size_bytes": 21421,
+          "sha256": "12bb7cadf75d395b86321a91cb4332ccfc60c0e487b2aa8132c3ec930f400823"
+        },
+        {
+          "path": "mask/mask_50.mat",
+          "size_bytes": 21226,
+          "sha256": "63149f3999c859a212b44ac0c3f5d2ed18e4e7d24793119e6c23dd79e9cca353"
+        },
+        {
+          "path": "net/network_20/net-stage14.mat",
+          "size_bytes": 384712,
+          "sha256": "92856a49112674e447243936c0d28a5755701495614c3f6215b83de319321c15"
+        },
+        {
+          "path": "net/network_20/net-stage15.mat",
+          "size_bytes": 406720,
+          "sha256": "f67a5160d3234811c0dc00c9df6920b2363691559e1742cec1e8fd3b7ebe2ebb"
+        },
+        {
+          "path": "net/network_20/net-stage7.mat",
+          "size_bytes": 222416,
+          "sha256": "4616b6771d3650e574a466e6b2c94c5848465aa6310e1154c2c2e170eda8e4f7"
+        },
+        {
+          "path": "util/FBASE.m",
+          "size_bytes": 463,
+          "sha256": "7e013af95a080419f21ae5a9fc7075d83c34b32d1e0eccf747f8e829ab412568"
+        },
+        {
+          "path": "util/filter_base.m",
+          "size_bytes": 265,
+          "sha256": "fe6bb2d7fe571c75efc82dfc91455a1778e34860aecfb4ea0fabeda71c0a4dd7"
+        },
+        {
+          "path": "util/getMData.m",
+          "size_bytes": 246,
+          "sha256": "68a93106934d81fd615064381a35fcfd9bd3e80a888a1e5ce01938ff8409c7f1"
+        },
+        {
+          "path": "util/getMDatatest.m",
+          "size_bytes": 344,
+          "sha256": "6ee3754836c6b8dfac2fe14b59817c295521d7ca25187fb271e6cf5025a2242b"
+        },
+        {
+          "path": "util/getPaddingIndices22.m",
+          "size_bytes": 2953,
+          "sha256": "eb0fa389f8e7df01adbcbb8fd1576194f228a87423b86f4dc406610d2557bd24"
+        },
+        {
+          "path": "util/loss_with_gradient_single_before.m",
+          "size_bytes": 1412,
+          "sha256": "bb6c3ff7eb87b08dc040fb6429b6e3ed649f6e893c6098da34e8a35d17418417"
+        },
+        {
+          "path": "util/padImage_g.m",
+          "size_bytes": 216,
+          "sha256": "faa81edb000768ffdf314c57c79216b3c9b3a2ff7550e4e712db32ec9e83f946"
+        },
+        {
+          "path": "util/padarray_algo22.m",
+          "size_bytes": 1932,
+          "sha256": "a4f20804c58984d250f826a6dc2e915e878248746afa545d533a92f37a9cbc62"
+        },
+        {
+          "path": "util/saveName.m",
+          "size_bytes": 107,
+          "sha256": "df92f2255852ae21b87467cde863f284a41535ddd8421404bdbe51432299c4dc"
+        },
+        {
+          "path": "util/vl_compilenn.m",
+          "size_bytes": 30050,
+          "sha256": "d51f9591bae36d23abe0cd8515f8c6731fc526b799b0a2e1e3185d9d5e3749f6"
+        },
+        {
+          "path": "util/vl_setupnn.m",
+          "size_bytes": 909,
+          "sha256": "247451dfce663514983468e3143955574358ac07e6861403f8c108104a0ff1c4"
+        }
+      ],
+      "input_output_tensor_contract": {
+        "input": "not applicable (MRI CS, not PET)",
+        "output": "not applicable (MRI CS, not PET)"
+      },
+      "reproduction_command": "cd upstream_official/ADMMNet && octave --no-gui main_ADMM_Net_test.m  # requires Octave + Image Processing toolbox; original is MATLAB not Python",
+      "smoke_command": "(not run; architecture not PET-applicable)",
+      "smoke_result": "N/A \u2014 domain mismatch",
+      "smoke_exit_code": null
+    },
+    {
+      "method_id": "CNNBPNet",
+      "status": "OFFICIAL_READY_CODE_ONLY_PENDING_ALIAS_CONFIRMATION",
+      "blocking_reason": "F1HBME/IterativeCNN is the official code for \"Iterative PET Image Reconstruction Using Convolutional Neural Network Representation\" (Gong, Guan, Kim et al. IEEE TMI 2018, DOI 10.1109/TMI.2018.2869871). The manuscript uses the table alias \"CNNBPNet\" which is NOT explicitly used in the TMI 2018 paper title. Per directive 6159621060 item 4, the alias must be researcher-confirmed before this method enters the main table under the name \"CNNBPNet\".",
+      "paper": {
+        "title": "Iterative PET Image Reconstruction Using Convolutional Neural Network Representation",
+        "authors": [
+          "Kuang Gong",
+          "Jiahui Guan",
+          "Kyungsang Kim",
+          "Xue Zhang",
+          "Jianan Yang",
+          "Youngho Seo",
+          "Georges El Fakhri",
+          "Jinyi Qi",
+          "Quanzheng Li"
+        ],
+        "institution": "Massachusetts General Hospital / Harvard Medical School",
+        "year": 2018,
+        "venue": "IEEE TMI",
+        "doi": "10.1109/TMI.2018.2869871",
+        "arxiv": "1710.03344",
+        "domain": "PET (static 3D iterative CNN)",
+        "table_alias_in_our_manuscript": "CNNBPNet (UNCONFIRMED)"
+      },
+      "official_repo": {
+        "url": "https://github.com/F1HBME/IterativeCNN",
+        "pinned_commit": "39ea8e674e1d",
+        "default_branch": "master",
+        "acquired_at_utc": "2026-10-14T02:30:00Z",
+        "acquisition_method": "GitHub tarball API (api.github.com)"
+      },
+      "license": {
+        "spdx": "BSD-3-Clause",
+        "file": "LICENSE",
+        "conclusion": "Permits research use with copyright notice."
+      },
+      "source_dir": "upstream_official/CNNBPNet/",
+      "source_sha256": "f78b486087fda9a49aec8e065ce6bc06298964f5cf60029d4e2f2f3f33dc5325",
+      "source_file_count": 32,
+      "source_total_bytes": 34741949,
+      "file_listing": [
+        {
+          "path": "LICENSE",
+          "size_bytes": 1510,
+          "sha256": "dcd1c893143a1f02f8eeea9c6930e18bfd0112020fb4e9eabf8306c89fbf1228"
+        },
+        {
+          "path": "README.md",
+          "size_bytes": 1762,
+          "sha256": "e38f0f188968da9e120483cc955c2df1809cea0b7bfb3151a233c89f3369ef3b"
+        },
+        {
+          "path": "Unet3D_test.py",
+          "size_bytes": 7969,
+          "sha256": "724a12454927558009120169868aa140a6afdf97f8f7a036f028eb6b7d576002"
+        },
+        {
+          "path": "Unet3D_train.py",
+          "size_bytes": 11733,
+          "sha256": "2eb596fcf2e43bfdbf04443540a1492ad6f2a937123ae7af5757974d777264eb"
+        },
+        {
+          "path": "admm_cnn.m",
+          "size_bytes": 6621,
+          "sha256": "41d0eb6eb102cd5b8672c54c29d6611d5b934be89f89810aedde9dfa3f164b59"
+        },
+        {
+          "path": "demo_iterativeCNN.m",
+          "size_bytes": 2419,
+          "sha256": "91d75478a25ee9ff5f2a765608d95e55716b19c210e65980d6dd9db4b957c3ba"
+        },
+        {
+          "path": "subproblem_2.py",
+          "size_bytes": 9915,
+          "sha256": "a42aa0183824e3547f4727462c83777dd13fa6eaf87b20b02c1aeeaa50c4e502"
+        },
+        {
+          "path": "pretraining_process/testLossNocomprz144Fea16Lay4it600.data-00000-of-00001",
+          "size_bytes": 13991256,
+          "sha256": "91a5cd98fc43242edf9d351fd892cb6afbe739f342d2b9bf50901e9b520d836a"
+        },
+        {
+          "path": "pretraining_process/testLossNocomprz144Fea16Lay4it600.index",
+          "size_bytes": 6639,
+          "sha256": "b3e636c4b578b1f9550caedc96bb7d57db990c249e60650e75d090c4ee4ff2f7"
+        },
+        {
+          "path": "pretraining_process/testLossNocomprz144Fea16Lay4it600.meta",
+          "size_bytes": 1357897,
+          "sha256": "8de2cb2d6a67915d1414e9aba1e84ebb795898ac771dbf38256721ed72bdfd7c"
+        },
+        {
+          "path": "result/result_7.500000e-04_multiiter2_fititer10/output_it1.mat",
+          "size_bytes": 1746019,
+          "sha256": "f86feef91f100d75f6c35e789b2e1bace4370afa2c5cabd24664b403bffd32fb"
+        },
+        {
+          "path": "result/result_7.500000e-04_multiiter2_fititer10/output_it10.mat",
+          "size_bytes": 1701714,
+          "sha256": "f4984a1c2e613b48094d5ee3a13a819e05543a99737a8f9f4d36abd3743b712a"
+        },
+        {
+          "path": "result/result_7.500000e-04_multiiter2_fititer10/output_it100.mat",
+          "size_bytes": 1691027,
+          "sha256": "4177361866fa92b66082175034f9b47d04f426ebd261753cf720b80ec86150da"
+        },
+        {
+          "path": "result/result_7.500000e-04_multiiter2_fititer10/output_it20.mat",
+          "size_bytes": 1680779,
+          "sha256": "45a7029a83a7b3ec1294cd0b91677aee8bfa1a91f572a953234a9d904663a152"
+        },
+        {
+          "path": "result/result_7.500000e-04_multiiter2_fititer10/output_it30.mat",
+          "size_bytes": 1687110,
+          "sha256": "c8e05c46d5c761e3487c1186f001e6324023d4168aeeb6780d314e6484c3777e"
+        },
+        {
+          "path": "result/result_7.500000e-04_multiiter2_fititer10/output_it40.mat",
+          "size_bytes": 1693764,
+          "sha256": "212d2acd7dfe11bec9011dccd12072d30401d57dc296d6ef8d77cb58773592e5"
+        },
+        {
+          "path": "result/result_7.500000e-04_multiiter2_fititer10/output_it50.mat",
+          "size_bytes": 1678413,
+          "sha256": "c571efa250070cc6a6024bca5cbad7cbd20890e4067aacbf9a9d21cbd77e5cb7"
+        },
+        {
+          "path": "result/result_7.500000e-04_multiiter2_fititer10/output_it60.mat",
+          "size_bytes": 1680817,
+          "sha256": "14b4bc77661397e0de5940290df44a78ec9594b4b16ed7f89e73dde69a3ed6ab"
+        },
+        {
+          "path": "result/result_7.500000e-04_multiiter2_fititer10/output_it70.mat",
+          "size_bytes": 1682191,
+          "sha256": "c1e1c1502622b32021f1b2cefe7e329e084fc66dbb2f161afddcd23b9c43fb6c"
+        },
+        {
+          "path": "result/result_7.500000e-04_multiiter2_fititer10/output_it80.mat",
+          "size_bytes": 1684651,
+          "sha256": "90654a1d6b0864fdd0cd59a3e857f2527c4fc589f3cf0f85521950dd2de6ea6a"
+        },
+        {
+          "path": "result/result_7.500000e-04_multiiter2_fititer10/output_it90.mat",
+          "size_bytes": 1689022,
+          "sha256": "a85da07aee2a0f2e02efb7ae75845210b1e96b65accd815edbd1431e051286f1"
+        },
+        {
+          "path": "utils/back_ge690_github.mexa64",
+          "size_bytes": 361912,
+          "sha256": "870569ca827f7689132e7ebf57982b2eae5e631cb048beb24df5e321b0d13dc4"
+        },
+        {
+          "path": "utils/backproject_ge690.m",
+          "size_bytes": 96,
+          "sha256": "86f09c44466a078f7eb8fa6fe2142e3dfd0a9843f096338b865c867963311dee"
+        },
+        {
+          "path": "utils/circmask.m",
+          "size_bytes": 207,
+          "sha256": "1b647a535fe5214ceee71cc77edd151c8a7b7bf3ea36d3ebf985319217421331"
+        },
+        {
+          "path": "utils/dump.m",
+          "size_bytes": 179,
+          "sha256": "88b4a87692fd2d3510c2e1d3cb897a461eee928ff279faea15e50c0ac397eb5a"
+        },
+        {
+          "path": "utils/forwardproject_ge690.m",
+          "size_bytes": 141,
+          "sha256": "cf9bfc4c991843ce5dfdcf07d8c409cd7ed9593c7370e2ae0ad37d8aafb1b3dd"
+        },
+        {
+          "path": "utils/fproj_ge690_github.mexa64",
+          "size_bytes": 361912,
+          "sha256": "f87fe44e4c8d5c2926d6b37159c6422da04fece223d486e2973f0014379ea5a0"
+        },
+        {
+          "path": "utils/ge690_fb_180_github.cfg",
+          "size_bytes": 902,
+          "sha256": "abfe5ff8b344ee38f8b224ce522842e69dfe3b5fbd4811dac703058ae756dd93"
+        },
+        {
+          "path": "utils/imshow.m",
+          "size_bytes": 1038,
+          "sha256": "970804f56cd49226a313b1f1cd9ec5b2778f255a5a539b4013319cd64448d3fa"
+        },
+        {
+          "path": "utils/montage.m",
+          "size_bytes": 2094,
+          "sha256": "8610418d4a811e1b7fced0645c09ad464659310058c628bb4f0a1a1dceedabf1"
+        },
+        {
+          "path": "utils/touch.m",
+          "size_bytes": 208,
+          "sha256": "2a5686b6b7d77b762322cdf58edea8b2a1b89ba272bea53da42b0094ff150b43"
+        },
+        {
+          "path": "utils/vector.m",
+          "size_bytes": 32,
+          "sha256": "3547a38e6e8f1b6273c5764992911b3eb68447789d4559879a579e0de9dadf81"
+        }
+      ],
+      "input_output_tensor_contract": {
+        "input": "vendor-specific smat (downloaded separately from Dropbox); we use our 180-angle, 182-bin ParallelBeam forward operator as adapter",
+        "output": "3D PET volume, slice size 144x144 (paper) or 128x128 (our adapter)"
+      },
+      "reproduction_command": "cd upstream_official/CNNBPNet && python Unet3D_test.py # requires Python 2.7 + Tensorflow 1.4 + MATLAB R2017+ for admm_cnn.m. NOT compatible with our env.",
+      "smoke_command": "(structural only) parsed Unet3D_train.py + Unet3D_test.py + subproblem_2.py",
+      "smoke_result": "BLOCKED_RUNTIME_DEPENDENCY: Python 2.7 + TF 1.4 EOL. Need PyTorch port to run forward smoke.",
+      "smoke_exit_code": null
+    },
+    {
+      "method_id": "NeuralKEM",
+      "status": "BLOCKED_LICENSE_REDISTRIBUTION_RESTRICTED",
+      "blocking_reason": "Repo is real and verified (SiqiLi1020/Neural-kernel-EM-neural-KEM-for-dynamic-PET-image-reconstruction @ a527a652a5fe, Feb 2023). License is UC-Davis-proprietary, NOT OSI-approved open source. Per directive 6159621060 item 5, this must be BLOCKED_LICENSE_REDISTRIBUTION_RESTRICTED until the researcher provides proof that private transfer to the controlled research server and internal experimental use are explicitly permitted (e.g. written license addendum).",
+      "paper": {
+        "title": "Neural KEM: A Kernel Method with Deep Coefficient Prior for PET Image Reconstruction",
+        "authors": [
+          "Siqi Li",
+          "Guobao Wang"
+        ],
+        "institution": "UC Davis",
+        "year": 2022,
+        "venue": "IEEE TMI",
+        "doi": "10.1109/TMI.2022.3217543",
+        "domain": "PET (dynamic, kernel EM with deep coefficient prior)"
+      },
+      "official_repo": {
+        "url": "https://github.com/SiqiLi1020/Neural-kernel-EM-neural-KEM-for-dynamic-PET-image-reconstruction",
+        "pinned_commit": "a527a652a5fe",
+        "default_branch": "main",
+        "acquired_at_utc": "2026-10-14T02:30:00Z",
+        "acquisition_method": "GitHub tarball API (api.github.com)"
+      },
+      "license": {
+        "spdx": "NOASSERTION (UC-Davis-proprietary)",
+        "file": "LICENSE",
+        "conclusion": "Copyright UC Regents 2019. Internal research use only. NOT OSI-approved open source. Distribution beyond UC requires written permission. Per directive \u00a7C, this is acceptable for private transfer to a controlled research server only with explicit license confirmation; otherwise BLOCKED."
+      },
+      "source_dir": "upstream_official/NeuralKEM/",
+      "source_sha256": "11403f62b0db673600006b5b8bdbc06c6f62d89c349c29c735321f4b08375a87",
+      "source_file_count": 40,
+      "source_total_bytes": 634281,
+      "file_listing": [
+        {
+          "path": "DIP_OT.py",
+          "size_bytes": 4206,
+          "sha256": "d08a3a43df632822c0fc70b2d02eb39bc2cf935194a0d6bfb2532bd76ef5b7d3"
+        },
+        {
+          "path": "LICENSE",
+          "size_bytes": 1296,
+          "sha256": "d8092a1d63322e8de05956c23cbad0a30d5a29f54eee1cf3d7b8ec8fb394458f"
+        },
+        {
+          "path": "README.md",
+          "size_bytes": 3324,
+          "sha256": "05b0a79f18427b48661191ca4fbf6946103f65a868ba27cc915f4a221e92fe96"
+        },
+        {
+          "path": "README.txt",
+          "size_bytes": 3279,
+          "sha256": "28f431d1340fbe729fbcd0517ee357f3f14c195a64a0ccd1684b906767b07e1e"
+        },
+        {
+          "path": "demo_Neural_KEM.m",
+          "size_bytes": 4936,
+          "sha256": "6b7c36fd8681f9884d16eb97683373288bc109c093df0863f69813783444da70"
+        },
+        {
+          "path": "Rec_functions/eml_knem.m",
+          "size_bytes": 4594,
+          "sha256": "a5c3dd4a91b39821b64f4c2ea150247d2f938dec1a4c386606da061b23fd8229"
+        },
+        {
+          "path": "functions/dump.m",
+          "size_bytes": 179,
+          "sha256": "88b4a87692fd2d3510c2e1d3cb897a461eee928ff279faea15e50c0ac397eb5a"
+        },
+        {
+          "path": "functions/touch.m",
+          "size_bytes": 208,
+          "sha256": "2a5686b6b7d77b762322cdf58edea8b2a1b89ba272bea53da42b0094ff150b43"
+        },
+        {
+          "path": "models/Unet2D_simulation.py",
+          "size_bytes": 4765,
+          "sha256": "fc3d241251ec0f0708c45261c0e77ab7b74acf46c176f4f2b260f8c37446fde5"
+        },
+        {
+          "path": "models/__pycache__/Unet2D_auto_v2.cpython-37.pyc",
+          "size_bytes": 4376,
+          "sha256": "e41965710551cda6ecb4510b981ecba200ec72e8432392861298d2f099341fb1"
+        },
+        {
+          "path": "models/__pycache__/Unet2D_simulation.cpython-313.pyc",
+          "size_bytes": 7449,
+          "sha256": "2455e0fbee3d9d7f0fa1614105cec89cba398bf5bec444c1ca10472fc94283f9"
+        },
+        {
+          "path": "models/__pycache__/Unet2D_simulation.cpython-37.pyc",
+          "size_bytes": 4308,
+          "sha256": "7a6138a3c1276d5f95c208bb892ad444883d3d427c8e2c36dac1c245857d1253"
+        },
+        {
+          "path": "models/__pycache__/Unet2D_simulation_v1.cpython-37.pyc",
+          "size_bytes": 4167,
+          "sha256": "b41da4728f5ab4df858f17ce3ce8bbe3d5ab20dca5f68b3fd84c72d666b4c825"
+        },
+        {
+          "path": "models/__pycache__/Unet2D_simulation_v1_auto.cpython-37.pyc",
+          "size_bytes": 4139,
+          "sha256": "af860f1e359418572c3822fe68553135b50116a727aaa9c6fae54e3fe44479b4"
+        },
+        {
+          "path": "models/__pycache__/Unet2D_simulation_v2.cpython-37.pyc",
+          "size_bytes": 4153,
+          "sha256": "e3306ae91fe3c120bb7983a63a816dc273c876961ad38bc5a50d8a0a19bccc12"
+        },
+        {
+          "path": "models/__pycache__/Unet2D_simulation_v3.cpython-37.pyc",
+          "size_bytes": 4159,
+          "sha256": "c86d156c35e3a76a2504f66f771e740d8eabc563d8d0ada48e1502ca61794b37"
+        },
+        {
+          "path": "models/__pycache__/Unet2D_simulation_v4.cpython-37.pyc",
+          "size_bytes": 4325,
+          "sha256": "77014ba334da26c1c0352ff41a4954726de4a1fb23575a061c9656f66e8e0fb4"
+        },
+        {
+          "path": "models/__pycache__/Unet2D_simulation_v5.cpython-37.pyc",
+          "size_bytes": 4289,
+          "sha256": "71570b10ef3f04fc2f358bd7258f2c8007e8b47edf55f8637a1dc0b88bf72889"
+        },
+        {
+          "path": "models/__pycache__/Unet3D_simulation.cpython-37.pyc",
+          "size_bytes": 4175,
+          "sha256": "82cbab9c3445507a57d66d0c3d97a733f8c663a50dba53873278dfe58f9ec4be"
+        },
+        {
+          "path": "models/__pycache__/Unet3D_simulation_v1.cpython-37.pyc",
+          "size_bytes": 4195,
+          "sha256": "4a91b6a36677f1ba73c6619e5e78ea086d06ee9819278239ea43117c92c06e45"
+        },
+        {
+          "path": "models/__pycache__/goon_networks1.cpython-37.pyc",
+          "size_bytes": 2570,
+          "sha256": "f19757bb01450c17585818b6011fe06b642da698a70199c59fe501a6bfd86d1e"
+        },
+        {
+          "path": "models/__pycache__/modified_Unet2D.cpython-37.pyc",
+          "size_bytes": 4193,
+          "sha256": "a0979354e3689724a4f010b1556031e73d3c7aee5a8fd5f47a79070e6be7087d"
+        },
+        {
+          "path": "models/__pycache__/modified_non_local_Unet2D.cpython-37.pyc",
+          "size_bytes": 4453,
+          "sha256": "a477d83d59d25ba4ebf2203123553050fffd5293bc612dad24e37641665ea3f5"
+        },
+        {
+          "path": "models/__pycache__/new_networks.cpython-37.pyc",
+          "size_bytes": 1767,
+          "sha256": "abddd1ae7fdc3a4b234c2fa79d7e196749ca846b534a5d2a50c144659b6d8a60"
+        },
+        {
+          "path": "models/__pycache__/non_local_DIP_f.cpython-37.pyc",
+          "size_bytes": 4465,
+          "sha256": "bac060e95bd41d92e8ab5024c2469c76ad56dbad821e2779432ccb04a93c0314"
+        },
+        {
+          "path": "realizations/y1.mat",
+          "size_bytes": 503276,
+          "sha256": "cde24feb87d4505ea9eb0bcd155189006e78dd655f568699a0ecb7c4de07ed67"
+        },
+        {
+          "path": "utils/__init__.py",
+          "size_bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "path": "utils/common_utils.py",
+          "size_bytes": 7440,
+          "sha256": "8d10a0d9bfd6151dd2f1a541d22a495efd2ef29af926c493df9a93725460a980"
+        },
+        {
+          "path": "utils/denoising_utils.py",
+          "size_bytes": 431,
+          "sha256": "aa1729b598d9041e90b2ce11b91de3a0280d5afeeebddd48b0a9bc4beb173625"
+        },
+        {
+          "path": "utils/feature_inversion_utils.py",
+          "size_bytes": 3107,
+          "sha256": "f442cc9f29a2d7be4516e3615a5b49cacf6e4aaeabe8bedcc4d05ff04327406f"
+        },
+        {
+          "path": "utils/inpainting_utils.py",
+          "size_bytes": 729,
+          "sha256": "8e77818f6e03d3b0223818a58aab9c035eb81144d395ea5739938d8f8f9bea1f"
+        },
+        {
+          "path": "utils/matcher.py",
+          "size_bytes": 1240,
+          "sha256": "ebbf340615de9a50025fc154b2dc7893457406dc82689a026f79200a63d08b92"
+        },
+        {
+          "path": "utils/sr_utils.py",
+          "size_bytes": 3137,
+          "sha256": "2b400791a2d1a718aab2be7e6edca94614667796adf872a99f4065c264bb5973"
+        },
+        {
+          "path": "utils/__pycache__/__init__.cpython-37.pyc",
+          "size_bytes": 136,
+          "sha256": "cc2cd1fd0113d87ed9eaae036fb277e95c7489c50062484dc866ed3453ac97c2"
+        },
+        {
+          "path": "utils/__pycache__/common_utils.cpython-37.pyc",
+          "size_bytes": 7571,
+          "sha256": "74c0b51a98cee036971d77ca96c355abf304cbf0c40b97b36ad4fbc01573e95a"
+        },
+        {
+          "path": "utils/__pycache__/denoising_utils.cpython-37.pyc",
+          "size_bytes": 619,
+          "sha256": "e464a65169aefee0a3f8d75b1c36d8bf0c67e71b914f071a9b33e5bdb0f9927d"
+        },
+        {
+          "path": "utils/perceptual_loss/__init__.py",
+          "size_bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "path": "utils/perceptual_loss/matcher.py",
+          "size_bytes": 2176,
+          "sha256": "bd4d768c8f54df70d73fb84aeebe3a41cdb45372decde089b722a6361750f4ab"
+        },
+        {
+          "path": "utils/perceptual_loss/perceptual_loss.py",
+          "size_bytes": 7117,
+          "sha256": "e2ed57e3378e64140c141bcb67bf9056a4a214427f620ffac29a00ff08f942b7"
+        },
+        {
+          "path": "utils/perceptual_loss/vgg_modified.py",
+          "size_bytes": 3332,
+          "sha256": "3f8b1b7142ce39f47ca5d67d46ce43f47ab993d0e569cd5b19f800229d98fefe"
+        }
+      ],
+      "input_output_tensor_contract": {
+        "input": "dynamic PET sinograms (T frames) + KEM data terms",
+        "output": "4D PET volume (T frames \u00d7 3D)"
+      },
+      "reproduction_command": "cd upstream_official/NeuralKEM && python DIP_OT.py # requires MATLAB R2021a for demo_Neural_KEM.m and the KER_v0.11 package from wanglab.faculty.ucdavis.edu/code. NOT compatible with our env (no MATLAB, no UC license confirmation).",
+      "smoke_command": "python -c \"import sys; sys.path.insert(0, '.'); from models.Unet2D_simulation import UNet; net = UNet(1, 32, 1); import torch, numpy as np; x = torch.from_numpy(np.random.default_rng(0).standard_normal((1, 1, 128, 128)).astype('float32')); y = net(x); print(tuple(y.shape))\"",
+      "smoke_result": "PASS: importable 2D U-Net submodel; forward on 1x1x128x128 random input produces (1, 1, 128, 128) tensor (smoke of the deep coefficient prior subnetwork only; full pipeline requires MATLAB + UC license confirmation).",
+      "smoke_exit_code": 0
+    },
+    {
+      "method_id": "FBPNet_reimplementation",
+      "status": "REIMPLEMENTATION_REVIEW_REQUIRED",
+      "blocking_reason": "Per directive 6159621060 item 6, this reimplementation remains NOT approved for training or main-table use. Current limitations: (a) negative output (random init, no non-negative clipping in forward \u2014 paper clips post-hoc), (b) temporal coupling is a STUB only (not implemented in the forward pass; loss stub exists for documentation), (c) full LayerNorm + GroupNorm multi-normalization not implemented (only BatchNorm3d in encoder), (d) the per-frame MLP filter is a single 3-layer MLP, not the paper's exact adaptive filter. Worker cannot proceed without researcher sign-off per \u00a7C.",
+      "paper": {
+        "title": "FBP-Net for direct reconstruction of dynamic PET images",
+        "authors": [
+          "Bo Wang",
+          "Huafeng Liu"
+        ],
+        "institution": "Zhejiang University",
+        "year": 2020,
+        "venue": "Physics in Medicine & Biology",
+        "doi": "10.1088/1361-6560/abc09d",
+        "domain": "PET (dynamic)",
+        "official_code_release": "NONE (confirmed via GitHub search 2026-10-14)"
+      },
+      "official_repo": {
+        "url": "(none found)",
+        "pinned_commit": null,
+        "acquired_at_utc": "2026-10-14T02:30:00Z",
+        "acquisition_method": "WebSearch via GitHub API (failed); researcher-authorized reimplementation 2026-10-14"
+      },
+      "license": {
+        "spdx": "n/a (reimplementation)",
+        "file": "n/a",
+        "conclusion": "Reimplementation; no upstream license obligation. Paper must still be cited."
+      },
+      "source_dir": "code/fbpnet/",
+      "source_sha256": "335e23f8596ed1b7662f9dd1debdf86347efb5ac02354b01c026e48c3442041f",
+      "source_file_count": 2,
+      "source_total_bytes": 29901,
+      "file_listing": [
+        {
+          "path": "fbpnet_reimplementation.py",
+          "size_bytes": 13900,
+          "sha256": "342f85b4edbd1ff5aa32c2c88e4b0a61b5bee762b30bf12562130941671bc13e"
+        },
+        {
+          "path": "__pycache__/fbpnet_reimplementation.cpython-313.pyc",
+          "size_bytes": 16001,
+          "sha256": "10a2a0bfb134da8ad170a8629a02789d5a94f8dc50533c7c9ce1ff864f7779eb"
+        }
+      ],
+      "reimplementation_audit_table": "| Component | Paper description | Our v3 reimplementation | Source of choice |\n|-----------|-------------------|--------------------------|------------------|\n| Per-frame FBP | Standard inverse Radon + ramp filter | Manual rfft/irfft + ramp filter + per-angle rotate | Paper Eqs. |\n| Per-frame learnable filter | \"Adaptive frequency-domain filter\" | MLP f(\u03c9_norm)\u2192R hidden=32, 3 layers | Paper \u00a72 (width ASSUMPTION) |\n| Dynamic denoiser | \"merges information across all time frames\" | 3D U-Net treating T as depth axis (Conv3d) | ASSUMPTION (paper silent) |\n| Loss (per-frame MSE) | Per-frame MSE | STUB only (no training) | N/A for handoff |\n| Loss (temporal) | Temporal L1 smoothness | STUB only (no training) | N/A for handoff |\n| Normalization | BN + LN + GN (paper) | BN3d only | INCOMPLETE |\n| Output non-negative | Paper clips post-hoc | ReLU on denoiser output (A4) | N/A |\n| Operator | Vendor smat | Our 180-angle, 182-bin ParallelBeam | Per \u00a7D |\n\nExplicit ASSUMPTIONs: A1 channel layout, A2 loss stub, A3 MLP width, A4 ReLU for non-neg, A5 rfft FBP, A6 3D-UNet T-as-depth.",
+      "input_output_tensor_contract": {
+        "input": "(B, T, n_angles, n_det) dynamic sinogram; T >= 1",
+        "output": "(B, T, 1, H, W) dynamic PET stack (non-negative after ReLU)"
+      },
+      "reproduction_command": "cd code/fbpnet && python -c \"import sys; sys.path.insert(0, '.'); import torch; from fbpnet_reimplementation import FBPNetReimplementation; torch.manual_seed(0); net = FBPNetReimplementation(180, 182, 128, n_frames=2); sino = torch.randn(1, 2, 180, 182); print(net(sino).shape)\"",
+      "smoke_command": "see reproduction_command",
+      "smoke_result": "PASS: zero-training forward; output (1, 2, 1, 128, 128). Random init, NOT trained.",
+      "smoke_exit_code": 0
+    },
+    {
+      "method_id": "DirectPET_reimplementation",
+      "status": "REIMPLEMENTATION_REVIEW_REQUIRED",
+      "blocking_reason": "Per directive 6159621060 item 7, this reimplementation is NOT promoted into the main comparison. It is delivered for archive only. The current single-FBP-then-U-Net architecture is a generic surrogate; the paper's exact DirectPET design (deep image prior + forward projection model + cWGAN variant) is NOT faithfully reproduced here. Loss not implemented (zero-training smoke only). Status remains REIMPLEMENTATION_REVIEW_REQUIRED until the researcher independently accepts the architecture and training plan.",
+      "paper": {
+        "title": "Direct PET Image Reconstruction Incorporating Deep Image Prior and a Forward Projection Model",
+        "authors": [
+          "Fumio Hashimoto",
+          "Kibo Ote",
+          "Yuya Onishi"
+        ],
+        "institution": "Toshiba / Kyoto University",
+        "year": 2022,
+        "venue": "IEEE TRPMS",
+        "doi": "10.1109/TRPMS.2022.3161569",
+        "domain": "PET (direct, deep image prior)",
+        "official_code_release": "NONE (confirmed via GitHub search 2026-10-14)"
+      },
+      "official_repo": {
+        "url": "(none found)",
+        "pinned_commit": null,
+        "acquired_at_utc": "2026-10-14T02:30:00Z",
+        "acquisition_method": "WebSearch via GitHub API (failed); researcher-authorized reimplementation"
+      },
+      "license": {
+        "spdx": "n/a (reimplementation)",
+        "file": "n/a",
+        "conclusion": "Reimplementation; no upstream license obligation."
+      },
+      "source_dir": "code/directpet/",
+      "source_sha256": "6797e817952a89c88701731c7167ee2edeceeb2267ae130bed03ce3b57c324a8",
+      "source_file_count": 2,
+      "source_total_bytes": 19055,
+      "file_listing": [
+        {
+          "path": "directpet_reimplementation.py",
+          "size_bytes": 9222,
+          "sha256": "74f408794a6e6d937b03c4bff604fa32220d70fa71e453fc4f7368a1b49126e4"
+        },
+        {
+          "path": "__pycache__/directpet_reimplementation.cpython-313.pyc",
+          "size_bytes": 9833,
+          "sha256": "8c07daae0c3ae2f7c871da1fbab5f3df46d459f52315b66ff496c7a488088f99"
+        }
+      ],
+      "reimplementation_audit_table": "| Component | Paper description | Our reimplementation | Source of choice |\n|-----------|-------------------|------------------------|------------------|\n| Generator | U-Net style with FBP-conditioning | U-Net 32-64-128-256 (paper silent) | Standard U-Net |\n| Conditioning | FBP / sinogram-reshape (paper tests several) | FBP-preconditioned U-Net (ASSUMPTION D1) | Choice |\n| Loss | ||A(x)-y||\u00b2 + TV | NOT INCLUDED | N/A for handoff |\n| Operator A | Vendor-specific | Our 180-angle, 182-bin ParallelBeam.forward | Per \u00a7D |\n| Output | Non-negative | ReLU | Per \u00a7D |\n| Channels | Paper silent | 32-64-128-256 (ASSUMPTION D2) | Choice |\n| cWGAN discriminator | Whiteley 2020 variant | NOT INCLUDED (D2) | Choice |\n| Temporal loss | Dynamic-PET | NOT INCLUDED (D3) | N/A for static PET |\n",
+      "input_output_tensor_contract": {
+        "input": "(B, 180, 182) sinogram",
+        "output": "(B, 1, 128, 128) non-negative PET (after ReLU)"
+      },
+      "reproduction_command": "cd code/directpet && python -c \"import sys; sys.path.insert(0, '.'); import torch; from directpet_reimplementation import DirectPETGenerator; torch.manual_seed(0); net = DirectPETGenerator(180, 182, 128); sino = torch.randn(1, 180, 182); print(net(sino).shape)\"",
+      "smoke_command": "see reproduction_command",
+      "smoke_result": "PASS: zero-training forward; output (1, 1, 128, 128).",
+      "smoke_exit_code": 0
+    },
+    {
+      "method_id": "FastPET_reimplementation",
+      "status": "REIMPLEMENTATION_REVIEW_REQUIRED",
+      "blocking_reason": "Per directive 6159621060 item 7, this reimplementation is NOT promoted into the main comparison. Delivered for archive only. Current single-resize histo-image is a generic surrogate; the paper's exact histo-projection is not faithfully reproduced. Loss not implemented. Status remains REIMPLEMENTATION_REVIEW_REQUIRED until independent architecture acceptance.",
+      "paper": {
+        "title": "FastPET: Near Real-Time PET Reconstruction from Histo-Images Using a Neural Network",
+        "authors": [
+          "Whiteley, W.",
+          "Pan, J."
+        ],
+        "institution": "University of Pennsylvania",
+        "year": 2020,
+        "venue": "arXiv preprint (later IEEE TRPMS)",
+        "arxiv": "2002.04665",
+        "domain": "PET (histo-image based)",
+        "official_code_release": "NONE (confirmed via GitHub search 2026-10-14)"
+      },
+      "official_repo": {
+        "url": "(none found)",
+        "pinned_commit": null,
+        "acquired_at_utc": "2026-10-14T02:30:00Z",
+        "acquisition_method": "WebSearch via GitHub API (failed); researcher-authorized reimplementation"
+      },
+      "license": {
+        "spdx": "n/a (reimplementation)",
+        "file": "n/a",
+        "conclusion": "Reimplementation; no upstream license obligation."
+      },
+      "source_dir": "code/fastpet/",
+      "source_sha256": "c75c27e837ec1cf0e7c53bda2a6db4ad2bc4067695fb12b40c63b761e02b7cb3",
+      "source_file_count": 2,
+      "source_total_bytes": 14032,
+      "file_listing": [
+        {
+          "path": "fastpet_reimplementation.py",
+          "size_bytes": 6802,
+          "sha256": "016aa06918014d2b670515a1634dedf27f6d1bff512cc18258d9cf36a4ac3957"
+        },
+        {
+          "path": "__pycache__/fastpet_reimplementation.cpython-313.pyc",
+          "size_bytes": 7230,
+          "sha256": "ddb5f8217dcdb63530de8781f8c2c386c71f7072107ca3038de32a65aee55bb5"
+        }
+      ],
+      "reimplementation_audit_table": "| Component | Paper description | Our reimplementation | Source of choice |\n|-----------|-------------------|------------------------|------------------|\n| Histo-image | Vendor / paper-specific projection | Reshape sinogram to (n_angles, n_det) and resize | ASSUMPTION F1 |\n| CNN backbone | Encoder-decoder | 4-level U-Net, base_ch=32, channels 32-64-128-256 | Standard U-Net |\n| Loss | MSE on sinogram-domain ||A(x)-y||\u00b2 | NOT INCLUDED | N/A for handoff |\n| Output | Non-negative | ReLU | Per \u00a7D |\n| Channels | Paper silent | 32-64-128-256 (ASSUMPTION F2) | Choice |\n",
+      "input_output_tensor_contract": {
+        "input": "(B, 180, 182) sinogram",
+        "output": "(B, 1, 128, 128) non-negative PET (after ReLU)"
+      },
+      "reproduction_command": "cd code/fastpet && python -c \"import sys; sys.path.insert(0, '.'); import torch; from fastpet_reimplementation import FastPETReimplementation; torch.manual_seed(0); net = FastPETReimplementation(180, 182, 128); sino = torch.randn(1, 180, 182); print(net(sino).shape)\"",
+      "smoke_command": "see reproduction_command",
+      "smoke_result": "PASS: zero-training forward; output (1, 1, 128, 128).",
+      "smoke_exit_code": 0
+    }
+  ],
+  "fairness_constraints_recorded": {
+    "no_paper_numbers_copied": true,
+    "no_generic_cnn_substitution": true,
+    "no_blocked_methods_implicitly_replaced": true,
+    "no_locked_test_accessed": true,
+    "no_historical_namespace_modified": true,
+    "no_training_or_large_test_started": true,
+    "all_reimplementations_marked_with_***_reimplementation_***_tag": true,
+    "all_reimplementations_have_audit_table_with_assumptions_listed": true
+  },
+  "common_adaptation_requirements": {
+    "input_adapter": "Consume 128x128 image, 180-angle, 182-bin sinogram or FBP.",
+    "output_adapter": "Produce 128x128 non-negative PET reconstruction.",
+    "operator_location": "D:/MIAProject/SAM_KEM_QWEN3_V3_REPO/results/dev_trainmax_v1/system_matrix_A_n180_sha256.txt"
+  }
+}
